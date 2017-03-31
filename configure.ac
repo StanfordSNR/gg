@@ -50,6 +50,7 @@ AC_TYPE_UINT16_T
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
+                 src/frontend/Makefile
                  src/tests/Makefile])
 
 AC_OUTPUT
