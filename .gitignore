@@ -1,5 +1,6 @@
 *.a
 *.o
+.deps
 Makefile
 Makefile.in
 *.log
@@ -26,3 +27,5 @@ Makefile.in
 /alfalfa-*.tar.gz
 /stamp-h1
 /test-driver
+
+/src/frontend/gg-trace

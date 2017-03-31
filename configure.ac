@@ -12,7 +12,7 @@ AC_PROG_CXX
 AC_PROG_RANLIB
 
 # Add picky CXXFLAGS
-CXX11_FLAGS="-std=c++14 -pthread"
+CXX14_FLAGS="-std=c++14 -pthread"
 PICKY_CXXFLAGS="-pedantic -Wall -Wextra -Weffc++ -Werror"
 AC_SUBST([CXX11_FLAGS])
 AC_SUBST([PICKY_CXXFLAGS])
@@ -50,6 +50,7 @@ AC_TYPE_UINT16_T
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
+                 src/util/Makefile
                  src/frontend/Makefile
                  src/tests/Makefile])
 
