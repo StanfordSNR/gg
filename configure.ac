@@ -49,6 +49,7 @@ AC_TYPE_UINT16_T
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 src/tests/Makefile])
 
 AC_OUTPUT
