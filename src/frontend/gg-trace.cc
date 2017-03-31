@@ -33,7 +33,9 @@ int main( int argc, char * argv[] )
       return SystemCall( "execvp", execvp( argv[ 1 ], &argv[ 1 ] ) );
     }
     else {
-      SystemCall( "waitpid", waitpid( child_pid, NULL, 0 ) );
+      int child_ret;
+      waitpid( child_pid, &child_ret, 0 );
+      cerr << "Child exited with: " << child_ret << endl;
     }
   }
   catch ( const exception &  e ) {
