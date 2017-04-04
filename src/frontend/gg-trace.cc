@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "exception.hh"
+#include "syscall.hh"
 
 using namespace std;
 
@@ -66,9 +67,12 @@ int main( int argc, char * argv[] )
           break;
         }
 
-        int syscall_no = ptrace( PTRACE_PEEKUSER, child_pid, 8 * ORIG_RAX );
+        int syscall_no = CheckSystemCall( "ptrace(PEEKUSER)", ptrace( PTRACE_PEEKUSER,
+                                                                      child_pid, 8 * ORIG_RAX ) );
 
-        cout << "syscall( " << syscall_no << " ) = ";
+        SystemCallEntry syscall = SystemCall::get_syscall( syscall_no );
+
+        cout << syscall.sys_name << "() = ";
 
         if ( wait_for_syscall( child_pid ) != 0 ) {
           break;
