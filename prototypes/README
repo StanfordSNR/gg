@@ -1,0 +1,3 @@
+Author: daniter
+
+This folder contains several programs that demo the capabilities of ptrace. They are mostly a combination of various online tutorials. The most interesting is replace.cpp which captures getpid() syscalls and replaces them with getppid().
