@@ -23,7 +23,7 @@ int wait_for_syscall( pid_t child_pid )
   int status;
 
   while ( true ) {
-    SystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, child_pid, 0, 0 ) );
+    CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, child_pid, 0, 0 ) );
     waitpid( child_pid, &status, 0 );
 
     if ( WIFSTOPPED( status ) && WSTOPSIG( status ) & 0x80 ) {
@@ -48,18 +48,18 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    pid_t child_pid = SystemCall( "fork", fork() );
+    pid_t child_pid = CheckSystemCall( "fork", fork() );
 
     if ( child_pid == 0 ) {
-      SystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
+      CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
       kill( getpid(), SIGSTOP );
-      return SystemCall( "execvp", execvp( argv[ 1 ], &argv[ 1 ] ) );
+      return CheckSystemCall( "execvp", execvp( argv[ 1 ], &argv[ 1 ] ) );
     }
     else {
       int child_ret;
 
-      SystemCall( "waitpid", waitpid( child_pid, &child_ret, 0 ) );
-      SystemCall( "ptrace(SETOPTIONS)", ptrace( PTRACE_SETOPTIONS, child_pid, 0, PTRACE_O_TRACESYSGOOD ) );
+      CheckSystemCall( "waitpid", waitpid( child_pid, &child_ret, 0 ) );
+      CheckSystemCall( "ptrace(SETOPTIONS)", ptrace( PTRACE_SETOPTIONS, child_pid, 0, PTRACE_O_TRACESYSGOOD ) );
 
       while ( true ) {
         if ( wait_for_syscall( child_pid ) != 0 ) {
