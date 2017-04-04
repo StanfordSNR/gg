@@ -1,0 +1,2359 @@
+# Make in zh_CN.
+# Copyright (C) 2002 Free Software Foundation, Inc.
+# This file is distributed under the same license as the make package.
+# Wang Li <charles@linux.net.cn>, 2002.
+# LI Daobing <lidaobing@gmail.com>, 2008, 2013.
+# Mingye Wang <arthur200126@gmail.com>, 2015, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: make 4.1.90\n"
+"Report-Msgid-Bugs-To: bug-make@gnu.org\n"
+"POT-Creation-Date: 2016-05-22 09:27-0400\n"
+"PO-Revision-Date: 2016-04-25 13:32-0400\n"
+"Last-Translator: Mingye Wang (Arthur2e5) <arthur200126@gmail.com>\n"
+"Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ar.c:46
+#, c-format
+msgid "attempt to use unsupported feature: '%s'"
+msgstr "试图使用不支持的功能：“%s”"
+
+#: ar.c:123
+msgid "touch archive member is not available on VMS"
+msgstr "VMS 系统上不支持 touch 归档成员"
+
+#: ar.c:147
+#, c-format
+msgid "touch: Archive '%s' does not exist"
+msgstr "touch：归档文件“%s”不存在"
+
+#: ar.c:150
+#, c-format
+msgid "touch: '%s' is not a valid archive"
+msgstr "touch：“%s”不是合法的归档文件"
+
+#: ar.c:157
+#, c-format
+msgid "touch: Member '%s' does not exist in '%s'"
+msgstr "touch：在“%2$s”中不存在成员“%1$s”"
+
+#: ar.c:164
+#, c-format
+msgid "touch: Bad return code from ar_member_touch on '%s'"
+msgstr "touch：“%s”上的 ar_member_touch 的返回码不当"
+
+#: arscan.c:130
+#, c-format
+msgid "lbr$set_module() failed to extract module info, status = %d"
+msgstr "lbr$set_modules() 获取模块信息失败，返回状态 = %d"
+
+#: arscan.c:236
+#, c-format
+msgid "lbr$ini_control() failed with status = %d"
+msgstr "lbr$ini_control() 失败，返回状态 = %d"
+
+#: arscan.c:261
+#, c-format
+msgid "unable to open library '%s' to lookup member status %d"
+msgstr "无法打开库“%s”以寻找成员，状态 %d"
+
+#: arscan.c:965
+#, c-format
+msgid "Member '%s'%s: %ld bytes at %ld (%ld).\n"
+msgstr "成员“%s”%s: %ld 字节于 %ld (%ld)。\n"
+
+#: arscan.c:966
+msgid " (name might be truncated)"
+msgstr " (名称可能被截断)"
+
+#: arscan.c:968
+#, c-format
+msgid "  Date %s"
+msgstr "  日期 %s"
+
+#: arscan.c:969
+#, c-format
+msgid "  uid = %d, gid = %d, mode = 0%o.\n"
+msgstr "  uid = %d，gid = %d，mode = 0%o。\n"
+
+#: commands.c:402
+#, c-format
+msgid "Recipe has too many lines (%ud)"
+msgstr "命令配方行数太多 (%ud)"
+
+#: commands.c:503
+msgid "*** Break.\n"
+msgstr "*** 中断。\n"
+
+#: commands.c:627
+#, c-format
+msgid "*** [%s] Archive member '%s' may be bogus; not deleted"
+msgstr "*** [%s] 归档成员“%s”可能是假的；未删除"
+
+# 是化学的成分，是特技！
+#: commands.c:631
+#, c-format
+msgid "*** Archive member '%s' may be bogus; not deleted"
+msgstr "*** 归档成员“%s”可能是假的；未删除"
+
+#: commands.c:645
+#, c-format
+msgid "*** [%s] Deleting file '%s'"
+msgstr "*** [%s] 正在删除文件“%s”"
+
+#: commands.c:647
+#, c-format
+msgid "*** Deleting file '%s'"
+msgstr "*** 正在删除文件“%s”"
+
+#: commands.c:683
+msgid "#  recipe to execute"
+msgstr "#  要执行的配方"
+
+#: commands.c:686
+msgid " (built-in):"
+msgstr " (内置)："
+
+#: commands.c:688
+#, c-format
+msgid " (from '%s', line %lu):\n"
+msgstr " (从“%s”，行 %lu)：\n"
+
+#: dir.c:1069
+msgid ""
+"\n"
+"# Directories\n"
+msgstr ""
+"\n"
+"# 目录\n"
+
+#: dir.c:1081
+#, c-format
+msgid "# %s: could not be stat'd.\n"
+msgstr "# %s：无法对其进行 stat 操作。\n"
+
+#: dir.c:1085
+#, fuzzy, c-format
+msgid "# %s (key %s, mtime %ull): could not be opened.\n"
+msgstr "# %s (关键字 %s，修改时间 %d)：无法打开。\n"
+
+#: dir.c:1090
+#, c-format
+msgid "# %s (device %d, inode [%d,%d,%d]): could not be opened.\n"
+msgstr "# %s (设备 %d，i-节点 [%d,%d,%d])：无法打开。\n"
+
+#: dir.c:1095
+#, c-format
+msgid "# %s (device %ld, inode %ld): could not be opened.\n"
+msgstr "# %s (设备 %ld，i-节点 %ld)：无法打开。\n"
+
+#: dir.c:1122
+#, fuzzy, c-format
+msgid "# %s (key %s, mtime %ull): "
+msgstr "# %s (关键字 %s，修改时间 %d)："
+
+#: dir.c:1127
+#, c-format
+msgid "# %s (device %d, inode [%d,%d,%d]): "
+msgstr "# %s (设备 %d，i-节点 [%d,%d,%d])："
+
+#: dir.c:1132
+#, c-format
+msgid "# %s (device %ld, inode %ld): "
+msgstr "# %s (设备 %ld，i-节点 %ld)："
+
+#: dir.c:1138 dir.c:1159
+msgid "No"
+msgstr "无"
+
+#: dir.c:1141 dir.c:1162
+msgid " files, "
+msgstr " 文件， "
+
+#: dir.c:1143 dir.c:1164
+msgid "no"
+msgstr "无"
+
+#: dir.c:1146
+msgid " impossibilities"
+msgstr " 不可能"
+
+#: dir.c:1150
+msgid " so far."
+msgstr " 迄今为止。"
+
+#: dir.c:1167
+#, c-format
+msgid " impossibilities in %lu directories.\n"
+msgstr " 不可能在 %lu 目录中。\n"
+
+#: expand.c:125
+#, c-format
+msgid "Recursive variable '%s' references itself (eventually)"
+msgstr "递归变量“%s”（最终将会）引用自身"
+
+#: expand.c:271
+msgid "unterminated variable reference"
+msgstr "未终止的变量引用"
+
+#: file.c:278
+#, c-format
+msgid "Recipe was specified for file '%s' at %s:%lu,"
+msgstr "关于文件“%s”的命令配方在 %s:%lu 处指定，"
+
+#: file.c:283
+#, c-format
+msgid "Recipe for file '%s' was found by implicit rule search,"
+msgstr "关于文件“%s”的命令配方通过隐含规则搜索而找到，"
+
+#: file.c:287
+#, c-format
+msgid "but '%s' is now considered the same file as '%s'."
+msgstr "但“%s”现在被看做“%s”的同一个文件。"
+
+#: file.c:290
+#, c-format
+msgid "Recipe for '%s' will be ignored in favor of the one for '%s'."
+msgstr "“%s”的命令配方被忽略，转而使用“%s”的"
+
+#: file.c:310
+#, c-format
+msgid "can't rename single-colon '%s' to double-colon '%s'"
+msgstr "无法将单冒号“%s”重命名为双冒号“%s”"
+
+#: file.c:316
+#, c-format
+msgid "can't rename double-colon '%s' to single-colon '%s'"
+msgstr "无法将双冒号“%s”重命名为单冒号“%s”"
+
+#: file.c:408
+#, c-format
+msgid "*** Deleting intermediate file '%s'"
+msgstr "*** 正在删除中间文件“%s”"
+
+#: file.c:412
+msgid "Removing intermediate files...\n"
+msgstr "正在删除中间文件...\n"
+
+#: file.c:818
+msgid "Current time"
+msgstr "当前时间"
+
+#: file.c:822
+#, c-format
+msgid "%s: Timestamp out of range; substituting %s"
+msgstr "%s：时间标记超出范围；正在替换 %s"
+
+#: file.c:962
+msgid "# Not a target:"
+msgstr "# 不是一个目标："
+
+#: file.c:967
+msgid "#  Precious file (prerequisite of .PRECIOUS)."
+msgstr "#  重要文件 (.PRECIOUS的前提)。"
+
+#: file.c:969
+msgid "#  Phony target (prerequisite of .PHONY)."
+msgstr "#  假目标 (.PHONY的前提)。"
+
+#: file.c:971
+msgid "#  Command line target."
+msgstr "#  命令行目标。"
+
+#: file.c:973
+msgid "#  A default, MAKEFILES, or -include/sinclude makefile."
+msgstr "#  缺省的、MAKEFILES 指定的、-include/sinclude 包含的 makefile。"
+
+#: file.c:975
+msgid "#  Builtin rule"
+msgstr "#  内建规则"
+
+#: file.c:977
+msgid "#  Implicit rule search has been done."
+msgstr "#  对隐含规则的搜索已完成。"
+
+#: file.c:978
+msgid "#  Implicit rule search has not been done."
+msgstr "#  对隐含规则的搜索尚未完成。"
+
+#: file.c:980
+#, c-format
+msgid "#  Implicit/static pattern stem: '%s'\n"
+msgstr "#  隐含/静态模式主干：“%s”\n"
+
+#: file.c:982
+msgid "#  File is an intermediate prerequisite."
+msgstr "#  文件是一个中间前提。"
+
+#: file.c:986
+msgid "#  Also makes:"
+msgstr "#  还要制作："
+
+#: file.c:992
+msgid "#  Modification time never checked."
+msgstr "#  从不检查修改时间。"
+
+#: file.c:994
+msgid "#  File does not exist."
+msgstr "#  文件不存在。"
+
+#: file.c:996
+msgid "#  File is very old."
+msgstr "#  文件非常陈旧。"
+
+#: file.c:1001
+#, c-format
+msgid "#  Last modified %s\n"
+msgstr "#  最近更新 %s\n"
+
+#: file.c:1004
+msgid "#  File has been updated."
+msgstr "#  文件已经被更新。"
+
+#: file.c:1004
+msgid "#  File has not been updated."
+msgstr "#  文件尚未被更新。"
+
+#: file.c:1008
+msgid "#  Recipe currently running (THIS IS A BUG)."
+msgstr "#  正在运行的配方 (这是 BUG)。"
+
+#: file.c:1011
+msgid "#  Dependencies recipe running (THIS IS A BUG)."
+msgstr "#  正在运行的依赖性配方 (这是 BUG)。"
+
+#: file.c:1020
+msgid "#  Successfully updated."
+msgstr "#  更新成功。"
+
+#: file.c:1024
+msgid "#  Needs to be updated (-q is set)."
+msgstr "#  需要更新 (用 -q 设定)。"
+
+#: file.c:1027
+msgid "#  Failed to be updated."
+msgstr "#  更新失败。"
+
+#: file.c:1032
+msgid "#  Invalid value in 'command_state' member!"
+msgstr "#  “command_state”成员中存在无效的值！"
+
+#: file.c:1051
+msgid ""
+"\n"
+"# Files"
+msgstr ""
+"\n"
+"# 文件"
+
+#: file.c:1055
+msgid ""
+"\n"
+"# files hash-table stats:\n"
+"# "
+msgstr ""
+"\n"
+"# 文件杂凑表状态:\n"
+"# "
+
+#: file.c:1065
+#, c-format
+msgid "%s: Field '%s' not cached: %s"
+msgstr "%s：字段“%s”未被缓存：%s"
+
+#: function.c:790
+msgid "non-numeric first argument to 'word' function"
+msgstr "“word”函数的第一个参数不是数字"
+
+#: function.c:795
+msgid "first argument to 'word' function must be greater than 0"
+msgstr "“word”函数的第一个参数必须大于 0"
+
+#: function.c:815
+msgid "non-numeric first argument to 'wordlist' function"
+msgstr "“wordlist”函数的第一个参数不是数字"
+
+#: function.c:817
+msgid "non-numeric second argument to 'wordlist' function"
+msgstr "“wordlist”函数的第二个参数不是数字"
+
+# 程序员的函数名提示，还是不要动吧。
+#: function.c:1525
+#, c-format
+msgid "windows32_openpipe: DuplicateHandle(In) failed (e=%ld)\n"
+msgstr "windows32_openpipe: DuplicateHandle(In) 失败 (e=%ld)\n"
+
+#: function.c:1549
+#, c-format
+msgid "windows32_openpipe: DuplicateHandle(Err) failed (e=%ld)\n"
+msgstr "windows32_openpipe: DuplicateHandle(Err) 失败 (e=%ld)\n"
+
+#: function.c:1556
+#, c-format
+msgid "CreatePipe() failed (e=%ld)\n"
+msgstr "CreatePipe() 失败 (e=%ld)\n"
+
+#: function.c:1564
+msgid "windows32_openpipe(): process_init_fd() failed\n"
+msgstr "windows32_openpipe(): process_init_fd() 失败\n"
+
+#: function.c:1858
+#, c-format
+msgid "Cleaning up temporary batch file %s\n"
+msgstr "正在清除临时批处理文件 %s\n"
+
+#: function.c:2215 function.c:2240
+msgid "file: missing filename"
+msgstr "file：缺少文件名"
+
+#: function.c:2219 function.c:2250
+#, c-format
+msgid "open: %s: %s"
+msgstr "open: %s: %s"
+
+#: function.c:2227
+#, c-format
+msgid "write: %s: %s"
+msgstr "write: %s: %s"
+
+#: function.c:2230 function.c:2267
+#, c-format
+msgid "close: %s: %s"
+msgstr "close：%s：%s"
+
+#: function.c:2243
+msgid "file: too many arguments"
+msgstr "file：太多参数"
+
+#: function.c:2262
+#, c-format
+msgid "read: %s: %s"
+msgstr "read：%s：%s"
+
+#: function.c:2275
+#, c-format
+msgid "file: invalid file operation: %s"
+msgstr "file：无效文件（file）操作：%s"
+
+#: function.c:2390
+#, c-format
+msgid "insufficient number of arguments (%d) to function '%s'"
+msgstr "函数“%2$s”的参数数量 (%1$d) 不够"
+
+#: function.c:2402
+#, c-format
+msgid "unimplemented on this platform: function '%s'"
+msgstr "在本平台上未实现：函数“%s”"
+
+#: function.c:2466
+#, c-format
+msgid "unterminated call to function '%s': missing '%c'"
+msgstr "对函数“%s”的未终止的调用：遗漏“%c”"
+
+#: function.c:2650
+msgid "Empty function name"
+msgstr "空函数名"
+
+#: function.c:2652
+#, c-format
+msgid "Invalid function name: %s"
+msgstr "无效的函数名称：%s"
+
+#: function.c:2654
+#, c-format
+msgid "Function name too long: %s"
+msgstr "函数名称太长：%s"
+
+#: function.c:2657
+#, fuzzy, c-format
+msgid "Invalid minimum argument count (%u) for function %s"
+msgstr "函数“%2$s”的最少参数数量 (%1$d) 无效"
+
+#: function.c:2660
+#, fuzzy, c-format
+msgid "Invalid maximum argument count (%u) for function %s"
+msgstr "函数“%2$s”的最多参数数量 (%1$d) 无效"
+
+#: getopt.c:659
+#, c-format
+msgid "%s: option '%s' is ambiguous\n"
+msgstr "%s：选项“%s”含义不清\n"
+
+#: getopt.c:683
+#, c-format
+msgid "%s: option '--%s' doesn't allow an argument\n"
+msgstr "%s：选项“--%s”不允许参数\n"
+
+#: getopt.c:688
+#, c-format
+msgid "%s: option '%c%s' doesn't allow an argument\n"
+msgstr "%s：选项“%c%s”不允许参数\n"
+
+#: getopt.c:705 getopt.c:878
+#, c-format
+msgid "%s: option '%s' requires an argument\n"
+msgstr "%s：选项“%s”需要一个参数\n"
+
+#: getopt.c:734
+#, c-format
+msgid "%s: unrecognized option '--%s'\n"
+msgstr "%s：无法识别的选项“--%s”\n"
+
+#: getopt.c:738
+#, c-format
+msgid "%s: unrecognized option '%c%s'\n"
+msgstr "%s：无法识别的选项“%c%s”\n"
+
+#: getopt.c:764
+#, c-format
+msgid "%s: illegal option -- %c\n"
+msgstr "%s：非法选项 -- %c\n"
+
+#: getopt.c:767
+#, c-format
+msgid "%s: invalid option -- %c\n"
+msgstr "%s：非法选项 -- %c\n"
+
+#: getopt.c:797 getopt.c:927
+#, c-format
+msgid "%s: option requires an argument -- %c\n"
+msgstr "%s：选项需要一个参数 -- %c\n"
+
+#: getopt.c:844
+#, c-format
+msgid "%s: option '-W %s' is ambiguous\n"
+msgstr "%s：选项“-W %s”含义不清\n"
+
+#: getopt.c:862
+#, c-format
+msgid "%s: option '-W %s' doesn't allow an argument\n"
+msgstr "%s：选项“-W %s”不允许给出参数\n"
+
+#: guile.c:58
+#, c-format
+msgid "guile: Expanding '%s'\n"
+msgstr "guile: 正拓展 '%s'\n"
+
+#: guile.c:74
+#, c-format
+msgid "guile: Evaluating '%s'\n"
+msgstr "guile: 正求值 '%s'\n"
+
+#: hash.c:49
+#, c-format
+msgid "can't allocate %lu bytes for hash table: memory exhausted"
+msgstr "无法为杂凑表分配 %lu 字节: 内存耗尽"
+
+#: hash.c:280
+#, c-format
+msgid "Load=%ld/%ld=%.0f%%, "
+msgstr "负载=%ld/%ld=%.0f%%, "
+
+#: hash.c:282
+#, c-format
+msgid "Rehash=%d, "
+msgstr "重新杂凑=%d, "
+
+#: hash.c:283
+#, c-format
+msgid "Collisions=%ld/%ld=%.0f%%"
+msgstr "碰撞=%ld/%ld=%.0f%%"
+
+#: implicit.c:38
+#, c-format
+msgid "Looking for an implicit rule for '%s'.\n"
+msgstr "正在为“%s”寻找隐含规则。\n"
+
+#: implicit.c:54
+#, c-format
+msgid "Looking for archive-member implicit rule for '%s'.\n"
+msgstr "正在为“%s”寻找归档成员隐含规则。\n"
+
+#: implicit.c:311
+msgid "Avoiding implicit rule recursion.\n"
+msgstr "避免隐含规则递归。\n"
+
+#: implicit.c:486
+#, c-format
+msgid "Stem too long: '%.*s'.\n"
+msgstr "主干太长：'%.*s'.\n"
+
+#: implicit.c:491
+#, c-format
+msgid "Trying pattern rule with stem '%.*s'.\n"
+msgstr "用主干“%.*s”尝试匹配模式规则。\n"
+
+#: implicit.c:697
+#, c-format
+msgid "Rejecting impossible rule prerequisite '%s'.\n"
+msgstr "拒绝不可能的规则前提“%s”。\n"
+
+#: implicit.c:698
+#, c-format
+msgid "Rejecting impossible implicit prerequisite '%s'.\n"
+msgstr "拒绝不可能的隐含前提“%s”。\n"
+
+#: implicit.c:711
+#, c-format
+msgid "Trying rule prerequisite '%s'.\n"
+msgstr "尝试规则前提“%s”。\n"
+
+#: implicit.c:712
+#, c-format
+msgid "Trying implicit prerequisite '%s'.\n"
+msgstr "尝试隐含前提“%s”。\n"
+
+#: implicit.c:751
+#, c-format
+msgid "Found prerequisite '%s' as VPATH '%s'\n"
+msgstr "前提“%s”在 VPATH“%s”中发现\n"
+
+#: implicit.c:765
+#, c-format
+msgid "Looking for a rule with intermediate file '%s'.\n"
+msgstr "正在寻找包含中间文件“%s”的规则。\n"
+
+#: job.c:363
+msgid "Cannot create a temporary file\n"
+msgstr "无法创建临时文件\n"
+
+#: job.c:485
+msgid " (core dumped)"
+msgstr " (core dumped)"
+
+#: job.c:490
+msgid " (ignored)"
+msgstr " (已忽略）"
+
+#: job.c:494 job.c:1828
+msgid "<builtin>"
+msgstr "<内置>"
+
+#: job.c:510
+#, c-format
+msgid "%s[%s: %s] Error %d%s"
+msgstr "%s[%s：%s] 错误 %d%s"
+
+#: job.c:599
+msgid "*** Waiting for unfinished jobs...."
+msgstr "*** 正在等待未完成的任务...."
+
+#: job.c:629
+#, c-format
+msgid "Live child %p (%s) PID %s %s\n"
+msgstr "活跃子进程 %p (%s) PID %s %s\n"
+
+#: job.c:631 job.c:833 job.c:952 job.c:1583
+msgid " (remote)"
+msgstr " (远程)"
+
+#: job.c:831
+#, c-format
+msgid "Reaping losing child %p PID %s %s\n"
+msgstr "正在中止失败的子进程 %p PID %s %s\n"
+
+#: job.c:832
+#, c-format
+msgid "Reaping winning child %p PID %s %s\n"
+msgstr "正在中止获胜的子进程 %p PID %s %s\n"
+
+#: job.c:839
+#, c-format
+msgid "Cleaning up temp batch file %s\n"
+msgstr "正在清除临时批文件 %s\n"
+
+#: job.c:845
+#, c-format
+msgid "Cleaning up temp batch file %s failed (%d)\n"
+msgstr "清理临时批处理文件 %s 失败 (%d)\n"
+
+#: job.c:951
+#, c-format
+msgid "Removing child %p PID %s%s from chain.\n"
+msgstr "从链中删除子进程 %p PID %s%s。\n"
+
+#: job.c:1006
+#, c-format
+msgid "Released token for child %p (%s).\n"
+msgstr "为子进程 %p (%s) 释放令牌 (token)。\n"
+
+#: job.c:1508 job.c:2201
+#, c-format
+msgid "process_easy() failed to launch process (e=%ld)\n"
+msgstr "process_easy() 启动进程失败 (e=%ld)\n"
+
+#: job.c:1512 job.c:2205
+#, c-format
+msgid ""
+"\n"
+"Counted %d args in failed launch\n"
+msgstr ""
+"\n"
+"失败执行中共有 %d 个参数。\n"
+
+#: job.c:1581
+#, c-format
+msgid "Putting child %p (%s) PID %s%s on the chain.\n"
+msgstr "将子进程 %p (%s) PID %s%s 放入链。\n"
+
+#: job.c:1811
+#, c-format
+msgid "Obtained token for child %p (%s).\n"
+msgstr "获得至进程 %p (%s) 的标记。\n"
+
+#: job.c:1838
+#, c-format
+msgid "%s: target '%s' does not exist"
+msgstr "%s: 目标文件“%s”不存在"
+
+#: job.c:1841
+#, c-format
+msgid "%s: update target '%s' due to: %s"
+msgstr "%s：更新“%s”，因为：%s"
+
+#: job.c:1956
+msgid "cannot enforce load limits on this operating system"
+msgstr "无法在本操作系统中实施负载限制"
+
+#: job.c:1958
+msgid "cannot enforce load limit: "
+msgstr "无法实施负载限制："
+
+#: job.c:2048
+msgid "no more file handles: could not duplicate stdin\n"
+msgstr "没有剩余的文件句柄: 无法复制标准输入\n"
+
+#: job.c:2060
+msgid "no more file handles: could not duplicate stdout\n"
+msgstr "没有剩余的文件句柄: 无法复制标准输出\n"
+
+#: job.c:2074
+msgid "no more file handles: could not duplicate stderr\n"
+msgstr "没有剩余的文件句柄: 无法复制标准错误\n"
+
+#: job.c:2089
+msgid "Could not restore stdin\n"
+msgstr "无法还原标准输入\n"
+
+#: job.c:2097
+msgid "Could not restore stdout\n"
+msgstr "无法还原标准输出\n"
+
+#: job.c:2105
+msgid "Could not restore stderr\n"
+msgstr "无法还原标准错误\n"
+
+#: job.c:2234
+#, c-format
+msgid "make reaped child pid %s, still waiting for pid %s\n"
+msgstr "make 已中止的子进程 pid %s，仍在等待 pid %s\n"
+
+#: job.c:2275
+#, c-format
+msgid "%s: %s: Command not found\n"
+msgstr "%s：%s：命令未找到\n"
+
+#: job.c:2277
+#, c-format
+msgid "%s[%u]: %s: Command not found\n"
+msgstr "%s[%u]：%s：命令未找到\n"
+
+#: job.c:2337
+#, c-format
+msgid "%s: Shell program not found"
+msgstr "%s：未找到 shell 程序"
+
+#: job.c:2346
+msgid "spawnvpe: environment space might be exhausted"
+msgstr "spawnvpe: 环境变量空间可能会耗尽"
+
+#: job.c:2584
+#, c-format
+msgid "$SHELL changed (was '%s', now '%s')\n"
+msgstr "$SHELL 已改变 (原为“%s”，现为“%s”)\n"
+
+#: job.c:3022 job.c:3207
+#, c-format
+msgid "Creating temporary batch file %s\n"
+msgstr "正在创建临时批文件 %s\n"
+
+#: job.c:3030
+msgid ""
+"Batch file contents:\n"
+"\t@echo off\n"
+msgstr ""
+"批处理文件内容：\n"
+"\t@echo off\n"
+
+#: job.c:3219
+#, c-format
+msgid ""
+"Batch file contents:%s\n"
+"\t%s\n"
+msgstr ""
+"批处理文件内容：%s\n"
+"\t%s\n"
+
+#: job.c:3327
+#, c-format
+msgid "%s (line %d) Bad shell context (!unixy && !batch_mode_shell)\n"
+msgstr "%s (行 %d) 错误的 shell 上下文 (!unixy && !batch_mode_shell)\n"
+
+#: job.h:43
+msgid "-O[TYPE] (--output-sync[=TYPE]) is not configured for this build."
+msgstr "-O[类型] (--output-sync[=类型]) 并未配置入此 make 构建。"
+
+#: load.c:60
+#, c-format
+msgid "Failed to open global symbol table: %s"
+msgstr "打开全局符号表失败：%s"
+
+#: load.c:97
+#, c-format
+msgid "Loaded object %s is not declared to be GPL compatible"
+msgstr "已加载的对象 %s 未声明为 GPL 兼容"
+
+#: load.c:104
+#, c-format
+msgid "Failed to load symbol %s from %s: %s"
+msgstr "从 %2$s 加载符号 %1$s 失败：%3$s"
+
+#: load.c:149
+#, c-format
+msgid "Empty symbol name for load: %s"
+msgstr "要加载的符号名为空：%s"
+
+#: load.c:204
+#, c-format
+msgid "Loading symbol %s from %s\n"
+msgstr "正从 %2$s 加载符号 %1$s\n"
+
+#: load.c:256
+msgid "The 'load' operation is not supported on this platform."
+msgstr "本平台不支持“load”操作。"
+
+#: main.c:338
+msgid "Options:\n"
+msgstr "选项：\n"
+
+#: main.c:339
+msgid "  -b, -m                      Ignored for compatibility.\n"
+msgstr "  -b, -m                      为兼容性而忽略。\n"
+
+#: main.c:341
+msgid "  -B, --always-make           Unconditionally make all targets.\n"
+msgstr "  -B, --always-make           无条件制作 (make) 所有目标。\n"
+
+#: main.c:343
+msgid ""
+"  -C DIRECTORY, --directory=DIRECTORY\n"
+"                              Change to DIRECTORY before doing anything.\n"
+msgstr "  -C 目录, --directory=目录    在执行前先切换到 <目录>。\n"
+
+#: main.c:346
+msgid "  -d                          Print lots of debugging information.\n"
+msgstr "  -d                          打印大量调试信息。\n"
+
+#: main.c:348
+msgid ""
+"  --debug[=FLAGS]             Print various types of debugging information.\n"
+msgstr "  --debug[=旗标]               打印各种调试信息。\n"
+
+#: main.c:350
+msgid ""
+"  -e, --environment-overrides\n"
+"                              Environment variables override makefiles.\n"
+msgstr ""
+"  -e, --environment-overrides\n"
+"                              环境变量覆盖 makefile 中的变量。\n"
+
+#: main.c:353
+msgid ""
+"  --eval=STRING               Evaluate STRING as a makefile statement.\n"
+msgstr "  --eval=字串               将 <字串> 作为 makefile 语句估值。\n"
+
+#: main.c:355
+msgid ""
+"  -f FILE, --file=FILE, --makefile=FILE\n"
+"                              Read FILE as a makefile.\n"
+msgstr ""
+"  -f 文件, --file=文件, --makefile=文件\n"
+"                              从 <文件> 中读入 makefile。\n"
+
+#: main.c:358
+msgid "  -h, --help                  Print this message and exit.\n"
+msgstr "  -h, --help                  打印该消息并退出。\n"
+
+#: main.c:360
+msgid "  -i, --ignore-errors         Ignore errors from recipes.\n"
+msgstr "  -i, --ignore-errors         忽略来自命令配方的错误。\n"
+
+#: main.c:362
+msgid ""
+"  -I DIRECTORY, --include-dir=DIRECTORY\n"
+"                              Search DIRECTORY for included makefiles.\n"
+msgstr "  -I 目录, --include-dir=目录  在 <目录> 中搜索被包含的 makefile。\n"
+
+#: main.c:365
+msgid ""
+"  -j [N], --jobs[=N]          Allow N jobs at once; infinite jobs with no "
+"arg.\n"
+msgstr ""
+"  -j [N], --jobs[=N]          同时允许 N 个任务；无参数表明允许无限个任务。\n"
+
+#: main.c:367
+msgid ""
+"  -k, --keep-going            Keep going when some targets can't be made.\n"
+msgstr "  -k, --keep-going            当某些目标无法制作时仍然继续。\n"
+
+#: main.c:369
+msgid ""
+"  -l [N], --load-average[=N], --max-load[=N]\n"
+"                              Don't start multiple jobs unless load is below "
+"N.\n"
+msgstr ""
+"  -l [N], --load-average[=N], --max-load[=N]\n"
+"                              在系统负载高于 N 时不启动多任务。\n"
+
+#: main.c:372
+msgid ""
+"  -L, --check-symlink-times   Use the latest mtime between symlinks and "
+"target.\n"
+msgstr ""
+"  -L, --check-symlink-times   使用软链接及软链接目标中修改时间较晚的一个。\n"
+
+#: main.c:374
+msgid ""
+"  -n, --just-print, --dry-run, --recon\n"
+"                              Don't actually run any recipe; just print "
+"them.\n"
+msgstr ""
+"  -n, --just-print, --dry-run, --recon\n"
+"                              只打印命令配方，不实际执行。\n"
+
+#: main.c:377
+msgid ""
+"  -o FILE, --old-file=FILE, --assume-old=FILE\n"
+"                              Consider FILE to be very old and don't remake "
+"it.\n"
+msgstr ""
+"  -o 文件, --old-file=文件, --assume-old=文件\n"
+"                              将 <文件> 当做很旧，不必重新制作。\n"
+
+#: main.c:380
+msgid ""
+"  -O[TYPE], --output-sync[=TYPE]\n"
+"                              Synchronize output of parallel jobs by TYPE.\n"
+msgstr ""
+"  -O[类型], --output-sync[=类型]\n"
+"                           使用 <类型> 方式同步并行任务输出。\n"
+
+#: main.c:383
+msgid "  -p, --print-data-base       Print make's internal database.\n"
+msgstr "  -p, --print-data-base       打印 make 的内部数据库。\n"
+
+#: main.c:385
+msgid ""
+"  -q, --question              Run no recipe; exit status says if up to "
+"date.\n"
+msgstr ""
+"  -q, --question              不运行任何配方；退出状态说明是否已全部更新。\n"
+
+#: main.c:387
+msgid "  -r, --no-builtin-rules      Disable the built-in implicit rules.\n"
+msgstr "  -r, --no-builtin-rules      禁用内置隐含规则。\n"
+
+#: main.c:389
+msgid "  -R, --no-builtin-variables  Disable the built-in variable settings.\n"
+msgstr "  -R, --no-builtin-variables  禁用内置变量设置。\n"
+
+#: main.c:391
+msgid "  -s, --silent, --quiet       Don't echo recipes.\n"
+msgstr "  -s, --silent, --quiet       不输出配方命令。\n"
+
+#: main.c:393
+msgid ""
+"  -S, --no-keep-going, --stop\n"
+"                              Turns off -k.\n"
+msgstr ""
+"  -S, --no-keep-going, --stop\n"
+"                              关闭 -k。\n"
+
+#: main.c:396
+msgid "  -t, --touch                 Touch targets instead of remaking them.\n"
+msgstr ""
+"  -t, --touch                 touch 目标（更新修改时间）而不是重新制作它"
+"们。\n"
+
+#: main.c:398
+msgid "  --trace                     Print tracing information.\n"
+msgstr "  --trace                     打印跟踪信息。\n"
+
+#: main.c:400
+msgid ""
+"  -v, --version               Print the version number of make and exit.\n"
+msgstr "  -v, --version               打印 make 的版本号并退出。\n"
+
+#: main.c:402
+msgid "  -w, --print-directory       Print the current directory.\n"
+msgstr "  -w, --print-directory       打印当前目录。\n"
+
+#: main.c:404
+msgid ""
+"  --no-print-directory        Turn off -w, even if it was turned on "
+"implicitly.\n"
+msgstr "  --no-print-directory        关闭 -w，即使 -w 默认开启。\n"
+
+#: main.c:406
+msgid ""
+"  -W FILE, --what-if=FILE, --new-file=FILE, --assume-new=FILE\n"
+"                              Consider FILE to be infinitely new.\n"
+msgstr ""
+"  -W 文件, --what-if=文件, --new-file=文件, --assume-new=文件\n"
+"                              将 <文件> 当做最新。\n"
+
+#: main.c:409
+msgid ""
+"  --warn-undefined-variables  Warn when an undefined variable is "
+"referenced.\n"
+msgstr "  --warn-undefined-variables  当引用未定义变量的时候发出警告。\n"
+
+#: main.c:683
+msgid "empty string invalid as file name"
+msgstr "空字符串是无效的文件名"
+
+#: main.c:766
+#, c-format
+msgid "unknown debug level specification '%s'"
+msgstr "未知的调试级别定义“%s”"
+
+#: main.c:806
+#, c-format
+msgid "unknown output-sync type '%s'"
+msgstr "不明输出同步类型“%s”"
+
+#: main.c:861
+#, c-format
+msgid "%s: Interrupt/Exception caught (code = 0x%lx, addr = 0x%p)\n"
+msgstr "%s：捕获中断/异常 (代码 = 0x%lx, 地址 = 0x%p)\n"
+
+#: main.c:868
+#, c-format
+msgid ""
+"\n"
+"Unhandled exception filter called from program %s\n"
+"ExceptionCode = %lx\n"
+"ExceptionFlags = %lx\n"
+"ExceptionAddress = 0x%p\n"
+msgstr ""
+"\n"
+"从程序 %s 产生的未处理的异常过滤器\n"
+"异常码 = %lx\n"
+"异常标志 = %lx\n"
+"异常地址 = 0x%p\n"
+
+#: main.c:876
+#, c-format
+msgid "Access violation: write operation at address 0x%p\n"
+msgstr "访问冲突：地址 0x%p 处的写操作\n"
+
+#: main.c:877
+#, c-format
+msgid "Access violation: read operation at address 0x%p\n"
+msgstr "访问冲突：地址 0x%p 处的读操作\n"
+
+#: main.c:953 main.c:968
+#, c-format
+msgid "find_and_set_shell() setting default_shell = %s\n"
+msgstr "find_and_set_shell() 设置 default_shell = %s\n"
+
+#: main.c:1021
+#, c-format
+msgid "find_and_set_shell() path search set default_shell = %s\n"
+msgstr "find_and_set_shell() 路径搜索结果设置 default_shell = %s\n"
+
+#: main.c:1538
+#, c-format
+msgid "%s is suspending for 30 seconds..."
+msgstr "%s 正在挂起 30 秒..."
+
+#: main.c:1540
+#, c-format
+msgid "done sleep(30). Continuing.\n"
+msgstr "睡眠完成(30)。继续。\n"
+
+#: main.c:1627
+msgid ""
+"warning: jobserver unavailable: using -j1.  Add '+' to parent make rule."
+msgstr "警告: jobserver 不可用: 正使用 -j1。添加 “+” 到父 make 的规则。"
+
+#: main.c:1635
+msgid "warning: -jN forced in submake: disabling jobserver mode."
+msgstr "警告: 子 make 中强制 -jN: 关闭 jobserver 模式。"
+
+#: main.c:1805
+msgid "Makefile from standard input specified twice."
+msgstr "两次指明来自标准输入的 makefile。"
+
+#: main.c:1843 vmsjobs.c:1252
+msgid "fopen (temporary file)"
+msgstr "fopen (临时文件)"
+
+#: main.c:1849
+msgid "fwrite (temporary file)"
+msgstr "fwrite (临时文件)"
+
+#: main.c:2048
+msgid "Parallel jobs (-j) are not supported on this platform."
+msgstr "本平台不支持并行任务 (-j)。"
+
+#: main.c:2049
+msgid "Resetting to single job (-j1) mode."
+msgstr "重置为单任务模式 (-j1)。"
+
+#: main.c:2088
+msgid "Symbolic links not supported: disabling -L."
+msgstr "不支持软链接: 关闭 -L"
+
+#: main.c:2170
+msgid "Updating makefiles....\n"
+msgstr "正在更新 makefile....\n"
+
+#: main.c:2195
+#, c-format
+msgid "Makefile '%s' might loop; not remaking it.\n"
+msgstr "Makefile “%s”可能循环；不会重新执行它。\n"
+
+#: main.c:2283
+#, c-format
+msgid "Failed to remake makefile '%s'."
+msgstr "重新执行 makefile“%s”失败。"
+
+#: main.c:2303
+#, c-format
+msgid "Included makefile '%s' was not found."
+msgstr "找不到被引入的 makefile“%s”。"
+
+#: main.c:2308
+#, c-format
+msgid "Makefile '%s' was not found"
+msgstr "找不到 makefile “%s”。"
+
+#: main.c:2376
+msgid "Couldn't change back to original directory."
+msgstr "无法回到原始目录。"
+
+#: main.c:2384
+#, c-format
+msgid "Re-executing[%u]:"
+msgstr "重新执行[%u]:"
+
+#: main.c:2491
+msgid "unlink (temporary file): "
+msgstr "删除 (临时文件)："
+
+#: main.c:2524
+msgid ".DEFAULT_GOAL contains more than one target"
+msgstr ".DEFAULT_GOAL 包含多余一个目标"
+
+#: main.c:2547
+msgid "No targets specified and no makefile found"
+msgstr "没有指明目标并且找不到 makefile"
+
+#: main.c:2549
+msgid "No targets"
+msgstr "无目标"
+
+#: main.c:2554
+msgid "Updating goal targets....\n"
+msgstr "更新目标....\n"
+
+#: main.c:2578
+msgid "warning:  Clock skew detected.  Your build may be incomplete."
+msgstr "警告：检测到时钟错误。您的构建版本可能是不完整的。"
+
+#: main.c:2772
+#, c-format
+msgid "Usage: %s [options] [target] ...\n"
+msgstr "用法：%s [选项] [目标] ...\n"
+
+#: main.c:2778
+#, c-format
+msgid ""
+"\n"
+"This program built for %s\n"
+msgstr ""
+"\n"
+"该程序为 %s 编译\n"
+
+#: main.c:2780
+#, c-format
+msgid ""
+"\n"
+"This program built for %s (%s)\n"
+msgstr ""
+"\n"
+"该程序为 %s (%s) 编译\n"
+
+#: main.c:2783
+#, c-format
+msgid "Report bugs to <bug-make@gnu.org>\n"
+msgstr "报告错误到 <bug-make@gnu.org>\n"
+
+#: main.c:2869
+#, c-format
+msgid "the '%s%s' option requires a non-empty string argument"
+msgstr "“%s%s”选项需要非空字符串参数"
+
+#: main.c:2933
+#, c-format
+msgid "the '-%c' option requires a positive integer argument"
+msgstr "“-%c”选项需要正整数参数"
+
+#: main.c:3331
+#, c-format
+msgid "%sBuilt for %s\n"
+msgstr "%s为 %s 编译\n"
+
+#: main.c:3333
+#, c-format
+msgid "%sBuilt for %s (%s)\n"
+msgstr "%s为 %s (%s) 编译\n"
+
+#: main.c:3344
+#, c-format
+msgid ""
+"%sLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl."
+"html>\n"
+"%sThis is free software: you are free to change and redistribute it.\n"
+"%sThere is NO WARRANTY, to the extent permitted by law.\n"
+msgstr ""
+"%s许可证：GPLv3+：GNU 通用公共许可证第 3 版或更新版本<http://gnu.org/"
+"licenses/gpl.html>。\n"
+"%s本软件是自由软件：您可以自由修改和重新发布它。\n"
+"%s在法律允许的范围内没有其他保证。\n"
+
+#: main.c:3365
+#, c-format
+msgid ""
+"\n"
+"# Make data base, printed on %s"
+msgstr ""
+"\n"
+"# make 数据基础，打印在 %s"
+
+#: main.c:3375
+#, c-format
+msgid ""
+"\n"
+"# Finished Make data base on %s\n"
+msgstr ""
+"\n"
+"# 在 %s 上完成 make 数据基础\n"
+
+#: misc.c:202
+#, c-format
+msgid "Unknown error %d"
+msgstr "未知错误 %d"
+
+#: misc.c:508
+#, c-format
+msgid "%s: user %lu (real %lu), group %lu (real %lu)\n"
+msgstr "%s: 用户 %lu (真实用户 %lu), 组 %lu (真实组 %lu)\n"
+
+#: misc.c:529
+msgid "Initialized access"
+msgstr "初始化成功"
+
+#: misc.c:608
+msgid "User access"
+msgstr "用户权限"
+
+#: misc.c:656
+msgid "Make access"
+msgstr "Make 权限"
+
+#: misc.c:690
+msgid "Child access"
+msgstr "子进程 权限"
+
+#: output.c:104
+#, c-format
+msgid "%s: Entering an unknown directory\n"
+msgstr "%s: 进入一个未知的目录\n"
+
+#: output.c:106
+#, c-format
+msgid "%s: Leaving an unknown directory\n"
+msgstr "%s: 离开一个未知的目录\n"
+
+#: output.c:109
+#, c-format
+msgid "%s: Entering directory '%s'\n"
+msgstr "%s: 进入目录“%s”\n"
+
+#: output.c:111
+#, c-format
+msgid "%s: Leaving directory '%s'\n"
+msgstr "%s: 离开目录“%s”\n"
+
+#: output.c:115
+#, c-format
+msgid "%s[%u]: Entering an unknown directory\n"
+msgstr "%s[%u]: 进入一个未知的目录\n"
+
+#: output.c:117
+#, c-format
+msgid "%s[%u]: Leaving an unknown directory\n"
+msgstr "%s[%u]: 离开一个未知的目录\n"
+
+#: output.c:120
+#, c-format
+msgid "%s[%u]: Entering directory '%s'\n"
+msgstr "%s[%u]: 进入目录“%s”\n"
+
+#: output.c:122
+#, c-format
+msgid "%s[%u]: Leaving directory '%s'\n"
+msgstr "%s[%u]: 离开目录“%s”\n"
+
+#: output.c:495 output.c:497
+msgid "write error: stdout"
+msgstr "写错误: 标准输出"
+
+#: output.c:677
+msgid ".  Stop.\n"
+msgstr "。 停止。\n"
+
+#: output.c:711
+#, c-format
+msgid "%s%s: %s"
+msgstr "%s%s: %s"
+
+#: output.c:720
+#, c-format
+msgid "%s: %s"
+msgstr "%s: %s"
+
+#: posixos.c:69
+msgid "creating jobs pipe"
+msgstr "正在创建任务管道"
+
+#: posixos.c:72 posixos.c:227
+msgid "duping jobs pipe"
+msgstr "正在复制任务管道"
+
+#: posixos.c:78
+msgid "init jobserver pipe"
+msgstr "创始化任务服务器管道"
+
+#: posixos.c:90
+#, c-format
+msgid "internal error: invalid --jobserver-auth string '%s'"
+msgstr "内部错误：非法 --jobserver-auth 验证字符串“%s”"
+
+#: posixos.c:93
+#, c-format
+msgid "Jobserver client (fds %d,%d)\n"
+msgstr "jobserver 客户端（文件描述符 %d,%d）\n"
+
+#: posixos.c:109
+msgid "jobserver pipeline"
+msgstr "任务服务器管道"
+
+#: posixos.c:154
+msgid "write jobserver"
+msgstr "写入任务服务器"
+
+# , fuzzy
+#: posixos.c:268
+msgid "pselect jobs pipe"
+msgstr "pselect 任务管道"
+
+#: posixos.c:279 posixos.c:391
+msgid "read jobs pipe"
+msgstr "读取任务管道"
+
+#: read.c:178
+msgid "Reading makefiles...\n"
+msgstr "正在读入 makefiles...\n"
+
+#: read.c:329
+#, c-format
+msgid "Reading makefile '%s'"
+msgstr "正在读入 makefile “%s”"
+
+#: read.c:331
+#, c-format
+msgid " (no default goal)"
+msgstr " (没有缺省目标)"
+
+#: read.c:333
+#, c-format
+msgid " (search path)"
+msgstr " (搜索路径)"
+
+#: read.c:335
+#, c-format
+msgid " (don't care)"
+msgstr " (不用理)"
+
+#: read.c:337
+#, c-format
+msgid " (no ~ expansion)"
+msgstr " (没有 ~ 扩展)"
+
+#: read.c:651
+#, c-format
+msgid "Skipping UTF-8 BOM in makefile '%s'\n"
+msgstr "跳过 Makefile“%s”中的 UTF-8 BOM\n"
+
+#: read.c:654
+#, c-format
+msgid "Skipping UTF-8 BOM in makefile buffer\n"
+msgstr "跳过 Makefile 缓冲区中的 UTF-8 BOM\n"
+
+#: read.c:783
+msgid "invalid syntax in conditional"
+msgstr "条件中含有无效语法"
+
+#: read.c:959
+#, c-format
+msgid "%s: failed to load"
+msgstr "%s: 加载失败"
+
+#: read.c:985
+msgid "recipe commences before first target"
+msgstr "配方在第一个目标前开始"
+
+#: read.c:1034
+msgid "missing rule before recipe"
+msgstr "配方之前遗漏了规则"
+
+#: read.c:1124
+msgid "missing separator (did you mean TAB instead of 8 spaces?)"
+msgstr "分隔符缺失 (你大概想用 TAB，而不是八个空格)"
+
+#: read.c:1126
+msgid "missing separator"
+msgstr "遗漏分隔符 %s"
+
+#: read.c:1262
+msgid "missing target pattern"
+msgstr "无目标匹配"
+
+#: read.c:1264
+msgid "multiple target patterns"
+msgstr "多个目标匹配"
+
+#: read.c:1268
+#, c-format
+msgid "target pattern contains no '%%'"
+msgstr "目标模式不含有“%%”"
+
+#: read.c:1390
+msgid "missing 'endif'"
+msgstr "遗漏“endif”"
+
+#: read.c:1428 read.c:1473 variable.c:1576
+msgid "empty variable name"
+msgstr "空变量名"
+
+#: read.c:1463
+msgid "extraneous text after 'define' directive"
+msgstr "“endef”指令后含有不该出现的文字"
+
+#: read.c:1488
+msgid "missing 'endef', unterminated 'define'"
+msgstr "遗漏“endef”，未终止的“define”"
+
+#: read.c:1516
+msgid "extraneous text after 'endef' directive"
+msgstr "“endef”指令后含有不该出现的文字"
+
+#: read.c:1588
+#, c-format
+msgid "extraneous text after '%s' directive"
+msgstr "在“%s”指令之后含有不该出现的文字"
+
+#: read.c:1589
+#, c-format
+msgid "extraneous '%s'"
+msgstr "不该出现的“%s”"
+
+#: read.c:1617
+msgid "only one 'else' per conditional"
+msgstr "每个条件只能有一个“else”"
+
+#: read.c:1892
+msgid "Malformed target-specific variable definition"
+msgstr "畸形的针对目标的标量定义"
+
+#: read.c:1950
+msgid "prerequisites cannot be defined in recipes"
+msgstr "依赖无法在配方脚本中定义"
+
+#: read.c:2009
+msgid "mixed implicit and static pattern rules"
+msgstr "混和的隐含和静态模式规则"
+
+#: read.c:2032
+msgid "mixed implicit and normal rules"
+msgstr "混和的隐含和普通规则"
+
+#: read.c:2085
+#, c-format
+msgid "target '%s' doesn't match the target pattern"
+msgstr "目标“%s”不匹配目标模式"
+
+#: read.c:2100 read.c:2146
+#, c-format
+msgid "target file '%s' has both : and :: entries"
+msgstr "目标文件“%s”含有 : 和 :: 两种条目"
+
+#: read.c:2106
+#, c-format
+msgid "target '%s' given more than once in the same rule"
+msgstr "目标“%s”在同一个规则中给出了多次。"
+
+#: read.c:2116
+#, c-format
+msgid "warning: overriding recipe for target '%s'"
+msgstr "警告：覆盖关于目标“%s”的配方"
+
+#: read.c:2119
+#, c-format
+msgid "warning: ignoring old recipe for target '%s'"
+msgstr "警告：忽略关于目标“%s”的旧配方"
+
+#: read.c:2223
+msgid "*** mixed implicit and normal rules: deprecated syntax"
+msgstr "*** 隐含和普通规则混合：已弃用的语法"
+
+#: read.c:2542
+msgid "warning: NUL character seen; rest of line ignored"
+msgstr "警告：遇到了 NUL 字符；忽略行的剩余部分"
+
+#: remake.c:225
+#, c-format
+msgid "Nothing to be done for '%s'."
+msgstr "对“%s”无需做任何事。"
+
+#: remake.c:226
+#, c-format
+msgid "'%s' is up to date."
+msgstr "“%s”已是最新。"
+
+#: remake.c:322
+#, c-format
+msgid "Pruning file '%s'.\n"
+msgstr "正删除文件“%s”。\n"
+
+#: remake.c:405
+#, c-format
+msgid "%sNo rule to make target '%s', needed by '%s'%s"
+msgstr "%s没有规则可制作目标“%s”，由“%s”%s 需求"
+
+#: remake.c:415
+#, c-format
+msgid "%sNo rule to make target '%s'%s"
+msgstr "%s没有规则可制作目标“%s”%s"
+
+#: remake.c:441
+#, c-format
+msgid "Considering target file '%s'.\n"
+msgstr "正在考虑目标文件“%s”。\n"
+
+#: remake.c:448
+#, c-format
+msgid "Recently tried and failed to update file '%s'.\n"
+msgstr "最近已尝试过更新文件“%s”并失败。\n"
+
+#: remake.c:460
+#, c-format
+msgid "File '%s' was considered already.\n"
+msgstr "已考虑过文件“%s”。\n"
+
+#: remake.c:470
+#, c-format
+msgid "Still updating file '%s'.\n"
+msgstr "仍然在更新文件“%s”。\n"
+
+#: remake.c:473
+#, c-format
+msgid "Finished updating file '%s'.\n"
+msgstr "更新文件“%s”完成。\n"
+
+#: remake.c:502
+#, c-format
+msgid "File '%s' does not exist.\n"
+msgstr "文件“%s”不存在。\n"
+
+#: remake.c:510
+#, c-format
+msgid ""
+"*** Warning: .LOW_RESOLUTION_TIME file '%s' has a high resolution time stamp"
+msgstr "*** 警告: .LOW_RESOLUTION_TIME 文件 `%s' 有一个高精度的的时间标志"
+
+#: remake.c:523 remake.c:1055
+#, c-format
+msgid "Found an implicit rule for '%s'.\n"
+msgstr "找到一条关于“%s”的隐含规则。\n"
+
+#: remake.c:525 remake.c:1057
+#, c-format
+msgid "No implicit rule found for '%s'.\n"
+msgstr "找不到关于“%s”的隐含规则。\n"
+
+#: remake.c:531
+#, c-format
+msgid "Using default recipe for '%s'.\n"
+msgstr "使用“%s”的默认配方。\n"
+
+#: remake.c:565 remake.c:1104
+#, c-format
+msgid "Circular %s <- %s dependency dropped."
+msgstr "放弃循环依赖 %s <- %s 。"
+
+#: remake.c:690
+#, c-format
+msgid "Finished prerequisites of target file '%s'.\n"
+msgstr "目标文件“%s”的前提已完成。\n"
+
+#: remake.c:696
+#, c-format
+msgid "The prerequisites of '%s' are being made.\n"
+msgstr "正在制作“%s”的前提。\n"
+
+#: remake.c:710
+#, c-format
+msgid "Giving up on target file '%s'.\n"
+msgstr "放弃目标文件“%s”。\n"
+
+#: remake.c:715
+#, c-format
+msgid "Target '%s' not remade because of errors."
+msgstr "由于错误目标“%s”并未重新制作。"
+
+#: remake.c:767
+#, c-format
+msgid "Prerequisite '%s' is order-only for target '%s'.\n"
+msgstr "前提“%s”对目标“%s”来说仅用于指定执行顺序 (order-only) 。\n"
+
+#: remake.c:772
+#, c-format
+msgid "Prerequisite '%s' of target '%s' does not exist.\n"
+msgstr "目标“%2$s”的前提“%1$s”不存在。\n"
+
+#: remake.c:777
+#, c-format
+msgid "Prerequisite '%s' is newer than target '%s'.\n"
+msgstr "前提“%s”比目标“%s”新。\n"
+
+#: remake.c:780
+#, c-format
+msgid "Prerequisite '%s' is older than target '%s'.\n"
+msgstr "前提“%s”比目标“%s”旧。\n"
+
+#: remake.c:798
+#, c-format
+msgid "Target '%s' is double-colon and has no prerequisites.\n"
+msgstr "目标“%s”是双冒号目标并且没有前提。\n"
+
+#: remake.c:805
+#, c-format
+msgid "No recipe for '%s' and no prerequisites actually changed.\n"
+msgstr "没有关于“%s”的配方，并且没有实际改变的前提。\n"
+
+#: remake.c:810
+#, c-format
+msgid "Making '%s' due to always-make flag.\n"
+msgstr "由于 always-make 标志所以制作“%s”。\n"
+
+#: remake.c:818
+#, c-format
+msgid "No need to remake target '%s'"
+msgstr "不需要重新制作目标“%s”"
+
+#: remake.c:820
+#, c-format
+msgid "; using VPATH name '%s'"
+msgstr "；使用 VPATH 名称“%s”"
+
+#: remake.c:840
+#, c-format
+msgid "Must remake target '%s'.\n"
+msgstr "必须重新制作目标“%s”。\n"
+
+#: remake.c:846
+#, c-format
+msgid "  Ignoring VPATH name '%s'.\n"
+msgstr "  忽略 VPATH 名称“%s”。\n"
+
+#: remake.c:855
+#, c-format
+msgid "Recipe of '%s' is being run.\n"
+msgstr "“%s”的命令配方正在被执行。\n"
+
+#: remake.c:862
+#, c-format
+msgid "Failed to remake target file '%s'.\n"
+msgstr "重新制作目标文件“%s”失败。\n"
+
+#: remake.c:865
+#, c-format
+msgid "Successfully remade target file '%s'.\n"
+msgstr "重新制作目标文件“%s”成功。\n"
+
+#: remake.c:868
+#, c-format
+msgid "Target file '%s' needs to be remade under -q.\n"
+msgstr "目标文件“%s”需要以 -q 选项重新制作。\n"
+
+#: remake.c:1063
+#, c-format
+msgid "Using default commands for '%s'.\n"
+msgstr "使用关于“%s”的默认命令。\n"
+
+#: remake.c:1429
+#, c-format
+msgid "Warning: File '%s' has modification time in the future"
+msgstr "警告：文件“%s”的修改时间在未来"
+
+#: remake.c:1443
+#, c-format
+msgid "Warning: File '%s' has modification time %s s in the future"
+msgstr "警告：文件“%s”的修改时间在未来 %s 秒后"
+
+#: remake.c:1646
+#, c-format
+msgid ".LIBPATTERNS element '%s' is not a pattern"
+msgstr ".LIBPATTERNS 的元素“%s”不是一个模式"
+
+#: remote-cstms.c:122
+#, c-format
+msgid "Customs won't export: %s\n"
+msgstr "用户不希望导出：%s\n"
+
+#: rule.c:496
+msgid ""
+"\n"
+"# Implicit Rules"
+msgstr ""
+"\n"
+"# 隐含规则。"
+
+#: rule.c:511
+msgid ""
+"\n"
+"# No implicit rules."
+msgstr ""
+"\n"
+"# 没有隐含规则。"
+
+#: rule.c:514
+#, c-format
+msgid ""
+"\n"
+"# %u implicit rules, %u"
+msgstr ""
+"\n"
+"# %u 条隐含规则，%u"
+
+#: rule.c:523
+msgid " terminal."
+msgstr " 终端。"
+
+#: rule.c:531
+#, c-format
+msgid "BUG: num_pattern_rules is wrong!  %u != %u"
+msgstr "BUG：num_pattern_rules 出错！%u != %u"
+
+#: signame.c:84
+msgid "unknown signal"
+msgstr "未知的信号"
+
+#: signame.c:92
+msgid "Hangup"
+msgstr "挂起"
+
+#: signame.c:95
+msgid "Interrupt"
+msgstr "中断"
+
+#: signame.c:98
+msgid "Quit"
+msgstr "退出"
+
+#: signame.c:101
+msgid "Illegal Instruction"
+msgstr "非法指令"
+
+#: signame.c:104
+msgid "Trace/breakpoint trap"
+msgstr "跟踪/断点陷阱"
+
+#: signame.c:109
+msgid "Aborted"
+msgstr "已失败"
+
+#: signame.c:112
+msgid "IOT trap"
+msgstr "IOT 陷阱"
+
+#: signame.c:115
+msgid "EMT trap"
+msgstr "EMT 陷阱"
+
+#: signame.c:118
+msgid "Floating point exception"
+msgstr "浮点数异常"
+
+#: signame.c:121
+msgid "Killed"
+msgstr "已杀死"
+
+#: signame.c:124
+msgid "Bus error"
+msgstr "总线错误"
+
+#: signame.c:127
+msgid "Segmentation fault"
+msgstr "段错误"
+
+#: signame.c:130
+msgid "Bad system call"
+msgstr "错误的系统调用"
+
+#: signame.c:133
+msgid "Broken pipe"
+msgstr "断开的管道"
+
+#: signame.c:136
+msgid "Alarm clock"
+msgstr "闹钟"
+
+#: signame.c:139
+msgid "Terminated"
+msgstr "已终止"
+
+#: signame.c:142
+msgid "User defined signal 1"
+msgstr "用户定义信号 1"
+
+#: signame.c:145
+msgid "User defined signal 2"
+msgstr "用户定义信号 2"
+
+#: signame.c:150 signame.c:153
+msgid "Child exited"
+msgstr "子进程已退出"
+
+#: signame.c:156
+msgid "Power failure"
+msgstr "电源失效"
+
+#: signame.c:159
+msgid "Stopped"
+msgstr "已停止"
+
+#: signame.c:162
+msgid "Stopped (tty input)"
+msgstr "已停止 (tty 输入)"
+
+#: signame.c:165
+msgid "Stopped (tty output)"
+msgstr "已停止 (tty 输出)"
+
+#: signame.c:168
+msgid "Stopped (signal)"
+msgstr "已停止 (信号)"
+
+#: signame.c:171
+msgid "CPU time limit exceeded"
+msgstr "CPU 时间超出限制"
+
+#: signame.c:174
+msgid "File size limit exceeded"
+msgstr "文件大小超出限制"
+
+#: signame.c:177
+msgid "Virtual timer expired"
+msgstr "虚拟时钟超时"
+
+#: signame.c:180
+msgid "Profiling timer expired"
+msgstr "测试时钟超市"
+
+#: signame.c:186
+msgid "Window changed"
+msgstr "窗口已改变"
+
+#: signame.c:189
+msgid "Continued"
+msgstr "继续"
+
+#: signame.c:192
+msgid "Urgent I/O condition"
+msgstr "紧急 I/O 条件"
+
+#: signame.c:199 signame.c:208
+msgid "I/O possible"
+msgstr "I/O 可行"
+
+#: signame.c:202
+msgid "SIGWIND"
+msgstr "SIGWIND"
+
+#: signame.c:205
+msgid "SIGPHONE"
+msgstr "SIGPHONE"
+
+#: signame.c:211
+msgid "Resource lost"
+msgstr "资源丢失"
+
+#: signame.c:214
+msgid "Danger signal"
+msgstr "危险信号"
+
+#: signame.c:217
+msgid "Information request"
+msgstr "信息请求"
+
+#: signame.c:220
+msgid "Floating point co-processor not available"
+msgstr "浮点数协处理器不可用"
+
+#: strcache.c:274
+#, c-format
+msgid ""
+"\n"
+"%s No strcache buffers\n"
+msgstr ""
+"\n"
+"%s 没有 strcache 缓冲区\n"
+
+#: strcache.c:304
+#, c-format
+msgid ""
+"\n"
+"%s strcache buffers: %lu (%lu) / strings = %lu / storage = %lu B / avg = %lu "
+"B\n"
+msgstr ""
+"\n"
+"%s strcache 缓冲: %lu (%lu) / 字串 = %lu / 空间 = %lu B / 平均 = %lu B\n"
+
+#: strcache.c:308
+#, c-format
+msgid ""
+"%s current buf: size = %hu B / used = %hu B / count = %hu / avg = %hu B\n"
+msgstr "%s 目前缓冲: 尺寸 = %hu B / 已用 = %hu B / 数量 = %hu / 平均 = %hu B\n"
+
+#: strcache.c:319
+#, c-format
+msgid "%s other used: total = %lu B / count = %lu / avg = %lu B\n"
+msgstr "%s 其他已用: 总共 = %lu B / 数量 = %lu / 平均 = %lu B\n"
+
+#: strcache.c:322
+#, c-format
+msgid ""
+"%s other free: total = %lu B / max = %lu B / min = %lu B / avg = %hu B\n"
+msgstr ""
+"%s 其他空余: 总共 = %lu B / 最大 = %lu B / 最小 = %lu B / 平均 = %hu B\n"
+
+#: strcache.c:326
+#, c-format
+msgid ""
+"\n"
+"%s strcache performance: lookups = %lu / hit rate = %lu%%\n"
+msgstr ""
+"\n"
+"%s strcache 性能：查找 = %lu / 命中率 = %lu%%\n"
+
+#: strcache.c:328
+msgid ""
+"# hash-table stats:\n"
+"# "
+msgstr ""
+"# 杂凑表统计数据:\n"
+"# "
+
+#: variable.c:1629
+msgid "automatic"
+msgstr "自动"
+
+#: variable.c:1632
+msgid "default"
+msgstr "默认"
+
+#: variable.c:1635
+msgid "environment"
+msgstr "环境"
+
+#: variable.c:1638
+msgid "makefile"
+msgstr "makefile"
+
+#: variable.c:1641
+msgid "environment under -e"
+msgstr "-e 指定的环境变量"
+
+#: variable.c:1644
+msgid "command line"
+msgstr "命令行"
+
+#: variable.c:1647
+msgid "'override' directive"
+msgstr "“override”指令"
+
+#: variable.c:1658
+#, c-format
+msgid " (from '%s', line %lu)"
+msgstr " (从“%s”，行 %lu)"
+
+#: variable.c:1721
+msgid "# variable set hash-table stats:\n"
+msgstr "# 变量的杂凑表状态:\n"
+
+#: variable.c:1732
+msgid ""
+"\n"
+"# Variables\n"
+msgstr ""
+"\n"
+"# 变量\n"
+
+#: variable.c:1736
+msgid ""
+"\n"
+"# Pattern-specific Variable Values"
+msgstr ""
+"\n"
+"# Pattern-specific 变量值"
+
+#: variable.c:1750
+msgid ""
+"\n"
+"# No pattern-specific variable values."
+msgstr ""
+"\n"
+"# 没有 pattern-specific 变量的值。"
+
+#: variable.c:1752
+#, c-format
+msgid ""
+"\n"
+"# %u pattern-specific variable values"
+msgstr ""
+"\n"
+"# %u 个 pattern-specific 变量的值"
+
+#: variable.h:224
+#, c-format
+msgid "warning: undefined variable '%.*s'"
+msgstr "警告：未定义的变量“%.*s”"
+
+#: vmsfunctions.c:91
+#, c-format
+msgid "sys$search() failed with %d\n"
+msgstr "sys$search() 失败并返回 %d\n"
+
+#: vmsjobs.c:242
+#, c-format
+msgid "-warning, you may have to re-enable CTRL-Y handling from DCL.\n"
+msgstr "-警告, 你可能必须从 DCL 重新启用 CTRL-Y 处理。\n"
+
+#: vmsjobs.c:679
+#, c-format
+msgid "BUILTIN CD %s\n"
+msgstr "BUILTIN CD %s\n"
+
+#: vmsjobs.c:1228
+#, c-format
+msgid "DCL: %s\n"
+msgstr "DCL：%s\n"
+
+#: vmsjobs.c:1288
+#, c-format
+msgid "Append output to %s\n"
+msgstr "将输出追加到 %s\n"
+
+#: vmsjobs.c:1313
+#, c-format
+msgid "Append %.*s and cleanup\n"
+msgstr "追加 %.*s 并清理\n"
+
+#: vmsjobs.c:1326
+#, c-format
+msgid "Executing %s instead\n"
+msgstr "执行 %s 作为替代\n"
+
+#: vpath.c:603
+msgid ""
+"\n"
+"# VPATH Search Paths\n"
+msgstr ""
+"\n"
+"# VPATH 搜索路径\n"
+
+#: vpath.c:620
+msgid "# No 'vpath' search paths."
+msgstr "# 没有“vpath”搜索路径。"
+
+#: vpath.c:622
+#, c-format
+msgid ""
+"\n"
+"# %u 'vpath' search paths.\n"
+msgstr ""
+"\n"
+"# %u “vpath”搜索路径。\n"
+
+#: vpath.c:625
+msgid ""
+"\n"
+"# No general ('VPATH' variable) search path."
+msgstr ""
+"\n"
+"# 没有通用搜索路径(“VPATH”变量)。"
+
+#: vpath.c:631
+msgid ""
+"\n"
+"# General ('VPATH' variable) search path:\n"
+"# "
+msgstr ""
+"\n"
+"# 通用搜索路径(“VPATH”变量)：\n"
+"# "
+
+#: w32/w32os.c:46
+#, c-format
+msgid "Jobserver slots limited to %d\n"
+msgstr "jobserver 槽位数限制为 %d\n"
+
+#: w32/w32os.c:62
+#, c-format
+msgid "creating jobserver semaphore: (Error %ld: %s)"
+msgstr "正创建 jobserver 信号量：（错误 %ld：%s）"
+
+#: w32/w32os.c:81
+#, c-format
+msgid ""
+"internal error: unable to open jobserver semaphore '%s': (Error %ld: %s)"
+msgstr "内部错误：无法打开 jobserver 信号量“%s”：（错误 %ld：%s）"
+
+#: w32/w32os.c:84
+#, c-format
+msgid "Jobserver client (semaphore %s)\n"
+msgstr "jobserver 客户端（信号量 %s）\n"
+
+#: w32/w32os.c:125
+#, c-format
+msgid "release jobserver semaphore: (Error %ld: %s)"
+msgstr "释放 jobserver 信号量：（错误 %ld：%s）"
+
+#: w32/w32os.c:192
+#, c-format
+msgid "semaphore or child process wait: (Error %ld: %s)"
+msgstr "信号量或子进程等待：(错误 %ld：%s)"
+
+#~ msgid "%s: recipe for target '%s' failed"
+#~ msgstr "%s: '%s' 的命令配方失败"
+
+#~ msgid "%s[%s] Error 0x%x%s"
+#~ msgstr "%s[%s] 错误 0x%x%s"
+
+#~ msgid "%s[%s] %s%s%s"
+#~ msgstr "%s[%s] %s%s%s"
+
+#~ msgid "dup jobserver"
+#~ msgstr "复制任务服务器"
+
+#~ msgid "Warning: Empty redirection\n"
+#~ msgstr "警告：空的重定向\n"
+
+#~ msgid "internal error: '%s' command_state"
+#~ msgstr "内部错误：“%s”command_state"
+
+#~ msgid "BUILTIN [%s][%s]\n"
+#~ msgstr "BUILTIN [%s][%s]\n"
+
+#~ msgid "BUILTIN ECHO %s->%s\n"
+#~ msgstr "BUILTIN ECHO %s->%s\n"
+
+#~ msgid "Unknown builtin command '%s'\n"
+#~ msgstr "未知的内置命令“%s”\n"
+
+#~ msgid "Builtin command is unknown or unsupported in .ONESHELL: '%s'\n"
+#~ msgstr "内置命令在 .ONESHELL 内未知或不受支持：“%s”\n"
+
+#~ msgid "Error, empty command\n"
+#~ msgstr "错误，空命令\n"
+
+#~ msgid "Redirected input from %s\n"
+#~ msgstr "来自 %s 的重定向输入\n"
+
+#~ msgid "Redirected error to %s\n"
+#~ msgstr "到 %s 的重定向错误输出\n"
+
+#~ msgid "Redirected output to %s\n"
+#~ msgstr "到 %s 的重定向输出\n"
+
+#~ msgid "Error spawning, %d\n"
+#~ msgstr "错误产生，%d\n"
+
+#, fuzzy
+#~ msgid "#  Invalid value in 'update_status' member!"
+#~ msgstr "#  “update_status”成员中无效的值！"
+
+#, fuzzy
+#~ msgid "unknown trace mode '%s'"
+#~ msgstr "未知的内置命令“%s”\n"
+
+#, fuzzy
+#~ msgid "internal error: multiple --sync-mutex options"
+#~ msgstr "内部错误：多个 --jobserver-fds 选项"
+
+#~ msgid "internal error: multiple --jobserver-fds options"
+#~ msgstr "内部错误：多个 --jobserver-fds 选项"
+
+#~ msgid "virtual memory exhausted"
+#~ msgstr "虚拟内存耗尽"
+
+#~ msgid "write error"
+#~ msgstr "写错误"
+
+#~ msgid "BUILTIN RM %s\n"
+#~ msgstr "BUILTIN RM %s\n"
+
+#~ msgid "*** [%s] Error 0x%x (ignored)"
+#~ msgstr "*** [%s] 错误 0x%x (忽略)"
+
+#~ msgid "process_easy() failed failed to launch process (e=%ld)\n"
+#~ msgstr "process_easy() 启动进程失败 (e=%ld)\n"
+
+#~ msgid ""
+#~ "%sThis is free software; see the source for copying conditions.\n"
+#~ "%sThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A\n"
+#~ "%sPARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "%s该程序为自由软件，详情可参阅版权条款。在法律允许的范围内\n"
+#~ "%s我们不作任何担保，这包含但不限于任何商业适售性以及针对特\n"
+#~ "%s定目的的适用性的担保。\n"
+
+#~ msgid "extraneous `endef'"
+#~ msgstr "多于的“endef”"
+
+#~ msgid "empty `override' directive"
+#~ msgstr "空“override”指令"
+
+#~ msgid "invalid `override' directive"
+#~ msgstr "无效的“override”指令"
+
+#~ msgid ""
+#~ "\n"
+#~ "%s # of strings in strcache: %d\n"
+#~ msgstr ""
+#~ "\n"
+#~ "%s strcache 中的字符串数量: %d\n"
+
+#~ msgid "-warning, CTRL-Y will leave sub-process(es) around.\n"
+#~ msgstr "-警告, CTRL-Y 将利刀子进程环境。\n"
+
+#~ msgid ""
+#~ "\n"
+#~ "# No files."
+#~ msgstr ""
+#~ "\n"
+#~ "# 无文件。"
+
+#~ msgid ""
+#~ "\n"
+#~ "# %u files in %u hash buckets.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "# 有 %u 个文件存储在 %u 个杂凑单元中。\n"
+
+#~ msgid "# average %.3f files per bucket, max %u files in one bucket.\n"
+#~ msgstr "# 每个单元平均含有 %.3f 个文件，一个单元最多含有 %u 个文件。\n"
+
+#~ msgid "Syntax error, still inside '\"'\n"
+#~ msgstr "语法错误，仍然在“\"”之中\n"
+
+#~ msgid "Got a SIGCHLD; %u unreaped children.\n"
+#~ msgstr "收到 SIGCHLD 信号；尚有 %u 个子进程存在。\n"
+
+#~ msgid "DIRECTORY"
+#~ msgstr "DIRECTORY"
+
+#~ msgid "Change to DIRECTORY before doing anything"
+#~ msgstr "在做任何事之前转移到 DIRECTORY 中"
+
+#~ msgid "FLAGS"
+#~ msgstr "标志"
+
+#~ msgid "Suspend process to allow a debugger to attach"
+#~ msgstr "挂起进程以便调试器进行连接"
+
+#~ msgid "Environment variables override makefiles"
+#~ msgstr "环境变量覆盖 makefile"
+
+#~ msgid "FILE"
+#~ msgstr "FILE"
+
+#~ msgid "Read FILE as a makefile"
+#~ msgstr "将 FILE 作为 makefile 读入"
+
+#~ msgid "Search DIRECTORY for included makefiles"
+#~ msgstr "在 DIRECTORY 中搜索引入的 makefile"
+
+#~ msgid "Don't start multiple jobs unless load is below N"
+#~ msgstr "除非负载低于 N 否则就不启动多个任务"
+
+#~ msgid "Don't actually run any commands; just print them"
+#~ msgstr "不会实际运行任何命令；只是打印它们"
+
+#~ msgid "Consider FILE to be very old and don't remake it"
+#~ msgstr "将 FILE 认定为过于陈旧而不重现创建它"
+
+#~ msgid "Don't echo commands"
+#~ msgstr "不要回显命令"
+
+#~ msgid "Turns off -k"
+#~ msgstr "关闭 -k"
+
+#~ msgid "Consider FILE to be infinitely new"
+#~ msgstr "将 FILE 看做无限新"
+
+#~ msgid "Do not specify -j or --jobs if sh.exe is not available."
+#~ msgstr "如果 sh.exe 不可用，就不要给出 -j 或 --jobs。"
+
+#~ msgid "Resetting make for single job mode."
+#~ msgstr "将 make 重置为单任务模式。"
+
+#~ msgid "Entering"
+#~ msgstr "正在进入"
+
+#~ msgid "Leaving"
+#~ msgstr "正在离开"
+
+#~ msgid "no file name for `%sinclude'"
+#~ msgstr "“%sinclude” 没有文件名"
+
+#~ msgid "# No variables."
+#~ msgstr "# 没有变量。"
+
+#~ msgid "# average of %.1f variables per bucket, max %u in one bucket.\n"
+#~ msgstr "# 每个杂凑单元平均存储 %.1f 个变量，一个单元最多存储 %u 个。\n"
+
+#~ msgid "# average of %d.%d variables per bucket, max %u in one bucket.\n"
+#~ msgstr "# 每个杂凑单元平均存储 %d.%d 个变量，一个单元最多存储 %u 个。\n"

@@ -1,0 +1,5 @@
+Author: daniter
+
+This folder contains some test build systems. Currently it only has "make". This is a small code base that takes about 6 seconds to build from clean and is useful for testing.
+
+We should also add other build systems like scons and bazel.

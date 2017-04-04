@@ -1,0 +1,1084 @@
+2016-05-22  Paul Smith  <psmith@gnu.org>
+
+	GNU Make release 4.2.
+
+2016-05-21  Joe Crayne  <oh.hello.joe@gmail.com>  (tiny change)
+
+	[SV 44742] Fix double-colon rules plus parallel builds.
+	* remake.c (update_file): Don't update double-colon target status
+	if we're still building targets.
+	(ftime_t): Don't propagate timestamps for double-colon targets that
+	we've not examined yet.
+	* tests/scripts/features/double_colon: Add parallel build tests.
+
+2016-05-21  Paul Smith  <psmith@gnu.org>
+
+	* read.c (eval): [SV 47960] Skip record waiting files when ignoring.
+	* tests/scripts/features/conditionals: Test this scenario.
+
+	Separate the GNU make load ABI from internal types.
+	Create an internal type "floc" and convert all users to that type.
+	* gnumake.h (gmk_floc): Remove the offset field from this type.
+	* loadapi.c (gmk_eval): Convert gmk_floc to internal floc.
+
+2016-05-21  Paul Eggert  <eggert@cs.ucla.edu>
+
+	Fixes for enhanced GCC warnings.
+	Move function prototypes into header files and out of .c files.
+	Use void argument lists for functions that accept no args.
+	Remove unused macros.  Make private functions static.  Align
+	types with printf format characters.
+
+2016-05-21  Paul Smith  <psmith@gnu.org>
+
+	Fix compile issues with Windows and VMS.
+	* main.c (initialize_stopchar_map): isblank() is not part of C89.
+	Install bits for space and tab directly.
+	* makeint.h: Don't define vfork; autoconf handles this for us.
+	* vmsjobs.c: Rename NEXT_TOKEN to V_NEXT_TOKEN to avoid conflicts.
+	* dir.c (print_dir_data_base): Visual Studio C doesn't have int64_t.
+	* w32/subproc/sub_proc.c (process_begin): Missing arg to memset().
+	* build_w32.bat: Don't use obsolete Visual Studio flags.
+
+	Allow compiling with an ISO C 1989/1990 compiler.
+	* posixos.c (jobserver_post_child): Use C89 for loop syntax.
+	* remake.c (update_goal_chain): Ditto.
+	* variable.c (parse_variable_definition): Ditto.
+
+2016-05-17  Eli Zaretskii  <eliz@gnu.org>
+
+	[SV 47942] Avoid random crashes in subordinate programs on MS-Windows
+	* w32/subproc/sub_proc.c (process_begin): Zero out startInfo
+	before using it.  Fixes crashes in Intel Fortran compiler invoked
+	by Make.
+
+2016-04-24  Eli Zaretskii  <eliz@gnu.org>
+
+	Fix the MS-Windows MinGW build
+	* build_w32.bat (GccCompile): Use -std=gnu99, as some code uses
+	C99 features ('for' loop initial declarations).
+
+	* dir.c (print_dir_data_base) [WINDOWS32]: Cast 'mtime' to
+	'int64_t', and use %I64d to print it, to avoid compile-time
+	warning about printing a 'time_t' value, which could be either
+	a 32-bit or a 64 bit integral type.
+
+2016-04-23  Paul Smith  <psmith@gnu.org>
+
+	* tests/scripts/features/output-sync: increase test timeout.
+	I'm getting random failures with a timeout of 10s; increase to 30s.
+
+2016-04-11  Paul Smith  <psmith@gnu.org>
+
+	* NEWS: Update for pre-release
+
+	* dep.h, makeint.h (show_goal_error): Move to makeint.h.
+
+2016-04-11  Paul Smith  <psmith@gnu.org>
+
+	[SV 46433] Show recipe line offsets in line number messages.
+	While displaying line numbers, show the relevant line number inside
+	the recipe not just the first line of the entire recipe.
+	Sample changes suggested by Brian Vandenberg <phantall@gmail.com>
+
+	* gnumake.h (gmk_floc): Add an 'offset' to track the recipe offset.
+	* read.c (eval, eval_makefile, eval_buffer): Initialize 'offset'.
+	(record_files, install_pattern_rule): Ditto.
+	* job.c (new_job, job_next_command): Update 'offset' based on the
+	line of the recipe we're expanding or invoking.
+	(child_error): Add 'offset' when showing the line number.
+	* function.c (func_shell_base): Ditto.
+	* output.c (error, fatal): Ditto.
+	* NEWS: Mention the new ability.
+	* tests/scripts/features/errors: Check the line number on errors.
+	* tests/scripts/functions/warning: Check the line number on warnings.
+	* tests/scripts/features/output-sync,
+	tests/scripts/features/parallelism, tests/scripts/functions/shell,
+	tests/scripts/functions/error: Update line numbers.
+
+2016-04-09  Paul Smith  <psmith@gnu.org>
+
+	* maintMakefile: Add a rule for storing preprocessor output.
+
+	[SV 102] Don't show unnecessary include file errors.
+	Delay the generation of error messages for included files until we
+	are sure that we can't rebuild that included file.
+	* dep.h (struct dep): Don't reuse "changed"; make a separate field
+	to keep "flags".  Get rid of dontcare and use the flag.
+	(struct goaldep): Create a new structure for goal prereqs
+	that tracks an errno value and the floc where the include happened.
+	Rework the structures to ensure they are supersets as expected.
+	In maintainer mode with GCC, use inline to get type checking.
+	* read.c (eval_makefile): Return a struct goaldep for the new
+	makefile.  Ensure errno is set properly to denote a failure.
+	(read_all_makefiles): Switch to goaldep and check errno.
+	(eval): Don't show included file errors; instead remember them.
+	* remake.c (update_goal_chain): Set global variables to the current
+	goaldep we're building, and the entire chain.
+	(show_goal_error): Check if the current failure is a consequence
+	of building an included makefile and if so print an error.
+	(complain): Call show_goal_error() on rule failure.
+	* job.c (child_error): Call show_goal_error() on child error.
+	* main.c (main): Switch from struct dep to goaldep.
+	* misc.c (free_dep_chain): Not used; make into a macro.
+	* tests/scripts/features/include: Update and include new tests.
+	* tests/scripts/options/dash-B, tests/scripts/options/dash-W,
+	tests/scripts/options/print-directory,
+	tests/scripts/variables/MAKE_RESTARTS: Update known-good-output.
+
+	* job.c (child_error): Add filename length to output length.
+	Reported by Dale Stimson <dale@riyescott.com>
+
+2016-04-04  Paul Smith  <psmith@gnu.org>
+
+	Preserve the real value of -jN in MAKEFLAGS using jobserver.
+	Previously if the jobserver was active, MAKEFLAGS would contain only
+	the -j option but not the number (not -j5 or whatever) so users
+	could not discover that value.  Allow that value to be provided in
+	MAKEFLAGS without error but still give warnings if -jN is provided
+	on the command line if the jobserver is already activated.
+
+	* NEWS: Discuss the new behavior.
+	* os.h, posixos.c, w32/w32os.c: Return success/failure from
+	jobserver_setup() and jobserver_parse_auth().
+	* main.c (main): Separate the command line storage of job slots (now
+	in arg_job_slots) from the control storage (in job_slots).  Make a
+	distinction between -jN flags read from MAKEFLAGS and those seen
+	on the command line: for the latter if the jobserver is enabled then
+	warn and disable it, as before.
+	* tests/scripts/features/jobserver: Add new testing.
+
+2016-04-04  Paul Smith  <psmith@gnu.org>
+
+	* tests/run_make_tests.pl: Add file/lineno info to .run file.
+
+	* maintMakefile: Fix logging of check-alt-config target.
+
+	* job.c (child_execute_job): Fix $(shell...) under NO_OUTPUT_SYNC.
+	* main.c (decode_output_sync_flags): Use NONE for NO_OUTPUT_SYNC.
+
+	* main.c (main): Restrict disabling debugging for MAKEFILES.
+
+	* Makefile.am, w32/Makefile.am: Fix *os.c for Windows builds.
+	Original change provided by Luke Allardyce <lukeallardyce@gmail.com>
+
+	* make.texi: Confirm that CURDIR contains an absolute path.
+
+	* docs/make.texi: [SV 47392] Add "Integrating make" chapter.
+
+	Change --jobserver-fds to more generic --jobserver-auth.
+	* NEWS: Mention the change.
+	* main.c: Rename jobserver_fds variable to jobserver_auth and
+	--jobserver-fds option to --jobserver-auth.
+	* os.h, posixos.c, w32/w32os.c: Rename jobserver_parse_arg() and
+	jobserver_get_arg() to jobserver_parse_auth()/jobserver_get_auth().
+
+2016-03-23  Paul Smith  <psmith@gnu.org>
+
+	* tests/run_make_tests.pl: Preserve $make_command
+	* tests/scripts/options/dash-n: Use $make_command.  This fixes
+	a spurious failure when running tests with valgrind enabled.
+
+	* variable.c: Clean up some memory leaks.
+
+	[SV 46995] Strip leading/trailing space from variable names
+	* makeint.h: Change MAP_SPACE to MAP_NEWLINE, and add MAP_PATHSEP
+	and MAP_SPACE which is now MAP_BLANK|MAP_NEWLINE.  Create
+	NEW_TOKEN(), END_OF_TOKEN(), ISBLANK(), ISSPACE() macros.
+	* main.c (initialize_stopchar_map): Set MAP_NEWLINE only for
+	newline characters.
+	* Convert all uses of isblank() and isspace() to macros.
+	* Examine all uses of isblank() (doesn't accept newlines) and
+	change them wherever possible to ISSPACE() (does accept newlines).
+	* function.c (func_foreach): Strip leading/trailing space.
+	* variable.c (parse_variable_definition): Clean up.
+	* tests/scripts/functions/foreach: Test settings and errors.
+	* tests/scripts/functions/call: Rewrite to new-style.
+	* tests/scripts/misc/bs-nl: Add many more tests for newlines.
+
+2016-03-21  Paul Smith  <psmith@gnu.org>
+
+	* function.c (func_file): Support reading from files.
+	* NEWS: Add information about reading files.
+	* make.texi (File Function): Describe reading files.
+	* tests/scripts/functions/file: Test new features for $(file ...)
+
+2016-03-20  Paul Smith  <psmith@gnu.org>
+
+	* doc/make.texi (Setting Variables): Fix typo (add comma).
+
+	* job.c (child_error): Combine file info with error message.
+	* tests/scripts/...: Update error message matches.
+
+2016-03-19  Paul Smith  <psmith@gnu.org>
+
+	* variable.c: Align type of variable_changenum.
+
+2016-03-13  Paul Smith  <psmith@gnu.org>
+
+	[SV 45728] Detect changes in .VARIABLES more accurately.
+	For performance, we only recompute .VARIABLES when (a) it's expanded
+	and (b) when its value will change from a previous expansion.  To
+	determine (b) we were checking the number of entries in the hash
+	table which used to work until we started undefining entries: now if
+	you undefine and redefine the same number of entries in between
+	expanding .VARIABLES, it doesn't detect any change.  Instead, keep
+	an increasing change number.
+	* variables.c: Add variable_changenum.
+	(define_variable_in_set, merge_variable_sets): Increment
+	variable_changenum if adding a new variable to the global set.
+	(undefine_variable_in_set): Increment variable_changenum if
+	undefining a variable from the global set.
+	(lookup_special_var): Test variable_changenum not the hash table.
+	* tests/scripts/variables/special: Test undefining variables.
+
+	* main.c(main): Disable output sync without parallel builds.
+
+	[SV 46581] Pre-define .LOADED to avoid warnings.
+	* main.c (main): Pre-define .LOADED as a default-level variable.
+	* load.c (load_file): Set the value rather than append it.  Avoid
+	adding an extra initial whitespace.
+	* tests/scripts/features/load: Run with --warn-undefined-variables.
+
+2016-03-13  Paul Smith  <psmith@gnu.org>
+
+	[SV 44555] Use vfork() instead of fork() where available.
+	Testing has shown that vfork() is actually significantly
+	more efficient on systems where it's supported, even for
+	copy-on-write implementations.  If make is big enough,
+	duplicating the page tables is significant overhead.
+
+	* configure.ac: Check for fork/vfork.
+	* makeint.h: Include vfork.h and set up #define for it.
+	* os.h, posixos.c (get_bad_stdin): For children who can't use
+	the normal stdin file descriptor, get a broken one.
+	* job.c (start_job_command): Avoid so many ifdefs and simplify
+	the invocation of child_execute_job()
+	(child_execute_job): move the fork operation here so it can
+	return early for the parent process.  Switch to use vfork().
+	* function.c (func_shell_base): Use new child_execute_job() and
+	simplify ifdefs.
+	* job.h, main.c, remote-cstms.c, vmsjobs.c, w32os.c: Update
+	declarations and calls.
+
+2016-03-09  Paul Smith  <psmith@gnu.org>
+
+	* job.c (exec_command): [SV 47365] Show error on exec failure.
+
+2016-03-08  Paul Smith  <psmith@gnu.org>
+
+	[SV 46261] Use pselect() for jobserver where supported.
+	* Makefile.am, configure.ac: Check for pselect() and sys/select.h.
+	* main.c (main): Block SIGCHLD if we have pselect() support.
+	* posixos.c (jobserver_acquire): If we support pselect() then use
+	it to query the jobserver pipe, while also listening for SIGCHLD.
+	Also pselect() supports a timeout so avoid alarm() calls.
+
+	Clean up some compiler warnings.
+	* commands.c, commands.h: Use unsigned char for flags.
+	* dir.c: Use time_t and size_t, and char for a boolean value.
+	* job.c: Use unsigned and char.
+	* read.c: Return a signed type since -1 is a valid return code.
+
+	Extract jobserver implementation into OS-specific files.
+	* os.h, posixos.c, w32/w32os.c: New files implementing jobserver.
+	* job.c, job.h, main.c, makeint.h: Move content to new files.
+	* w32/include/sub_proc.h, w32/subproc/sub_proc.c: Ditto.
+	* Makefile.am: Build and package OS-specific files.
+	* build_w32.bat, make_msvc_net2003.vcproj, README.W32.template:
+	Update for new files, and clean up the build.
+	* POTFILES.in, maintMakefile, NMakefile.template: Ditto.
+	* w32/subproc/build.bat: Delete as unused.
+
+	[SV 46261] Add more EINTRLOOP wrappers.
+	This cannot be a perfect solution because there are always other
+	possible places EINTR can happen, including external libraries
+	such as gettext, Guile etc.
+
+2016-02-29  Paul Smith  <psmith@gnu.org>
+
+	* strcache.c (add_hugestring): [SV 46832] Support huge strings.
+	The strcache was limited to strings of length 65535 or less,
+	because the length is kept in an unsigned short.  To support
+	huge strings add a new simple linked list, which we don't try
+	to hash.
+
+	* strcache.c (add_string): [SV 47071] Handle huge initial string.
+	If the very first string added to the string cache is more than
+	half the maximum size, we failed when moving the only strcache
+	buffer to the full list.
+
+	[SV 47151] Exit with 1 when checking recursive make -q
+	* job.h (struct child): New bit to mark recursive command lines.
+	* job.c (start_job_command): Set the recursive command line bit.
+	(reap_children): If the child is a recursive command and it exits
+	with 1 during question mode, don't print an error and exit with 1.
+	* tests/scripts/options/dash-q: Add a regression test.
+
+	* main.c (define_makeflags): Add parens to avoid GCC warning.
+
+2016-02-29  Paul Smith  <psmith@gnu.org>
+
+	* tests/scripts/features/archives: Handle deterministic archives.
+	Newer versions of binutils allow ar to be compiled to generate
+	"deterministic archives" by default: in this mode no timestamp
+	information is generated in the static archive, which utterly
+	breaks GNU make's archive updating capability.  Debian and Ubuntu
+	have turned this feature on by default in their distributions
+	which causes the regression tests to fail.
+
+	Update the regression tests to check for the availability of the
+	"U" option to ar which disables deterministic archives and allows
+	GNU make's archive support to work properly again.
+
+2016-02-28  Paul Smith  <psmith@gnu.org>
+
+	Update Copyright statements for the new year.
+
+	* doc/make.texi: [SV 47163] Fix typo in 'ifdef' documentation.
+
+	* doc/make.texi: [SV 35455] Add more uses for Empty Recipes.
+
+2015-11-07  Gisle Vanem  <gvanem@yahoo.no>
+
+	Fix diagnostics on MS-Windows when environment is too large
+		* w32/subproc/sub_proc.c (process_begin): Fix test of the error
+		cause when the environment block is too large.
+
+2015-10-27  Eli Zaretskii  <eliz@gnu.org>
+
+	Update README.W32.template
+	* README.W32.template: Update for latest developments.  Make it
+	clear we don't recommend using HAVE_CASE_INSENSITIVE_FS in
+	general.
+
+	[SV 46304] Don't invoke C++ compiler on C sources on MS-Windows
+	* default.c (default_variables) [HAVE_CASE_INSENSITIVE_FS]: Make
+	COMPILE.C and LINK.C be synonyms for COMPILE.c and LINK.c,
+	respectively.
+
+2015-09-23  Eli Zaretskii  <eliz@gnu.org>
+
+	[SV 45838] When invoking w32 programs, don't use free'd memory.
+	* w32/subproc/sub_proc.c (process_begin): Freeing argv[0] makes
+	the other argv[i] pointers invalid, so need to allocate a new
+	array and copy argv[i] for i != 0 first, replacing argv[0] with
+	the batch file name, before we can free argv[0].
+
+2015-07-13  Paul Smith  <psmith@gnu.org>
+
+	* implicit.c (pattern_search): [SV 43677] Mark files secondary.
+	In order to fix SV 12267 we were marking the prerequisites of
+	implicit (pattern) targets that existed elsewhere in the makefile
+	as precious to keep them from being deleted as intermediate files.
+	However this also keeps them from being deleted on error.  Instead
+	mark them as secondary.
+	* tests/scripts/targets/DELETE_ON_ERROR: Test DELETE_ON_ERROR.
+
+2015-07-12  Paul Smith  <psmith@gnu.org>
+
+	[SV 28092] Preserve the exit status of the $(shell...) function.
+	Add a new variable .SHELLSTATUS which holds the exit status of the
+	last-invoked shell function or != assignment.
+
+	* NEWS, doc/make.texi: Document the change.
+	* function.c (shell_completed, msdos_openpipe, func_shell_base): Add
+	shell_completed() to handle the completion of the shell, by setting
+	.SHELLSTATUS.  Call it where needed.
+	* job.c (child_handler): Call shell_completed().
+	* tests/scripts/functions/shell: Add tests for .SHELLSTATUS.
+
+2015-07-12  Paul Smith  <psmith@gnu.org>
+
+	* tests/scripts/misc/fopen-fail: [SV 42390] Increase test timeout.
+	* Makefile.am (check-regression): Force ulimit -n for fopen-fail test.
+
+	* job.c: [SV 43936] Check sigaction for error return.
+
+	[SV 45049] Check for '$' being the last character in a string.
+	* expand.c (variable_expand_string): Add a single '$' if '$' ends the
+	string.
+	* read.c (find_char_unquote, get_next_mword): Stop if '$' ends the
+	string.
+	* variable.c (parse_variable_definition): Ditto.
+
+	* read.c (unescape_char): [SV 45050] Handle final backslashes.
+	If the last thing in the string to be unescaped is a backslash,
+	stop without reading beyond the end of the string.
+
+	* strcache.c: [SV 45275] Handle very long strings.
+	Our previous behavior for handling too-long strings involved
+	increasing the size of the default string cache buffer, but the
+	implementation was incomplete.  Instead, create a one-off large
+	string cache entry and add it directly to the full cache list
+	without changing the default buffer size.
+
+2015-07-12  Duncan Moore  <duncan.moore@gmx.com>  (tiny change)
+
+	* job.c [RISCOS]: Remove logic that is no longer required.
+
+2015-07-12  Paul Smith  <psmith@gnu.org>
+
+	* remake.c (update_file): [SV 44742] Keep double-colon rule status.
+	Fix suggested by Everett Boyer <EvBoyer@aol.com>
+
+2015-07-10  James Johnston  <johnstonj.public@codenest.com>  (tiny change)
+
+	[SVN 45515] Check exit status of sub-make in subproc.bat
+	* subproc.bat: Exit when sub-make invocation fails.
+
+2015-07-10  Eli Zaretskii  <eliz@gnu.org>
+
+	[SV 45515] Ignore Windows-specific build artifacts
+	* .gitignore: Ignore *.exe, *.dll.a, *.lib, *pdb, and a few more MSVC
+	specific artifacts.
+	Suggested by James Johnston <johnstonj.public@codenest.com>
+
+2015-02-28  Eli Zaretskii  <eliz@gnu.org>
+
+	[SV 44348] Fix handling of shell widlcards on MS-Windows.
+		* job.c (construct_command_argv_internal): If shell wildcard
+		characters are found inside a string quoted with "..", give up the
+		fast route and go through the shell.  Fixes Savannah bug #44348.
+
+2015-01-27  John Malmberg  <wb8tyw@qsl.net>
+
+	Fix bs-nl handling, exit and Environment for VMS.
+	This fix required a complete rewrite of the command parser vmsjobs.c
+	child_execute_job.  The old parser had too many incorrect assumptions
+	about DCL commands and could not be repaired to extended.
+
+	The parser now more closely parses VMS commands and handles quoted
+	commands and redirection.  Command File mode has been improved, but can
+	not fully support bs-nl syntax.
+
+	VMS Unix shell simulation has been improved.
+
+	* commands.c: vms_comma_separator is now a run-time setting.
+	* function.c: vms_comma_separator is now a run-time setting.
+	* function.c(func_basename_dir) now reports "[]" or "./" based on
+	  VMS crtl runtime setting.
+	* job.c(start_job_command): VMS Handle empty commands propery.
+	* main.c: Add VMS environment variables for run-time settings.
+	  * vms_legacy_behavior - Force older behavior.
+	  * vms_comma_separator - Commas or spaces for separators.
+	  * vms_unix_simulation - Enhanced Posix shell simulation features.
+	  * Detect if VMS CRTL is set to report Unix paths instead of VMS.
+	  * ':' and '>' are also MAP_DIRSEP on VMS.
+	* makeint.h: Add VMS run-time option variables.
+	* readme.vms: Update to current behavior.
+	* variable.c(define_variable_in_set): Fix VMS Environment variable
+	  lookup.
+	* variable.c(define_automatic_variables): Remove some VMS specific
+	  automatic variables and use the Unix ones instead.
+	* vms_export_symbol.c: Set max symbol size correctly.
+	* vmsjobs.c: child_execute_job() complete rewrite of VMS comand
+	  parsing.
+	* vmsjobs.c(build_vms_cmd): VMS commmand building with shell simulation.
+
+2014-12-27  Christian Boos  <cboos@edgewall.org>  (tiny change)
+
+	Fix $(shell) on hosts with 64-bit pid_t.
+	* function.c: Use pid_t for shell_function_pid.
+	* job.c: Likewise.
+
+2014-10-20  Paul Smith  <psmith@gnu.org>
+
+	* main.c (main): [SV 43434] Handle NULL returns from ttyname().
+
+2014-10-20  Benedikt Morbach  <benedikt.morbach@googlemail.com>  (tiny change)
+
+	* tests/scripts/features/archives: [SV 43405] override AR variable.
+
+2014-10-20  John Malmberg  <wb8tyw@qsl.net>
+
+	Fix VMS implicit rules and UNIX paths.
+	This fixes VMS implicit rules and UNIX style pathname handling.
+	It also fixes some of the VMS style pathname handling, more work
+	there will be needed later.
+	TODO: There are other case insensitive platforms besides VMS.
+	We need to find out why there is extra VMS code for this.  This
+	indicates either the extra VMS code is not needed, or the case
+	insensitive support may not be complete on the other case
+	insensitive platforms.
+
+	* default.c: Add missing definitions to default_suffix_rules[] and
+	default_variables[].
+	TODO: As it is important that VMS DCL mode definitions must always
+	be a superset of UNIX definitions, a better way of maintaining the
+	VMS DCL mode definitions should be devised.
+	* dir.c (downcase_inplace): Add a reentrant downcase() routine.
+	Add future support for VMS 8.2+ _USE_STD_STAT macro which will
+	disable a lot of VMS specific code from compiling.
+	(dir_file_exists_p): vmsify filename only if directory name has VMS
+	directory delimiters.
+	(file_exists_p): Handle both VMS and UNIX directories.
+	(file_impossible): Handle both VMS and Unix directories.  Track
+	whether a VMS format path is needed for the return value.
+	* file.c (lookup_file): Check if vmsify is needed; handle UNIX paths.
+	* implicit.c (pattern_search): Enable UNIX paths.
+	* read.c (parse_file_seq): Enable UNIX paths.
+	* remake.c (f_mtime): Fix gpath_search call for VMS paths.
+	* rule.c (count_implicit_rule): Enable UNIX paths, Fix VMS paths.
+	* vpath.c (selective_vpath_search): Enable UNIX paths.
+
+2014-10-20  John Malmberg  <wb8tyw@qsl.net>
+
+	Update README.VMS and move news to the NEWS file
+	* NEWS: Merge in VMS history.
+	* README.VMS: Remove VMS history, document current behavior and
+	known issues.
+
+2014-10-20  John Malmberg  <wb8tyw@qsl.net>
+
+	[SV 41758]: Fix archive support for VMS.
+	Upated to match change to run_make_tests and some future fixes to
+	make on VMS.
+
+	* arscan.c: Use ANSI compatible pragmas instead of VAX C extensions.
+	* tests/scripts/features/archives: Fix tests to use VMS rules and
+	answers when running on VMS and using DCL as a shell.
+	* tests/scripts/features/vpath3: Fix epected answer on test when
+	run on VMS.
+	* tests/scripts/vms/library: (New) Test the VMS library rules that
+	are not tested by existing tests.
+
+2014-10-20  John Malmberg  <wb8tyw@qsl.net>
+
+	[SV 42447]: VMS simulate exporting symbols
+	This also includes fixing the most of the exit handling code for VMS.
+
+	Self tests:
+	 Previously about 94 Tests in 36 categories fail.
+	 Now about 45 tests in 22 categories fail.
+
+	Because some tests do not properly clean up, the number of tests that
+	fail can vary by one or two test cases between consecutive runs.
+
+	* Makefile.am: Add new VMS files.
+	* job.c: add prototype for vms_strsignal().
+	* job.c: (child_error): Remove VMS specific code as no longer needed.
+	* job.c: (reap_children): The VMS specific code was setting the
+	status to 0 instead of setting it to the proper exit status.
+	* job.h: Add vms_launch_status to struct child.
+	* main.c: (main): Use environment variables for options to use MCR
+	* instead of a foreign command, and to always use command files for
+	subprocesses.
+	For VMS use (set_program_name) routine which is common to ports of
+	other GNU packages to VMS to set the program name used internally.
+	Use (vms_putenv_symbol) to set up symbols to be visible in child
+	programs, including recursive make launched by execve()
+	Start of Bash shell detection code for VMS.
+	* makefile.com: Need nested_include=none for building on VMS search
+	lists.  Add vms_progname, vms_exit, and vms_export_symbol.
+	* makefile.vms: Need nested_include=none for building on VMS search
+	lists.  Add vms_progname, vms_exit, vms_export_symbol.
+	* makeint.h: Make sure non-standard "VMS" macro is defined.  Add
+	prototypes for new VMS routines.  Remove VMS-specific failure codes.
+	* vmsjobs.c: Add VMS POSIX exit code constants.
+	(_is_unixy_shell): Detect Bash shell.
+	(vms_strsignal): simulate strsignal() on VMS.
+	(vmsHandleChildTerm): fix to properly report failed LIB$SPAWN() exit
+	status codes.  Remove code that duplicated code in job.c.
+	(child_execute_job): Export environment symbols before spawning a
+	child and restore afterward unless option to use command files for
+	subprocesses is set.  Improve handling of UNIX null commands ":".
+	* vms_exit.c: Provides vms_exit() to detect if an exit code is UNIX
+	or VMS, and converts the UNIX code into a VMS exit code.
+	* vms_export_symbol.c: Routines to create DCL symbols that work like
+	shell aliases or exported shell symbols and clean them up on exit.
+	* vms_export_symbol_test.com: Unit test for vms_export_symbol.c
+	* vms_progname.c: New file: VMS specific replace for progname.c that
+	is used in some GNU projects.
+
+2014-10-20  John Malmberg  <wb8tyw@qsl.net>
+
+	Set up for running tests on VMS.
+	* run_make_tests.pl: set $port_type to be 'VMS-DCL' when the test are
+	run from the VMS DCL Interpreter.  When the tests are run from GNV
+	on VMS, the $port_type will be 'UNIX'.
+	* run_make_tests.com: VMS search list support.  This is needed for
+	using a search list such as prj_root = lcl_root:,vms_root:,src_root:
+	for building and testing.
+
+2014-10-09  Paul Smith  <psmith@gnu.org>
+
+	* configure.ac, NEWS, README.git: Set up for the next release.
+
+2014-10-05  Paul Smith  <psmith@gnu.org>
+
+	GNU Make release 4.1.
+
+2014-10-02  Eli Zaretskii  <eliz@gnu.org>
+
+	Fix Cygwin compilation error.
+	* job.c (construct_command_argv_internal) [HAVE_DOS_PATHS]: Fix
+	initializer for sh_chars_sh.
+	Reported by Denis Excoffier<cygwin@Denis-Excoffier.org>.
+
+2014-10-01  Gisle Vanem  <gvanem@yahoo.no>
+
+	Fix last commit.
+
+	* makeint.h (ftruncate): Define also for __WATCOMC__.
+
+2014-10-01  Eli Zaretskii  <eliz@gnu.org>
+
+	Avoid compilation warnings.
+	* main.c (find_and_set_default_shell, main) [WINDOWS32]: Declare
+	variables 'const char *' to avoid compiler warnings.
+	* job.c (construct_command_argv_internal) [!NDEBUG]: Declare 'end'
+	and set it only if NDEBUG is not defined, to avoid compiler
+	warnings.
+
+	Treat redirection of standard handles on Windows as it is done on Unix.
+	* job.c (start_job_command) [WINDOWS32]: Compute outfd and errfd
+	as on Posix platforms, and pass the results to process_easy.
+	* function.c (windows32_openpipe) [WINDOWS32]: Accept an
+	additional argument ERRFD and use it for redirecting the standard
+	error handle passed to the subprocess.
+	(func_shell_base) [WINDOWS32]: Pass the computed errfd to
+	windows32_openpipe.
+
+2014-09-30  Paul Smith  <psmith@gnu.org>
+
+	Update Copyright statements for 2014.
+
+	* tests/scripts/features/load: Avoid unused variable warnings.
+
+	* loadapi.c (gmk_eval): Use C90 syntax.
+
+2014-09-30  Hartmut Becker  <becker.ismaning@freenet.de>
+
+	* job.c: fix make action continuation lines.
+	* vmsjobs.c: fix writing DCL command files when trimming (white
+	  spaces and $ signs) especially after a split (command continuation).
+
+2014-09-15  Bernhard Reutner-Fischer  <rep.dot.nop@gmail.com>  (tiny change)
+
+	* configure.ac: Fix spacing in helptext of customs
+
+2014-09-15  Eli Zaretskii  <eliz@gnu.org>
+
+	Support MAKE_TERMOUT and MAKE_TERMERR on MS-Windows.
+	* w32/compat/posixfcn.c (isatty, ttyname): New functions.
+	* config.h.W32.template (HAVE_TTYNAME): Define.  Add a prototype
+	for ttyname.
+
+2014-09-15  Paul Smith  <psmith@gnu.org>
+
+	* loadapi.c (gmk_eval): [SV 43221] Preserve var buff content for eval.
+
+	* main.c, NEWS, doc/make.text: Rename MAKE_TTY* to MAKE_TERM*
+
+2014-09-14  Paul Smith  <psmith@gnu.org>
+
+	* main.c (main): Set MAKE_TTYOUT and MAKE_TTYERR.
+	* configure.ac: Test for isatty() and ttyname()
+	* makeint.h: provide a substitute for ttyname() if it's not available.
+	* config.ami.template, config.h-vms.template, config.h.W32.template:
+	define/undefine HAVE_ISATTY/HAVE_TTYNAME macros.
+	* NEWS, doc/make.texi: Document these new variables.
+
+2014-09-07  Paul Smith  <psmith@gnu.org>
+
+	* tests/config-flags.pm.in, tests/scripts/features/archives: [SV 43046]
+	Use the "ar" program detected by configure when running the test suite.
+
+	* doc/make.texi: Clarify implicit rule lookup of phony targets
+	Reported by Frank Heckenbach <f.heckenbach@fh-soft.de>
+
+2014-09-07  Hartmut Becker  <becker.ismaning@freenet.de>
+
+	Fix and enhance VMS library support.
+	* ar.c: fix VMS library search for members, which do not have
+	suffixes, aka filename extensions.
+	* arscan.c: fix time conversion and library callback routines.
+	* default.c: more suffixes and automatically create the VMS library
+	if it doesn't exists.
+
+	Enhance VMS exporting make environment variables.
+	* config.h-vms.template: add feature macro USE_DCL_COM_FILE to always
+	write a DCL command file, enabled by default.
+	* vmsjobs.c: with USE_DCL_COM_FILE enabled write make variables as DCL
+	symbol assignments into the command file.  This enables printing
+	directory and make level info for recursive use of make. This also
+	enables forced DCL symbol substitution in the actions.
+
+	Fix VMS automatic variable expansion
+	* function.c: add VMS code to func_notdir_suffix and func_basename_dir
+	to work on comma separated lists; this fixes the expansion of
+	$(^D), $(+D) and the F variants for VMS.
+
+	* main.c [VMS]: Say that parallel jobs (-j) are not supported on VMS
+
+	Enhance/fix VMS ONESHELL implementation and command execution
+	* job.c, vmsjobs.c: fix some double quote and new line handling;
+	implement ONESHELL with writing multiple lines into one DCL command
+	procedure; in ONESHELL allow VMS/make internal redirection only on the
+	first line; fix the created DCL command procedure, which didn't abort
+	on errors; return correct exit status from the DCL command procedure;
+	preserve current procedure verification; make the generated command
+	procedure more robust.
+
+	Enhance/fix VMS setting of program name, MAKE/MAKE_COMMAND variables
+	* default.c, main.c, makeint.h, vmsfunctions.c: prefix argv[0] with
+	"mcr " for MAKE/MAKE_COMMAND and set the program name to the image
+	filename (without the .exe;version)
+	* vmsfunctions.c: remove obsolete code
+	* vmsify: use xmalloc
+
+	Enhance/fix VMS exit code handling.
+	* commands.c, function.c, hash.c, job.c, main.c, output.c:
+	use MAKE exit codes.
+	* makeint.h: encode make exit codes so that they are VMS compatible.
+	* job.c: check child exit code for VMS style exit codes.
+	* vmsjobs.c: save and return VMS style exit code.
+
+	Enhance/fix VMS multi-line support.
+	* job.c: split the command line at a newline.
+	* default.c, vmsjobs.c: change ECHO variable to a pseudo builtin,
+	which ensures that the VMS/DCL ECHO ("write sys$output") is used
+	and is correctly quoted.
+	* vmsjobs.c: remove unused builtin 'rm'.
+
+	* config_flags_pm.com, [RENAMED test_make.com] run_make_tests.com:
+	Moved into tests directory.
+
+	Enhance/fix VMS build environment
+	* config.h-vms.template: make sure the CRTL version is known
+	* makefile.com: always compile/link the guile module, remove VAXCRTL
+	parameter, new LIST parameter
+	* makefile.vms: always compile/link the guile module, use more
+	complete dependencies
+	* prepare_vms.com: helper to create a VMS config file when building
+	from a snapshot of the repository
+
+2014-09-07  Paul Smith  <psmith@gnu.org>
+
+	* configure.ac, maintMakefile, w32/Makefile.am: Fix autotools issues.
+	Reported by Paul Eggert <eggert@cs.ucla.edu>
+
+2014-08-30  Eli Zaretskii  <eliz@gnu.org>
+
+	Change the order of "makefile" and "Makefile" to match the manual.
+
+	Fix regression with "makefile" not being found on MS-Windows.
+	* read.c (read_all_makefiles) [WINDOWS32]: Recognize "makefile",
+	all-lowercase, as a makefile.  Reported by Michael Waeber
+	<waeber@gmail.com>.
+
+2014-07-16  Eli Zaretskii  <eliz@gnu.org>
+
+	Fix compilation on MS-Windows.
+	* makeint.h [WINDOWS32]: Don't declare 'program' as 'const char *',
+	since it is modified in 'main'.
+
+2014-07-12  Eli Zaretskii  <eliz@gnu.org>
+
+	[SV 42695] Fix compilation error on MS-Windows.
+	* main.c [WINDOWS32]: Don't declare 'program' as 'const char *',
+	since it is modified in 'main'.
+
+2014-07-12  Jonny Grant  <jg@jguk.org>  (tiny change)
+
+	Fix defalt_makefiles[] for MS-Windows.
+	* read.c (read_all_makefiles) [WINDOWS32]: Remove the redundant
+	"makefile" and add "makefile.mak".
+
+2014-07-07  Fredrik Fornwall  <fredrik@fornwall.net>  (tiny change)
+
+	* arscan.c [ANDROID]: Android has no ar.h but supports archives.
+
+2014-07-07  Paul Smith  <psmith@gnu.org>
+
+	* read.c (eval): [SV 41677] Correct test for TAB vs. 8 spaces.
+
+2014-07-07  Piotr Jaroszynski  <pjaroszynski@nvidia.com>  (tiny change)
+
+	* output.c (pump_from_tmp): [SV 42378] Flush the output file regularly.
+
+2014-07-07  John Malmberg  <wb8tyw@qsl.net>
+
+	Update the regression test harness to support VMS.
+	* config_flags_pm.com, test_make.com: set up and run the regression
+	test environment on VMS.
+	* tests/run_make_tests.pl [VMS]: Use an alternate rmdir()
+	implementation on VMS.
+	(run_make_with_options) [VMS]: Provide VMS-specific quoting and shell
+	invocations.
+	(set_more_defaults) [VMS]: Set default values when running on VMS.
+	* tests/test_driver.pl (vms_get_process_logicals) [VMS]: Retrieve the
+	proper values from %ENV on VMS.
+	(resetENV) [VMS]: Use it.
+	(toplevel) [VMS]: Fix a bug with opendir() on some logical_devices.
+	(compare_output) [VMS]: Convert VMS test output to a "standard" format.
+	(_run_command) [VMS]: Handle signals and exit codes the VMS way.
+	(remove_directory_tree_inner) [VMS]: Unlink all versions of the file.
+
+2014-07-07  Paul Smith  <psmith@gnu.org>
+
+	* various: Assume ISO C89-compliant free() implementation.
+
+	* maintMakefile, various: Improve constification of the codebase.
+
+	[SV 41983] Support omitting the text argument to $(file ...)
+	Reported by Tim Murphy <tnmurphy@gmail.com>
+	* function.c (func_file): Only write TEXT if it is not NULL.
+	* NEWS, doc/make.texi: Document the new feature
+	* tests/scripts/functions/file: Verify that the no-text version of
+	  $(file ...) works and doesn't add a newline.
+
+2014-05-13  Jacques Germishuys  <jacques.germishuys@gmail.com>
+
+	NMakefile.template ($(OUTDIR)/posixfcn.obj): Fix a typo.
+
+2014-05-01  Paul Smith  <psmith@gnu.org>
+
+	[SV 42249] Propagate correct rule status results.
+	* remake.c (update_file, update_file_1, check_dep): Return an enum
+	  update_status value instead of an int, and keep the highest value we
+	  find as we walk the graph so that the ultimate status is correct.
+	* tests/scripts/options/dash-q: Add a test for updating prerequisites.
+
+2014-02-08  Paul Smith  <psmith@gnu.org>
+
+	* Rename MAP_PATHSEP to MAP_DIRSEP.
+
+	* configure.ac: Fixup for newer autoconf/automake
+
+2014-02-08  Ray Donnelly  <mingw.android@gmail.com>  (tiny change)
+
+	* output.c: Ensure space for final nul byte in fmtbuf.
+
+2014-02-07  Gisle Vanem  <gvanem@yahoo.no>  (tiny change)
+
+	Improve error reporting in the Windows port when env size is too large.
+	w32/subproc/misc.c (arr2envblk): Compute and return the size of
+	the environment passed to child process.
+
+	w32/subproc/sub_proc.c (process_begin): If the call to
+	CreateProcess failed with EINVAL, and the required environment
+	size was larger than 32KB, assume it's a Windows XP limitation,
+	and display an error message to that effect.
+
+	w32/subproc/proc.h (arr2envblk): Update prototype.
+
+2014-02-01  Paul Smith  <psmith@gnu.org>
+
+	* job.c (set_child_handler_action_flags): [SV 41341]
+	Ensure signal handler is in place before alarm(1).
+
+2014-01-20  Alan Hourihane  <alanh@fairlite.co.uk>  (tiny change)
+
+	* configure.ac: [SV 40790] Fix load autoconf variables.
+
+2014-01-17  Pavel Fedin  <p.fedin@samsung.com>  (tiny change)
+
+	Allow the EMX build to use output_sync.
+	job.c (start_job_command): Move the child output diversion out
+	of non-EMX branch.
+	[__EMX__]: Don't use fixed FD_STDOUT and FD_STDERR in the call to
+	child_execute_job.
+
+2014-01-12  Paul Smith  <psmith@gnu.org>
+
+	* commands.c: [SV 40789] Remove unneeded header dlfcn.h
+
+	* main.c (die): Close output_context AND make_sync.
+	die() can be invoked inside a separate output_context, if the
+	$(error ...) function is expanded as part of a recipe.
+
+2014-01-11  Pavel Fedin  <p.fedin@samsung.com>  (tiny change)
+
+	Fix .LIBPATTERNS for MS-Windows builds.
+	default.c (.LIBPATTERNS) [__CYGWIN__ || WINDOWS32]: Provide
+	library patterns for MS-Windows.
+
+2013-11-27  Paul Smith  <psmith@gnu.org>
+
+	* w32/*: Remove TABs from the source code.
+	I know whitespace commits are annoying, but having these TABs is
+	causing me to miss things when I search through the code.  This
+	doesn't try to change the w32 code to meet GNU coding standards.
+
+	* main.c (decode_env_switches): Ensure we have enough space.
+	Reported (with patch) by Gerte Hoogewerf <g.hoogewerf@gmail.com>
+
+2013-11-27  Stephan T. Lavavej  <stl@nuwen.net>  (tiny change)
+
+	Solve some Windows build issues.
+	* main.c (main): Use ONS(), not OSN().
+	(prepare_mutex_handle_string) [WINDOWS32]: Use %Ix formatting to
+	support both 32bit and 64bit systems.
+	* job.c (free_child, new_job): Use ONS(), not OSN().
+	* w32/subproc/w32err.c (map_windws32_error_to_string): Use O() when
+	calling fatal().
+
+2013-11-24  Paul Smith  <psmith@gnu.org>
+
+	* features/loadapi (test_expand): Allocate memory for the nul byte.
+
+	* load.c (load_file): Reset the name length minus the symbol.
+
+	* read.c (unescape_char): Use memmove() for overlapping memory.
+
+	Fix memory leak during environment option decoding.
+	* main.c (decode_switches): Always make a copy of option arguments.
+	(decode_env_switches): Use a stack buffer to convert environment
+	switches for parsing.
+
+	[SV 40226] Add a new type of switch: single-string options
+	* main.c (struct command_switch): Change the "string" types to "strlist"
+	and make "string" be a single-valued string instead.
+	(output_sync_option, jobserver_fds, sync_mutex): Change to string type.
+	(decode_output_sync_flags): Handle single strings instead of lists.
+	(prepare_mutex_handle_string): Ditto.
+	(main): Ditto.
+	(clean_jobserver): Ditto.
+	(init_switches): Handle the new type.
+	(decode_switches): Ditto.
+	(define_makeflags): Ditto.
+
+2013-11-23  Daniel Richard G  <skunk@iskunk.org>  (tiny change)
+
+	* load.c: [SV 40515] Define RTLD_GLOBAL if not set.
+
+2013-11-23  Paul Smith  <psmith@gnu.org>
+
+	[SV 40361] Don't use vsnprintf(), which is an ISO C99 function.
+	* output.c (error, fatal, message): Take an extra argument specifying
+	how many bytes are used by the formatted arguments.
+	(get_buffer): New function that allocates the requested buffer size.
+	Remove msc_vsnprintf(), vfmtconcat(), and fmtconcat() as unneeded.
+	* makeint.h: Declare various helper macros for generating output.
+	* *.c: Change all error(), fatal(), message() calls to use the macros,
+	or pass the extra length argument directly.
+
+2013-10-27  Paul Smith  <psmith@gnu.org>
+
+	* makeint.h (STOP_SET): [SV 40371] Cast to unsigned char.
+	* tests/scripts/misc/utf8: Test variable names with characters >127.
+	Fix suggested by Robert Bogomip <bob.bogo@milohedge.com>
+
+2013-10-24  Gerte Hoogewerf  <g.hoogewerf@gmail.com>
+
+	Fix MS Visual Studio NET2003 build.
+	* make_msvc_net2003.vcproj: Do not exclude guile.c from compilation.
+
+2013-10-23  Christian Boos  <cboos@edgewall.org>
+
+	Fix SV bug #40227 with respect to stack size set for the MSVC build.
+	* NMakefile.template (/STACK): Increase to 0x400000, mainly for
+	the 64-bit builds.  Fixes SV bug #40227.
+	(guile): Uncomment.
+
+2013-10-23  Eli Zaretskii  <eliz@gnu.org>
+
+	Fix the MS-Windows build: now guile.c must always be compiled in.
+	* build_w32.bat: Always compile guile.c and link against guile.o.
+	  Reported by Alexey Pavlov <alexpux@gmail.com>.
+
+	* makeint.h (guile_gmake_setup): Define prototype unconditionally,
+	to avoid compiler warnings.
+
+2013-10-22  Eli Zaretskii  <eliz@gnu.org>
+
+	Fix Savannah bug #31150 with failures due to setting window title.
+	* sub_proc.c (process_begin): Don't set startInfo.lpTitle, it
+	reportedly causes SV bug #31150, and according to MSDN it's a
+	no-no.
+
+	Fix Savannah bug 40241 with Unixy file names as commands to MSYS shell.
+	* sub_proc.c: Include filedef.h and variable.h.
+	(process_begin): If exec_path was not found, but its first
+	character is '/', assume there's some shell magic, and invoke the
+	command through '$(SHELL) -c "COMMAND"'.  Fixes SV bug#40241.
+	(make_command_line): Kludgey feature: if full_exec_path is "-c",
+	assume that argv[0] is not to be skipped, as it holds the command
+	string to be passed to the shell.
+
+2013-10-20  Paul Smith  <psmith@gnu.org>
+
+	* glob.c (glob) [SV 18123]: Cherry-pick glibc fix
+	Apply commit a471e96a5352a5f0bde6d32dd36d33524811a2b1 from
+	git://sourceware.org/git/glibc.git to fix
+	https://sourceware.org/bugzilla/show_bug.cgi?id=10278
+
+	* read.c (record_files): [SV 33034] Change fatal() to error()
+	Allows deprecated syntax.  However we don't guarantee this syntax
+	will continue to be legal in the future.
+	Change suggested by David Boyce <david.s.boyce@gmail.com>
+
+	* README.git: Add some missing release steps.
+
+2013-10-19  Paul Smith  <psmith@gnu.org>
+
+	[SV 40240] Use configure info to build load test shared libs
+	* tests/config-flags.pm.in: A new file containing variable assignments
+	for the test suite; these variables are set by configure to contain
+	the values detected there for compilers, flags, etc.
+	* tests/run_make_tests.pl: Require the config-flags.pm file
+	* tests/scripts/features/load, tests/scripts/features/loadapi: Use the
+	configure-provided values when building the shared test library.
+	* configure.ac: Replace tests/config-flags.pm.in
+	* Makefile.am: Make sure tests/config-flags.pm is up to date
+
+	* maintMakefile (checkcfg.%): Add testing of build.sh
+
+	[SV 40254] Modify build.sh to work properly with Guile support.
+	* guile.c (guile_gmake_setup) [HAVE_GUILE]: Define a stub function
+	when Guile support is not enabled.
+	* main.c (main) [HAVE_GUILE]: Always invoke guile_gmake_setup().
+	* Makefile.am: Make guile.c standard, not optional.
+	* build.template: Add the Guile compiler and linker flags.
+
+	* maintMakefile: Accept variable overrides from the environment.
+
+	* NEWS: Fix version so we can build a distfile.
+
+	* read.c (eval): Avoid GCC warning to add braces.
+
+	* GNUMAKEFLAGS: Remove -O so it passes in NO_OUTPUT_SYNC mode.
+
+2013-10-18  Christian Boos  <cboos@edgewall.org>
+
+	Fix initialization of stringlist variables for jobserver_fds and sync_mutex.
+	 (tiny change)
+
+	 main.c (prepare_mutex_handle_string, main): Initialize
+	 stringlist variables with at least 2 members, as one member is not
+	 currently supported.
+
+2013-10-18  Eli Zaretskii  <eliz@gnu.org>
+
+	Fix MinGW64 problem with non-compliant vsnprintf.
+	 makeint.h (__USE_MINGW_ANSI_STDIO) [__MINGW64_VERSION_MAJOR]:
+	 Define for MinGW64, to force it to use an ANSI-compliant
+	 implementation of vsnprintf.  Reported by Christian Boos
+	 <cboos@edgewall.org>.
+
+	Fix the MSVC build on MS-Windows.
+	 output.c (vsnprintf) [_MSC_VER]: Define, instead of defining
+	 snprintf, which isn't used.  Reported by Christian Boos
+	 <cboos@edgewall.org>.
+	 NMakefile.template (OBJS): Add load.obj and posixfcn.obj.
+	 ($(OUTDIR)/pathstuff.obj): New dependency.
+	 Suggested by Christian Boos <cboos@edgewall.org>.
+
+2013-10-13  Paul Smith  <psmith@gnu.org>
+
+	[SV 40139] Modify "missing separator" for better translation
+
+	Add support for updating the GNU make web pages.
+	Add makefile rules for updating the http://www.gnu.org/software/make
+	web pages, including the online GNU make manual.
+
+	Convert to auto-generated ChangeLog files.
+	Rename existing ChangeLog files so they won't be distributed.
+	Add targets to maintMakefile to generate ChangeLog from the Git
+	repository.  This will require a version of gnulib be available.
+	Because ChangeLog is auto-generated, we have to switch our
+	automake mode to "foreign" or it will complain and fail.
+
+	Set up for the next release.
