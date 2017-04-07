@@ -1,1 +1,1 @@
-SUBDIRS = util frontend tests
+SUBDIRS = linux util trace frontend tests

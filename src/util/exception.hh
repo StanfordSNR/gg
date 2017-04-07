@@ -79,7 +79,7 @@ public:
   {}
 };
 
-inline int SystemCall( const char * s_attempt, const int return_value )
+inline int CheckSystemCall( const char * s_attempt, const int return_value )
 {
   if ( return_value >= 0 ) {
     return return_value;
@@ -88,9 +88,9 @@ inline int SystemCall( const char * s_attempt, const int return_value )
   throw unix_error( s_attempt );
 }
 
-inline int SystemCall( const std::string & s_attempt, const int return_value )
+inline int CheckSystemCall( const std::string & s_attempt, const int return_value )
 {
-  return SystemCall( s_attempt.c_str(), return_value );
+  return CheckSystemCall( s_attempt.c_str(), return_value );
 }
 
 template <typename StatusObject>
