@@ -1,0 +1,194 @@
+execve("/usr/lib/gcc/x86_64-linux-gnu/5/collect2", ["/usr/lib/gcc/x86_64-linux-gnu/5/collect2", "-plugin", "/usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so", "-plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper", "-plugin-opt=-fresolution=/tmp/ccFISEq8.res", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "-plugin-opt=-pass-through=-lc", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "--sysroot=/", "--build-id", "--eh-frame-hdr", "-m", "elf_x86_64", "--hash-style=gnu", "--as-needed", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "-z", "relro", "-o", "make", "/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o", "/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o", "/usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o", "-L/usr/lib/gcc/x86_64-linux-gnu/5", "-L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu", "-L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib", "-L/lib/x86_64-linux-gnu", "-L/lib/../lib", "-L/usr/lib/x86_64-linux-gnu", "-L/usr/lib/../lib", "-L/usr/lib/gcc/x86_64-linux-gnu/5/../../..", "--export-dynamic", "ar.o", "arscan.o", "commands.o", "default.o", "dir.o", "expand.o", "file.o", "function.o", "getopt.o", "getopt1.o", "guile.o", "implicit.o", "job.o", "load.o", "loadapi.o", "main.o", "misc.o", "posixos.o", "output.o", "read.o", "remake.o", "rule.o", "signame.o", "strcache.o", "variable.o", ...], [/* 32 vars */]) = 0
+brk(NULL)                               = 0x1fee000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2b8c59e000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=88335, ...}) = 0
+mmap(NULL, 88335, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f2b8c588000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\t\2\0\0\0\0\0@\0\0\0\0\0\0\0\270b\34\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0H\0G\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1864888, ...}) = 0
+mmap(NULL, 3967392, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f2b8bfb2000
+mprotect(0x7f2b8c171000, 2097152, PROT_NONE) = 0
+mmap(0x7f2b8c371000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bf000) = 0x7f2b8c371000
+mmap(0x7f2b8c377000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f2b8c377000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2b8c587000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2b8c585000
+arch_prctl(ARCH_SET_FS, 0x7f2b8c585740) = 0
+mprotect(0x7f2b8c371000, 16384, PROT_READ) = 0
+mprotect(0x675000, 8192, PROT_READ)     = 0
+mprotect(0x7f2b8c5a0000, 4096, PROT_READ) = 0
+munmap(0x7f2b8c588000, 88335)           = 0
+brk(NULL)                               = 0x1fee000
+brk(0x2020000)                          = 0x2020000
+rt_sigaction(SIGCHLD, {SIG_DFL, [CHLD], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_DFL, [], 0}, 8) = 0
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2981280, ...}) = 0
+mmap(NULL, 2981280, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f2b8bcda000
+close(3)                                = 0
+open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2995, ...}) = 0
+read(3, "# Locale name alias data base.\n# Copyright (C) 1996-2016 Free Software Foundation, Inc.\n#\n# This program is free softwar"..., 4096) = 2995
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+ioctl(2, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(0, TIOCGWINSZ, {ws_row=54, ws_col=114, ws_xpixel=0, ws_ypixel=0}) = 0
+rt_sigaction(SIGQUIT, {SIG_IGN, [QUIT], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGQUIT, {0x404f19, [QUIT], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_IGN, [QUIT], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, 8) = 0
+rt_sigaction(SIGINT, {SIG_IGN, [INT], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGINT, {0x404f19, [INT], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_IGN, [INT], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, 8) = 0
+rt_sigaction(SIGALRM, {SIG_IGN, [ALRM], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGALRM, {0x404f19, [ALRM], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_IGN, [ALRM], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, 8) = 0
+rt_sigaction(SIGHUP, {SIG_IGN, [HUP], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGHUP, {0x404f19, [HUP], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_IGN, [HUP], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, 8) = 0
+rt_sigaction(SIGSEGV, {SIG_IGN, [SEGV], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGSEGV, {0x404f19, [SEGV], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_IGN, [SEGV], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, 8) = 0
+rt_sigaction(SIGBUS, {SIG_IGN, [BUS], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGBUS, {0x404f19, [BUS], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, {SIG_IGN, [BUS], SA_RESTORER|SA_RESTART, 0x7f2b8bfe74b0}, 8) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/real-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/real-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/real-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/real-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/real-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/collect-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/collect-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/collect-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/collect-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/collect-ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/bin/ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/.local/bin/ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/sbin/ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/bin/ld", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/sbin/ld", 0x7fffea8ff360)    = -1 ENOENT (No such file or directory)
+stat("/usr/bin/ld", {st_mode=S_IFREG|0755, st_size=1220040, ...}) = 0
+access("/usr/bin/ld", X_OK)             = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/bin/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/.local/bin/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/sbin/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/bin/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/sbin/gnm", 0x7fffea8ff360)   = -1 ENOENT (No such file or directory)
+stat("/usr/bin/gnm", 0x7fffea8ff360)    = -1 ENOENT (No such file or directory)
+stat("/sbin/gnm", 0x7fffea8ff360)       = -1 ENOENT (No such file or directory)
+stat("/bin/gnm", 0x7fffea8ff360)        = -1 ENOENT (No such file or directory)
+stat("/usr/games/gnm", 0x7fffea8ff360)  = -1 ENOENT (No such file or directory)
+stat("/usr/local/games/gnm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/snap/bin/gnm", 0x7fffea8ff360)   = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/nm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/nm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/nm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/nm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/nm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/bin/nm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/.local/bin/nm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/sbin/nm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/bin/nm", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/sbin/nm", 0x7fffea8ff360)    = -1 ENOENT (No such file or directory)
+stat("/usr/bin/nm", {st_mode=S_IFREG|0755, st_size=40744, ...}) = 0
+access("/usr/bin/nm", X_OK)             = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/bin/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/.local/bin/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/sbin/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/bin/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/sbin/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/bin/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/sbin/gstrip", 0x7fffea8ff360)    = -1 ENOENT (No such file or directory)
+stat("/bin/gstrip", 0x7fffea8ff360)     = -1 ENOENT (No such file or directory)
+stat("/usr/games/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/games/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/snap/bin/gstrip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/bin/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/.local/bin/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/sbin/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/bin/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/sbin/strip", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/bin/strip", {st_mode=S_IFREG|0755, st_size=224440, ...}) = 0
+access("/usr/bin/strip", X_OK)          = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/gcc", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/gcc", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/gcc", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/gcc", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/gcc", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/bin/gcc", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/.local/bin/gcc", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/sbin/gcc", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/local/bin/gcc", 0x7fffea8ff360) = -1 ENOENT (No such file or directory)
+stat("/usr/sbin/gcc", 0x7fffea8ff360)   = -1 ENOENT (No such file or directory)
+stat("/usr/bin/gcc", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+access("/usr/bin/gcc", X_OK)            = 0
+access("/tmp", R_OK|W_OK|X_OK)          = 0
+getpid()                                = 17849
+open("/tmp/ccn7N1Qa.c", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+close(3)                                = 0
+open("/tmp/cclu9Bhl.o", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+close(3)                                = 0
+open("/tmp/cc7qufIv.ld", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+close(3)                                = 0
+open("/tmp/cc5nMV8F.le", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+close(3)                                = 0
+open("/tmp/cc7qufIv.ld", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+open("/tmp/cc5nMV8F.le", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4
+vfork()                                 = 17850
+close(3)                                = 0
+close(4)                                = 0
+wait4(17850, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17850
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17850, si_uid=1000, si_status=0, si_utime=4, si_stime=17} ---
+stat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open("/tmp/cc7qufIv.ld", O_RDONLY)      = 3
+fstat(3, {st_mode=S_IFREG|0600, st_size=0, ...}) = 0
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+unlink("/tmp/cc7qufIv.ld")              = 0
+open("/tmp/cc5nMV8F.le", O_RDONLY)      = 3
+fstat(3, {st_mode=S_IFREG|0600, st_size=0, ...}) = 0
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+unlink("/tmp/cc5nMV8F.le")              = 0
+lstat("/tmp/ccn7N1Qa.c", {st_mode=S_IFREG|0600, st_size=0, ...}) = 0
+unlink("/tmp/ccn7N1Qa.c")               = 0
+lstat("/tmp/cclu9Bhl.o", {st_mode=S_IFREG|0600, st_size=0, ...}) = 0
+unlink("/tmp/cclu9Bhl.o")               = 0
+lstat("/tmp/ccn7N1Qa.c", 0x7fffea8ff3f0) = -1 ENOENT (No such file or directory)
+lstat("/tmp/cclu9Bhl.o", 0x7fffea8ff3f0) = -1 ENOENT (No such file or directory)
+open("/tmp/cc7qufIv.ld", O_RDONLY)      = -1 ENOENT (No such file or directory)
+lstat("/tmp/cc7qufIv.ld", 0x7fffea8ff3f0) = -1 ENOENT (No such file or directory)
+open("/tmp/cc5nMV8F.le", O_RDONLY)      = -1 ENOENT (No such file or directory)
+lstat("/tmp/cc5nMV8F.le", 0x7fffea8ff410) = -1 ENOENT (No such file or directory)
+exit_group(0)                           = ?
++++ exited with 0 +++

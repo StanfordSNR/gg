@@ -1,0 +1,175 @@
+execve("/home/daniter/bin/as", ["as", "-I", ".", "--64", "-o", "output.o", "/tmp/cczEGOaL.s"], [/* 29 vars */]) = -1 ENOENT (No such file or directory)
+execve("/home/daniter/.local/bin/as", ["as", "-I", ".", "--64", "-o", "output.o", "/tmp/cczEGOaL.s"], [/* 29 vars */]) = -1 ENOENT (No such file or directory)
+execve("/usr/local/sbin/as", ["as", "-I", ".", "--64", "-o", "output.o", "/tmp/cczEGOaL.s"], [/* 29 vars */]) = -1 ENOENT (No such file or directory)
+execve("/usr/local/bin/as", ["as", "-I", ".", "--64", "-o", "output.o", "/tmp/cczEGOaL.s"], [/* 29 vars */]) = -1 ENOENT (No such file or directory)
+execve("/usr/sbin/as", ["as", "-I", ".", "--64", "-o", "output.o", "/tmp/cczEGOaL.s"], [/* 29 vars */]) = -1 ENOENT (No such file or directory)
+execve("/usr/bin/as", ["as", "-I", ".", "--64", "-o", "output.o", "/tmp/cczEGOaL.s"], [/* 29 vars */]) = 0
+brk(NULL)                               = 0x1ce0000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f4757f000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=88335, ...}) = 0
+mmap(NULL, 88335, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f4f47569000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libopcodes-2.26.1-system.so", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340\233\4\0\0\0\0\0@\0\0\0\0\0\0\0\240N\32\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\f\300\6\0\0\0\0\0\f\300\6\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=1725856, ...}) = 0
+mmap(NULL, 3822272, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f4f46fb6000
+mprotect(0x7f4f47023000, 2093056, PROT_NONE) = 0
+mmap(0x7f4f47222000, 1282048, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x6c000) = 0x7f4f47222000
+mmap(0x7f4f4735b000, 704, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f4f4735b000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libbfd-2.26.1-system.so", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\3606\4\0\0\0\0\0@\0\0\0\0\0\0\0008\377\23\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\24\\\22\0\0\0\0\0\24\\\22\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=1312312, ...}) = 0
+mmap(NULL, 3425696, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f4f46c71000
+mprotect(0x7f4f46d97000, 2093056, PROT_NONE) = 0
+mmap(0x7f4f46f96000, 110592, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x125000) = 0x7f4f46f96000
+mmap(0x7f4f46fb1000, 17824, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f4f46fb1000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libz.so.1", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\360\35\0\0\0\0\0\0@\0\0\0\0\0\0\0x\222\1\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\344\205\1\0\0\0\0\0\344\205\1\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=104824, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f47568000
+mmap(NULL, 2199880, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f4f46a57000
+mprotect(0x7f4f46a70000, 2093056, PROT_NONE) = 0
+mmap(0x7f4f46c6f000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x18000) = 0x7f4f46c6f000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\t\2\0\0\0\0\0@\0\0\0\0\0\0\0\270b\34\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0H\0G\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1864888, ...}) = 0
+mmap(NULL, 3967392, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f4f4668e000
+mprotect(0x7f4f4684d000, 2097152, PROT_NONE) = 0
+mmap(0x7f4f46a4d000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bf000) = 0x7f4f46a4d000
+mmap(0x7f4f46a53000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f4f46a53000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\240\r\0\0\0\0\0\0@\0\0\0\0\0\0\0\2201\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\36\0\35\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20 \0\0\0\0\0\0\20 \0\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=14608, ...}) = 0
+mmap(NULL, 2109680, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f4f4648a000
+mprotect(0x7f4f4648d000, 2093056, PROT_NONE) = 0
+mmap(0x7f4f4668c000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x7f4f4668c000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f47567000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f47566000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f47565000
+arch_prctl(ARCH_SET_FS, 0x7f4f47566700) = 0
+mprotect(0x7f4f46a4d000, 16384, PROT_READ) = 0
+mprotect(0x7f4f4668c000, 4096, PROT_READ) = 0
+mprotect(0x7f4f46c6f000, 4096, PROT_READ) = 0
+mprotect(0x7f4f46f96000, 86016, PROT_READ) = 0
+mprotect(0x7f4f47222000, 1277952, PROT_READ) = 0
+mprotect(0x658000, 4096, PROT_READ)     = 0
+mprotect(0x7f4f47581000, 4096, PROT_READ) = 0
+munmap(0x7f4f47569000, 88335)           = 0
+getrusage(RUSAGE_SELF, {ru_utime={0, 0}, ru_stime={0, 0}, ...}) = 0
+brk(NULL)                               = 0x1ce0000
+brk(0x1d01000)                          = 0x1d01000
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2981280, ...}) = 0
+mmap(NULL, 2981280, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f4f461b2000
+close(3)                                = 0
+mmap(NULL, 528384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f474e4000
+mmap(NULL, 528384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f47463000
+mmap(NULL, 528384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f473e2000
+mmap(NULL, 528384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f46131000
+getrlimit(RLIMIT_NOFILE, {rlim_cur=1024, rlim_max=64*1024}) = 0
+stat("output.o", 0x7fff467cb910)        = -1 ENOENT (No such file or directory)
+open("output.o", O_RDWR|O_CREAT|O_TRUNC, 0666) = 3
+fcntl(3, F_GETFD)                       = 0
+fcntl(3, F_SETFD, FD_CLOEXEC)           = 0
+brk(0x1d22000)                          = 0x1d22000
+mmap(NULL, 528384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f460b0000
+brk(0x1d21000)                          = 0x1d21000
+mmap(NULL, 528384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f4602f000
+brk(0x1d42000)                          = 0x1d42000
+open("/tmp/cczEGOaL.s", O_RDONLY)       = 4
+fstat(4, {st_mode=S_IFREG|0600, st_size=158614, ...}) = 0
+read(4, "\t.file\t\"output.c\"\n\t.text\n.Ltext0:\n\t.section\t.text.unlikely,\"ax\",@progbits\n.LCOLDB0:\n\t.text\n.LHOTB0:\n\t.p2align 4,,15\n\t.se"..., 4096) = 4096
+read(4, "get_buffer, .-get_buffer\n\t.section\t.text.unlikely\n.LCOLDE5:\n\t.text\n.LHOTE5:\n\t.section\t.rodata.str1.8,\"aMS\",@progbits,1\n\t"..., 28672) = 28672
+read(4, "p)\n.LVL256:\n.LBB209:\n.LBB207:\n\t.loc 3 46 0\n\tcall\t__vsprintf_chk\n.LVL257:\n.LBE207:\n.LBE209:\n.LBB210:\n.LBB211:\n\t.loc 4 148"..., 32768) = 32768
+brk(0x1d63000)                          = 0x1d63000
+brk(0x1d84000)                          = 0x1d84000
+read(4, "te\t0x54\n\t.uleb128 0x9\n\t.byte\t0x3\n\t.quad\t.LC12\n\t.uleb128 0x25\n\t.uleb128 0x1\n\t.byte\t0x51\n\t.uleb128 0x1\n\t.byte\t0x35\n\t.byte\t"..., 32768) = 32768
+brk(0x1da5000)                          = 0x1da5000
+read(4, "uleb128 0x2c\n\t.long\t0x751\n\t.long\t.LLST118\n\t.uleb128 0x2c\n\t.long\t0x746\n\t.long\t.LLST119\n\t.uleb128 0x2d\n\t.quad\t.LVL355\n\t.lo"..., 32768) = 32768
+read(4, "\t0x56\n\t.quad\t0\n\t.quad\t0\n.LLST41:\n\t.quad\t.LVL151-.Ltext0\n\t.quad\t.LVL155-.Ltext0\n\t.value\t0x3\n\t.byte\t0x9\n\t.byte\t0xff\n\t.byte"..., 32768) = 27542
+read(4, "", 4096)                       = 0
+brk(0x1dc6000)                          = 0x1dc6000
+close(4)                                = 0
+brk(0x1de7000)                          = 0x1de7000
+open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=2995, ...}) = 0
+read(4, "# Locale name alias data base.\n# Copyright (C) 1996-2016 Free Software Foundation, Inc.\n#\n# This program is free softwar"..., 4096) = 2995
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US.utf8/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.UTF-8/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.utf8/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.UTF-8/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.utf8/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.UTF-8/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.utf8/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en/LC_MESSAGES/gas.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+brk(0x1e08000)                          = 0x1e08000
+mmap(NULL, 528384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4f45fae000
+munmap(0x7f4f45fae000, 528384)          = 0
+brk(0x1e2b000)                          = 0x1e2b000
+fstat(3, {st_mode=S_IFREG|0664, st_size=0, ...}) = 0
+lseek(3, 32768, SEEK_SET)               = 32768
+read(3, "", 408)                        = 0
+lseek(3, 408, SEEK_CUR)                 = 33176
+write(3, "\0output.c\0set_append_mode\0pump_from_tmp\0buffer.6573\0get_buffer\0fmtbuf\0log_working_directory\0len.6554\0buf.6553\0output_ini"..., 710) = 710
+lseek(3, 0, SEEK_SET)                   = 0
+read(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096) = 4096
+lseek(3, -4032, SEEK_CUR)               = 64
+write(3, "S1\3221\300\276\3\0\0\0\211\373\350\0\0\0\0\205\300x\33\211\337\200\314\4\276\4\0\0\0[\211\3021\300\351\0\0\0\0\17\37\200\0\0\0\0[\303\17\37@\0f.\17\37\204\0\0\0\0\0US1\322H\211\3631\366\211\375H\203\354\10\350\0\0\0\0H\203\370\377u.\353t\17\37@\0\205\300xDtvHc\360H\211\331\272\1\0\0\0\277\0\0\0\0\350\0"..., 4032) = 4032
+write(3, "\377\377\377\17\37D\0\0H\213=\0\0\0\0\350\0\0\0\0\211\5\0\0\0\0001\300\351 \377\377\377\350\0\0\0\0f.\17\37\204\0\0\0\0\0H\213=\0\0\0\0S\350\0\0\0\0H\213=\0\0\0\0\211\303\350\0\0\0\0\t\303u\2[\3031\377\205\300\272\5\0\0\0\276\0\0\0\0t\34\350\0\0\0\0\276\0\0\0\0H\211\307\350\0\0\0\0\277\1\0\0\0"..., 666) = 666
+lseek(3, 4096, SEEK_SET)                = 4096
+read(3, "\377\377\377\17\37D\0\0H\213=\0\0\0\0\350\0\0\0\0\211\5\0\0\0\0001\300\351 \377\377\377\350\0\0\0\0f.\17\37\204\0\0\0\0\0H\213=\0\0\0\0S\350\0\0\0\0H\213=\0\0\0\0\211\303\350\0\0\0\0\t\303u\2[\3031\377\205\300\272\5\0\0\0\276\0\0\0\0t\34\350\0\0\0\0\276\0\0\0\0H\211\307\350\0\0\0\0\277\1\0\0\0"..., 4096) = 4096
+lseek(3, -3428, SEEK_CUR)               = 4764
+write(3, "\377\377\377\377\377\377\377\377", 8) = 8
+lseek(3, 4096, SEEK_SET)                = 4096
+read(3, "\377\377\377\17\37D\0\0H\213=\0\0\0\0\350\0\0\0\0\211\5\0\0\0\0001\300\351 \377\377\377\350\0\0\0\0f.\17\37\204\0\0\0\0\0H\213=\0\0\0\0S\350\0\0\0\0H\213=\0\0\0\0\211\303\350\0\0\0\0\t\303u\2[\3031\377\205\300\272\5\0\0\0\276\0\0\0\0t\34\350\0\0\0\0\276\0\0\0\0H\211\307\350\0\0\0\0\277\1\0\0\0"..., 4096) = 4096
+lseek(3, -3392, SEEK_CUR)               = 4800
+write(3, "lseek()\0read()\0fwrite()\0%s: Entering directory '%s'\n\0%s: Leaving directory '%s'\n\0fcntl()\0w\0%s: %s\0tmpfile\0dup\0%s: \0%s[%u"..., 3392) = 3392
+write(3, "6Q\7\0\0,F\7\0\0\0\0\0\0.\0\0\0\0\0\0\0\0!&\0\0\0+6\7\0\0\0\0\0\0\0\0\0\0\5\0\0\0\0\0\0\0\1\217\315\v\0\0006Q\7\0\0,F\7\0\0\0\0\0\0-\0\0\0\0\0\0\0\0!&\0\0%\1T\0011%\1Q\2\t\377%\1R\2v\0\0\0+\315\6\0\0\0\0\0\0\0\0\0\0\36\0\0\0\0\0"..., 4096) = 4096
+write(3, "\0\0.\0\0\0\0\0\0\0\0 '\0\0\0>\0\0\0\0\1\203\2\0\0\0\0\0\0\0\0\354\1\0\0\0\0\0\0\1\234T\36\0\0002\0\0\0\0\1\203\2\340\5\0\0\0\0\0\0?len\0\1\203\2-\0\0\0\0\0\0\0?fmt\0\1\203\2?\0\0\0\0\0\0\0\33O\0\0\0\0\1\205\2M\5\0\0\3\221\200~Ep\0\1\206\2Q\0\0"..., 4096) = 4096
+write(3, "B\0311\23\0\0K.\1?\31\3\16:\v;\5'\31\207\1\31\21\1\22\7@\30\227B\31\1\23\0\0L4\0\3\16:\v;\5I\23\0\0M\n\0\3\16:\v;\5\0\0N\n\0001\23\21\1\0\0O4\0\3\16:\v;\5I\23\2\30\0\0P.\1\3\16:\v;\5'\31\21\1\22\7@\30\227B\31\1\23\0\0Q4\0\3\16:\v;\vI\23?\31"..., 4096) = 4096
+write(3, "\0V]\n\0\0\0\0\0\0f\n\0\0\0\0\0\0\4\0\363\1T\237\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\253\t\0\0\0\0\0\0\316\t\0\0\0\0\0\0\1\0S\316\t\0\0\0\0\0\0002\n\0\0\0\0\0\0\4\0\363\1U\2372\n\0\0\0\0\0\0A\n\0\0\0\0\0\0\1\0SA\n\0\0\0\0\0\0f\n\0\0\0\0\0\0\4\0\363\1"..., 4096) = 4096
+write(3, "\1\0\\\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\263\21\0\0\0\0\0\0\276\21\0\0\0\0\0\0\1\0S\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\305\21\0\0\0\0\0\0\317\21\0\0\0\0\0\0\1\0T)\22\0\0\0\0\0\0002\22\0\0\0\0\0\0\1\0T\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\305\21\0\0\0\0\0\0\317\21\0\0"..., 4096) = 4096
+write(3, "rt\0_sbuf\0size\0release_semaphore\0lseek\0_IO_save_base\0__nlink_t\0outputs\0sync_handle_t\0tz_minuteswest\0strcpy\0_lock\0/home/da"..., 2392) = 2392
+lseek(3, 32768, SEEK_SET)               = 32768
+read(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096) = 1118
+lseek(3, 2, SEEK_CUR)                   = 33888
+write(3, "\r\0\0\0\0\0\0\0\2\0\0\0!\0\0\0\374\377\377\377\377\377\377\377P\0\0\0\0\0\0\0\2\0\0\0\"\0\0\0\374\377\377\377\377\377\377\377r\0\0\0\0\0\0\0\n\0\0\0\4\0\0\0 \0\0\0\0\0\0\0w\0\0\0\0\0\0\0\2\0\0\0#\0\0\0\374\377\377\377\377\377\377\377\204\0\0\0\0\0\0\0\2\0\0\0$\0\0\0\374\377\377\377\377\377\377\377"..., 4096) = 4096
+write(3, "\374\377\377\377\377\377\377\377\31\f\0\0\0\0\0\0\2\0\0\0P\0\0\0\374\377\377\377\377\377\377\377\224\f\0\0\0\0\0\0\2\0\0\0*\0\0\0\374\377\377\377\377\377\377\377\233\f\0\0\0\0\0\0\2\0\0\0)\0\0\0\374\377\377\377\377\377\377\377\243\f\0\0\0\0\0\0\2\0\0\0*\0\0\0\374\377\377\377\377\377\377\377\301\f\0\0\0\0\0\0\2\0\0\0*\0\0\0"..., 4096) = 4096
+write(3, "\n\0\0\0\35\0\0\0\251\5\0\0\0\0\0\0\317\3\0\0\0\0\0\0\n\0\0\0\35\0\0\0\36\0\0\0\0\0\0\0\334\3\0\0\0\0\0\0\n\0\0\0\35\0\0\0\33\2\0\0\0\0\0\0\351\3\0\0\0\0\0\0\n\0\0\0\35\0\0\0T\4\0\0\0\0\0\0\366\3\0\0\0\0\0\0\n\0\0\0\35\0\0\0\177\2\0\0\0\0\0\0\3\4\0\0\0\0\0\0"..., 12288) = 12288
+write(3, "\n\0\0\0\31\0\0\0L \0\0\0\0\0\0\32$\0\0\0\0\0\0\1\0\0\0\2\0\0\0M\22\0\0\0\0\0\0<$\0\0\0\0\0\0\1\0\0\0\7\0\0\0\343\0\0\0\0\0\0\0G$\0\0\0\0\0\0\1\0\0\0\2\0\0\0\345\20\0\0\0\0\0\0a$\0\0\0\0\0\0\1\0\0\0\7\0\0\0\303\0\0\0\0\0\0\0p$\0\0\0\0\0\0"..., 3256) = 3256
+lseek(3, 28672, SEEK_SET)               = 28672
+read(3, "rt\0_sbuf\0size\0release_semaphore\0lseek\0_IO_save_base\0__nlink_t\0outputs\0sync_handle_t\0tz_minuteswest\0strcpy\0_lock\0/home/da"..., 4096) = 4096
+lseek(3, -1704, SEEK_CUR)               = 31064
+write(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\4\0\361\377\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\3\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\3\0\3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\3\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 1704) = 1704
+write(3, "\312\1\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0C\2\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0G\2\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0N\2\0\0\22\0\1\0 \10\0\0\0\0\0\0m\1\0\0\0\0\0\0[\2\0\0\21\0\4\0\10\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0"..., 408) = 408
+lseek(3, 57344, SEEK_SET)               = 57344
+read(3, "\2\0\0\0\2\0\0\0\0\7\0\0\0\0\0\0\234\1\0\0\0\0\0\0\2\0\0\0\2\0\0\0`\7\0\0\0\0\0\0\304\1\0\0\0\0\0\0\2\0\0\0\2\0\0\0\300\7\0\0\0\0\0\0\360\1\0\0\0\0\0\0\2\0\0\0\2\0\0\0 \10\0\0\0\0\0\0(\2\0\0\0\0\0\0\2\0\0\0\2\0\0\0\220\t\0\0\0\0\0\0t\2\0\0\0\0\0\0"..., 4096) = 280
+write(3, "\0.symtab\0.strtab\0.shstrtab\0.rela.text\0.data\0.bss\0.text.unlikely\0.rodata.str1.1\0.rodata.str1.8\0.rela.debug_info\0.debug_ab"..., 243) = 243
+lseek(3, 0, SEEK_SET)                   = 0
+write(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\1\0>\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\342\0\0\0\0\0\0\0\0\0\0@\0\0\0\0\0@\0\32\0\27\0", 64) = 64
+lseek(3, 57344, SEEK_SET)               = 57344
+read(3, "\2\0\0\0\2\0\0\0\0\7\0\0\0\0\0\0\234\1\0\0\0\0\0\0\2\0\0\0\2\0\0\0`\7\0\0\0\0\0\0\304\1\0\0\0\0\0\0\2\0\0\0\2\0\0\0\300\7\0\0\0\0\0\0\360\1\0\0\0\0\0\0\2\0\0\0\2\0\0\0 \10\0\0\0\0\0\0(\2\0\0\0\0\0\0\2\0\0\0\2\0\0\0\220\t\0\0\0\0\0\0t\2\0\0\0\0\0\0"..., 4096) = 523
+lseek(3, 5, SEEK_CUR)                   = 57872
+write(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0 \0\0\0\1\0\0\0\6\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\0\0\0\0\0\0\0Z\22\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0"..., 1664) = 1664
+close(3)                                = 0
+exit_group(0)                           = ?
++++ exited with 0 +++

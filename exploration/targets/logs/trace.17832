@@ -1,0 +1,250 @@
+execve("/usr/lib/gcc/x86_64-linux-gnu/5/cc1", ["/usr/lib/gcc/x86_64-linux-gnu/5/cc1", "-quiet", "-I", ".", "-imultiarch", "x86_64-linux-gnu", "-MD", "version.d", "-MF", ".deps/version.Tpo", "-MP", "-MT", "version.o", "-D", "LOCALEDIR=\"/usr/local/share/locale\"", "-D", "LIBDIR=\"/usr/local/lib\"", "-D", "INCLUDEDIR=\"/usr/local/include\"", "-D", "HAVE_CONFIG_H", "version.c", "-quiet", "-dumpbase", "version.c", "-mtune=generic", "-march=x86-64", "-auxbase-strip", "version.o", "-g", "-O2", "-fstack-protector-strong", "-Wformat", "-Wformat-security", "-o", "/tmp/ccUEx36s.s"], [/* 29 vars */]) = 0
+brk(NULL)                               = 0x2b4c000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944e0000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=88335, ...}) = 0
+mmap(NULL, 88335, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fbf944ca000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libisl.so.15", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\220\262\3\0\0\0\0\0@\0\0\0\0\0\0\0\0\245\27\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0,\204\27\0\0\0\0\0,\204\27\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=1551360, ...}) = 0
+mmap(NULL, 3646456, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fbf93f42000
+mprotect(0x7fbf940bb000, 2093056, PROT_NONE) = 0
+mmap(0x7fbf942ba000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x178000) = 0x7fbf942ba000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libmpc.so.3", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\220D\0\0\0\0\0\0@\0\0\0\0\0\0\0\200u\1\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\32\0\31\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\214g\1\0\0\0\0\0\214g\1\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=97280, ...}) = 0
+mmap(NULL, 2192520, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fbf93d2a000
+mprotect(0x7fbf93d41000, 2093056, PROT_NONE) = 0
+mmap(0x7fbf93f40000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x16000) = 0x7fbf93f40000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libmpfr.so.4", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\0\217\0\0\0\0\0\0@\0\0\0\0\0\0\0PD\6\0\0\0\0\0\0\0\0\0@\0008\0\10\0@\0\36\0\35\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\364'\6\0\0\0\0\0\364'\6\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=412624, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944c9000
+mmap(NULL, 2507616, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fbf93ac5000
+mprotect(0x7fbf93b28000, 2093056, PROT_NONE) = 0
+mmap(0x7fbf93d27000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x62000) = 0x7fbf93d27000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libgmp.so.10", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\300\223\0\0\0\0\0\0@\0\0\0\0\0\0\0\250\362\7\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0l\342\7\0\0\0\0\0l\342\7\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=522664, ...}) = 0
+mmap(NULL, 2617792, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fbf93845000
+mprotect(0x7fbf938c4000, 2093056, PROT_NONE) = 0
+mmap(0x7fbf93ac3000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x7e000) = 0x7fbf93ac3000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\240\r\0\0\0\0\0\0@\0\0\0\0\0\0\0\2201\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\36\0\35\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20 \0\0\0\0\0\0\20 \0\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=14608, ...}) = 0
+mmap(NULL, 2109680, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fbf93641000
+mprotect(0x7fbf93644000, 2093056, PROT_NONE) = 0
+mmap(0x7fbf93843000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x7fbf93843000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libz.so.1", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\360\35\0\0\0\0\0\0@\0\0\0\0\0\0\0x\222\1\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\344\205\1\0\0\0\0\0\344\205\1\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=104824, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944c8000
+mmap(NULL, 2199880, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fbf93427000
+mprotect(0x7fbf93440000, 2093056, PROT_NONE) = 0
+mmap(0x7fbf9363f000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x18000) = 0x7fbf9363f000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libm.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\0V\0\0\0\0\0\0@\0\0\0\0\0\0\0\270\225\20\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0 \0\37\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\370z\20\0\0\0\0\0\370z\20\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=1088952, ...}) = 0
+mmap(NULL, 3178744, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fbf9311e000
+mprotect(0x7fbf93226000, 2093056, PROT_NONE) = 0
+mmap(0x7fbf93425000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x107000) = 0x7fbf93425000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\t\2\0\0\0\0\0@\0\0\0\0\0\0\0\270b\34\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0H\0G\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1864888, ...}) = 0
+mmap(NULL, 3967392, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fbf92d55000
+mprotect(0x7fbf92f14000, 2097152, PROT_NONE) = 0
+mmap(0x7fbf93114000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bf000) = 0x7fbf93114000
+mmap(0x7fbf9311a000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fbf9311a000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944c7000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944c6000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944c4000
+arch_prctl(ARCH_SET_FS, 0x7fbf944c4840) = 0
+mprotect(0x7fbf93114000, 16384, PROT_READ) = 0
+mprotect(0x7fbf93425000, 4096, PROT_READ) = 0
+mprotect(0x7fbf9363f000, 4096, PROT_READ) = 0
+mprotect(0x7fbf93843000, 4096, PROT_READ) = 0
+mprotect(0x7fbf93ac3000, 4096, PROT_READ) = 0
+mprotect(0x7fbf93d27000, 8192, PROT_READ) = 0
+mprotect(0x7fbf93f40000, 4096, PROT_READ) = 0
+mprotect(0x7fbf942ba000, 4096, PROT_READ) = 0
+mprotect(0x19d4000, 24576, PROT_READ)   = 0
+mprotect(0x7fbf944e2000, 4096, PROT_READ) = 0
+munmap(0x7fbf944ca000, 88335)           = 0
+brk(NULL)                               = 0x2b4c000
+brk(0x2b7e000)                          = 0x2b7e000
+getrlimit(RLIMIT_STACK, {rlim_cur=65536*1024, rlim_max=RLIM64_INFINITY}) = 0
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2981280, ...}) = 0
+mmap(NULL, 2981280, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fbf92a7d000
+close(3)                                = 0
+open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2995, ...}) = 0
+read(3, "# Locale name alias data base.\n# Copyright (C) 1996-2016 Free Software Foundation, Inc.\n#\n# This program is free softwar"..., 4096) = 2995
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+ioctl(2, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(0, TIOCGWINSZ, {ws_row=54, ws_col=114, ws_xpixel=0, ws_ypixel=0}) = 0
+rt_sigaction(SIGSEGV, {0x7d6830, [SEGV], SA_RESTORER|SA_RESTART, 0x7fbf92d8a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGILL, {0x7d6830, [ILL], SA_RESTORER|SA_RESTART, 0x7fbf92d8a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGBUS, {0x7d6830, [BUS], SA_RESTORER|SA_RESTART, 0x7fbf92d8a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGABRT, {0x7d6830, [ABRT], SA_RESTORER|SA_RESTART, 0x7fbf92d8a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGFPE, {0x7d6830, [FPE], SA_RESTORER|SA_RESTART, 0x7fbf92d8a4b0}, {SIG_DFL, [], 0}, 8) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944df000
+mmap(NULL, 135168, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944a3000
+mmap(NULL, 2097152, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf9287d000
+brk(0x2ba1000)                          = 0x2ba1000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944dd000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944db000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944d9000
+mmap(NULL, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944d5000
+sysinfo({uptime=17061, loads=[13760, 3168, 1024], totalram=2077257728, freeram=424665088, sharedram=16289792, bufferram=44527616, totalswap=1071640576, freeswap=1071640576, procs=460, totalhigh=0, freehigh=0, mem_unit=1}) = 0
+getrlimit(RLIMIT_AS, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+sysinfo({uptime=17061, loads=[13760, 3168, 1024], totalram=2077257728, freeram=424665088, sharedram=16289792, bufferram=44527616, totalswap=1071640576, freeswap=1071640576, procs=460, totalhigh=0, freehigh=0, mem_unit=1}) = 0
+getrlimit(RLIMIT_AS, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+getrlimit(RLIMIT_RSS, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+sysinfo({uptime=17061, loads=[13760, 3168, 1024], totalram=2077257728, freeram=424665088, sharedram=16289792, bufferram=44527616, totalswap=1071640576, freeswap=1071640576, procs=460, totalhigh=0, freehigh=0, mem_unit=1}) = 0
+getrlimit(RLIMIT_AS, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+brk(0x2bc5000)                          = 0x2bc5000
+ioctl(2, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+open("/dev/urandom", O_RDONLY)          = 3
+read(3, "\6f10\260D-\252", 8)           = 8
+close(3)                                = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/x86_64-linux-gnu", 0x7fff060e40c0) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+access("/usr/lib/gcc/x86_64-linux-gnu/5/", X_OK) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/x86_64-linux-gnu", 0x7fff060e40c0) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/local/include/x86_64-linux-gnu", 0x7fff060e50d0) = -1 ENOENT (No such file or directory)
+stat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/include", 0x7fff060e50d0) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("version.c.gch", 0x7fff060e5130)   = -1 ENOENT (No such file or directory)
+open("version.c", O_RDONLY|O_NOCTTY)    = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=1169, ...}) = 0
+read(3, "/* Record version and build host architecture for GNU make.\nCopyright (C) 1988-2016 Free Software Foundation, Inc.\nThis "..., 1169) = 1169
+close(3)                                = 0
+mmap(NULL, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944d1000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944cf000
+lstat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
+lstat("/tmp/ccUEx36s.s", {st_mode=S_IFREG|0600, st_size=0, ...}) = 0
+getcwd("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", 4096) = 68
+lstat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/version.c", {st_mode=S_IFREG|0644, st_size=1169, ...}) = 0
+open("/tmp/ccUEx36s.s", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+fstat(3, {st_mode=S_IFREG|0600, st_size=0, ...}) = 0
+stat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("./stdc-predef.h.gch", 0x7fff060e50e0) = -1 ENOENT (No such file or directory)
+open("./stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdc-predef.h", 0x7fff060e3fb0) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdc-predef.h.gch", 0x7fff060e50e0) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/stdc-predef.h", 0x7fff060e3fb0) = -1 ENOENT (No such file or directory)
+stat("/usr/local/include/stdc-predef.h.gch", 0x7fff060e50e0) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/stdc-predef.h", 0x7fff060e3fb0) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/stdc-predef.h.gch", 0x7fff060e50e0) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/stdc-predef.h", 0x7fff060e3fb0) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/stdc-predef.h.gch", 0x7fff060e50e0) = -1 ENOENT (No such file or directory)
+open("/usr/include/x86_64-linux-gnu/stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/stdc-predef.h", {st_mode=S_IFREG|0644, st_size=2229, ...}) = 0
+stat("/usr/include/stdc-predef.h.gch", 0x7fff060e50e0) = -1 ENOENT (No such file or directory)
+open("/usr/include/stdc-predef.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=2229, ...}) = 0
+read(4, "/* Copyright (C) 1991-2016 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n\n   The GNU C Libra"..., 2229) = 2229
+close(4)                                = 0
+mmap(NULL, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fbf944cb000
+stat("./config.h.gch", 0x7fff060e4e40)  = -1 ENOENT (No such file or directory)
+open("./config.h", O_RDONLY|O_NOCTTY)   = 4
+fstat(4, {st_mode=S_IFREG|0664, st_size=14408, ...}) = 0
+read(4, "/* config.h.  Generated from config.h.in by configure.  */\n/* config.h.in.  Generated from configure.ac by autoheader.  "..., 14408) = 14408
+close(4)                                = 0
+write(3, "\t.file\t\"version.c\"\n\t.text\n.Ltext0:\n\t.globl\tmake_host\n\t.section\t.rodata.str1.1,\"aMS\",@progbits,1\n.LC0:\n\t.string\t\"x86_64-p"..., 2433) = 2433
+close(3)                                = 0
+open(".deps/version.Tpo", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+fstat(3, {st_mode=S_IFREG|0664, st_size=0, ...}) = 0
+write(3, "version.o: version.c /usr/include/stdc-predef.h config.h\n\n/usr/include/stdc-predef.h:\n\nconfig.h:\n", 97) = 97
+close(3)                                = 0
+exit_group(0)                           = ?
++++ exited with 0 +++

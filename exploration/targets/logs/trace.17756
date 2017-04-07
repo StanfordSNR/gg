@@ -1,0 +1,278 @@
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+setrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+execve("/bin/bash", ["/bin/bash", "-c", "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"...], [/* 27 vars */]) = 0
+brk(NULL)                               = 0x1ed7000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fdbb9b0f000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=88335, ...}) = 0
+mmap(NULL, 88335, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fdbb9af9000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libtinfo.so.5", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0p\310\0\0\0\0\0\0@\0\0\0\0\0\0\0\10\206\2\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\35\0\34\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0LL\2\0\0\0\0\0LL\2\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=167240, ...}) = 0
+mmap(NULL, 2264256, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fdbb96c3000
+mprotect(0x7fdbb96e8000, 2093056, PROT_NONE) = 0
+mmap(0x7fdbb98e7000, 20480, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x24000) = 0x7fdbb98e7000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\240\r\0\0\0\0\0\0@\0\0\0\0\0\0\0\2201\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\36\0\35\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20 \0\0\0\0\0\0\20 \0\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=14608, ...}) = 0
+mmap(NULL, 2109680, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fdbb94bf000
+mprotect(0x7fdbb94c2000, 2093056, PROT_NONE) = 0
+mmap(0x7fdbb96c1000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x7fdbb96c1000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\t\2\0\0\0\0\0@\0\0\0\0\0\0\0\270b\34\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0H\0G\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1864888, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fdbb9af8000
+mmap(NULL, 3967392, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fdbb90f6000
+mprotect(0x7fdbb92b5000, 2097152, PROT_NONE) = 0
+mmap(0x7fdbb94b5000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bf000) = 0x7fdbb94b5000
+mmap(0x7fdbb94bb000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fdbb94bb000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fdbb9af7000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fdbb9af6000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fdbb9af5000
+arch_prctl(ARCH_SET_FS, 0x7fdbb9af6700) = 0
+mprotect(0x7fdbb94b5000, 16384, PROT_READ) = 0
+mprotect(0x7fdbb96c1000, 4096, PROT_READ) = 0
+mprotect(0x7fdbb98e7000, 16384, PROT_READ) = 0
+mprotect(0x6f3000, 4096, PROT_READ)     = 0
+mprotect(0x7fdbb9b11000, 4096, PROT_READ) = 0
+munmap(0x7fdbb9af9000, 88335)           = 0
+open("/dev/tty", O_RDWR|O_NONBLOCK)     = 3
+close(3)                                = 0
+brk(NULL)                               = 0x1ed7000
+brk(0x1ed8000)                          = 0x1ed8000
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2981280, ...}) = 0
+mmap(NULL, 2981280, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fdbb8e1e000
+close(3)                                = 0
+brk(0x1ed9000)                          = 0x1ed9000
+brk(0x1eda000)                          = 0x1eda000
+getuid()                                = 1000
+getgid()                                = 1000
+geteuid()                               = 1000
+getegid()                               = 1000
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+brk(0x1edb000)                          = 0x1edb000
+sysinfo({uptime=17046, loads=[5248, 1088, 352], totalram=2077257728, freeram=432742400, sharedram=16289792, bufferram=44478464, totalswap=1071640576, freeswap=1071640576, procs=459, totalhigh=0, freehigh=0, mem_unit=1}) = 0
+brk(0x1edc000)                          = 0x1edc000
+rt_sigaction(SIGCHLD, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7fdbb912b4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGCHLD, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7fdbb912b4b0}, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7fdbb912b4b0}, 8) = 0
+rt_sigaction(SIGINT, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGINT, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, 8) = 0
+rt_sigaction(SIGQUIT, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGQUIT, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, 8) = 0
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+rt_sigaction(SIGQUIT, {SIG_IGN, [], SA_RESTORER, 0x7fdbb912b4b0}, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, 8) = 0
+uname({sysname="Linux", nodename="ubuntu", ...}) = 0
+brk(0x1edd000)                          = 0x1edd000
+brk(0x1ede000)                          = 0x1ede000
+stat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+getpid()                                = 17756
+open("/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache", O_RDONLY) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=26258, ...}) = 0
+mmap(NULL, 26258, PROT_READ, MAP_SHARED, 3, 0) = 0x7fdbb9b08000
+close(3)                                = 0
+brk(0x1edf000)                          = 0x1edf000
+getppid()                               = 17725
+brk(0x1ee0000)                          = 0x1ee0000
+brk(0x1ee1000)                          = 0x1ee1000
+getpgrp()                               = 17706
+rt_sigaction(SIGCHLD, {0x447a20, [], SA_RESTORER|SA_RESTART, 0x7fdbb912b4b0}, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7fdbb912b4b0}, 8) = 0
+getrlimit(RLIMIT_NPROC, {rlim_cur=7758, rlim_max=7758}) = 0
+brk(0x1ee2000)                          = 0x1ee2000
+brk(0x1ee3000)                          = 0x1ee3000
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+brk(0x1ee4000)                          = 0x1ee4000
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home/daniter/bin/gcc", 0x7fff2feda430) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/.local/bin/gcc", 0x7fff2feda430) = -1 ENOENT (No such file or directory)
+stat("/usr/local/sbin/gcc", 0x7fff2feda430) = -1 ENOENT (No such file or directory)
+stat("/usr/local/bin/gcc", 0x7fff2feda430) = -1 ENOENT (No such file or directory)
+stat("/usr/sbin/gcc", 0x7fff2feda430)   = -1 ENOENT (No such file or directory)
+stat("/usr/bin/gcc", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+stat("/usr/bin/gcc", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+geteuid()                               = 1000
+getegid()                               = 1000
+getuid()                                = 1000
+getgid()                                = 1000
+access("/usr/bin/gcc", X_OK)            = 0
+stat("/usr/bin/gcc", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+geteuid()                               = 1000
+getegid()                               = 1000
+getuid()                                = 1000
+getgid()                                = 1000
+access("/usr/bin/gcc", R_OK)            = 0
+stat("/usr/bin/gcc", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+stat("/usr/bin/gcc", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+geteuid()                               = 1000
+getegid()                               = 1000
+getuid()                                = 1000
+getgid()                                = 1000
+access("/usr/bin/gcc", X_OK)            = 0
+stat("/usr/bin/gcc", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+geteuid()                               = 1000
+getegid()                               = 1000
+getuid()                                = 1000
+getgid()                                = 1000
+access("/usr/bin/gcc", R_OK)            = 0
+brk(0x1ee5000)                          = 0x1ee5000
+rt_sigaction(SIGINT, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, 8) = 0
+rt_sigaction(SIGQUIT, {SIG_DFL, [], SA_RESTORER, 0x7fdbb912b4b0}, {SIG_IGN, [], SA_RESTORER, 0x7fdbb912b4b0}, 8) = 0
+rt_sigaction(SIGCHLD, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7fdbb912b4b0}, {0x447a20, [], SA_RESTORER|SA_RESTART, 0x7fdbb912b4b0}, 8) = 0
+execve("/usr/bin/gcc", ["gcc", "-DLOCALEDIR=\"/usr/local/share/locale\"", "-DLIBDIR=\"/usr/local/lib\"", "-DINCLUDEDIR=\"/usr/local/include\"", "-DHAVE_CONFIG_H", "-I.", "-g", "-O2", "-MT", "function.o", "-MD", "-MP", "-MF", ".deps/function.Tpo", "-c", "-o", "function.o", "function.c"], [/* 27 vars */]) = 0
+brk(NULL)                               = 0x190b000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee5a2aa000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=88335, ...}) = 0
+mmap(NULL, 88335, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fee5a294000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\t\2\0\0\0\0\0@\0\0\0\0\0\0\0\270b\34\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0H\0G\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1864888, ...}) = 0
+mmap(NULL, 3967392, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fee59cbe000
+mprotect(0x7fee59e7d000, 2097152, PROT_NONE) = 0
+mmap(0x7fee5a07d000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bf000) = 0x7fee5a07d000
+mmap(0x7fee5a083000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fee5a083000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee5a293000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee5a291000
+arch_prctl(ARCH_SET_FS, 0x7fee5a291740) = 0
+mprotect(0x7fee5a07d000, 16384, PROT_READ) = 0
+mprotect(0x6dc000, 8192, PROT_READ)     = 0
+mprotect(0x7fee5a2ac000, 4096, PROT_READ) = 0
+munmap(0x7fee5a294000, 88335)           = 0
+brk(NULL)                               = 0x190b000
+brk(0x193d000)                          = 0x193d000
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2981280, ...}) = 0
+mmap(NULL, 2981280, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fee599e6000
+close(3)                                = 0
+open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2995, ...}) = 0
+read(3, "# Locale name alias data base.\n# Copyright (C) 1996-2016 Free Software Foundation, Inc.\n#\n# This program is free softwar"..., 4096) = 2995
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+ioctl(2, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(0, TIOCGWINSZ, {ws_row=54, ws_col=114, ws_xpixel=0, ws_ypixel=0}) = 0
+ioctl(2, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+rt_sigaction(SIGINT, {SIG_IGN, [INT], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGINT, {0x40adda, [INT], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, {SIG_IGN, [INT], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, 8) = 0
+rt_sigaction(SIGHUP, {SIG_IGN, [HUP], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGHUP, {0x40adda, [HUP], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, {SIG_IGN, [HUP], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, 8) = 0
+rt_sigaction(SIGTERM, {SIG_IGN, [TERM], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGTERM, {0x40adda, [TERM], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, {SIG_IGN, [TERM], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, 8) = 0
+rt_sigaction(SIGPIPE, {SIG_IGN, [PIPE], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGPIPE, {0x40adda, [PIPE], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, {SIG_IGN, [PIPE], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, 8) = 0
+rt_sigaction(SIGCHLD, {SIG_DFL, [CHLD], SA_RESTORER|SA_RESTART, 0x7fee59cf34b0}, {SIG_DFL, [], 0}, 8) = 0
+getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+setrlimit(RLIMIT_STACK, {rlim_cur=65536*1024, rlim_max=RLIM64_INFINITY}) = 0
+access("/home/daniter/bin/gcc", X_OK)   = -1 ENOENT (No such file or directory)
+access("/home/daniter/.local/bin/gcc", X_OK) = -1 ENOENT (No such file or directory)
+access("/usr/local/sbin/gcc", X_OK)     = -1 ENOENT (No such file or directory)
+access("/usr/local/bin/gcc", X_OK)      = -1 ENOENT (No such file or directory)
+access("/usr/sbin/gcc", X_OK)           = -1 ENOENT (No such file or directory)
+access("/usr/bin/gcc", X_OK)            = 0
+stat("/usr/bin/gcc", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/bin", {st_mode=S_IFDIR|0755, st_size=57344, ...}) = 0
+lstat("/usr/bin/gcc", {st_mode=S_IFLNK|0777, st_size=5, ...}) = 0
+readlink("/usr/bin/gcc", "gcc-5", 4095) = 5
+lstat("/usr/bin/gcc-5", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+access("/home/daniter/bin/gcc", X_OK)   = -1 ENOENT (No such file or directory)
+access("/home/daniter/.local/bin/gcc", X_OK) = -1 ENOENT (No such file or directory)
+access("/usr/local/sbin/gcc", X_OK)     = -1 ENOENT (No such file or directory)
+access("/usr/local/bin/gcc", X_OK)      = -1 ENOENT (No such file or directory)
+access("/usr/sbin/gcc", X_OK)           = -1 ENOENT (No such file or directory)
+access("/usr/bin/gcc", X_OK)            = 0
+stat("/usr/bin/gcc", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/bin", {st_mode=S_IFDIR|0755, st_size=57344, ...}) = 0
+lstat("/usr/bin/gcc", {st_mode=S_IFLNK|0777, st_size=5, ...}) = 0
+readlink("/usr/bin/gcc", "gcc-5", 4095) = 5
+lstat("/usr/bin/gcc-5", {st_mode=S_IFREG|0755, st_size=915736, ...}) = 0
+access("function.c", F_OK)              = 0
+getcwd("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", 4096) = 68
+lstat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/function.c", {st_mode=S_IFREG|0644, st_size=70187, ...}) = 0
+getcwd("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", 4096) = 68
+lstat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/function.o", 0x7ffc87b73cf0) = -1 ENOENT (No such file or directory)
+access("/usr/lib/gcc/x86_64-linux-gnu/5/", X_OK) = 0
+access("/usr/lib/gcc/x86_64-linux-gnu/5/", X_OK) = 0
+access("/usr/lib/gcc/x86_64-linux-gnu/5/specs", R_OK) = -1 ENOENT (No such file or directory)
+access("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/5/specs", R_OK) = -1 ENOENT (No such file or directory)
+access("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/lib/specs", R_OK) = -1 ENOENT (No such file or directory)
+access("/usr/lib/gcc/x86_64-linux-gnu/specs", R_OK) = -1 ENOENT (No such file or directory)
+access("/usr/lib/gcc/x86_64-linux-gnu/5/", X_OK) = 0
+access("/tmp", R_OK|W_OK|X_OK)          = 0
+getpid()                                = 17756
+open("/tmp/cc6oi8NW.s", O_RDWR|O_CREAT|O_EXCL, 0600) = 3
+close(3)                                = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/cc1", {st_mode=S_IFREG|0755, st_size=20863160, ...}) = 0
+access("/usr/lib/gcc/x86_64-linux-gnu/5/cc1", X_OK) = 0
+vfork()                                 = 17757
+wait4(17757, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17757
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17757, si_uid=1000, si_status=0, si_utime=47, si_stime=12} ---
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/as", 0x7ffc87b74c80) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/as", 0x7ffc87b74c80) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/as", 0x7ffc87b74c80) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/as", 0x7ffc87b74c80) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/as", 0x7ffc87b74c80) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/5/as", 0x7ffc87b74c80) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/as", 0x7ffc87b74c80) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/bin/as", 0x7ffc87b74c80) = -1 ENOENT (No such file or directory)
+vfork()                                 = 17758
+wait4(17758, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17758
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17758, si_uid=1000, si_status=0, si_utime=2, si_stime=0} ---
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/5/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/bin/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/5/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/lib/../lib/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/5/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/.", {st_mode=S_IFDIR|0755, st_size=69632, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/lib/x86_64-linux-gnu/5/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/.", {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+stat("/lib/../lib/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/x86_64-linux-gnu/5/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/x86_64-linux-gnu/.", {st_mode=S_IFDIR|0755, st_size=69632, ...}) = 0
+stat("/usr/lib/../lib/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/lib/.", 0x7ffc87b74d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/lib/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/.", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/tmp/cc6oi8NW.s", {st_mode=S_IFREG|0600, st_size=456678, ...}) = 0
+unlink("/tmp/cc6oi8NW.s")               = 0
+exit_group(0)                           = ?
++++ exited with 0 +++

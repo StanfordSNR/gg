@@ -1,0 +1,133 @@
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigaction(SIGTSTP, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGTTIN, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGTTOU, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGINT, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {0x45f960, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGQUIT, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGCHLD, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, {0x447a20, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, 8) = 0
+execve("/usr/bin/make", ["make", "all"], [/* 28 vars */]) = 0
+brk(NULL)                               = 0x1e01000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f91f3787000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=88335, ...}) = 0
+mmap(NULL, 88335, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f91f3771000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\240\r\0\0\0\0\0\0@\0\0\0\0\0\0\0\2201\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\36\0\35\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20 \0\0\0\0\0\0\20 \0\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=14608, ...}) = 0
+mmap(NULL, 2109680, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f91f3360000
+mprotect(0x7f91f3363000, 2093056, PROT_NONE) = 0
+mmap(0x7f91f3562000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x7f91f3562000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\t\2\0\0\0\0\0@\0\0\0\0\0\0\0\270b\34\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0H\0G\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1864888, ...}) = 0
+mmap(NULL, 3967392, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f91f2f97000
+mprotect(0x7f91f3156000, 2097152, PROT_NONE) = 0
+mmap(0x7f91f3356000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bf000) = 0x7f91f3356000
+mmap(0x7f91f335c000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f91f335c000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f91f3770000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f91f376f000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f91f376e000
+arch_prctl(ARCH_SET_FS, 0x7f91f376f700) = 0
+mprotect(0x7f91f3356000, 16384, PROT_READ) = 0
+mprotect(0x7f91f3562000, 4096, PROT_READ) = 0
+mprotect(0x630000, 4096, PROT_READ)     = 0
+mprotect(0x7f91f3789000, 4096, PROT_READ) = 0
+munmap(0x7f91f3771000, 88335)           = 0
+getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+setrlimit(RLIMIT_STACK, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+brk(NULL)                               = 0x1e01000
+brk(0x1e22000)                          = 0x1e22000
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2981280, ...}) = 0
+mmap(NULL, 2981280, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f91f2cbf000
+close(3)                                = 0
+rt_sigaction(SIGHUP, {0x409b80, [HUP], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGQUIT, {0x409b80, [QUIT], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGINT, {0x409b80, [INT], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGTERM, {0x409b80, [TERM], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGXCPU, {0x409b80, [XCPU], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGXFSZ, {0x409b80, [XFSZ], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGCHLD, {SIG_DFL, [CHLD], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, {SIG_DFL, [], 0}, 8) = 0
+fcntl(1, F_GETFL)                       = 0x8402 (flags O_RDWR|O_APPEND|O_LARGEFILE)
+fcntl(1, F_SETFL, O_RDWR|O_APPEND|O_LARGEFILE) = 0
+fcntl(2, F_GETFL)                       = 0x8402 (flags O_RDWR|O_APPEND|O_LARGEFILE)
+fcntl(2, F_SETFL, O_RDWR|O_APPEND|O_LARGEFILE) = 0
+getcwd("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/po", 4096) = 71
+ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(2, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+stat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+stat("/usr/gnu/include", 0x7ffe45c15920) = -1 ENOENT (No such file or directory)
+stat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+rt_sigaction(SIGCHLD, {0x412dd0, [CHLD], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, {SIG_DFL, [CHLD], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, 8) = 0
+rt_sigaction(SIGUSR1, {0x4165c0, [USR1], SA_RESTORER|SA_RESTART, 0x7f91f2fcc4b0}, {SIG_DFL, [], 0}, 8) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open(".", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+brk(0x1e4a000)                          = 0x1e4a000
+getdents(3, /* 68 entries */, 32768)    = 2200
+getdents(3, /* 0 entries */, 32768)     = 0
+close(3)                                = 0
+open("Makefile", O_RDONLY)              = 3
+fcntl(3, F_SETFD, FD_CLOEXEC)           = 0
+fstat(3, {st_mode=S_IFREG|0664, st_size=23692, ...}) = 0
+read(3, "# Makefile for PO directory in any package using GNU gettext.\n# Copyright (C) 1995-1997, 2000-2007, 2009-2010 by Ulrich "..., 4096) = 4096
+read(3, ".gmo hr.gmo id.gmo it.gmo ja.gmo ko.gmo lt.gmo nl.gmo pl.gmo pt_BR.gmo ru.gmo sv.gmo tr.gmo uk.gmo vi.gmo zh_CN.gmo\n\nPOF"..., 4096) = 4096
+read(3, "sages, no $(srcdir)/$(DOMAIN).pot is created (because\n# we don't want to bother translators with empty POT files). We as"..., 4096) = 4096
+read(3, "l force an update.\n$(srcdir)/$(DOMAIN).pot:\n\t$(MAKE) $(DOMAIN).pot-update\n\n# This target rebuilds a PO file if $(DOMAIN)"..., 4096) = 4096
+read(3, "ep ' -> ' >/dev/null; then \\\n\t        link=`cd $(DESTDIR)$(localedir)/$$lang && LC_ALL=C ls -l -d $$lc | sed -e 's/^.* -"..., 4096) = 4096
+read(3, "\n\t    rm -f $$tmpdir/$$lang.new.po; \\\n\t  else \\\n\t    if mv -f $$tmpdir/$$lang.new.po $$lang.po; then \\\n\t      :; \\\n\t    "..., 4096) = 3212
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+stat("RCS", 0x7ffe45c158d0)             = -1 ENOENT (No such file or directory)
+stat("SCCS", 0x7ffe45c158d0)            = -1 ENOENT (No such file or directory)
+stat("Makefile", {st_mode=S_IFREG|0664, st_size=23692, ...}) = 0
+stat("Makefile.in.in", {st_mode=S_IFREG|0644, st_size=17259, ...}) = 0
+stat("Makevars", {st_mode=S_IFREG|0644, st_size=2570, ...}) = 0
+stat("../config.status", {st_mode=S_IFREG|0775, st_size=44136, ...}) = 0
+stat("..", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open("..", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+getdents(3, /* 115 entries */, 32768)   = 3744
+getdents(3, /* 0 entries */, 32768)     = 0
+close(3)                                = 0
+stat("../RCS", 0x7ffe45c14460)          = -1 ENOENT (No such file or directory)
+stat("../SCCS", 0x7ffe45c14460)         = -1 ENOENT (No such file or directory)
+stat("POTFILES.in", {st_mode=S_IFREG|0644, st_size=1046, ...}) = 0
+stat("LINGUAS", {st_mode=S_IFREG|0644, st_size=189, ...}) = 0
+stat("all", 0x7ffe45c136e0)             = -1 ENOENT (No such file or directory)
+stat("all-yes", 0x7ffe45c136e0)         = -1 ENOENT (No such file or directory)
+stat("stamp-po", {st_mode=S_IFREG|0644, st_size=10, ...}) = 0
+stat("make.pot", {st_mode=S_IFREG|0644, st_size=35097, ...}) = 0
+open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2995, ...}) = 0
+read(3, "# Locale name alias data base.\n# Copyright (C) 1996-2016 Free Software Foundation, Inc.\n#\n# This program is free softwar"..., 4096) = 2995
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US.utf8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.UTF-8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.utf8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.UTF-8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.utf8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.UTF-8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.utf8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2), ...}) = 0
+write(1, "make[2]: Entering directory '/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/po'\n", 101) = 101
+write(1, "make[2]: Nothing to be done for 'all'.\n", 39) = 39
+write(1, "make[2]: Leaving directory '/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/po'\n", 100) = 100
+chdir("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/po") = 0
+close(1)                                = 0
+exit_group(0)                           = ?
++++ exited with 0 +++

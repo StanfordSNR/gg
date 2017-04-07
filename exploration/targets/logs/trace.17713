@@ -1,0 +1,13 @@
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigaction(SIGTSTP, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGTTIN, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGTTOU, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGINT, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGQUIT, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_IGN, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGCHLD, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, {0x447a20, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGCHLD, {0x447a20, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGINT, {0x45f960, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+exit_group(1)                           = ?
++++ exited with 1 +++

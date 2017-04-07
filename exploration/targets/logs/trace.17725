@@ -1,0 +1,1221 @@
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigaction(SIGTSTP, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGTTIN, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGTTOU, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGINT, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGQUIT, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_IGN, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGCHLD, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, {0x447a20, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, 8) = 0
+execve("/usr/bin/make", ["make", "all-am"], [/* 27 vars */]) = 0
+brk(NULL)                               = 0xd97000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fa2be335000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=88335, ...}) = 0
+mmap(NULL, 88335, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fa2be31f000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\240\r\0\0\0\0\0\0@\0\0\0\0\0\0\0\2201\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\36\0\35\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20 \0\0\0\0\0\0\20 \0\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=14608, ...}) = 0
+mmap(NULL, 2109680, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fa2bdf0e000
+mprotect(0x7fa2bdf11000, 2093056, PROT_NONE) = 0
+mmap(0x7fa2be110000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x7fa2be110000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\t\2\0\0\0\0\0@\0\0\0\0\0\0\0\270b\34\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0H\0G\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1864888, ...}) = 0
+mmap(NULL, 3967392, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fa2bdb45000
+mprotect(0x7fa2bdd04000, 2097152, PROT_NONE) = 0
+mmap(0x7fa2bdf04000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bf000) = 0x7fa2bdf04000
+mmap(0x7fa2bdf0a000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fa2bdf0a000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fa2be31e000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fa2be31d000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fa2be31c000
+arch_prctl(ARCH_SET_FS, 0x7fa2be31d700) = 0
+mprotect(0x7fa2bdf04000, 16384, PROT_READ) = 0
+mprotect(0x7fa2be110000, 4096, PROT_READ) = 0
+mprotect(0x630000, 4096, PROT_READ)     = 0
+mprotect(0x7fa2be337000, 4096, PROT_READ) = 0
+munmap(0x7fa2be31f000, 88335)           = 0
+getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+setrlimit(RLIMIT_STACK, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+brk(NULL)                               = 0xd97000
+brk(0xdb8000)                           = 0xdb8000
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2981280, ...}) = 0
+mmap(NULL, 2981280, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fa2bd86d000
+close(3)                                = 0
+rt_sigaction(SIGHUP, {0x409b80, [HUP], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGQUIT, {0x409b80, [QUIT], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGINT, {0x409b80, [INT], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGTERM, {0x409b80, [TERM], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGXCPU, {0x409b80, [XCPU], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGXFSZ, {0x409b80, [XFSZ], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGCHLD, {SIG_DFL, [CHLD], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, {SIG_DFL, [], 0}, 8) = 0
+fcntl(1, F_GETFL)                       = 0x8402 (flags O_RDWR|O_APPEND|O_LARGEFILE)
+fcntl(1, F_SETFL, O_RDWR|O_APPEND|O_LARGEFILE) = 0
+fcntl(2, F_GETFL)                       = 0x8402 (flags O_RDWR|O_APPEND|O_LARGEFILE)
+fcntl(2, F_SETFL, O_RDWR|O_APPEND|O_LARGEFILE) = 0
+getcwd("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", 4096) = 68
+ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(2, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+stat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+stat("/usr/gnu/include", 0x7fffc80a3500) = -1 ENOENT (No such file or directory)
+stat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+rt_sigaction(SIGCHLD, {0x412dd0, [CHLD], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, {SIG_DFL, [CHLD], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, 8) = 0
+rt_sigaction(SIGUSR1, {0x4165c0, [USR1], SA_RESTORER|SA_RESTART, 0x7fa2bdb7a4b0}, {SIG_DFL, [], 0}, 8) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open(".", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+brk(0xde0000)                           = 0xde0000
+getdents(3, /* 115 entries */, 32768)   = 3744
+getdents(3, /* 0 entries */, 32768)     = 0
+close(3)                                = 0
+open("Makefile", O_RDONLY)              = 3
+fcntl(3, F_SETFD, FD_CLOEXEC)           = 0
+fstat(3, {st_mode=S_IFREG|0664, st_size=45945, ...}) = 0
+read(3, "# Makefile.in generated by automake 1.15 from Makefile.am.\n# Makefile.  Generated from Makefile.in by configure.\n\n# Copy"..., 4096) = 4096
+read(3, ")/config/nls.m4 \\\n\t$(top_srcdir)/config/po.m4 $(top_srcdir)/config/progtest.m4 \\\n\t$(top_srcdir)/acinclude.m4 $(top_srcdi"..., 4096) = 4096
+read(3, "in $$list; do echo \"$$p\"; done | sed -e \"s|$$srcdirstrip/||\"\nam__nobase_list = $(am__nobase_strip_setup); \\\n  for p in $"..., 4096) = 4096
+read(3, "AL = ${SHELL} /home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/config/missing aclocal-1.15\nALLOCA = \n"..., 4096) = 4096
+read(3, " arscan.c commands.c default.c dir.c expand.c file.c \\\n\t\tfunction.c getopt.c getopt1.c guile.c implicit.c job.c load.c \\"..., 4096) = 4096
+read(3, "indir)\" || exit 1; \\\n\tfi; \\\n\tfor p in $$list; do echo \"$$p $$p\"; done | \\\n\tsed 's/$(EXEEXT)$$//' | \\\n\twhile read p p1; d"..., 4096) = 4096
+open(".deps/alloca.Po", O_RDONLY)       = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+read(4, "# dummy\n", 4096)              = 8
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/getloadavg.Po", O_RDONLY)   = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+read(4, "# dummy\n", 4096)              = 8
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/ar.Po", O_RDONLY)           = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=7708, ...}) = 0
+read(4, "ar.o: ar.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/includ"..., 4096) = 4096
+read(4, "s.h:\n\n/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:\n\n/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:\n\ngnumake.h:\n\n/usr"..., 4096) = 3612
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/arscan.Po", O_RDONLY)       = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8069, ...}) = 0
+read(4, "arscan.o: arscan.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /us"..., 4096) = 4096
+read(4, "ig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/features.h:\n\n/usr/include/x86_64-linux-gnu/sys/cdefs.h:\n\n/usr/include/x86_64"..., 4096) = 3973
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/commands.Po", O_RDONLY)     = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8172, ...}) = 0
+read(4, "commands.o: commands.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n"..., 4096) = 4096
+read(4, ".h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/features.h:\n\n/usr/include/x"..., 4096) = 4076
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/default.Po", O_RDONLY)      = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8232, ...}) = 0
+read(4, "default.o: default.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /"..., 4096) = 4096
+read(4, "-gnu/bits/fcntl2.h commands.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/"..., 4096) = 4096
+read(4, "4-linux-gnu/bits/fcntl2.h:\n\ncommands.h:\n", 4096) = 40
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/dir.Po", O_RDONLY)          = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=7801, ...}) = 0
+read(4, "dir.o: dir.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/incl"..., 4096) = 4096
+read(4, "dsize.h:\n\n/usr/include/x86_64-linux-gnu/gnu/stubs.h:\n\n/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:\n\n/usr/lib/gcc/x86_64"..., 4096) = 3705
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/expand.Po", O_RDONLY)       = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8216, ...}) = 0
+read(4, "expand.o: expand.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /us"..., 4096) = 4096
+read(4, "s.h variable.h rule.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/features"..., 4096) = 4096
+read(4, ":\n\nvariable.h:\n\nrule.h:\n", 4096) = 24
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/file.Po", O_RDONLY)         = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8231, ...}) = 0
+read(4, "file.o: file.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/in"..., 4096) = 4096
+read(4, "nds.h variable.h \\\n debug.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/fe"..., 4096) = 4096
+read(4, "h:\n\ncommands.h:\n\nvariable.h:\n\ndebug.h:\n", 4096) = 39
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/function.Po", O_RDONLY)     = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8190, ...}) = 0
+read(4, "function.o: function.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n"..., 4096) = 4096
+read(4, ".h debug.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/features.h:\n\n/usr/i"..., 4096) = 4094
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/getopt.Po", O_RDONLY)       = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=1545, ...}) = 0
+read(4, "getopt.o: getopt.c /usr/include/stdc-predef.h config.h \\\n /usr/include/stdio.h /usr/include/features.h \\\n /usr/include/x"..., 4096) = 1545
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/getopt1.Po", O_RDONLY)      = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=1567, ...}) = 0
+read(4, "getopt1.o: getopt1.c /usr/include/stdc-predef.h config.h getopt.h \\\n /usr/include/stdio.h /usr/include/features.h \\\n /us"..., 4096) = 1567
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/guile.Po", O_RDONLY)        = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=7611, ...}) = 0
+read(4, "guile.o: guile.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/"..., 4096) = 4096
+brk(0xe01000)                           = 0xe01000
+read(4, "bs-64.h:\n\n/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:\n\ngnumake.h:\n\n/usr/include/x86_64-linux-gnu/sys/types.h:\n\n/us"..., 4096) = 3515
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/hash.Po", O_RDONLY)         = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=7625, ...}) = 0
+read(4, "hash.o: hash.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/in"..., 4096) = 4096
+read(4, "u/stubs-64.h:\n\n/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:\n\ngnumake.h:\n\n/usr/include/x86_64-linux-gnu/sys/types.h:"..., 4096) = 3529
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/implicit.Po", O_RDONLY)     = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8206, ...}) = 0
+read(4, "implicit.o: implicit.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n"..., 4096) = 4096
+read(4, "ntl2.h commands.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/features.h:\n"..., 4096) = 4096
+read(4, "\n\ncommands.h:\n", 4096)      = 14
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/job.Po", O_RDONLY)          = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8311, ...}) = 0
+read(4, "job.o: job.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/incl"..., 4096) = 4096
+read(4, "mmands.h variable.h os.h /usr/include/x86_64-linux-gnu/sys/wait.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/"..., 4096) = 4096
+read(4, "s/fcntl2.h:\n\ndebug.h:\n\nfiledef.h:\n\nhash.h:\n\ncommands.h:\n\nvariable.h:\n\nos.h:\n\n/usr/include/x86_64-linux-gnu/sys/wait.h:\n", 4096) = 119
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/load.Po", O_RDONLY)         = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=7827, ...}) = 0
+read(4, "load.o: load.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/in"..., 4096) = 4096
+read(4, "-gnu/bits/wordsize.h:\n\n/usr/include/x86_64-linux-gnu/gnu/stubs.h:\n\n/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:\n\n/usr/l"..., 4096) = 3731
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/loadapi.Po", O_RDONLY)      = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=7694, ...}) = 0
+read(4, "loadapi.o: loadapi.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /"..., 4096) = 4096
+read(4, "h:\n\n/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:\n\n/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:\n\ngnumake.h:\n\n/usr/i"..., 4096) = 3598
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/loadavg-getloadavg.Po", O_RDONLY) = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+read(4, "# dummy\n", 4096)              = 8
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/main.Po", O_RDONLY)         = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8279, ...}) = 0
+read(4, "main.o: main.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/in"..., 4096) = 4096
+read(4, "rule.h debug.h \\\n getopt.h /usr/include/assert.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloc"..., 4096) = 4096
+read(4, "-gnu/bits/fcntl2.h:\n\ncommands.h:\n\nrule.h:\n\ndebug.h:\n\ngetopt.h:\n\n/usr/include/assert.h:\n", 4096) = 87
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/misc.Po", O_RDONLY)         = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8100, ...}) = 0
+read(4, "misc.o: misc.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/in"..., 4096) = 4096
+read(4, "int.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/features.h:\n\n/usr/include/x86_64-linux-gnu/sys/cdefs.h:\n\n/usr/in"..., 4096) = 4004
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/output.Po", O_RDONLY)       = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8111, ...}) = 0
+read(4, "output.o: output.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /us"..., 4096) = 4096
+read(4, ":\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/features.h:\n\n/usr/include/x86_64-linux-gnu/sys/cdefs.h:\n\n"..., 4096) = 4015
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/posixos.Po", O_RDONLY)      = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8097, ...}) = 0
+read(4, "posixos.o: posixos.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /"..., 4096) = 4096
+read(4, "int.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/features.h:\n\n/usr/include/x86_64-linux-gnu/sys/cdefs.h:\n\n/usr/in"..., 4096) = 4001
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/read.Po", O_RDONLY)         = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8287, ...}) = 0
+read(4, "read.o: read.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/in"..., 4096) = 4096
+read(4, "nds.h variable.h rule.h \\\n debug.h /usr/include/pwd.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/"..., 4096) = 4096
+read(4, "_64-linux-gnu/bits/fcntl2.h:\n\ncommands.h:\n\nvariable.h:\n\nrule.h:\n\ndebug.h:\n\n/usr/include/pwd.h:\n", 4096) = 95
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/remake.Po", O_RDONLY)       = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8235, ...}) = 0
+read(4, "remake.o: remake.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /us"..., 4096) = 4096
+read(4, "\n debug.h /usr/include/assert.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/includ"..., 4096) = 4096
+read(4, "iable.h:\n\ndebug.h:\n\n/usr/include/assert.h:\n", 4096) = 43
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/remote-cstms.Po", O_RDONLY) = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+read(4, "# dummy\n", 4096)              = 8
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/remote-stub.Po", O_RDONLY)  = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8140, ...}) = 0
+read(4, "remote-stub.o: remote-stub.c /usr/include/stdc-predef.h makeint.h \\\n config.h /usr/include/alloca.h /usr/include/feature"..., 4096) = 4096
+read(4, "clude/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/features.h:\n\n/usr/include/x86_64-linux"..., 4096) = 4044
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/rule.Po", O_RDONLY)         = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8226, ...}) = 0
+read(4, "rule.o: rule.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/in"..., 4096) = 4096
+read(4, "nds.h variable.h rule.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/include/featur"..., 4096) = 4096
+read(4, "commands.h:\n\nvariable.h:\n\nrule.h:\n", 4096) = 34
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/signame.Po", O_RDONLY)      = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=7615, ...}) = 0
+read(4, "signame.o: signame.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /"..., 4096) = 4096
+read(4, "/stubs-64.h:\n\n/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:\n\ngnumake.h:\n\n/usr/include/x86_64-linux-gnu/sys/types.h:\n"..., 4096) = 3519
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/strcache.Po", O_RDONLY)     = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=7682, ...}) = 0
+read(4, "strcache.o: strcache.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n"..., 4096) = 4096
+read(4, "\n/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:\n\n/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:\n\ngnumake.h:\n\n/usr/incl"..., 4096) = 3586
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/variable.Po", O_RDONLY)     = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8234, ...}) = 0
+read(4, "variable.o: variable.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n"..., 4096) = 4096
+read(4, ".h commands.h variable.h rule.h\n\n/usr/include/stdc-predef.h:\n\nmakeint.h:\n\nconfig.h:\n\n/usr/include/alloca.h:\n\n/usr/includ"..., 4096) = 4096
+read(4, "tl2.h:\n\ncommands.h:\n\nvariable.h:\n\nrule.h:\n", 4096) = 42
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/version.Po", O_RDONLY)      = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=97, ...}) = 0
+read(4, "version.o: version.c /usr/include/stdc-predef.h config.h\n\n/usr/include/stdc-predef.h:\n\nconfig.h:\n", 4096) = 97
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/vmsjobs.Po", O_RDONLY)      = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+read(4, "# dummy\n", 4096)              = 8
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+open(".deps/vpath.Po", O_RDONLY)        = 4
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat(4, {st_mode=S_IFREG|0664, st_size=7676, ...}) = 0
+read(4, "vpath.o: vpath.c /usr/include/stdc-predef.h makeint.h config.h \\\n /usr/include/alloca.h /usr/include/features.h \\\n /usr/"..., 4096) = 4096
+read(4, "nclude/x86_64-linux-gnu/gnu/stubs-64.h:\n\n/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:\n\ngnumake.h:\n\n/usr/include/x86"..., 4096) = 3580
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+read(3, ")$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`\n\nloadavg-getloadavg.o: getloadavg.c\n\t$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES"..., 4096) = 4096
+read(3, "going through this Makefile.\n# To change the values of 'make' variables: instead of editing Makefiles,\n# (1) if the vari"..., 4096) = 4096
+read(3, " -type d ! -perm -700 -exec chmod u+rwx {} \\;; \\\n\t    fi; \\\n\t    cp -fpR $$d/$$file \"$(distdir)$$dir\" || exit 1; \\\n\t  el"..., 4096) = 4096
+read(3, "_MAKEFLAGS) \\\n\t  && $(MAKE) $(AM_MAKEFLAGS) dvi \\\n\t  && $(MAKE) $(AM_MAKEFLAGS) check \\\n\t  && $(MAKE) $(AM_MAKEFLAGS) in"..., 4096) = 4096
+brk(0xe22000)                           = 0xe22000
+read(3, "GRAMS install-exec-local\n\ninstall-html: install-html-recursive\n\ninstall-html-am:\n\ninstall-info: install-info-recursive\n\n"..., 4096) = 4096
+read(3, "ts.pl test_driver.pl scripts; do \\\n\t\t     rm -f tests/$$f; ln -s ../srctests/$$f tests; \\\n\t\t   done; fi ;; \\\n\t    esac; "..., 4096) = 889
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+stat("RCS", 0x7fffc80a34b0)             = -1 ENOENT (No such file or directory)
+stat("SCCS", 0x7fffc80a34b0)            = -1 ENOENT (No such file or directory)
+stat(".deps/vpath.Po", {st_mode=S_IFREG|0664, st_size=7676, ...}) = 0
+stat(".deps/vmsjobs.Po", {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+stat(".deps/version.Po", {st_mode=S_IFREG|0664, st_size=97, ...}) = 0
+stat(".deps/variable.Po", {st_mode=S_IFREG|0664, st_size=8234, ...}) = 0
+stat(".deps/strcache.Po", {st_mode=S_IFREG|0664, st_size=7682, ...}) = 0
+stat(".deps/signame.Po", {st_mode=S_IFREG|0664, st_size=7615, ...}) = 0
+stat(".deps/rule.Po", {st_mode=S_IFREG|0664, st_size=8226, ...}) = 0
+stat(".deps/remote-stub.Po", {st_mode=S_IFREG|0664, st_size=8140, ...}) = 0
+stat(".deps/remote-cstms.Po", {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+stat(".deps/remake.Po", {st_mode=S_IFREG|0664, st_size=8235, ...}) = 0
+stat(".deps/read.Po", {st_mode=S_IFREG|0664, st_size=8287, ...}) = 0
+stat(".deps/posixos.Po", {st_mode=S_IFREG|0664, st_size=8097, ...}) = 0
+stat(".deps/output.Po", {st_mode=S_IFREG|0664, st_size=8111, ...}) = 0
+stat(".deps/misc.Po", {st_mode=S_IFREG|0664, st_size=8100, ...}) = 0
+stat(".deps/main.Po", {st_mode=S_IFREG|0664, st_size=8279, ...}) = 0
+stat(".deps/loadavg-getloadavg.Po", {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+stat(".deps/loadapi.Po", {st_mode=S_IFREG|0664, st_size=7694, ...}) = 0
+stat(".deps/load.Po", {st_mode=S_IFREG|0664, st_size=7827, ...}) = 0
+stat(".deps/job.Po", {st_mode=S_IFREG|0664, st_size=8311, ...}) = 0
+stat(".deps/implicit.Po", {st_mode=S_IFREG|0664, st_size=8206, ...}) = 0
+stat(".deps/hash.Po", {st_mode=S_IFREG|0664, st_size=7625, ...}) = 0
+stat(".deps/guile.Po", {st_mode=S_IFREG|0664, st_size=7611, ...}) = 0
+stat(".deps/getopt1.Po", {st_mode=S_IFREG|0664, st_size=1567, ...}) = 0
+stat(".deps/getopt.Po", {st_mode=S_IFREG|0664, st_size=1545, ...}) = 0
+stat(".deps/function.Po", {st_mode=S_IFREG|0664, st_size=8190, ...}) = 0
+stat(".deps/file.Po", {st_mode=S_IFREG|0664, st_size=8231, ...}) = 0
+stat(".deps/expand.Po", {st_mode=S_IFREG|0664, st_size=8216, ...}) = 0
+stat(".deps/dir.Po", {st_mode=S_IFREG|0664, st_size=7801, ...}) = 0
+stat(".deps/default.Po", {st_mode=S_IFREG|0664, st_size=8232, ...}) = 0
+stat(".deps/commands.Po", {st_mode=S_IFREG|0664, st_size=8172, ...}) = 0
+stat(".deps/arscan.Po", {st_mode=S_IFREG|0664, st_size=8069, ...}) = 0
+stat(".deps/ar.Po", {st_mode=S_IFREG|0664, st_size=7708, ...}) = 0
+stat(".deps/getloadavg.Po", {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+stat(".deps/alloca.Po", {st_mode=S_IFREG|0664, st_size=8, ...}) = 0
+stat("Makefile", {st_mode=S_IFREG|0664, st_size=45945, ...}) = 0
+stat(".deps", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+open(".deps", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+getdents(3, /* 36 entries */, 32768)    = 1176
+getdents(3, /* 0 entries */, 32768)     = 0
+close(3)                                = 0
+stat(".deps/RCS", 0x7fffc80a21a0)       = -1 ENOENT (No such file or directory)
+stat(".deps/SCCS", 0x7fffc80a21a0)      = -1 ENOENT (No such file or directory)
+stat("Makefile.in", {st_mode=S_IFREG|0644, st_size=47870, ...}) = 0
+stat("Makefile.am", {st_mode=S_IFREG|0644, st_size=6678, ...}) = 0
+stat("config/dospaths.m4", {st_mode=S_IFREG|0644, st_size=1421, ...}) = 0
+stat("config", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open("config", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+getdents(3, /* 26 entries */, 32768)    = 832
+getdents(3, /* 0 entries */, 32768)     = 0
+close(3)                                = 0
+stat("config/RCS", 0x7fffc80a1ee0)      = -1 ENOENT (No such file or directory)
+stat("config/SCCS", 0x7fffc80a1ee0)     = -1 ENOENT (No such file or directory)
+stat("config/gettext.m4", {st_mode=S_IFREG|0644, st_size=15245, ...}) = 0
+stat("config/iconv.m4", {st_mode=S_IFREG|0644, st_size=9268, ...}) = 0
+stat("config/intlmacosx.m4", {st_mode=S_IFREG|0644, st_size=2539, ...}) = 0
+stat("config/lib-ld.m4", {st_mode=S_IFREG|0644, st_size=3683, ...}) = 0
+stat("config/lib-link.m4", {st_mode=S_IFREG|0644, st_size=33059, ...}) = 0
+stat("config/lib-prefix.m4", {st_mode=S_IFREG|0644, st_size=8466, ...}) = 0
+stat("config/longlong.m4", {st_mode=S_IFREG|0644, st_size=4739, ...}) = 0
+stat("config/nls.m4", {st_mode=S_IFREG|0644, st_size=1229, ...}) = 0
+stat("config/po.m4", {st_mode=S_IFREG|0644, st_size=18975, ...}) = 0
+stat("config/progtest.m4", {st_mode=S_IFREG|0644, st_size=3104, ...}) = 0
+stat("acinclude.m4", {st_mode=S_IFREG|0644, st_size=4986, ...}) = 0
+stat("configure.ac", {st_mode=S_IFREG|0644, st_size=17836, ...}) = 0
+stat("aclocal.m4", {st_mode=S_IFREG|0644, st_size=55462, ...}) = 0
+stat("config.status", {st_mode=S_IFREG|0775, st_size=44136, ...}) = 0
+stat("configure", {st_mode=S_IFREG|0755, st_size=388352, ...}) = 0
+stat("make", 0x7fffc80a12c0)            = -1 ENOENT (No such file or directory)
+stat("ar.o", 0x7fffc80a1160)            = -1 ENOENT (No such file or directory)
+stat("ar.c", {st_mode=S_IFREG|0644, st_size=8487, ...}) = 0
+stat("/usr/include/stdc-predef.h", {st_mode=S_IFREG|0644, st_size=2229, ...}) = 0
+stat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+open("/usr/include", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+getdents(3, /* 148 entries */, 32768)   = 4640
+getdents(3, /* 0 entries */, 32768)     = 0
+close(3)                                = 0
+stat("/usr/include/RCS", 0x7fffc80a1d70) = -1 ENOENT (No such file or directory)
+stat("/usr/include/SCCS", 0x7fffc80a1d60) = -1 ENOENT (No such file or directory)
+stat("makeint.h", {st_mode=S_IFREG|0644, st_size=22638, ...}) = 0
+stat("config.h", {st_mode=S_IFREG|0664, st_size=14408, ...}) = 0
+stat("stamp-h1", {st_mode=S_IFREG|0664, st_size=23, ...}) = 0
+stat("config.h.in", {st_mode=S_IFREG|0644, st_size=13585, ...}) = 0
+open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2995, ...}) = 0
+read(3, "# Locale name alias data base.\n# Copyright (C) 1996-2016 Free Software Foundation, Inc.\n#\n# This program is free softwar"..., 4096) = 2995
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US.utf8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.UTF-8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.utf8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.UTF-8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.utf8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.UTF-8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.utf8/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en/LC_MESSAGES/make.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2), ...}) = 0
+write(1, "make[2]: Entering directory '/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2'\n", 98) = 98
+pipe([3, 4])                            = 0
+close(4)                                = 0
+fcntl(3, F_SETFD, FD_CLOEXEC)           = 0
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17726
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17726
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17726, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17726
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17727
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17727
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17727, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17727
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("config.h", {st_mode=S_IFREG|0664, st_size=14408, ...}) = 0
+stat("/usr/include/alloca.h", {st_mode=S_IFREG|0644, st_size=1203, ...}) = 0
+stat("/usr/include/features.h", {st_mode=S_IFREG|0644, st_size=13214, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/cdefs.h", {st_mode=S_IFREG|0644, st_size=15412, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys", {st_mode=S_IFDIR|0755, st_size=12288, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/sys", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=12288, ...}) = 0
+getdents(4, /* 86 entries */, 32768)    = 2720
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+stat("/usr/include/x86_64-linux-gnu/sys/RCS", 0x7fffc80a1d30) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/sys/SCCS", 0x7fffc80a1d30) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/bits/wordsize.h", {st_mode=S_IFREG|0644, st_size=327, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits", {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/bits", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+getdents(4, /* 123 entries */, 32768)   = 4056
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+stat("/usr/include/x86_64-linux-gnu/bits/RCS", 0x7fffc80a1d20) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/bits/SCCS", 0x7fffc80a1d20) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/gnu/stubs.h", {st_mode=S_IFREG|0644, st_size=384, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/gnu", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+getdents(4, /* 7 entries */, 32768)     = 224
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+stat("/usr/include/x86_64-linux-gnu/gnu/RCS", 0x7fffc80a1d30) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/gnu/SCCS", 0x7fffc80a1d30) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/gnu/stubs-64.h", {st_mode=S_IFREG|0644, st_size=613, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h", {st_mode=S_IFREG|0644, st_size=13754, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+getdents(4, /* 80 entries */, 32768)    = 2776
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include/RCS", 0x7fffc80a1d20) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include/SCCS", 0x7fffc80a1d20) = -1 ENOENT (No such file or directory)
+stat("gnumake.h", {st_mode=S_IFREG|0644, st_size=2912, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/types.h", {st_mode=S_IFREG|0644, st_size=6687, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/types.h", {st_mode=S_IFREG|0644, st_size=7563, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/typesizes.h", {st_mode=S_IFREG|0644, st_size=3276, ...}) = 0
+stat("/usr/include/time.h", {st_mode=S_IFREG|0644, st_size=13543, ...}) = 0
+stat("/usr/include/endian.h", {st_mode=S_IFREG|0644, st_size=2939, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/endian.h", {st_mode=S_IFREG|0644, st_size=176, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/byteswap.h", {st_mode=S_IFREG|0644, st_size=5664, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/byteswap-16.h", {st_mode=S_IFREG|0644, st_size=1731, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/select.h", {st_mode=S_IFREG|0644, st_size=4197, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/select.h", {st_mode=S_IFREG|0644, st_size=2105, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/sigset.h", {st_mode=S_IFREG|0644, st_size=4553, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/time.h", {st_mode=S_IFREG|0644, st_size=3465, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/select2.h", {st_mode=S_IFREG|0644, st_size=1437, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/sysmacros.h", {st_mode=S_IFREG|0644, st_size=2278, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/pthreadtypes.h", {st_mode=S_IFREG|0644, st_size=6741, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/stat.h", {st_mode=S_IFREG|0644, st_size=16294, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/stat.h", {st_mode=S_IFREG|0644, st_size=7619, ...}) = 0
+stat("/usr/include/signal.h", {st_mode=S_IFREG|0644, st_size=12221, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/signum.h", {st_mode=S_IFREG|0644, st_size=3397, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/siginfo.h", {st_mode=S_IFREG|0644, st_size=10781, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/sigaction.h", {st_mode=S_IFREG|0644, st_size=2818, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/sigcontext.h", {st_mode=S_IFREG|0644, st_size=4174, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/sigstack.h", {st_mode=S_IFREG|0644, st_size=1527, ...}) = 0
+brk(0xe44000)                           = 0xe44000
+stat("/usr/include/x86_64-linux-gnu/sys/ucontext.h", {st_mode=S_IFREG|0644, st_size=5385, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/sigthread.h", {st_mode=S_IFREG|0644, st_size=1657, ...}) = 0
+stat("/usr/include/stdio.h", {st_mode=S_IFREG|0644, st_size=31365, ...}) = 0
+stat("/usr/include/libio.h", {st_mode=S_IFREG|0644, st_size=17179, ...}) = 0
+stat("/usr/include/_G_config.h", {st_mode=S_IFREG|0644, st_size=1287, ...}) = 0
+stat("/usr/include/wchar.h", {st_mode=S_IFREG|0644, st_size=32124, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h", {st_mode=S_IFREG|0644, st_size=4075, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/stdio_lim.h", {st_mode=S_IFREG|0644, st_size=1354, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/sys_errlist.h", {st_mode=S_IFREG|0644, st_size=1215, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/stdio.h", {st_mode=S_IFREG|0644, st_size=5492, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/stdio2.h", {st_mode=S_IFREG|0644, st_size=12618, ...}) = 0
+stat("/usr/include/ctype.h", {st_mode=S_IFREG|0644, st_size=11652, ...}) = 0
+stat("/usr/include/xlocale.h", {st_mode=S_IFREG|0644, st_size=1689, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/timeb.h", {st_mode=S_IFREG|0644, st_size=1386, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/time.h", {st_mode=S_IFREG|0644, st_size=6673, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/timex.h", {st_mode=S_IFREG|0644, st_size=4556, ...}) = 0
+stat("/usr/include/errno.h", {st_mode=S_IFREG|0644, st_size=2367, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/errno.h", {st_mode=S_IFREG|0644, st_size=2145, ...}) = 0
+stat("/usr/include/linux/errno.h", {st_mode=S_IFREG|0644, st_size=23, ...}) = 0
+stat("/usr/include/linux", {st_mode=S_IFDIR|0755, st_size=45056, ...}) = 0
+open("/usr/include/linux", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=45056, ...}) = 0
+getdents(4, /* 449 entries */, 32768)   = 14736
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+stat("/usr/include/linux/RCS", 0x7fffc80a1d50) = -1 ENOENT (No such file or directory)
+stat("/usr/include/linux/SCCS", 0x7fffc80a1d50) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/asm/errno.h", {st_mode=S_IFREG|0644, st_size=31, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/asm", {st_mode=S_IFDIR|0755, st_size=12288, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/asm", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=12288, ...}) = 0
+getdents(4, /* 64 entries */, 32768)    = 2096
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+stat("/usr/include/x86_64-linux-gnu/asm/RCS", 0x7fffc80a1d30) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/asm/SCCS", 0x7fffc80a1d30) = -1 ENOENT (No such file or directory)
+stat("/usr/include/asm-generic/errno.h", {st_mode=S_IFREG|0644, st_size=5585, ...}) = 0
+stat("/usr/include/asm-generic", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open("/usr/include/asm-generic", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+getdents(4, /* 37 entries */, 32768)    = 1200
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+stat("/usr/include/asm-generic/RCS", 0x7fffc80a1d50) = -1 ENOENT (No such file or directory)
+stat("/usr/include/asm-generic/SCCS", 0x7fffc80a1d50) = -1 ENOENT (No such file or directory)
+stat("/usr/include/asm-generic/errno-base.h", {st_mode=S_IFREG|0644, st_size=1549, ...}) = 0
+stat("/usr/include/unistd.h", {st_mode=S_IFREG|0644, st_size=42100, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/posix_opt.h", {st_mode=S_IFREG|0644, st_size=5705, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/environments.h", {st_mode=S_IFREG|0644, st_size=3790, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/confname.h", {st_mode=S_IFREG|0644, st_size=23708, ...}) = 0
+stat("getopt.h", {st_mode=S_IFREG|0644, st_size=4472, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/unistd.h", {st_mode=S_IFREG|0644, st_size=13347, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/limits.h", {st_mode=S_IFREG|0644, st_size=5382, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+getdents(4, /* 6 entries */, 32768)     = 176
+getdents(4, /* 0 entries */, 32768)     = 0
+close(4)                                = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/RCS", 0x7fffc80a1d10) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/SCCS", 0x7fffc80a1d10) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/syslimits.h", {st_mode=S_IFREG|0644, st_size=330, ...}) = 0
+stat("/usr/include/limits.h", {st_mode=S_IFREG|0644, st_size=4489, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/posix1_lim.h", {st_mode=S_IFREG|0644, st_size=4922, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/local_lim.h", {st_mode=S_IFREG|0644, st_size=3184, ...}) = 0
+stat("/usr/include/linux/limits.h", {st_mode=S_IFREG|0644, st_size=874, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/posix2_lim.h", {st_mode=S_IFREG|0644, st_size=2866, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/xopen_lim.h", {st_mode=S_IFREG|0644, st_size=3757, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/param.h", {st_mode=S_IFREG|0644, st_size=3148, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/param.h", {st_mode=S_IFREG|0644, st_size=1432, ...}) = 0
+stat("/usr/include/linux/param.h", {st_mode=S_IFREG|0644, st_size=78, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/asm/param.h", {st_mode=S_IFREG|0644, st_size=31, ...}) = 0
+stat("/usr/include/asm-generic/param.h", {st_mode=S_IFREG|0644, st_size=290, ...}) = 0
+stat("/usr/include/stdlib.h", {st_mode=S_IFREG|0644, st_size=33686, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/waitflags.h", {st_mode=S_IFREG|0644, st_size=2140, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/waitstatus.h", {st_mode=S_IFREG|0644, st_size=3554, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h", {st_mode=S_IFREG|0644, st_size=1377, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/stdlib-float.h", {st_mode=S_IFREG|0644, st_size=1156, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/stdlib.h", {st_mode=S_IFREG|0644, st_size=5658, ...}) = 0
+stat("/usr/include/string.h", {st_mode=S_IFREG|0644, st_size=22663, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/string.h", {st_mode=S_IFREG|0644, st_size=58282, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/string2.h", {st_mode=S_IFREG|0644, st_size=46322, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/string3.h", {st_mode=S_IFREG|0644, st_size=4631, ...}) = 0
+stat("/usr/include/inttypes.h", {st_mode=S_IFREG|0644, st_size=11892, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h", {st_mode=S_IFREG|0644, st_size=328, ...}) = 0
+stat("/usr/include/stdint.h", {st_mode=S_IFREG|0644, st_size=8094, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/wchar.h", {st_mode=S_IFREG|0644, st_size=1905, ...}) = 0
+stat("/usr/include/locale.h", {st_mode=S_IFREG|0644, st_size=7941, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/locale.h", {st_mode=S_IFREG|0644, st_size=1367, ...}) = 0
+stat("gettext.h", {st_mode=S_IFREG|0644, st_size=2519, ...}) = 0
+stat("/usr/include/libintl.h", {st_mode=S_IFREG|0644, st_size=4579, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/resource.h", {st_mode=S_IFREG|0644, st_size=3645, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/resource.h", {st_mode=S_IFREG|0644, st_size=9435, ...}) = 0
+stat("/usr/include/glob.h", {st_mode=S_IFREG|0644, st_size=6606, ...}) = 0
+stat("filedef.h", {st_mode=S_IFREG|0644, st_size=10108, ...}) = 0
+stat("hash.h", {st_mode=S_IFREG|0644, st_size=8553, ...}) = 0
+stat("dep.h", {st_mode=S_IFREG|0644, st_size=4792, ...}) = 0
+stat("/usr/include/fnmatch.h", {st_mode=S_IFREG|0644, st_size=2295, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 190) = 190
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17728
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17728
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17728, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17728
+write(1, "mv -f .deps/ar.Tpo .deps/ar.Po\n", 31) = 31
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17731
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17731
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17731, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17731
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("ar.o", {st_mode=S_IFREG|0664, st_size=28192, ...}) = 0
+stat("arscan.o", 0x7fffc80a1160)        = -1 ENOENT (No such file or directory)
+stat("arscan.c", {st_mode=S_IFREG|0644, st_size=28170, ...}) = 0
+stat("/usr/include/fcntl.h", {st_mode=S_IFREG|0644, st_size=9437, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/fcntl.h", {st_mode=S_IFREG|0644, st_size=2245, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/fcntl-linux.h", {st_mode=S_IFREG|0644, st_size=13879, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/uio.h", {st_mode=S_IFREG|0644, st_size=2461, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/fcntl2.h", {st_mode=S_IFREG|0644, st_size=5574, ...}) = 0
+stat("/usr/include/ar.h", {st_mode=S_IFREG|0644, st_size=1730, ...}) = 0
+brk(0xe65000)                           = 0xe65000
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 206) = 206
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17732
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17732
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17732, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17732
+write(1, "mv -f .deps/arscan.Tpo .deps/arscan.Po\n", 39) = 39
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17735
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17735
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17735, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17735
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("arscan.o", {st_mode=S_IFREG|0664, st_size=29688, ...}) = 0
+stat("commands.o", 0x7fffc80a1160)      = -1 ENOENT (No such file or directory)
+stat("commands.c", {st_mode=S_IFREG|0644, st_size=18521, ...}) = 0
+stat("variable.h", {st_mode=S_IFREG|0644, st_size=10428, ...}) = 0
+stat("job.h", {st_mode=S_IFREG|0644, st_size=5098, ...}) = 0
+stat("output.h", {st_mode=S_IFREG|0644, st_size=1877, ...}) = 0
+stat("commands.h", {st_mode=S_IFREG|0644, st_size=1943, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 214) = 214
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17736
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17736
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17736, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17736
+write(1, "mv -f .deps/commands.Tpo .deps/commands.Po\n", 43) = 43
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17739
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17739
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17739, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17739
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("commands.o", {st_mode=S_IFREG|0664, st_size=55008, ...}) = 0
+stat("default.o", 0x7fffc80a1160)       = -1 ENOENT (No such file or directory)
+stat("default.c", {st_mode=S_IFREG|0644, st_size=21408, ...}) = 0
+stat("/usr/include/assert.h", {st_mode=S_IFREG|0644, st_size=3583, ...}) = 0
+stat("rule.h", {st_mode=S_IFREG|0644, st_size=2170, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 210) = 210
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17740
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17740
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17740, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17740
+write(1, "mv -f .deps/default.Tpo .deps/default.Po\n", 41) = 41
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17743
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17743
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17743, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17743
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("default.o", {st_mode=S_IFREG|0664, st_size=33256, ...}) = 0
+stat("dir.o", 0x7fffc80a1160)           = -1 ENOENT (No such file or directory)
+stat("dir.c", {st_mode=S_IFREG|0644, st_size=35657, ...}) = 0
+stat("/usr/include/dirent.h", {st_mode=S_IFREG|0644, st_size=12410, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/dirent.h", {st_mode=S_IFREG|0644, st_size=1728, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 194) = 194
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17744
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17744
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17744, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17744
+write(1, "mv -f .deps/dir.Tpo .deps/dir.Po\n", 33) = 33
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17747
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17747
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17747, si_uid=1000, si_status=0, si_utime=0, si_stime=2} ---
+rt_sigreturn({mask=[]})                 = 17747
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("dir.o", {st_mode=S_IFREG|0664, st_size=52192, ...}) = 0
+stat("expand.o", 0x7fffc80a1160)        = -1 ENOENT (No such file or directory)
+stat("expand.c", {st_mode=S_IFREG|0644, st_size=18100, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 206) = 206
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17748
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17748
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17748, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17748
+write(1, "mv -f .deps/expand.Tpo .deps/expand.Po\n", 39) = 39
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17751
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17751
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17751, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17751
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("expand.o", {st_mode=S_IFREG|0664, st_size=51616, ...}) = 0
+stat("file.o", 0x7fffc80a1160)          = -1 ENOENT (No such file or directory)
+stat("file.c", {st_mode=S_IFREG|0644, st_size=32208, ...}) = 0
+stat("debug.h", {st_mode=S_IFREG|0644, st_size=1427, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 198) = 198
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17752
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17752
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17752, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17752
+write(1, "mv -f .deps/file.Tpo .deps/file.Po\n", 35) = 35
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17755
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17755
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17755, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17755
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("file.o", {st_mode=S_IFREG|0664, st_size=80992, ...}) = 0
+stat("function.o", 0x7fffc80a1160)      = -1 ENOENT (No such file or directory)
+stat("function.c", {st_mode=S_IFREG|0644, st_size=70187, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 214) = 214
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17756
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17756
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17756, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17756
+write(1, "mv -f .deps/function.Tpo .deps/function.Po\n", 43) = 43
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17759
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17759
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17759, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17759
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("function.o", {st_mode=S_IFREG|0664, st_size=155256, ...}) = 0
+stat("getopt.o", 0x7fffc80a1160)        = -1 ENOENT (No such file or directory)
+stat("getopt.c", {st_mode=S_IFREG|0644, st_size=29683, ...}) = 0
+stat("/usr/include/gnu-versions.h", {st_mode=S_IFREG|0644, st_size=2342, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 206) = 206
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17760
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17760
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17760, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17760
+write(1, "mv -f .deps/getopt.Tpo .deps/getopt.Po\n", 39) = 39
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17763
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17763
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17763, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17763
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("getopt.o", {st_mode=S_IFREG|0664, st_size=4576, ...}) = 0
+stat("getopt1.o", 0x7fffc80a1160)       = -1 ENOENT (No such file or directory)
+stat("getopt1.c", {st_mode=S_IFREG|0644, st_size=4299, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 210) = 210
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17764
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17764
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17764, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17764
+write(1, "mv -f .deps/getopt1.Tpo .deps/getopt1.Po\n", 41) = 41
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17767
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17767
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17767, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17767
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("getopt1.o", {st_mode=S_IFREG|0664, st_size=4576, ...}) = 0
+stat("guile.o", 0x7fffc80a1160)         = -1 ENOENT (No such file or directory)
+stat("guile.c", {st_mode=S_IFREG|0644, st_size=4007, ...}) = 0
+stat("gmk-default.h", {st_mode=S_IFREG|0644, st_size=840, ...}) = 0
+stat("gmk-default.scm", {st_mode=S_IFREG|0644, st_size=1773, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 202) = 202
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17768
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17768
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17768, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17768
+write(1, "mv -f .deps/guile.Tpo .deps/guile.Po\n", 37) = 37
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17771
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17771
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17771, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17771
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("guile.o", {st_mode=S_IFREG|0664, st_size=7952, ...}) = 0
+stat("implicit.o", 0x7fffc80a1160)      = -1 ENOENT (No such file or directory)
+stat("implicit.c", {st_mode=S_IFREG|0644, st_size=34447, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 214) = 214
+brk(0xe86000)                           = 0xe86000
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17772
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17772
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17772, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17772
+write(1, "mv -f .deps/implicit.Tpo .deps/implicit.Po\n", 43) = 43
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17775
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17775
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17775, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17775
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+brk(0xe83000)                           = 0xe83000
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("implicit.o", {st_mode=S_IFREG|0664, st_size=63720, ...}) = 0
+stat("job.o", 0x7fffc80a1160)           = -1 ENOENT (No such file or directory)
+stat("job.c", {st_mode=S_IFREG|0644, st_size=106450, ...}) = 0
+stat("os.h", {st_mode=S_IFREG|0644, st_size=3017, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/sys/wait.h", {st_mode=S_IFREG|0644, st_size=6223, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 194) = 194
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17776
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17776
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17776, si_uid=1000, si_status=0, si_utime=0, si_stime=2} ---
+rt_sigreturn({mask=[]})                 = 17776
+write(1, "mv -f .deps/job.Tpo .deps/job.Po\n", 33) = 33
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17779
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17779
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17779, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17779
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("job.o", {st_mode=S_IFREG|0664, st_size=108472, ...}) = 0
+stat("load.o", 0x7fffc80a1160)          = -1 ENOENT (No such file or directory)
+stat("load.c", {st_mode=S_IFREG|0644, st_size=6964, ...}) = 0
+stat("/usr/include/dlfcn.h", {st_mode=S_IFREG|0644, st_size=7018, ...}) = 0
+stat("/usr/include/x86_64-linux-gnu/bits/dlfcn.h", {st_mode=S_IFREG|0644, st_size=2520, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 198) = 198
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17780
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17780
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17780, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17780
+write(1, "mv -f .deps/load.Tpo .deps/load.Po\n", 35) = 35
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17783
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17783
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17783, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17783
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("load.o", {st_mode=S_IFREG|0664, st_size=31896, ...}) = 0
+stat("loadapi.o", 0x7fffc80a1160)       = -1 ENOENT (No such file or directory)
+stat("loadapi.c", {st_mode=S_IFREG|0644, st_size=2063, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 210) = 210
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17784
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17784
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17784, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17784
+write(1, "mv -f .deps/loadapi.Tpo .deps/loadapi.Po\n", 41) = 41
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17788
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17788
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17788, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17788
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("loadapi.o", {st_mode=S_IFREG|0664, st_size=16760, ...}) = 0
+stat("main.o", 0x7fffc80a1160)          = -1 ENOENT (No such file or directory)
+stat("main.c", {st_mode=S_IFREG|0644, st_size=106700, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 198) = 198
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17789
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17789
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17789, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17789
+write(1, "mv -f .deps/main.Tpo .deps/main.Po\n", 35) = 35
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17794
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17794
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17794, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17794
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("main.o", {st_mode=S_IFREG|0664, st_size=207984, ...}) = 0
+stat("misc.o", 0x7fffc80a1160)          = -1 ENOENT (No such file or directory)
+stat("misc.c", {st_mode=S_IFREG|0644, st_size=16392, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 198) = 198
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17795
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17795
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17795, si_uid=1000, si_status=0, si_utime=1, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17795
+write(1, "mv -f .deps/misc.Tpo .deps/misc.Po\n", 35) = 35
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17798
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17798
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17798, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17798
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("misc.o", {st_mode=S_IFREG|0664, st_size=29552, ...}) = 0
+stat("posixos.o", 0x7fffc80a1160)       = -1 ENOENT (No such file or directory)
+stat("posixos.c", {st_mode=S_IFREG|0644, st_size=10762, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 210) = 210
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17799
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17799
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17799, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17799
+write(1, "mv -f .deps/posixos.Tpo .deps/posixos.Po\n", 41) = 41
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17802
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17802
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17802, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17802
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("posixos.o", {st_mode=S_IFREG|0664, st_size=26840, ...}) = 0
+stat("output.o", 0x7fffc80a1160)        = -1 ENOENT (No such file or directory)
+stat("output.c", {st_mode=S_IFREG|0644, st_size=17710, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 206) = 206
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17803
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17803
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17803, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17803
+write(1, "mv -f .deps/output.Tpo .deps/output.Po\n", 39) = 39
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17806
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17806
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17806, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17806
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("output.o", {st_mode=S_IFREG|0664, st_size=59536, ...}) = 0
+stat("read.o", 0x7fffc80a1160)          = -1 ENOENT (No such file or directory)
+stat("read.c", {st_mode=S_IFREG|0644, st_size=101253, ...}) = 0
+stat("/usr/include/pwd.h", {st_mode=S_IFREG|0644, st_size=6040, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 198) = 198
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17807
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17807
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17807, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17807
+write(1, "mv -f .deps/read.Tpo .deps/read.Po\n", 35) = 35
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17810
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17810
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17810, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17810
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("read.o", {st_mode=S_IFREG|0664, st_size=166024, ...}) = 0
+stat("remake.o", 0x7fffc80a1160)        = -1 ENOENT (No such file or directory)
+stat("remake.c", {st_mode=S_IFREG|0644, st_size=56132, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 206) = 206
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17811
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17811
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17811, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17811
+write(1, "mv -f .deps/remake.Tpo .deps/remake.Po\n", 39) = 39
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17814
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17814
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17814, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17814
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("remake.o", {st_mode=S_IFREG|0664, st_size=100376, ...}) = 0
+stat("rule.o", 0x7fffc80a1160)          = -1 ENOENT (No such file or directory)
+stat("rule.c", {st_mode=S_IFREG|0644, st_size=15440, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 198) = 198
+brk(0xea5000)                           = 0xea5000
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17815
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17815
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17815, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17815
+write(1, "mv -f .deps/rule.Tpo .deps/rule.Po\n", 35) = 35
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17818
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17818
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17818, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17818
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+brk(0xea3000)                           = 0xea3000
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("rule.o", {st_mode=S_IFREG|0664, st_size=42704, ...}) = 0
+stat("signame.o", 0x7fffc80a1160)       = -1 ENOENT (No such file or directory)
+stat("signame.c", {st_mode=S_IFREG|0644, st_size=6863, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 210) = 210
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17819
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17819
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17819, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17819
+write(1, "mv -f .deps/signame.Tpo .deps/signame.Po\n", 41) = 41
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17822
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17822
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17822, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17822
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("signame.o", {st_mode=S_IFREG|0664, st_size=6936, ...}) = 0
+stat("strcache.o", 0x7fffc80a1160)      = -1 ENOENT (No such file or directory)
+stat("strcache.c", {st_mode=S_IFREG|0644, st_size=9363, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 214) = 214
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17823
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17823
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17823, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17823
+write(1, "mv -f .deps/strcache.Tpo .deps/strcache.Po\n", 43) = 43
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17826
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17826
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17826, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17826
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("strcache.o", {st_mode=S_IFREG|0664, st_size=34152, ...}) = 0
+stat("variable.o", 0x7fffc80a1160)      = -1 ENOENT (No such file or directory)
+stat("variable.c", {st_mode=S_IFREG|0644, st_size=55683, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 214) = 214
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17827
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17827
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17827, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17827
+write(1, "mv -f .deps/variable.Tpo .deps/variable.Po\n", 43) = 43
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17830
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17830
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17830, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17830
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("variable.o", {st_mode=S_IFREG|0664, st_size=97648, ...}) = 0
+stat("version.o", 0x7fffc80a1160)       = -1 ENOENT (No such file or directory)
+stat("version.c", {st_mode=S_IFREG|0644, st_size=1169, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 210) = 210
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17831
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17831
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17831, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17831
+write(1, "mv -f .deps/version.Tpo .deps/version.Po\n", 41) = 41
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17834
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17834
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17834, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17834
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("version.o", {st_mode=S_IFREG|0664, st_size=2608, ...}) = 0
+stat("vpath.o", 0x7fffc80a1160)         = -1 ENOENT (No such file or directory)
+stat("vpath.c", {st_mode=S_IFREG|0644, st_size=19117, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 202) = 202
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17835
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17835
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17835, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17835
+write(1, "mv -f .deps/vpath.Tpo .deps/vpath.Po\n", 37) = 37
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17838
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17838
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17838, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17838
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("vpath.o", {st_mode=S_IFREG|0664, st_size=38088, ...}) = 0
+stat("hash.o", 0x7fffc80a1160)          = -1 ENOENT (No such file or directory)
+stat("hash.c", {st_mode=S_IFREG|0644, st_size=8246, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 198) = 198
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17839
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17839
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17839, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17839
+write(1, "mv -f .deps/hash.Tpo .deps/hash.Po\n", 35) = 35
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17842
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17842
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17842, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17842
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("hash.o", {st_mode=S_IFREG|0664, st_size=29928, ...}) = 0
+stat("remote-stub.o", 0x7fffc80a1160)   = -1 ENOENT (No such file or directory)
+stat("remote-stub.c", {st_mode=S_IFREG|0644, st_size=2865, ...}) = 0
+write(1, "gcc -DLOCALEDIR=\\\"/usr/local/share/locale\\\" -DLIBDIR=\\\"/usr/local/lib\\\" -DINCLUDEDIR=\\\"/usr/local/include\\\" -DHAVE_CONFI"..., 226) = 226
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17843
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17843
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17843, si_uid=1000, si_status=0, si_utime=0, si_stime=1} ---
+rt_sigreturn({mask=[]})                 = 17843
+write(1, "mv -f .deps/remote-stub.Tpo .deps/remote-stub.Po\n", 49) = 49
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17846
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17846
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17846, si_uid=1000, si_status=0, si_utime=0, si_stime=2} ---
+rt_sigreturn({mask=[]})                 = 17846
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("remote-stub.o", {st_mode=S_IFREG|0664, st_size=10280, ...}) = 0
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17847
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17847
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17847, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+rt_sigreturn({mask=[]})                 = 17847
+write(1, "gcc  -g -O2 -Wl,--export-dynamic  -o make ar.o arscan.o commands.o default.o dir.o expand.o file.o function.o getopt.o g"..., 307) = 307
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa2be31d9d0) = 17848
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17848
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17848, si_uid=1000, si_status=0, si_utime=0, si_stime=4} ---
+rt_sigreturn({mask=[]})                 = 17848
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT TERM XCPU XFSZ], NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("make", {st_mode=S_IFREG|0775, st_size=839704, ...}) = 0
+stat("make.1", {st_mode=S_IFREG|0644, st_size=11000, ...}) = 0
+write(1, "make[2]: Leaving directory '/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2'\n", 97) = 97
+chdir("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2") = 0
+close(1)                                = 0
+exit_group(0)                           = ?
++++ exited with 0 +++

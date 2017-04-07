@@ -1,0 +1,69 @@
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigaction(SIGTSTP, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGTTIN, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGTTOU, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGINT, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGQUIT, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_IGN, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGCHLD, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, {0x447a20, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGCHLD, {0x447a20, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER|SA_RESTART, 0x7f5baada34b0}, 8) = 0
+rt_sigaction(SIGINT, {0x45f960, [], SA_RESTORER, 0x7f5baada34b0}, {SIG_DFL, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+stat("/home", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home/daniter", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home/daniter/Documents", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home/daniter/Documents/winstein", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+stat("/home/daniter/Documents/winstein/gg", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+stat("/home/daniter/Documents/winstein/gg/gg", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+stat("/home/daniter/Documents/winstein/gg/gg/exploration", {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0
+stat("/home/daniter/Documents/winstein/gg/gg/exploration/targets", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/glob", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+chdir("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/glob") = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/home/daniter/bin/make", 0x7ffe5bddb0b0) = -1 ENOENT (No such file or directory)
+stat("/home/daniter/.local/bin/make", 0x7ffe5bddb0b0) = -1 ENOENT (No such file or directory)
+stat("/usr/local/sbin/make", 0x7ffe5bddb0b0) = -1 ENOENT (No such file or directory)
+stat("/usr/local/bin/make", 0x7ffe5bddb0b0) = -1 ENOENT (No such file or directory)
+stat("/usr/sbin/make", 0x7ffe5bddb0b0)  = -1 ENOENT (No such file or directory)
+stat("/usr/bin/make", {st_mode=S_IFREG|0755, st_size=207528, ...}) = 0
+stat("/usr/bin/make", {st_mode=S_IFREG|0755, st_size=207528, ...}) = 0
+geteuid()                               = 1000
+getegid()                               = 1000
+getuid()                                = 1000
+getgid()                                = 1000
+access("/usr/bin/make", X_OK)           = 0
+stat("/usr/bin/make", {st_mode=S_IFREG|0755, st_size=207528, ...}) = 0
+geteuid()                               = 1000
+getegid()                               = 1000
+getuid()                                = 1000
+getgid()                                = 1000
+access("/usr/bin/make", R_OK)           = 0
+stat("/usr/bin/make", {st_mode=S_IFREG|0755, st_size=207528, ...}) = 0
+stat("/usr/bin/make", {st_mode=S_IFREG|0755, st_size=207528, ...}) = 0
+geteuid()                               = 1000
+getegid()                               = 1000
+getuid()                                = 1000
+getgid()                                = 1000
+access("/usr/bin/make", X_OK)           = 0
+stat("/usr/bin/make", {st_mode=S_IFREG|0755, st_size=207528, ...}) = 0
+geteuid()                               = 1000
+getegid()                               = 1000
+getuid()                                = 1000
+getgid()                                = 1000
+access("/usr/bin/make", R_OK)           = 0
+rt_sigprocmask(SIG_BLOCK, [INT CHLD], [], 8) = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f5bab76e9d0) = 17718
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigaction(SIGINT, {0x444900, [], SA_RESTORER, 0x7f5baada34b0}, {0x45f960, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 17718
+rt_sigaction(SIGINT, {0x45f960, [], SA_RESTORER, 0x7f5baada34b0}, {0x444900, [], SA_RESTORER, 0x7f5baada34b0}, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=17718, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+wait4(-1, 0x7ffe5bddabd0, WNOHANG, NULL) = -1 ECHILD (No child processes)
+rt_sigreturn({mask=[]})                 = 0
+exit_group(0)                           = ?
++++ exited with 0 +++

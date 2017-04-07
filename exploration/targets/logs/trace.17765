@@ -1,0 +1,808 @@
+execve("/usr/lib/gcc/x86_64-linux-gnu/5/cc1", ["/usr/lib/gcc/x86_64-linux-gnu/5/cc1", "-quiet", "-I", ".", "-imultiarch", "x86_64-linux-gnu", "-MD", "getopt1.d", "-MF", ".deps/getopt1.Tpo", "-MP", "-MT", "getopt1.o", "-D", "LOCALEDIR=\"/usr/local/share/locale\"", "-D", "LIBDIR=\"/usr/local/lib\"", "-D", "INCLUDEDIR=\"/usr/local/include\"", "-D", "HAVE_CONFIG_H", "getopt1.c", "-quiet", "-dumpbase", "getopt1.c", "-mtune=generic", "-march=x86-64", "-auxbase-strip", "getopt1.o", "-g", "-O2", "-fstack-protector-strong", "-Wformat", "-Wformat-security", "-o", "/tmp/ccOKDD6s.s"], [/* 29 vars */]) = 0
+brk(NULL)                               = 0x388e000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c999000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=88335, ...}) = 0
+mmap(NULL, 88335, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fee0c983000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libisl.so.15", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\220\262\3\0\0\0\0\0@\0\0\0\0\0\0\0\0\245\27\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0,\204\27\0\0\0\0\0,\204\27\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=1551360, ...}) = 0
+mmap(NULL, 3646456, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fee0c3fb000
+mprotect(0x7fee0c574000, 2093056, PROT_NONE) = 0
+mmap(0x7fee0c773000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x178000) = 0x7fee0c773000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libmpc.so.3", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\220D\0\0\0\0\0\0@\0\0\0\0\0\0\0\200u\1\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\32\0\31\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\214g\1\0\0\0\0\0\214g\1\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=97280, ...}) = 0
+mmap(NULL, 2192520, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fee0c1e3000
+mprotect(0x7fee0c1fa000, 2093056, PROT_NONE) = 0
+mmap(0x7fee0c3f9000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x16000) = 0x7fee0c3f9000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libmpfr.so.4", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\0\217\0\0\0\0\0\0@\0\0\0\0\0\0\0PD\6\0\0\0\0\0\0\0\0\0@\0008\0\10\0@\0\36\0\35\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\364'\6\0\0\0\0\0\364'\6\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=412624, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c982000
+mmap(NULL, 2507616, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fee0bf7e000
+mprotect(0x7fee0bfe1000, 2093056, PROT_NONE) = 0
+mmap(0x7fee0c1e0000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x62000) = 0x7fee0c1e0000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/usr/lib/x86_64-linux-gnu/libgmp.so.10", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\300\223\0\0\0\0\0\0@\0\0\0\0\0\0\0\250\362\7\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0l\342\7\0\0\0\0\0l\342\7\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=522664, ...}) = 0
+mmap(NULL, 2617792, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fee0bcfe000
+mprotect(0x7fee0bd7d000, 2093056, PROT_NONE) = 0
+mmap(0x7fee0bf7c000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x7e000) = 0x7fee0bf7c000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\240\r\0\0\0\0\0\0@\0\0\0\0\0\0\0\2201\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\36\0\35\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20 \0\0\0\0\0\0\20 \0\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=14608, ...}) = 0
+mmap(NULL, 2109680, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fee0bafa000
+mprotect(0x7fee0bafd000, 2093056, PROT_NONE) = 0
+mmap(0x7fee0bcfc000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x7fee0bcfc000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libz.so.1", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\360\35\0\0\0\0\0\0@\0\0\0\0\0\0\0x\222\1\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\344\205\1\0\0\0\0\0\344\205\1\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=104824, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c981000
+mmap(NULL, 2199880, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fee0b8e0000
+mprotect(0x7fee0b8f9000, 2093056, PROT_NONE) = 0
+mmap(0x7fee0baf8000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x18000) = 0x7fee0baf8000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libm.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\0V\0\0\0\0\0\0@\0\0\0\0\0\0\0\270\225\20\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0 \0\37\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\370z\20\0\0\0\0\0\370z\20\0\0\0\0\0\0\0 \0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0644, st_size=1088952, ...}) = 0
+mmap(NULL, 3178744, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fee0b5d7000
+mprotect(0x7fee0b6df000, 2093056, PROT_NONE) = 0
+mmap(0x7fee0b8de000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x107000) = 0x7fee0b8de000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\t\2\0\0\0\0\0@\0\0\0\0\0\0\0\270b\34\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0H\0G\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1864888, ...}) = 0
+mmap(NULL, 3967392, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fee0b20e000
+mprotect(0x7fee0b3cd000, 2097152, PROT_NONE) = 0
+mmap(0x7fee0b5cd000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bf000) = 0x7fee0b5cd000
+mmap(0x7fee0b5d3000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fee0b5d3000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c980000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c97f000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c97d000
+arch_prctl(ARCH_SET_FS, 0x7fee0c97d840) = 0
+mprotect(0x7fee0b5cd000, 16384, PROT_READ) = 0
+mprotect(0x7fee0b8de000, 4096, PROT_READ) = 0
+mprotect(0x7fee0baf8000, 4096, PROT_READ) = 0
+mprotect(0x7fee0bcfc000, 4096, PROT_READ) = 0
+mprotect(0x7fee0bf7c000, 4096, PROT_READ) = 0
+mprotect(0x7fee0c1e0000, 8192, PROT_READ) = 0
+mprotect(0x7fee0c3f9000, 4096, PROT_READ) = 0
+mprotect(0x7fee0c773000, 4096, PROT_READ) = 0
+mprotect(0x19d4000, 24576, PROT_READ)   = 0
+mprotect(0x7fee0c99b000, 4096, PROT_READ) = 0
+munmap(0x7fee0c983000, 88335)           = 0
+brk(NULL)                               = 0x388e000
+brk(0x38c0000)                          = 0x38c0000
+getrlimit(RLIMIT_STACK, {rlim_cur=65536*1024, rlim_max=RLIM64_INFINITY}) = 0
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2981280, ...}) = 0
+mmap(NULL, 2981280, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fee0af36000
+close(3)                                = 0
+open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=2995, ...}) = 0
+read(3, "# Locale name alias data base.\n# Copyright (C) 1996-2016 Free Software Foundation, Inc.\n#\n# This program is free softwar"..., 4096) = 2995
+read(3, "", 4096)                       = 0
+close(3)                                = 0
+open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en_US/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/en/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en_US/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.UTF-8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en.utf8/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale-langpack/en/LC_MESSAGES/gcc-5.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
+ioctl(2, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(0, TIOCGWINSZ, {ws_row=54, ws_col=114, ws_xpixel=0, ws_ypixel=0}) = 0
+rt_sigaction(SIGSEGV, {0x7d6830, [SEGV], SA_RESTORER|SA_RESTART, 0x7fee0b2434b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGILL, {0x7d6830, [ILL], SA_RESTORER|SA_RESTART, 0x7fee0b2434b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGBUS, {0x7d6830, [BUS], SA_RESTORER|SA_RESTART, 0x7fee0b2434b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGABRT, {0x7d6830, [ABRT], SA_RESTORER|SA_RESTART, 0x7fee0b2434b0}, {SIG_DFL, [], 0}, 8) = 0
+rt_sigaction(SIGFPE, {0x7d6830, [FPE], SA_RESTORER|SA_RESTART, 0x7fee0b2434b0}, {SIG_DFL, [], 0}, 8) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c998000
+mmap(NULL, 135168, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c95c000
+mmap(NULL, 2097152, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0ad36000
+brk(0x38e3000)                          = 0x38e3000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c996000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c994000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c992000
+mmap(NULL, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c98e000
+sysinfo({uptime=17048, loads=[5248, 1088, 352], totalram=2077257728, freeram=431923200, sharedram=16289792, bufferram=44482560, totalswap=1071640576, freeswap=1071640576, procs=460, totalhigh=0, freehigh=0, mem_unit=1}) = 0
+getrlimit(RLIMIT_AS, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+sysinfo({uptime=17048, loads=[5248, 1088, 352], totalram=2077257728, freeram=431923200, sharedram=16289792, bufferram=44482560, totalswap=1071640576, freeswap=1071640576, procs=460, totalhigh=0, freehigh=0, mem_unit=1}) = 0
+getrlimit(RLIMIT_AS, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+getrlimit(RLIMIT_RSS, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+sysinfo({uptime=17048, loads=[5248, 1088, 352], totalram=2077257728, freeram=431923200, sharedram=16289792, bufferram=44482560, totalswap=1071640576, freeswap=1071640576, procs=460, totalhigh=0, freehigh=0, mem_unit=1}) = 0
+getrlimit(RLIMIT_AS, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+brk(0x3907000)                          = 0x3907000
+ioctl(2, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+open("/dev/urandom", O_RDONLY)          = 3
+read(3, "\213f\371\306\312\342j\v", 8)  = 8
+close(3)                                = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/x86_64-linux-gnu", 0x7fffa1d4bb20) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+access("/usr/lib/gcc/x86_64-linux-gnu/5/", X_OK) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/x86_64-linux-gnu", 0x7fffa1d4bb20) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/local/include/x86_64-linux-gnu", 0x7fffa1d4cb30) = -1 ENOENT (No such file or directory)
+stat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/../../../../x86_64-linux-gnu/include", 0x7fffa1d4cb30) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("getopt1.c.gch", 0x7fffa1d4cb90)   = -1 ENOENT (No such file or directory)
+open("getopt1.c", O_RDONLY|O_NOCTTY)    = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=4299, ...}) = 0
+read(3, "/* getopt_long and getopt_long_only entry points for GNU getopt.\nCopyright (C) 1987-1994, 1996-2016 Free Software Founda"..., 4299) = 4299
+close(3)                                = 0
+mmap(NULL, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c98a000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c988000
+lstat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
+lstat("/tmp/ccOKDD6s.s", {st_mode=S_IFREG|0600, st_size=0, ...}) = 0
+getcwd("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", 4096) = 68
+lstat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2/getopt1.c", {st_mode=S_IFREG|0644, st_size=4299, ...}) = 0
+open("/tmp/ccOKDD6s.s", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+fstat(3, {st_mode=S_IFREG|0600, st_size=0, ...}) = 0
+stat("/home/daniter/Documents/winstein/gg/gg/exploration/targets/make-4.2", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat(".", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("./stdc-predef.h.gch", 0x7fffa1d4cb40) = -1 ENOENT (No such file or directory)
+open("./stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdc-predef.h", 0x7fffa1d4ba10) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdc-predef.h.gch", 0x7fffa1d4cb40) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/stdc-predef.h", 0x7fffa1d4ba10) = -1 ENOENT (No such file or directory)
+stat("/usr/local/include/stdc-predef.h.gch", 0x7fffa1d4cb40) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/stdc-predef.h", 0x7fffa1d4ba10) = -1 ENOENT (No such file or directory)
+stat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/stdc-predef.h.gch", 0x7fffa1d4cb40) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/stdc-predef.h", 0x7fffa1d4ba10) = -1 ENOENT (No such file or directory)
+stat("/usr/include/x86_64-linux-gnu/stdc-predef.h.gch", 0x7fffa1d4cb40) = -1 ENOENT (No such file or directory)
+open("/usr/include/x86_64-linux-gnu/stdc-predef.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/stdc-predef.h", {st_mode=S_IFREG|0644, st_size=2229, ...}) = 0
+stat("/usr/include/stdc-predef.h.gch", 0x7fffa1d4cb40) = -1 ENOENT (No such file or directory)
+open("/usr/include/stdc-predef.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=2229, ...}) = 0
+read(4, "/* Copyright (C) 1991-2016 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n\n   The GNU C Libra"..., 2229) = 2229
+close(4)                                = 0
+mmap(NULL, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c984000
+stat("./config.h.gch", 0x7fffa1d4c8a0)  = -1 ENOENT (No such file or directory)
+open("./config.h", O_RDONLY|O_NOCTTY)   = 4
+fstat(4, {st_mode=S_IFREG|0664, st_size=14408, ...}) = 0
+read(4, "/* config.h.  Generated from config.h.in by configure.  */\n/* config.h.in.  Generated from configure.ac by autoheader.  "..., 14408) = 14408
+close(4)                                = 0
+open("getopt.h", O_RDONLY|O_NOCTTY)     = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=4472, ...}) = 0
+read(4, "/* Declarations for getopt.\nCopyright (C) 1989-2016 Free Software Foundation, Inc.\n\nNOTE: The canonical source of this f"..., 4472) = 4472
+close(4)                                = 0
+open("./stdio.h", O_RDONLY|O_NOCTTY)    = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdio.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/stdio.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/stdio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/stdio.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/stdio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/stdio.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/include/x86_64-linux-gnu/stdio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/stdio.h", {st_mode=S_IFREG|0644, st_size=31365, ...}) = 0
+open("/usr/include/stdio.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=31365, ...}) = 0
+read(4, "/* Define ISO C stdio on top of C++ iostreams.\n   Copyright (C) 1991-2016 Free Software Foundation, Inc.\n   This file is"..., 31365) = 31365
+close(4)                                = 0
+open("./features.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/features.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/features.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/features.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/features.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/features.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/features.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/features.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/include/x86_64-linux-gnu/features.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/features.h", {st_mode=S_IFREG|0644, st_size=13214, ...}) = 0
+open("/usr/include/features.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=13214, ...}) = 0
+read(4, "/* Copyright (C) 1991-2016 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n\n   The GNU C Libra"..., 13214) = 13214
+close(4)                                = 0
+brk(0x3929000)                          = 0x3929000
+brk(0x3924000)                          = 0x3924000
+open("./sys/cdefs.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/sys", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/sys/cdefs.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/sys", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/sys/cdefs.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/sys", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/sys/cdefs.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/sys", {st_mode=S_IFDIR|0755, st_size=12288, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/sys/cdefs.h", {st_mode=S_IFREG|0644, st_size=15412, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/sys/cdefs.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=15412, ...}) = 0
+read(4, "/* Copyright (C) 1992-2016 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n\n   The GNU C Libra"..., 15412) = 15412
+close(4)                                = 0
+open("./bits/wordsize.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits/wordsize.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/bits/wordsize.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits/wordsize.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits", {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits/wordsize.h", {st_mode=S_IFREG|0644, st_size=327, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/bits/wordsize.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=327, ...}) = 0
+read(4, "/* Determine the wordsize from the preprocessor defines.  */\n\n#if defined __x86_64__ && !defined __ILP32__\n# define __WO"..., 327) = 327
+close(4)                                = 0
+open("./gnu/stubs.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/gnu", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/gnu/stubs.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/gnu", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/gnu/stubs.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/gnu", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/gnu/stubs.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/gnu/stubs.h", {st_mode=S_IFREG|0644, st_size=384, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/gnu/stubs.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=384, ...}) = 0
+read(4, "/* This file is automatically generated.\n   This file selects the right generated file of `__stub_FUNCTION' macros\n   ba"..., 384) = 384
+close(4)                                = 0
+open("./gnu/stubs-64.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/gnu", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/gnu/stubs-64.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/gnu", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/gnu/stubs-64.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/gnu", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/gnu/stubs-64.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/gnu/stubs-64.h", {st_mode=S_IFREG|0644, st_size=613, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/gnu/stubs-64.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=613, ...}) = 0
+read(4, "/* This file is automatically generated.\n   It defines a symbol `__stub_FUNCTION' for each function\n   in the C library "..., 613) = 613
+close(4)                                = 0
+brk(0x3923000)                          = 0x3923000
+brk(0x3920000)                          = 0x3920000
+open("./stddef.h", O_RDONLY|O_NOCTTY)   = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h", {st_mode=S_IFREG|0644, st_size=13754, ...}) = 0
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=13754, ...}) = 0
+read(4, "/* Copyright (C) 1989-2015 Free Software Foundation, Inc.\n\nThis file is part of GCC.\n\nGCC is free software; you can redi"..., 13754) = 13754
+close(4)                                = 0
+open("./bits/types.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits/types.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/bits/types.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits/types.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits", {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits/types.h", {st_mode=S_IFREG|0644, st_size=7563, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/bits/types.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=7563, ...}) = 0
+read(4, "/* bits/types.h -- definitions of __*_t types underlying *_t types.\n   Copyright (C) 2002-2016 Free Software Foundation,"..., 7563) = 7563
+close(4)                                = 0
+open("/usr/include/x86_64-linux-gnu/bits/wordsize.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=327, ...}) = 0
+read(4, "/* Determine the wordsize from the preprocessor defines.  */\n\n#if defined __x86_64__ && !defined __ILP32__\n# define __WO"..., 327) = 327
+close(4)                                = 0
+open("./bits/typesizes.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits/typesizes.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/bits/typesizes.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits/typesizes.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits", {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits/typesizes.h", {st_mode=S_IFREG|0644, st_size=3276, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/bits/typesizes.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=3276, ...}) = 0
+read(4, "/* bits/typesizes.h -- underlying types for *_t.  Linux/x86-64 version.\n   Copyright (C) 2012-2016 Free Software Foundat"..., 3276) = 3276
+close(4)                                = 0
+open("./libio.h", O_RDONLY|O_NOCTTY)    = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/libio.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/libio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/libio.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/libio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/libio.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/libio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/libio.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/include/x86_64-linux-gnu/libio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/libio.h", {st_mode=S_IFREG|0644, st_size=17179, ...}) = 0
+open("/usr/include/libio.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=17179, ...}) = 0
+read(4, "/* Copyright (C) 1991-2016 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n   Written by Per B"..., 17179) = 17179
+close(4)                                = 0
+open("./_G_config.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/_G_config.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/_G_config.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/_G_config.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/_G_config.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/_G_config.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/_G_config.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/_G_config.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/include/x86_64-linux-gnu/_G_config.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/_G_config.h", {st_mode=S_IFREG|0644, st_size=1287, ...}) = 0
+open("/usr/include/_G_config.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=1287, ...}) = 0
+read(4, "/* This file is needed by libio to define various configuration parameters.\n   These are always the same in the GNU C li"..., 1287) = 1287
+close(4)                                = 0
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=13754, ...}) = 0
+read(4, "/* Copyright (C) 1989-2015 Free Software Foundation, Inc.\n\nThis file is part of GCC.\n\nGCC is free software; you can redi"..., 13754) = 13754
+close(4)                                = 0
+open("./wchar.h", O_RDONLY|O_NOCTTY)    = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/wchar.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/wchar.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/wchar.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/wchar.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/wchar.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/wchar.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/wchar.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/include/x86_64-linux-gnu/wchar.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/wchar.h", {st_mode=S_IFREG|0644, st_size=32124, ...}) = 0
+open("/usr/include/wchar.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=32124, ...}) = 0
+read(4, "/* Copyright (C) 1995-2016 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n\n   The GNU C Libra"..., 32124) = 32124
+close(4)                                = 0
+open("./stdarg.h", O_RDONLY|O_NOCTTY)   = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h", {st_mode=S_IFREG|0644, st_size=4075, ...}) = 0
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=4075, ...}) = 0
+read(4, "/* Copyright (C) 1989-2015 Free Software Foundation, Inc.\n\nThis file is part of GCC.\n\nGCC is free software; you can redi"..., 4075) = 4075
+close(4)                                = 0
+open("./bits/stdio_lim.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits/stdio_lim.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/bits/stdio_lim.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits/stdio_lim.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits", {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits/stdio_lim.h", {st_mode=S_IFREG|0644, st_size=1354, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/bits/stdio_lim.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=1354, ...}) = 0
+read(4, "/* Copyright (C) 1994-2016 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n\n   The GNU C Libra"..., 1354) = 1354
+close(4)                                = 0
+mmap(NULL, 65536, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c94c000
+open("./bits/sys_errlist.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits/sys_errlist.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/bits/sys_errlist.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits/sys_errlist.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits", {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits/sys_errlist.h", {st_mode=S_IFREG|0644, st_size=1215, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/bits/sys_errlist.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=1215, ...}) = 0
+read(4, "/* Declare sys_errlist and sys_nerr, or don't.  Compatibility (do) version.\n   Copyright (C) 2002-2016 Free Software Fou"..., 1215) = 1215
+close(4)                                = 0
+open("./bits/stdio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits/stdio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/bits/stdio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits/stdio.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits", {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits/stdio.h", {st_mode=S_IFREG|0644, st_size=5492, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/bits/stdio.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=5492, ...}) = 0
+read(4, "/* Optimizing macros and inline functions for stdio functions.\n   Copyright (C) 1998-2016 Free Software Foundation, Inc."..., 5492) = 5492
+close(4)                                = 0
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fee0c94a000
+open("./bits/stdio2.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/bits/stdio2.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/bits/stdio2.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/bits/stdio2.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits", {st_mode=S_IFDIR|0755, st_size=20480, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/bits/stdio2.h", {st_mode=S_IFREG|0644, st_size=12618, ...}) = 0
+open("/usr/include/x86_64-linux-gnu/bits/stdio2.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=12618, ...}) = 0
+read(4, "/* Checking macros for stdio functions.\n   Copyright (C) 2004-2016 Free Software Foundation, Inc.\n   This file is part o"..., 12618) = 12618
+close(4)                                = 0
+open("./gnu-versions.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include/gnu-versions.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include/gnu-versions.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/local/include/gnu-versions.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/local/include/gnu-versions.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/gnu-versions.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/gnu-versions.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include/x86_64-linux-gnu/gnu-versions.h", 0x7fffa1d4b790) = -1 ENOENT (No such file or directory)
+open("/usr/include/x86_64-linux-gnu/gnu-versions.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+lstat("/usr", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+lstat("/usr/include", {st_mode=S_IFDIR|0755, st_size=16384, ...}) = 0
+lstat("/usr/include/gnu-versions.h", {st_mode=S_IFREG|0644, st_size=2342, ...}) = 0
+open("/usr/include/gnu-versions.h", O_RDONLY|O_NOCTTY) = 4
+fstat(4, {st_mode=S_IFREG|0644, st_size=2342, ...}) = 0
+read(4, "/* Header with interface version macros for library pieces copied elsewhere.\n   Copyright (C) 1995-2016 Free Software Fo"..., 2342) = 2342
+close(4)                                = 0
+write(3, "\t.file\t\"getopt1.c\"\n\t.text\n.Ltext0:\n.Letext0:\n\t.file 1 \"/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h\"\n\t.file 2 \"/usr/"..., 4096) = 4096
+write(3, "long\t0x273\n\t.uleb128 0xc\n\t.long\t0x7d\n\t.byte\t0x13\n\t.byte\t0\n\t.uleb128 0xd\n\t.long\t.LASF46\n\t.byte\t0x4\n\t.byte\t0xa8\n\t.long\t0x2"..., 4096) = 4096
+write(3, "ring\t\"_vtable_offset\"\n.LASF21:\n\t.string\t\"_IO_save_base\"\n.LASF26:\n\t.string\t\"_fileno\"\n.LASF47:\n\t.string\t\"stdout\"\n.LASF51:\n"..., 243) = 243
+close(3)                                = 0
+open(".deps/getopt1.Tpo", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+fstat(3, {st_mode=S_IFREG|0664, st_size=0, ...}) = 0
+write(3, "getopt1.o: getopt1.c /usr/include/stdc-predef.h config.h getopt.h \\\n /usr/include/stdio.h /usr/include/features.h \\\n /us"..., 1567) = 1567
+close(3)                                = 0
+exit_group(0)                           = ?
++++ exited with 0 +++
