@@ -7,4 +7,4 @@ SUFFIXES = .asm
 .asm.o:
 	$(AS) $(ASFLAGS) -I$(srcdir)/../asm/ $<
 
-libggutil_a_SOURCES = exception.hh
+libggutil_a_SOURCES = exception.hh optional.hh
