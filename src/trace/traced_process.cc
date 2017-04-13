@@ -59,78 +59,8 @@ void TracedProcess::resume()
   CheckSystemCall( "ptrace(CONT)", ptrace( PTRACE_CONT, pid_, NULL, NULL ) );
 }
 
-/* send a signal to the child process */
-void TracedProcess::signal( const int sig )
-{
-  assert( !moved_away_ );
-
-  if ( process_state_ != TERMINATED ) {
-    CheckSystemCall( "kill", kill( pid_, sig ) );
-  }
-}
-
-template <typename T> void zero( T & x ) { memset( &x, 0, sizeof( x ) ); }
-
-/* wait for process to change state */
-void TracedProcess::wait( const bool nonblocking )
-{
-  assert( !moved_away_ );
-  assert( !terminated_ );
-
-  siginfo_t infop;
-  zero( infop );
-  CheckSystemCall( "waitid", waitid( P_PID, pid_, &infop,
-                                     WEXITED | WSTOPPED | WCONTINUED | (nonblocking ? WNOHANG : 0) ) );
-
-  if ( nonblocking and (infop.si_pid == 0) ) {
-    throw runtime_error( "nonblocking wait: process was not waitable" );
-  }
-
-  if ( infop.si_pid != pid_ ) {
-    throw runtime_error( "waitid: unexpected value in siginfo_t si_pid field" );
-  }
-
-  if ( infop.si_signo != SIGCHLD ) {
-    throw runtime_error( "waitid: unexpected value in siginfo_t si_signo field (not SIGCHLD)" );
-  }
-
-  /* how did the process change state? */
-  switch ( infop.si_code ) {
-  case CLD_EXITED:
-    process_state_ = TERMINATED;
-    exit_status_ = infop.si_status;
-    break;
-  case CLD_KILLED:
-  case CLD_DUMPED:
-      process_state_ = TERMINATED;
-      exit_status_ = infop.si_status;
-      died_on_signal_ = true;
-      break;
-  case CLD_STOPPED:
-      process_state_ = STOPPED;
-      break;
-  case CLD_CONTINUED:
-      process_state_ = RUNNING;
-      break;
-  default:
-      throw runtime_error( "waitid: unexpected siginfo_t si_code" );
-  }
-}
-
 TracedProcess::~TracedProcess()
-{
-  if ( moved_away_ ) { return; }
-
-  try {
-    while ( process_state_ != TERMINATED ) {
-      resume();
-      signal( graceful_termination_signal_ );
-      wait();
-    }
-  } catch ( const exception & e ) {
-    print_exception( "~TracedProcess", e );
-  }
-}
+{}
 
 TracedProcess::TracedProcess( TracedProcess && other )
   : pid_( other.pid_ ),

@@ -38,8 +38,6 @@ public:
   bool wait_for_syscall( std::function<void( SystemCallEntry )> before_entry,
                          std::function<void( SystemCallEntry, long int )> after_exit );
 
-  void wait( const bool nonblocking = false );
-  void signal( const int sig ); /* send signal */
   void resume( void ); /* do PTRACE_CONT */
 
   pid_t pid( void ) const { assert( not moved_away_ ); return pid_; }
