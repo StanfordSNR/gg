@@ -14,7 +14,9 @@ enum ProcessState
 {
   NOT_STARTED,
   RUNNING,
+  RUNNING_SYSCALL,
   STOPPED,
+  STOPPED_FOR_SYSCALL,
   TERMINATED
 };
 
@@ -38,7 +40,13 @@ public:
   bool wait_for_syscall( std::function<void( SystemCallEntry )> before_entry,
                          std::function<void( SystemCallEntry, long int )> after_exit );
 
-  void resume( void ); /* do PTRACE_CONT */
+  void resume( void );
+
+  template<typename T>
+  T get_syscall_arg( uint8_t argnum );
+
+  template<typename T>
+  void set_syscall_arg( uint8_t argnum, T value );
 
   pid_t pid( void ) const { assert( not moved_away_ ); return pid_; }
   ProcessState process_state( void ) const { assert( not moved_away_ ); return process_state_; }

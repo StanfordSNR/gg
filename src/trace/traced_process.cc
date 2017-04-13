@@ -16,6 +16,8 @@
 
 using namespace std;
 
+int SYSCALL_ARG_REGS[] = { ORIG_RAX, RDI, RSI, RDX, R10, R8, R9 };
+
 int do_fork()
 {
   /* Verify that process is single-threaded before forking */
@@ -96,23 +98,62 @@ bool TracedProcess::wait_for_syscall( function<void( SystemCallEntry )> before_e
                                       function<void( SystemCallEntry, long int )> after_exit )
 {
   process_state_ = RUNNING;
+
   if ( ptrace_syscall( pid_ ) != 0 ) {
     process_state_ = TERMINATED;
     return false;
   }
 
-  process_state_ = STOPPED;
-  before_entry( SystemCall::get_syscall( ptrace( PTRACE_PEEKUSER, pid_, 8 * ORIG_RAX ) ) );
+  process_state_ = STOPPED_FOR_SYSCALL;
 
-  process_state_ = RUNNING;
+  before_entry( SystemCall::get_syscall( ptrace( PTRACE_PEEKUSER, pid_, sizeof( long ) * ORIG_RAX ) ) );
+
+  process_state_ = RUNNING_SYSCALL;
   if ( ptrace_syscall( pid_ ) != 0 ) {
     process_state_ = TERMINATED;
     return false;
   }
 
-  process_state_ = STOPPED;
-  after_exit( SystemCall::get_syscall( ptrace( PTRACE_PEEKUSER, pid_, 8 * ORIG_RAX ) ),
-              ptrace( PTRACE_PEEKUSER, pid_, 8 * RAX ) );
+  process_state_ = STOPPED_FOR_SYSCALL;
+  after_exit( SystemCall::get_syscall( ptrace( PTRACE_PEEKUSER, pid_, sizeof( long ) * ORIG_RAX ) ),
+              ptrace( PTRACE_PEEKUSER, pid_, sizeof( long ) * RAX ) );
 
   return true;
+}
+
+template<typename T>
+T TracedProcess::get_syscall_arg( uint8_t argnum )
+{
+  if ( not ( process_state_ == RUNNING_SYSCALL || process_state_ == STOPPED_FOR_SYSCALL ) ) {
+    throw runtime_error( "not running a syscall, can't get the args." );
+  }
+
+  return ( T ) ptrace( PTRACE_PEEKUSER, pid_, sizeof( long ) * SYSCALL_ARG_REGS[ argnum ], NULL );
+}
+
+template<>
+string TracedProcess::get_syscall_arg( uint8_t argnum )
+{
+  string result;
+
+  char * str_addr = get_syscall_arg<char *>( argnum );
+  size_t i = 0;
+
+  do {
+    int val = CheckSystemCall( "ptrace(PEEKTEXT)", ptrace( PTRACE_PEEKTEXT, pid_, str_addr, NULL ) );
+    str_addr += sizeof( int );
+
+    char * p = reinterpret_cast<char *>( &val );
+    char c;
+
+    for ( i = 0; i < sizeof( int ); i++ ) {
+      c = *p++;
+      if ( c == '\0' ) break;
+
+      result += c;
+    }
+    cerr << (c == '\0') << endl;
+  } while( i == sizeof( int ) );
+
+  return result;
 }

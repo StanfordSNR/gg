@@ -7,6 +7,7 @@
 #include <sys/user.h>
 #include <signal.h>
 #include <unistd.h>
+#include <cstring>
 #include <iostream>
 
 #include "exception.hh"
@@ -38,11 +39,21 @@ int main( int argc, char * argv[] )
       int waitres = tp.wait_for_syscall(
         [&]( SystemCallEntry syscall )
         {
-          cout << syscall.sys_name << "(...) called. " << endl;
+          if ( not strcmp( "open", syscall.sys_name ) ) {
+            cerr << syscall.sys_name << "(" << tp.get_syscall_arg<string>( 1 ) << ") called." << endl;
+          }
+          else {
+            cerr << syscall.sys_name << "(...) called. " << endl;
+          }
         },
         [&]( SystemCallEntry syscall, long int retval )
         {
-          cout << syscall.sys_name << "(...) = " << retval << endl;
+          if ( not strcmp( "open", syscall.sys_name ) ) {
+            cerr << syscall.sys_name << "(" << tp.get_syscall_arg<string>( 1 ) << ") = " << retval << endl;
+          }
+          else {
+            cerr << syscall.sys_name << "(...) = " << retval << endl;
+          }
         }
       );
 
