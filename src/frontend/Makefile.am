@@ -6,7 +6,8 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(NODEBUG_CXXFLAGS)
 
 BASE_LDADD = ../util/libggutil.a ../trace/libggtrace.a
 
-bin_PROGRAMS = gg-trace
+bin_PROGRAMS = gg-trace gg-gcc
 
 gg_trace_SOURCES = gg-trace.cc
+gg_gcc_SOURCES = gg-gcc.cc
 gg_trace_LDADD = $(BASE_LDADD)

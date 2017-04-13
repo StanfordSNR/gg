@@ -29,3 +29,4 @@ Makefile.in
 /test-driver
 
 /src/frontend/gg-trace
+/src/frontend/gg-gcc
