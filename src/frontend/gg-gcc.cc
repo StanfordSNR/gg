@@ -6,6 +6,10 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/wait.h>
+#include <ctime>
+#include <sys/time.h>
+#include <chrono>
+
 
 const char *PREPROC_FLAG = "-E";
 const char *COMPILER = "gcc";
@@ -67,6 +71,8 @@ int main(int argc, char *argv[]){
     char *preproc_args[argc + 2];
     bool isLinking = getPreprocArgs(argc, argv, preproc_args, object_file);
 
+    std::chrono::high_resolution_clock::time_point t0 = std::chrono::high_resolution_clock::now();
+
     int pid = fork();
 
     if(pid == 0) {  // child
@@ -89,6 +95,15 @@ int main(int argc, char *argv[]){
             std::cerr << "Process  (pid " << pid << ") failed" << std::endl;
             exit(1);
         }
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+        auto dif = std::chrono::duration_cast<std::chrono::microseconds>( t1 - t0 ).count();
+        if(verbose){
+            if(!isLinking){
+                std::cout << "PREPROCTIME " <<  dif << std::endl;
+            } else {
+                std::cout << "LINKINGTIME " <<  dif << std::endl;
+            }
+        }
     }
 
     char srcfile[50];
@@ -96,6 +111,8 @@ int main(int argc, char *argv[]){
     srcfile[strlen(srcfile)-1] = PREPROC_SUFFIX;
     COMPILE_COMMAND[OUTINDEX] = object_file;
     COMPILE_COMMAND[SRCINDEX] = srcfile;
+
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 
     pid = fork();
 
@@ -119,6 +136,11 @@ int main(int argc, char *argv[]){
         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
             std::cerr << "Process  (pid " << pid << ") failed" << std::endl;
             exit(1);
+        }
+        std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
+        auto dif = std::chrono::duration_cast<std::chrono::microseconds>( t3 - t2 ).count();
+        if(!isLinking && verbose){
+            std::cout << "COMPILETIME " <<  dif << std::endl;
         }
     }
 
