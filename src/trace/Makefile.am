@@ -6,4 +6,5 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(NODEBUG_CXXFLAGS)
 
 noinst_LIBRARIES = libggtrace.a
 
-libggtrace_a_SOURCES = sysent.hh syscall.hh syscall.cc
+libggtrace_a_SOURCES = sysent.hh syscall.hh syscall.cc traced_process.hh \
+                       traced_process.cc
