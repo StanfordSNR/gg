@@ -10,6 +10,12 @@
 #include <cstring>
 #include <iostream>
 
+#ifdef DANITER_CLION
+    #include "../util/exception.hh"
+    #include "../trace/syscall.hh"
+    #include "../trace/traced_process.hh"
+#endif
+
 #include "exception.hh"
 #include "syscall.hh"
 #include "traced_process.hh"

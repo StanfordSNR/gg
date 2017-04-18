@@ -11,6 +11,16 @@
 #include <chrono>
 #include <vector>
 
+#ifdef DANITER_CLION
+#include "../util/exception.hh"
+#include "../trace/syscall.hh"
+#include "../trace/traced_process.hh"
+#endif
+
+#include "exception.hh"
+#include "syscall.hh"
+#include "traced_process.hh"
+
 using namespace std;
 
 const char *PREPROC_FLAG = "-E";
@@ -71,43 +81,60 @@ int main(int argc, char *argv[]){
     int status = 0;
     char object_file[50];
 
-    // char *preproc_args[argc + 2];
-   vector<char *> preproc_args( argc+2);
+    vector<char *> preproc_args( argc+2);
     bool isLinking = getPreprocArgs(argc, argv, preproc_args, object_file);
 
 
     chrono::high_resolution_clock::time_point t0 = chrono::high_resolution_clock::now();
 
-    int pid = fork();
-
-    if(pid == 0) {  // child
-
-        if (verbose) {
-            for (int i = 1; i <= argc + 1; i++) {
-                cout << preproc_args[i] << " ";
-            }
-            cout << std::endl;
-        }
-        if(!isLinking) {
-            execvp(argv[1], (char *const *) &preproc_args[1]);
-        }else{
-            execvp(argv[1], (char *const *) &argv[1]);
-        }
+    char** cmd;
+    if(!isLinking) {
+        cmd = &preproc_args[1];
+    }else{
+        cmd = &argv[1];
     }
-    else{  // parent
-        wait(&status);
-        if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-            std::cerr << "Preprocess process (pid " << pid << ") failed" << std::endl;
-            exit(1);
+
+    if ( verbose ) {
+        for (char** x = cmd; *x != '\0'; ++x){
+            cout << *x;
         }
-        chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-        auto dif = chrono::duration_cast<chrono::microseconds>( t1 - t0 ).count();
-        if(verbose){
-            if(!isLinking){
-                cout << endl << "PREPROCTIME " <<  dif << endl;
-            } else {
-                cout << endl << "LINKINGTIME " <<  dif << endl;
-            }
+        cout << endl;
+    }
+
+    TracedProcess tp( cmd );
+
+    while ( true ) {
+        int waitres = tp.wait_for_syscall(
+                [&]( SystemCallEntry syscall )
+                {
+                    if (  strcmp( "open", syscall.sys_name ) == 0 || strcmp( "stat", syscall.sys_name ) == 0
+                          || strcmp( "access", syscall.sys_name ) == 0) {
+                        cerr << syscall.sys_name << "(" << tp.get_syscall_arg<string>( 1 ) << ") called." << endl;
+                    }
+                    else {
+                        cerr << syscall.sys_name << "(...) called. " << endl;
+                    }
+                },
+                [&]( SystemCallEntry syscall, long int retval )
+                {
+                    if ( not strcmp( "open", syscall.sys_name ) ) {
+                        cerr << syscall.sys_name << "(" << tp.get_syscall_arg<string>( 1 ) << ") = " << retval << endl;
+                    }
+                    else {
+                        cerr << syscall.sys_name << "(...) = " << retval << endl;
+                    }
+                }
+        );
+
+        if ( not waitres ) { break; }
+    }
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+    auto dif = chrono::duration_cast<chrono::microseconds>( t1 - t0 ).count();
+    if(verbose){
+        if(!isLinking){
+            cout << endl << "PREPROCTIME " <<  dif << endl;
+        } else {
+            cout << endl << "LINKINGTIME " <<  dif << endl;
         }
     }
 
@@ -119,7 +146,7 @@ int main(int argc, char *argv[]){
 
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
 
-    pid = fork();
+    int pid = fork();
 
     if(pid == 0) {  // child
 

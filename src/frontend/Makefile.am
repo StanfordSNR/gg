@@ -11,3 +11,4 @@ bin_PROGRAMS = gg-trace gg-gcc
 gg_trace_SOURCES = gg-trace.cc
 gg_gcc_SOURCES = gg-gcc.cc
 gg_trace_LDADD = $(BASE_LDADD)
+gg_gcc_LDADD = $(BASE_LDADD)

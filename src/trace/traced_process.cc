@@ -12,6 +12,10 @@
 #include <cstring>
 #include <exception>
 
+#ifdef DANITER_CLION
+#include "../util/exception.hh"
+#endif
+
 #include "exception.hh"
 
 using namespace std;
@@ -48,10 +52,12 @@ TracedProcess::TracedProcess( char * args[], const int termination_signal )
   }
   else {
     int child_ret;
-    CheckSystemCall( "waitpid", waitpid( pid_, &child_ret, 0 ) );
+    pid_ = CheckSystemCall( "waitpid", wait(&child_ret) );//waitpid( pid_, &child_ret, 0 ) );
 
     CheckSystemCall( "ptrace(SETOPTIONS)", ptrace( PTRACE_SETOPTIONS, pid_, 0,
-                                                   PTRACE_O_TRACEEXEC | PTRACE_O_TRACESYSGOOD ) );
+                                                   PTRACE_O_TRACEEXEC | PTRACE_O_TRACESYSGOOD
+                                                   | PTRACE_O_TRACEFORK  | PTRACE_O_TRACEVFORK
+                                                   | PTRACE_O_TRACECLONE) );
   }
 }
 
@@ -77,13 +83,15 @@ TracedProcess::TracedProcess( TracedProcess && other )
     other.moved_away_ = true;
 }
 
-int ptrace_syscall( pid_t pid )
+int ptrace_syscall( pid_t* pid )
 {
   int status;
 
   while ( true ) {
-    CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, pid, 0, 0 ) );
-    waitpid( pid, &status, 0 );
+    CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, *pid, 0, 0 ) );
+    *pid = wait( &status );
+
+    cerr << "New pid? " << *pid << endl;
 
     if ( WIFSTOPPED( status ) && WSTOPSIG( status ) & 0x80 ) {
       return 0;
@@ -99,7 +107,7 @@ bool TracedProcess::wait_for_syscall( function<void( SystemCallEntry )> before_e
 {
   process_state_ = RUNNING;
 
-  if ( ptrace_syscall( pid_ ) != 0 ) {
+  if ( ptrace_syscall( &pid_ ) != 0 ) {
     process_state_ = TERMINATED;
     return false;
   }
@@ -109,7 +117,7 @@ bool TracedProcess::wait_for_syscall( function<void( SystemCallEntry )> before_e
   before_entry( SystemCall::get_syscall( ptrace( PTRACE_PEEKUSER, pid_, sizeof( long ) * ORIG_RAX ) ) );
 
   process_state_ = RUNNING_SYSCALL;
-  if ( ptrace_syscall( pid_ ) != 0 ) {
+  if ( ptrace_syscall( &pid_ ) != 0 ) {
     process_state_ = TERMINATED;
     return false;
   }
@@ -117,6 +125,7 @@ bool TracedProcess::wait_for_syscall( function<void( SystemCallEntry )> before_e
   process_state_ = STOPPED_FOR_SYSCALL;
   after_exit( SystemCall::get_syscall( ptrace( PTRACE_PEEKUSER, pid_, sizeof( long ) * ORIG_RAX ) ),
               ptrace( PTRACE_PEEKUSER, pid_, sizeof( long ) * RAX ) );
+
 
   return true;
 }
@@ -134,6 +143,8 @@ T TracedProcess::get_syscall_arg( uint8_t argnum )
 template<>
 string TracedProcess::get_syscall_arg( uint8_t argnum )
 {
+
+  cerr << "Pid: " << pid_ << endl;
   string result;
 
   char * str_addr = get_syscall_arg<char *>( argnum );
@@ -152,7 +163,7 @@ string TracedProcess::get_syscall_arg( uint8_t argnum )
 
       result += c;
     }
-    cerr << (c == '\0') << endl;
+    // cerr << (c == '\0') << endl;
   } while( i == sizeof( int ) );
 
   return result;
