@@ -30,3 +30,8 @@ Makefile.in
 
 /src/frontend/gg-trace
 /src/frontend/gg-gcc
+
+
+.idea
+CMakeLists.txt
+cmake-build-debug
