@@ -11,6 +11,7 @@ addons:
 
 before_script:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 99
+  - git submodule update --init --remote --recursive
 
 script:
   - ./autogen.sh
