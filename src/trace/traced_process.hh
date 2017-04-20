@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <cassert>
 #include <csignal>
+#include <set>
 
 #include "syscall.hh"
 
@@ -14,11 +15,19 @@ enum ProcessState
 {
   NOT_STARTED,
   RUNNING,
-  RUNNING_SYSCALL,
   STOPPED,
-  STOPPED_FOR_SYSCALL,
   TERMINATED
 };
+
+// struct TraceControlBlock
+// {
+//   pid_t pid;
+//   bool in_syscall { false };
+//
+//   TraceControlBlock( pid_t pid )
+//     : pid( pid )
+//   {}
+// };
 
 class TracedProcess
 {
@@ -33,12 +42,17 @@ private:
   bool died_on_signal_;
   bool moved_away_;
 
+  // std::unordered_map<pid_t, TraceControlBlock> processes_;
+  std::set<pid_t> in_syscall_pids_;
+
+  bool ptrace_syscall( pid_t * out_pid );
+
 public:
   TracedProcess( char * args[],
                  const int termination_signal = SIGHUP );
 
-  bool wait_for_syscall( std::function<void( SystemCallEntry )> before_entry,
-                         std::function<void( SystemCallEntry, long int )> after_exit );
+  bool wait_for_syscall( std::function<void( long, SystemCallEntry )> before_entry,
+                         std::function<void( long, SystemCallEntry, long )> after_exit );
 
   void resume( void );
 
