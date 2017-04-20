@@ -13,8 +13,8 @@ ThunkFunc::ThunkFunc( vector<string> cmd ) : args(){
 
 ThunkFunc::~ThunkFunc(){}
 
-json ThunkFunc::to_json() {
-    json j;
+Json::Value ThunkFunc::to_json() {
+    Json::Value j;
     j["test"] = "UNIMPLEMENTED";
     return j;
 }

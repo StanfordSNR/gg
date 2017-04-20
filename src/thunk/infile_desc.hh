@@ -2,13 +2,10 @@
 
 #include <string>
 
-#include "json.hpp"
-
-#ifdef DANITER_CLION
-#include "../../third-party/json/src/json.hpp"
-#endif
-
-using json = nlohmann::json;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+#include <json/json.h>
+#pragma GCC diagnostic pop
 
 using namespace std;
 
@@ -31,6 +28,6 @@ public:
 
     ~InFileDescriptor();
 
-    json to_json();
+    Json::Value to_json();
 
 };

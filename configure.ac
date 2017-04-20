@@ -1,5 +1,3 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
 AC_INIT([gg], [0.01], [gg@cs.stanford.edu])
@@ -47,6 +45,7 @@ AC_SUBST(NODEBUG_CXXFLAGS)
 AC_TYPE_UINT16_T
 
 # Checks for library functions.
+PKG_CHECK_MODULES([JSON],[jsoncpp])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile

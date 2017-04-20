@@ -9,8 +9,8 @@ InFileDescriptor::InFileDescriptor( string filename )
 
 InFileDescriptor::~InFileDescriptor(){}
 
-json InFileDescriptor::to_json(){
-    json j;
+Json::Value InFileDescriptor::to_json(){
+    Json::Value j;
     j["test"] = "UNIMPLEMENTED";
     return j;
 }

@@ -9,18 +9,20 @@ Thunk::Thunk( string outfile,  ThunkFunc thunkfunc, vector<InFileDescriptor> inf
 
 Thunk::~Thunk(){}
 
-json Thunk::to_json(){
-    json obj;
+Json::Value Thunk::to_json(){
+    Json::Value obj;
 
     obj["outfile"] = outfile;
     obj["function"] = thunkfunc.to_json();
 
-    json j_infiles;
+    Json::Value j_infiles;
     for(auto it = infiles.begin(); it != infiles.end(); ++it){
-        j_infiles.push_back(it->to_json());
+        j_infiles.append(it->to_json());
     }
 
     obj["infiles"] = j_infiles;
 
-    return obj.dump();
+    // Json::StyledWriter styled;
+    Json::FastWriter fast;
+    return fast.write(obj);
 }
