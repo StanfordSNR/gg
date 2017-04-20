@@ -15,3 +15,5 @@ bin_PROGRAMS = thunk-writer-test
 
 thunk_writer_test_LDADD = $(BASE_LDADD)
 thunk_writer_test_SOURCES = thunk_writer_test.cc
+
+EXTRA_DIST = ../../third-party/json/src/json.hpp
