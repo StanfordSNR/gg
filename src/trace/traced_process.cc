@@ -12,10 +12,6 @@
 #include <cstring>
 #include <exception>
 
-#ifdef DANITER_CLION
-#include "../util/exception.hh"
-#endif
-
 #include "exception.hh"
 
 using namespace std;

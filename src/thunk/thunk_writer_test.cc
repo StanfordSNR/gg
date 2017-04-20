@@ -7,6 +7,8 @@
 #include "thunk.hh"
 #include "thunk_writer.hh"
 
+#include <json/json.h>
+
 using namespace std;
 
 
@@ -34,5 +36,7 @@ int main() {
     cout << thunk.to_json() << endl;
 
     ThunkWriter::write_thunk(thunk);
+
+    Json::Value root;
 
 }
