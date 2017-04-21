@@ -37,13 +37,13 @@ int main( int argc, char * argv[] )
 
     while ( true ) {
       int waitres = tp.wait_for_syscall(
-        [&]( long, SystemCallEntry syscall )
+        [&]( TraceControlBlock tcb, long, SystemCallEntry syscall )
         {
-          cerr << syscall.sys_name << "(...) called. " << endl;
+          cerr << "[" << tcb.pid << "] " << syscall.sys_name << "(...) called. " << endl;
         },
-        [&]( long, SystemCallEntry syscall, long retval )
+        [&]( TraceControlBlock tcb, long, SystemCallEntry syscall, long retval )
         {
-          cerr << syscall.sys_name << "(...) = " << retval << endl;
+          cerr << "[" << tcb.pid << "] " << syscall.sys_name << "(...) = " << retval << endl;
         }
       );
 

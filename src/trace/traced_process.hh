@@ -7,34 +7,25 @@
 #include <unistd.h>
 #include <cassert>
 #include <csignal>
-#include <set>
+#include <map>
 
 #include "syscall.hh"
 
-enum ProcessState
+struct TraceControlBlock
 {
-  NOT_STARTED,
-  RUNNING,
-  STOPPED,
-  TERMINATED
-};
+  pid_t pid;
+  bool in_syscall { false };
+  bool initialized { false };
 
-// struct TraceControlBlock
-// {
-//   pid_t pid;
-//   bool in_syscall { false };
-//
-//   TraceControlBlock( pid_t pid )
-//     : pid( pid )
-//   {}
-// };
+  TraceControlBlock( pid_t pid )
+    : pid( pid )
+  {}
+};
 
 class TracedProcess
 {
 private:
   pid_t pid_;
-
-  ProcessState process_state_;
 
   int exit_status_;
   int graceful_termination_signal_;
@@ -42,31 +33,26 @@ private:
   bool died_on_signal_;
   bool moved_away_;
 
-  // std::unordered_map<pid_t, TraceControlBlock> processes_;
-  std::set<pid_t> in_syscall_pids_;
+  std::map<pid_t, TraceControlBlock> processes_;
 
-  bool ptrace_syscall( pid_t * out_pid );
+  bool ptrace_syscall( pid_t & out_pid );
 
 public:
   TracedProcess( char * args[],
                  const int termination_signal = SIGHUP );
 
-  bool wait_for_syscall( std::function<void( long, SystemCallEntry )> before_entry,
-                         std::function<void( long, SystemCallEntry, long )> after_exit );
+  bool wait_for_syscall( std::function<void( TraceControlBlock, long, SystemCallEntry )> before_entry,
+                         std::function<void( TraceControlBlock, long, SystemCallEntry, long )> after_exit );
 
   void resume( void );
 
   template<typename T>
-  T get_syscall_arg( uint8_t argnum );
+  T get_syscall_arg( TraceControlBlock tcb, uint8_t argnum );
 
   template<typename T>
-  void set_syscall_arg( uint8_t argnum, T value );
+  void set_syscall_arg( TraceControlBlock tcb, uint8_t argnum, T value );
 
   pid_t pid( void ) const { assert( not moved_away_ ); return pid_; }
-  ProcessState process_state( void ) const { assert( not moved_away_ ); return process_state_; }
-
-  /* Return exit status or signal that killed process */
-  int exit_status( void ) const { assert( not moved_away_ ); assert( process_state_ == TERMINATED ); return exit_status_; }
 
   ~TracedProcess();
 
