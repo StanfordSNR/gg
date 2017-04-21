@@ -45,8 +45,6 @@ AC_SUBST(NODEBUG_CXXFLAGS)
 AC_TYPE_UINT16_T
 
 # Checks for library functions.
-PKG_CHECK_MODULES([JSON],[jsoncpp])
-
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/linux/Makefile
