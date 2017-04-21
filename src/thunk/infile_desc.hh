@@ -2,7 +2,8 @@
 
 #include <string>
 
-#include "json.hh"
+#include "cajun/json/elements.h"
+
 
 using namespace std;
 
@@ -25,6 +26,6 @@ public:
 
     ~InFileDescriptor();
 
-    Json::Value to_json();
+    json::Object to_json();
 
 };

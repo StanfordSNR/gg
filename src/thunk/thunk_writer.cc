@@ -1,7 +1,12 @@
 #include "thunk_writer.hh"
 #include <iostream>
 
+#include "cajun/json/writer.h"
+
+
 bool ThunkWriter::write_thunk(Thunk thunk) {
-    cout << thunk.to_json() << endl;
+    std::stringstream stream;
+    json::Writer::Write(thunk.to_json(), stream);
+    cout << stream.str() << endl;
     return true;
 }

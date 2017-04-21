@@ -8,7 +8,7 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - g++-6
-    - libjsoncpp-dev
+    - libcajun-dev 
 
 before_script:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 99

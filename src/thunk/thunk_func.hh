@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "json.hh"
+#include "cajun/json/elements.h"
 
 using namespace std;
 
@@ -23,5 +23,5 @@ public:
 
     ~ThunkFunc();
 
-    Json::Value to_json();
+    json::Object to_json();
 };

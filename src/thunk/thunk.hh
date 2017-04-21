@@ -5,7 +5,9 @@
 #include "thunk_func.hh"
 #include "infile_desc.hh"
 
-#include "json.hh"
+#include "cajun/json/elements.h"
+#include "cajun/json/writer.h"
+
 
 using namespace std;
 
@@ -23,6 +25,6 @@ public:
 
     ~Thunk();
 
-    Json::Value to_json();
+    json::Object to_json();
 
 };

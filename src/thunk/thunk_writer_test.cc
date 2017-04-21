@@ -7,7 +7,9 @@
 #include "thunk.hh"
 #include "thunk_writer.hh"
 
-#include "json.hh"
+#include "cajun/json/reader.h"
+#include "cajun/json/writer.h"
+#include "cajun/json/elements.h"
 
 using namespace std;
 
@@ -33,10 +35,6 @@ int main() {
 
     Thunk thunk(outfile, thunkfunc, infiles);
 
-    cout << thunk.to_json() << endl;
-
     ThunkWriter::write_thunk(thunk);
-
-    Json::Value root;
 
 }
