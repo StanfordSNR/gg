@@ -94,7 +94,7 @@ int main(int argc, char *argv[]){
         }
         cout << endl;
     }
-
+    /* TODO: Replace with updated TracedProcess interface
     TracedProcess tp( cmd );
 
     while ( true ) {
@@ -122,6 +122,7 @@ int main(int argc, char *argv[]){
 
         if ( not waitres ) { break; }
     }
+    */
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
     auto dif = chrono::duration_cast<chrono::microseconds>( t1 - t0 ).count();
     if(verbose){
