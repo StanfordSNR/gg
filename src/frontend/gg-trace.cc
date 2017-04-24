@@ -37,23 +37,13 @@ int main( int argc, char * argv[] )
 
     while ( true ) {
       int waitres = tp.wait_for_syscall(
-        [&]( SystemCallEntry syscall )
+        [&]( TraceControlBlock tcb, long, SystemCallEntry syscall )
         {
-          if ( not strcmp( "open", syscall.sys_name ) ) {
-            cerr << syscall.sys_name << "(" << tp.get_syscall_arg<string>( 1 ) << ") called." << endl;
-          }
-          else {
-            cerr << syscall.sys_name << "(...) called. " << endl;
-          }
+          cerr << "[" << tcb.pid << "] " << syscall.sys_name << "(...) called. " << endl;
         },
-        [&]( SystemCallEntry syscall, long int retval )
+        [&]( TraceControlBlock tcb, long, SystemCallEntry syscall, long retval )
         {
-          if ( not strcmp( "open", syscall.sys_name ) ) {
-            cerr << syscall.sys_name << "(" << tp.get_syscall_arg<string>( 1 ) << ") = " << retval << endl;
-          }
-          else {
-            cerr << syscall.sys_name << "(...) = " << retval << endl;
-          }
+          cerr << "[" << tcb.pid << "] " << syscall.sys_name << "(...) = " << retval << endl;
         }
       );
 
