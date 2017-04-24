@@ -2,8 +2,10 @@
 
 #include <iostream>
 
+using namespace std;
+
 InFileDescriptor::InFileDescriptor( string filename ) 
-    : hash(), filename(filename), order(0) {
+    : hash_(), filename_(filename), order_(0) {
     
 }
 

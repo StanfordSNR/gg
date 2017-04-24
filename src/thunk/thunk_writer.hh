@@ -6,9 +6,6 @@
 
 
 
-using namespace std;
-
-
 class ThunkWriter
 {
 private:
@@ -18,5 +15,5 @@ public:
 
     static bool write_thunk(Thunk thunk);
 
-    static Thunk read_thunk( string filename );
+    static Thunk read_thunk( std::string filename );
 };

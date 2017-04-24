@@ -2,8 +2,10 @@
 
 #include <iostream>
 
-ThunkFunc::ThunkFunc( vector<string> cmd ) : args(){
-    args = cmd;
+using namespace std;
+
+ThunkFunc::ThunkFunc( vector<string> cmd ) : args_(){
+    args_ = cmd;
     cout << "Command is :" << endl;
     for(auto it = cmd.begin(); it != cmd.end(); ++it){
         cout << *it << " ";

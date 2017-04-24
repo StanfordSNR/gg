@@ -3,6 +3,7 @@
 
 #include "cajun/json/writer.h"
 
+using namespace std;
 
 bool ThunkWriter::write_thunk(Thunk thunk) {
     std::stringstream stream;

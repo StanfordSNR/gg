@@ -5,21 +5,18 @@
 
 #include "cajun/json/elements.h"
 
-using namespace std;
-
-
 class ThunkFunc
 {
-    string exe = "";
-    vector<string> args;
-    string exe_hash = "";
+    std::string exe_ = "";
+    std::vector<std::string> args_;
+    std::string exe_hash_ = "";
 
-    void hashExe();
+    void hash_exe();
 
-    void parseCmd();
+    void parse_cmd();
 
 public:
-    ThunkFunc(vector<string> cmd);
+    ThunkFunc(std::vector<std::string> cmd);
 
     ~ThunkFunc();
 

@@ -5,24 +5,22 @@
 #include "cajun/json/elements.h"
 
 
-using namespace std;
-
 
 class InFileDescriptor
 {
 private:
-    string hash;
-    string filename;
-    int order;
+    std::string hash_;
+    std::string filename_;
+    int order_;
 
-    void computeHash();
+    void compute_hash();
 
-    void isThunk();
+    void is_thunk();
 
-    void getThunkOrder();
+    void get_thunk_order();
 
 public:
-    InFileDescriptor( string filename );
+    InFileDescriptor( std::string filename );
 
     ~InFileDescriptor();
 

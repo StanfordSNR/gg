@@ -9,19 +9,16 @@
 #include "cajun/json/writer.h"
 
 
-using namespace std;
-
-
 class Thunk
 {
 private:
-    string outfile;
-    ThunkFunc thunkfunc;
-    vector<InFileDescriptor> infiles;
-    int order; // TODO : check infiles to figure out order
+    std::string outfile_;
+    ThunkFunc thunkfunc_;
+    std::vector<InFileDescriptor> infiles_;
+    int order_; // TODO : check infiles to figure out order
 
 public:
-    Thunk( string outfile,  ThunkFunc thunkfunc, vector<InFileDescriptor> infiles);
+    Thunk( std::string outfile,  ThunkFunc thunkfunc, std::vector<InFileDescriptor> infiles );
 
     ~Thunk();
 
