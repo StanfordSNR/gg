@@ -88,7 +88,8 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
                                                      PTRACE_O_TRACEEXIT |
                                                      PTRACE_O_TRACEFORK |
                                                      PTRACE_O_TRACEVFORK |
-                                                     PTRACE_O_TRACECLONE ) );
+                                                     PTRACE_O_TRACECLONE |
+                                                     PTRACE_O_EXITKILL ) );
       processes_.at( cpid ).initialized = true;
     }
 
@@ -96,7 +97,18 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
       return true;
     }
     else if ( WIFEXITED( status ) ) {
-      return false;
+      if ( cpid == pid_ ) { /* the parent process exited */
+        exit_status_.reset( WEXITSTATUS( status ) );
+      }
+
+      processes_.erase( cpid );
+
+      if ( cpid == pid_ ) {
+        return false;
+      }
+      else {
+        continue;
+      }
     }
 
     CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, cpid, NULL, NULL ) );

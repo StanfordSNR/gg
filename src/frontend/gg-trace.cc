@@ -49,6 +49,10 @@ int main( int argc, char * argv[] )
 
       if ( not waitres ) { break; }
     }
+
+    if ( tp.exit_status().initialized() ) {
+      cerr << "Process exited with " << tp.exit_status().get() << endl;
+    }
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );

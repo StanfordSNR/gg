@@ -9,6 +9,7 @@
 #include <csignal>
 #include <map>
 
+#include "optional.hh"
 #include "syscall.hh"
 
 struct TraceControlBlock
@@ -27,7 +28,7 @@ class TracedProcess
 private:
   pid_t pid_;
 
-  int exit_status_;
+  Optional<int> exit_status_;
   int graceful_termination_signal_;
 
   bool died_on_signal_;
@@ -53,6 +54,7 @@ public:
   void set_syscall_arg( TraceControlBlock tcb, uint8_t argnum, T value );
 
   pid_t pid( void ) const { assert( not moved_away_ ); return pid_; }
+  Optional<int> exit_status() { return exit_status_; }
 
   ~TracedProcess();
 
