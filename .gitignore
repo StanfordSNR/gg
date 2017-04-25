@@ -30,7 +30,7 @@ Makefile.in
 
 /src/frontend/gg-trace
 /src/frontend/gg-gcc
-
+/src/frontend/gg-sandbox
 
 .idea
 CMakeLists.txt
