@@ -1,12 +1,5 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include <sys/ptrace.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/reg.h>
-#include <sys/user.h>
-#include <signal.h>
-#include <unistd.h>
 #include <cstring>
 #include <iostream>
 
