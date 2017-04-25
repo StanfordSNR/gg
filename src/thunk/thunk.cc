@@ -29,3 +29,7 @@ json::Object Thunk::to_json()
 
   return obj;
 }
+
+string Thunk::get_outfile() {
+  return outfile_;
+}

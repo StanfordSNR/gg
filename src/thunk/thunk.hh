@@ -24,5 +24,7 @@ public:
 
   ~Thunk();
 
+  std::string get_outfile();
+
   json::Object to_json();
 };
