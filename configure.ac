@@ -38,6 +38,7 @@ AC_ARG_ENABLE([debug],
 AC_SUBST(NODEBUG_CXXFLAGS)
 
 # Checks for libraries.
+PKG_CHECK_MODULES([CRYPTO],[libcrypto])
 
 # Checks for header files.
 

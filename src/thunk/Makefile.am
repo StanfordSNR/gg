@@ -13,6 +13,6 @@ BASE_LDADD = libthunk.a
 
 bin_PROGRAMS = thunk-writer-test
 
-thunk_writer_test_LDADD = $(BASE_LDADD) $(JSON_LIBS)
+thunk_writer_test_LDADD = $(BASE_LDADD) $(JSON_LIBS) $(CRYPTO_LIBS)
 thunk_writer_test_SOURCES = thunk_writer_test.cc
 
