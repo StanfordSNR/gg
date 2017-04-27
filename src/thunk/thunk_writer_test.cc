@@ -26,9 +26,9 @@ int main() {
 
   ThunkFunc thunkfunc( cmd );
 
-  InFileDescriptor infile1( "job.h" );
-  InFileDescriptor infile2( "commands.h" );
-  InFileDescriptor infile3( "dep.h" );
+  InFileDescriptor infile1( "thunk.hh" );
+  InFileDescriptor infile2( "infile_desc.hh" );
+  InFileDescriptor infile3( "thunk_func.hh" );
 
   vector<InFileDescriptor> infiles = { infile1, infile2, infile3 };
 
