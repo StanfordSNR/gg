@@ -14,6 +14,11 @@
 #include "exception.hh"
 #include "syscall.hh"
 #include "traced_process.hh"
+#include "thunk.hh"
+#include "thunk_func.hh"
+#include "infile_desc.hh"
+#include "thunk_writer.hh"
+
 
 using namespace std;
 
@@ -24,6 +29,7 @@ const char *COMPILEFLAG = "-c";
 const char PREPROC_SUFFIX = 'i';
 bool verbose = false; // TODO add to commandline args
 const char *COMPILE_COMMAND[] = {"gcc", "-g", "-O2", "-c", "-o", "",  "", '\0'};
+const size_t COMMAND_LEN = 7;
 const int OUTINDEX = 5;
 const int SRCINDEX = OUTINDEX+1;
 bool model_only = true;
@@ -67,6 +73,15 @@ bool getPreprocArgs(int argc, char *argv[], vector<char *>& preproc_args, char o
   return isLinking;
 }
 
+void create_thunk( char *purefile, char *objectfile, const char** cmd ){
+  string outfile( objectfile );
+  vector<string> cmd_vec( cmd , cmd + COMMAND_LEN );
+  ThunkFunc thunkfunc( cmd_vec );
+  InFileDescriptor infile( purefile );
+  Thunk thunk( outfile, thunkfunc, {infile});
+  ThunkWriter::write_thunk( thunk );
+}
+
 int main(int argc, char *argv[]){
 
   if (argc < 2 || strcmp(argv[1], COMPILER) != 0){
@@ -91,102 +106,98 @@ int main(int argc, char *argv[]){
 
   if ( verbose ) {
     for (char** x = cmd; *x != '\0'; ++x){
-      cout << *x;
+      cout << *x << " ";
     }
     cout << endl;
   }
 
-  if( model_only && !isLinking ){
-
-    // Run gcc -E and capture output. Create thunks using infiles as printed by -M
-
-
-
-  } else {
-    int pid = fork();
-
-    if(pid == 0) {  // child
-
-      if (verbose) {
-        for (int i = 1; i <= argc + 1; i++) {
-          cout << preproc_args[i] << " ";
-        }
-        cout << std::endl;
-      }
-      if(!isLinking) {
-        execvp(argv[1], (char *const *) &preproc_args[1]);
-      }else{
-        execvp(argv[1], (char *const *) &argv[1]);
-      }
-    }
-    else{  // parent
-      wait(&status);
-      if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-        std::cerr << "Preprocess process (pid " << pid << ") failed" << std::endl;
-        exit(1);
-      }
-      chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-      auto dif = chrono::duration_cast<chrono::microseconds>( t1 - t0 ).count();
-      if(verbose){
-        if(!isLinking){
-          cout << endl << "PREPROCTIME " <<  dif << endl;
-        } else {
-          cout << endl << "LINKINGTIME " <<  dif << endl;
-        }
-      }
-    }
-  }
-
-
-
-  char srcfile[50];
-  strcpy(srcfile, object_file);
-  srcfile[strlen(srcfile)-1] = PREPROC_SUFFIX;
-  COMPILE_COMMAND[OUTINDEX] = object_file;
-  COMPILE_COMMAND[SRCINDEX] = srcfile;
-
-  chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-
+  fflush(stdout);
   int pid = fork();
 
   if(pid == 0) {  // child
 
-    if(isLinking){
-      exit(0);
-    }
-
     if (verbose) {
-      for (int i = 0; i < 7; i++) {
-        cout << COMPILE_COMMAND[i] << " ";
+      for (int i = 1; i <= argc + 1; i++) {
+        cerr << preproc_args[i] << " ";
       }
-      cout << endl;
+      cerr << endl;
     }
 
-    cout << "Let's not compile and instead use the thunker" << endl;
-
-    execvp ("gcc", (char* const*)&COMPILE_COMMAND);
+    if( !isLinking ) {
+      execvp( argv[ 1 ], (char *const *) &preproc_args[ 1 ] );
+    }else{
+      execvp( argv[ 1 ], (char *const *) &argv[ 1 ] );
+    }
   }
-  else{  // parent
+  else {  // parent
     wait(&status);
     if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-      std::cerr << "Compile process  (pid " << pid << ") failed" << std::endl;
+      std::cerr << "Preprocess process (pid " << pid << ") failed" << std::endl;
       exit(1);
     }
-    chrono::high_resolution_clock::time_point t3 = chrono::high_resolution_clock::now();
-    auto dif = chrono::duration_cast<chrono::microseconds>( t3 - t2 ).count();
-    if(!isLinking && verbose){
-      cout << "COMPILETIME " <<  dif << endl;
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+    auto dif = chrono::duration_cast<chrono::microseconds>(t1 - t0).count();
+    if (verbose) {
+      if (!isLinking) {
+        cout << endl << "PREPROCTIME " << dif << endl;
+      } else {
+        cout << endl << "LINKINGTIME " << dif << endl;
+      }
     }
   }
 
-  if(!isLinking){
-    std::stringstream ss;
-    ss << "rm " << COMPILE_COMMAND[SRCINDEX];
-    cout << ss.str() << endl;
-    int ret = system(ss.str().c_str());
-    if (ret != 0){
-      cerr << "Error occurred deleting file: " << ss.str() << endl;
+  if( !isLinking ){ // If we linked above, nothing else to do
+
+    char srcfile[ 50 ];
+    strcpy( srcfile, object_file );
+    srcfile[ strlen( srcfile ) -1 ] = PREPROC_SUFFIX;
+    COMPILE_COMMAND[ OUTINDEX ] = object_file;
+    COMPILE_COMMAND[ SRCINDEX ] = srcfile;
+
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+
+    fflush(stdout);
+    pid = fork();
+
+    if(pid == 0) {  // child
+
+      if( verbose ) {
+        for( int i = 0; i < 7; i++ ) {
+          cout << COMPILE_COMMAND[ i ] << " ";
+        }
+        cout << endl;
+      }
+
+      if( model_only ){
+        create_thunk( srcfile, object_file, COMPILE_COMMAND );
+      } else {
+        execvp( "gcc" , ( char* const* )&COMPILE_COMMAND );
+      }
+
+    }
+    else{  // parent
+      wait(&status);
+      if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        std::cerr << "Compile process  (pid " << pid << ") failed" << std::endl;
+        exit(1);
+      }
+      chrono::high_resolution_clock::time_point t3 = chrono::high_resolution_clock::now();
+      auto dif = chrono::duration_cast<chrono::microseconds>( t3 - t2 ).count();
+      if(!isLinking && verbose){
+        cout << "COMPILETIME " <<  dif << endl;
+      }
+      if(!isLinking){
+        std::stringstream ss;
+        ss << "rm " << COMPILE_COMMAND[SRCINDEX];
+        cout << ss.str() << endl;
+        int ret = system(ss.str().c_str());
+        if (ret != 0){
+          cerr << "Error occurred deleting file: " << ss.str() << endl;
+        }
+      }
     }
   }
+
+
 
 }
