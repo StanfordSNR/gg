@@ -11,7 +11,11 @@
 using namespace std;
 
 string InFileDescriptor::compute_hash( string filename ){
+  // TODO : Check if file exists!
   std::ifstream file( filename, std::ifstream::binary );
+  if( file.fail() ){
+    throw runtime_error( "File " + filename + " does not exist." );
+  }
   SHA256_CTX md5Context;
   SHA256_Init( &md5Context );
   char buf[1024 * 16];
