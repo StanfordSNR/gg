@@ -3,6 +3,7 @@
 #ifndef TRACED_PROCESS_HH
 #define TRACED_PROCESS_HH
 
+#include <sys/user.h>
 #include <functional>
 #include <unistd.h>
 #include <cassert>
@@ -48,7 +49,9 @@ public:
   void resume( void );
 
   template<typename T>
-  T get_syscall_arg( TraceControlBlock tcb, uint8_t argnum );
+  T get_syscall_arg( const TraceControlBlock & tcb, uint8_t argnum ) const;
+
+  user_regs_struct get_regs( const TraceControlBlock & tcb ) const;
 
   template<typename T>
   void set_syscall_arg( TraceControlBlock tcb, uint8_t argnum, T value );

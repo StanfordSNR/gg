@@ -146,7 +146,7 @@ bool TracedProcess::wait_for_syscall( function<void( TraceControlBlock, long, Sy
 }
 
 template<typename T>
-T TracedProcess::get_syscall_arg( TraceControlBlock tcb, uint8_t argnum )
+T TracedProcess::get_syscall_arg( const TraceControlBlock & tcb, uint8_t argnum ) const
 {
   assert( tcb.in_syscall );
 
@@ -154,7 +154,7 @@ T TracedProcess::get_syscall_arg( TraceControlBlock tcb, uint8_t argnum )
 }
 
 template<>
-string TracedProcess::get_syscall_arg( TraceControlBlock tcb, uint8_t argnum )
+string TracedProcess::get_syscall_arg( const TraceControlBlock & tcb, uint8_t argnum ) const
 {
   string result;
 
@@ -179,4 +179,11 @@ string TracedProcess::get_syscall_arg( TraceControlBlock tcb, uint8_t argnum )
   return result;
 }
 
-template int TracedProcess::get_syscall_arg( TraceControlBlock, uint8_t );
+user_regs_struct TracedProcess::get_regs( const TraceControlBlock & tcb ) const
+{
+  user_regs_struct result;
+  CheckSystemCall( "ptrace(GETREGS)", ptrace( PTRACE_GETREGS, tcb.pid, NULL, &result ) );
+  return result;
+}
+
+template int TracedProcess::get_syscall_arg( const TraceControlBlock &, uint8_t ) const;
