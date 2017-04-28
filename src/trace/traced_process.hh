@@ -32,8 +32,8 @@ public:
   TracedProcess( char * args[],
                  const int termination_signal = SIGHUP );
 
-  bool wait_for_syscall( std::function<void( TraceControlBlock, long, SystemCallEntry )> before_entry,
-                         std::function<void( TraceControlBlock, long, SystemCallEntry, long )> after_exit );
+  bool wait_for_syscall( std::function<void( const SystemCallInvocation & )> before_entry,
+                         std::function<void( const SystemCallInvocation &, long )> after_exit );
 
   void resume( void );
 

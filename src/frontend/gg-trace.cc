@@ -14,6 +14,36 @@ void usage( const char * argv0 )
   cerr << argv0 << " COMMAND [option]..." << endl;
 }
 
+void print_invocation( const SystemCallInvocation & invocation )
+{
+  cerr << "[" << invocation.pid() << "] ";
+
+  if ( invocation.signature().initialized() ) {
+    cerr << invocation.signature().get().name() << "(";
+
+    size_t i = 0;
+    for ( auto & arg : invocation.arguments() ) {
+      i++;
+
+      if ( arg.info().type == typeid( char * ) ) {
+        cerr << '"' << arg.value<string>() << '"';
+      }
+      else {
+        cerr << arg.value<long>();
+      }
+
+      if ( i != invocation.arguments().size() ) {
+        cerr << ", ";
+      }
+    }
+
+    cerr << ")";
+  }
+  else {
+    cerr << "scno_" << invocation.syscall_no() << "()";
+  }
+}
+
 int main( int argc, char * argv[] )
 {
   try {
@@ -30,13 +60,15 @@ int main( int argc, char * argv[] )
 
     while ( true ) {
       int waitres = tp.wait_for_syscall(
-        [&]( TraceControlBlock tcb, long, SystemCallEntry syscall )
+        [&]( const SystemCallInvocation & invocation )
         {
-          cerr << "[" << tcb.pid << "] " << syscall.sys_name << "(...) called. " << endl;
+          print_invocation( invocation );
+          cerr << " called." << endl;
         },
-        [&]( TraceControlBlock tcb, long, SystemCallEntry syscall, long retval )
+        [&]( const SystemCallInvocation & invocation, long retval )
         {
-          cerr << "[" << tcb.pid << "] " << syscall.sys_name << "(...) = " << retval << endl;
+          print_invocation( invocation );
+          cerr << " = " << retval << endl;
         }
       );
 

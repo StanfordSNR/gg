@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <sys/syscall.h>
 #include <typeinfo>
+#include <typeindex>
 #include <string>
 #include <vector>
 #include <map>
@@ -37,11 +38,7 @@ public:
   static SystemCallEntry get_syscall( size_t syscall_num );
 };
 
-enum ArgumentType
-{
-  ARGUMENT_TYPE_INT,
-  ARGUMENT_TYPE_CHARSTAR,
-};
+using ArgumentType = std::type_index;
 
 enum ArgumentDirection
 {
@@ -79,6 +76,8 @@ public:
     : number_( number ), name_( name ), args_( args )
   {}
 
+  long number() const { return number_; }
+  std::string name() const { return name_; }
   std::vector<ArgumentInfo> args() const { return args_; }
 };
 
@@ -89,8 +88,8 @@ static std::map<long, SystemCallSignature> syscall_signatures =
     {
       SYS_open, "open",
       {
-        { ARGUMENT_TYPE_CHARSTAR, ARGUMENT_DIR_IN, ARGUMENT_F_PATHNAME }, /* pathname */
-        { ARGUMENT_TYPE_INT,      ARGUMENT_DIR_IN, 0 }, /* flags */
+        { typeid( char * ), ARGUMENT_DIR_IN, ARGUMENT_F_PATHNAME }, /* pathname */
+        { typeid( int ),    ARGUMENT_DIR_IN, 0 }, /* flags */
       }
     }
   }
@@ -117,6 +116,11 @@ public:
 
   template<typename T>
   void set_value( const T value );
+
+  template<typename T>
+  T value() const;
+
+  ArgumentInfo info() const { return info_; }
 };
 
 class SystemCallInvocation
@@ -132,12 +136,17 @@ private:
   Optional<SystemCallSignature> signature_;
 
   /* arguments to this system call */
-  Optional<std::vector<Argument>> arguments_;
+  std::vector<Argument> arguments_;
 
 public:
   SystemCallInvocation( const TracedProcess & tp,
                         const TraceControlBlock & tcb,
                         const long syscall_no );
+
+  pid_t pid() const { return tcb_.pid; }
+  long syscall_no() const { return syscall_; }
+  Optional<SystemCallSignature> signature() const { return signature_; }
+  std::vector<Argument> arguments() const { return arguments_; }
 };
 
 #endif /* SYSCALL_HH */

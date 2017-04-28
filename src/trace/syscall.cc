@@ -3,6 +3,8 @@
 #include "syscall.hh"
 #include "traced_process.hh"
 
+#include <iostream>
+
 using namespace std;
 
 SystemCallEntry SystemCall::get_syscall( size_t syscall_num )
@@ -10,7 +12,7 @@ SystemCallEntry SystemCall::get_syscall( size_t syscall_num )
   return syscall_table[ syscall_num ];
 }
 
-/* Arugment */
+/* Argument */
 
 template<>
 void Argument::set_value( const string value )
@@ -24,6 +26,9 @@ void Argument::set_value( const long value )
   value_.long_val.reset( value );
 }
 
+template<> string Argument::value() const { return value_.string_val.get(); }
+template<> long   Argument::value() const { return value_.long_val.get(); }
+
 Argument::Argument( ArgumentInfo info, const long raw_value )
   : info_( info ), raw_value_( raw_value ), value_()
 {}
@@ -36,19 +41,19 @@ SystemCallInvocation::SystemCallInvocation( const TracedProcess & tp,
   : tcb_( tcb ), syscall_( syscall_no ), signature_(), arguments_()
 {
   if ( syscall_signatures.count( syscall_no ) ) {
-
     const SystemCallSignature & sig = syscall_signatures.at( syscall_no );
     signature_.reset( sig );
 
-    arguments_.initialize();
+    vector<ArgumentInfo> args = sig.args();
 
-    for ( size_t i = 0; i < sig.args().size(); i++ ) {
-      auto & arg_info = sig.args().at( i );
-      arguments_.get().emplace_back( arg_info, tp.get_syscall_arg<long>( tcb, i ) );
+    for ( size_t i = 0; i < args.size(); i++ ) {
+      const ArgumentInfo & arg_info = args.at( i );
 
-      auto & last_arg = arguments_.get().back();
+      arguments_.emplace_back( arg_info, tp.get_syscall_arg<long>( tcb, i ) );
 
-      if ( arg_info.type != ARGUMENT_TYPE_CHARSTAR ) {
+      Argument & last_arg = arguments_.back();
+
+      if ( arg_info.type != typeid( char * ) ) {
         last_arg.set_value( last_arg.raw_value() );
       }
       else {

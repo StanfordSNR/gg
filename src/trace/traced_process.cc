@@ -16,7 +16,7 @@
 
 using namespace std;
 
-int SYSCALL_ARG_REGS[] = { ORIG_RAX, RDI, RSI, RDX, R10, R8, R9 };
+int SYSCALL_ARG_REGS[] = { /* ORIG_RAX, */ RDI, RSI, RDX, R10, R8, R9 };
 
 int do_fork()
 {
@@ -115,8 +115,8 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
   }
 }
 
-bool TracedProcess::wait_for_syscall( function<void( TraceControlBlock, long, SystemCallEntry )> before_entry,
-                                      function<void( TraceControlBlock, long, SystemCallEntry, long )> after_exit )
+bool TracedProcess::wait_for_syscall( function<void( const SystemCallInvocation & )> before_entry,
+                                      function<void( const SystemCallInvocation &, long )> after_exit )
 {
   pid_t cpid;
 
@@ -130,13 +130,13 @@ bool TracedProcess::wait_for_syscall( function<void( TraceControlBlock, long, Sy
     tcb.in_syscall = true;
 
     long syscall_no = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * ORIG_RAX );
-    before_entry( tcb, syscall_no, SystemCall::get_syscall( syscall_no ) );
+    before_entry( { *this, tcb, syscall_no } );
   }
   else {
     long syscall_no = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * ORIG_RAX );
     long syscall_ret = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * RAX );
 
-    after_exit( tcb, syscall_no, SystemCall::get_syscall( syscall_no ), syscall_ret );
+    after_exit( { *this, tcb, syscall_no }, syscall_ret );
 
     tcb.in_syscall = false;
   }
