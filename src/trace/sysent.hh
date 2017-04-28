@@ -8,9 +8,13 @@
 struct SystemCallEntry {
   unsigned nargs;
   int	sys_flags;
-  int	sen;
+  long	sen;
   const char *sys_name;
+
+  bool is( int flag ) { return sys_flags & flag; }
 };
+
+#define SEN(x) 0
 
 #define TRACE_FILE                   001   /* Trace file-related syscalls. */
 #define TRACE_IPC                    002   /* Trace IPC-related syscalls. */

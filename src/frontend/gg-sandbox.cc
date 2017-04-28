@@ -1,6 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <iostream>
+#include <string>
 
 #include "exception.hh"
 #include "traced_process.hh"

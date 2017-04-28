@@ -187,3 +187,4 @@ user_regs_struct TracedProcess::get_regs( const TraceControlBlock & tcb ) const
 }
 
 template int TracedProcess::get_syscall_arg( const TraceControlBlock &, uint8_t ) const;
+template long TracedProcess::get_syscall_arg( const TraceControlBlock &, uint8_t ) const;

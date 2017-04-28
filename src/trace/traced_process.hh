@@ -13,17 +13,6 @@
 #include "optional.hh"
 #include "syscall.hh"
 
-struct TraceControlBlock
-{
-  pid_t pid;
-  bool in_syscall { false };
-  bool initialized { false };
-
-  TraceControlBlock( pid_t pid )
-    : pid( pid )
-  {}
-};
-
 class TracedProcess
 {
 private:
