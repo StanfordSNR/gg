@@ -13,11 +13,6 @@
 #include <tuple>
 
 #include "optional.hh"
-#include "sysent.hh"
-
-static constexpr SystemCallEntry syscall_table[] = {
-#include "syscallent.h"
-};
 
 struct TracedProcess;
 
@@ -30,12 +25,6 @@ struct TraceControlBlock
   TraceControlBlock( pid_t pid )
     : pid( pid )
   {}
-};
-
-class SystemCall
-{
-public:
-  static SystemCallEntry get_syscall( size_t syscall_num );
 };
 
 using ArgumentType = std::type_index;

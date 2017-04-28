@@ -1,1 +1,1 @@
-SUBDIRS = linux util thunk trace frontend tests
+SUBDIRS = util thunk trace frontend tests
