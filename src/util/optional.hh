@@ -118,7 +118,7 @@ public:
   void clear( void ) { if ( initialized() ) { object_.~T(); } initialized_ = false; }
 
   template <typename... Targs>
-  void reset( Targs&&... Fargs ) { clear(); initialize( Fargs... ); }
+  void reset( Targs&&... Fargs ) { if ( initialized() ) { clear(); } initialize( Fargs... ); }
 };
 
 template <class T>
