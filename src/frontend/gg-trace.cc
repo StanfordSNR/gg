@@ -63,11 +63,9 @@ int main( int argc, char * argv[] )
         [&]( const SystemCallInvocation & invocation )
         {
           print_invocation( invocation );
-          cerr << " called." << endl;
         },
-        [&]( const SystemCallInvocation & invocation, long retval )
+        [&]( const SystemCallInvocation &, long retval )
         {
-          print_invocation( invocation );
           cerr << " = " << retval << endl;
         }
       );

@@ -1,3 +1,5 @@
+
+
 *.a
 *.o
 .deps
@@ -24,7 +26,7 @@ Makefile.in
 /libtool
 /ltmain.sh
 /missing
-/alfalfa-*.tar.gz
+/gg-*.tar.gz
 /stamp-h1
 /test-driver
 

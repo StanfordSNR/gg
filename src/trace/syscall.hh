@@ -70,19 +70,7 @@ public:
   std::vector<ArgumentInfo> args() const { return args_; }
 };
 
-static std::map<long, SystemCallSignature> syscall_signatures =
-{
-  {
-    SYS_open,
-    {
-      SYS_open, "open",
-      {
-        { typeid( char * ), ARGUMENT_DIR_IN, ARGUMENT_F_PATHNAME }, /* pathname */
-        { typeid( int ),    ARGUMENT_DIR_IN, 0 }, /* flags */
-      }
-    }
-  }
-};
+#include "syscalltbl.hh"
 
 struct ArgumentValue
 {
@@ -130,7 +118,7 @@ private:
 public:
   SystemCallInvocation( const TracedProcess & tp,
                         const TraceControlBlock & tcb,
-                        const long syscall_no );
+                        const long syscall_no, bool fetch_arguments = true );
 
   pid_t pid() const { return tcb_.pid; }
   long syscall_no() const { return syscall_; }

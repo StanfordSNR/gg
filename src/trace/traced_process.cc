@@ -136,7 +136,12 @@ bool TracedProcess::wait_for_syscall( function<void( const SystemCallInvocation 
     long syscall_no = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * ORIG_RAX );
     long syscall_ret = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * RAX );
 
-    after_exit( { *this, tcb, syscall_no }, syscall_ret );
+    if ( not ( syscall_no == SYS_execve and syscall_ret == 0 ) ) {
+      after_exit( { *this, tcb, syscall_no }, syscall_ret );
+    }
+    else {
+      after_exit( { *this, tcb, syscall_no, false }, syscall_ret );
+    }
 
     tcb.in_syscall = false;
   }
@@ -150,7 +155,8 @@ T TracedProcess::get_syscall_arg( const TraceControlBlock & tcb, uint8_t argnum 
 {
   assert( tcb.in_syscall );
 
-  return ( T ) ptrace( PTRACE_PEEKUSER, tcb.pid, sizeof( long ) * SYSCALL_ARG_REGS[ argnum ], NULL );
+  return ( T ) ptrace( PTRACE_PEEKUSER, tcb.pid,
+                       sizeof( long ) * SYSCALL_ARG_REGS[ argnum ], NULL );
 }
 
 template<>

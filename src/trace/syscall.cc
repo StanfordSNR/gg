@@ -32,12 +32,17 @@ Argument::Argument( ArgumentInfo info, const long raw_value )
 
 SystemCallInvocation::SystemCallInvocation( const TracedProcess & tp,
                                             const TraceControlBlock & tcb,
-                                            const long syscall_no )
+                                            const long syscall_no,
+                                            bool fetch_arguments )
   : tcb_( tcb ), syscall_( syscall_no ), signature_(), arguments_()
 {
   if ( syscall_signatures.count( syscall_no ) ) {
     const SystemCallSignature & sig = syscall_signatures.at( syscall_no );
     signature_.reset( sig );
+
+    if ( not fetch_arguments ) {
+      return;
+    }
 
     vector<ArgumentInfo> args = sig.args();
 
