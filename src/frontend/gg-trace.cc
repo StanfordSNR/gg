@@ -15,36 +15,6 @@ void usage( const char * argv0 )
   cerr << argv0 << " COMMAND [option]..." << endl;
 }
 
-void print_invocation( const TraceControlBlock & tcb )
-{
-  cerr << "[" << tcb.pid << "] ";
-
-  if ( tcb.syscall_invocation.get().signature().initialized() ) {
-    cerr << tcb.syscall_invocation.get().signature().get().name() << "(";
-
-    size_t i = 0;
-    for ( auto & arg : tcb.syscall_invocation.get().arguments() ) {
-      i++;
-
-      if ( arg.info().type == typeid( char * ) ) {
-        cerr << '"' << arg.value<string>() << '"';
-      }
-      else {
-        cerr << arg.value<long>();
-      }
-
-      if ( i != tcb.syscall_invocation.get().arguments().size() ) {
-        cerr << ", ";
-      }
-    }
-
-    cerr << ")";
-  }
-  else {
-    cerr << "scno_" << tcb.syscall_invocation.get().syscall_no() << "()";
-  }
-}
-
 int main( int argc, char * argv[] )
 {
   try {
@@ -63,7 +33,7 @@ int main( int argc, char * argv[] )
       int waitres = tp.wait_for_syscall(
         [&]( const TraceControlBlock & tcb )
         {
-          print_invocation( tcb );
+          cerr << tcb.to_string();
         },
         [&]( const TraceControlBlock &, long retval )
         {

@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <cstring>
+#include <sstream>
 #include <exception>
 
 #include "exception.hh"
@@ -32,6 +33,48 @@ int do_fork()
   }
 
   return CheckSystemCall( "fork", fork() );
+}
+
+string TraceControlBlock::to_string() const
+{
+  ostringstream output;
+
+  output << "[" << pid << "]";
+
+  if ( not syscall_invocation.initialized() ) {
+    return output.str();
+  }
+
+  output << " ";
+
+  auto & syscall = syscall_invocation.get();
+
+  if ( syscall.signature().initialized() ) {
+    output << syscall.signature().get().name() << "(";
+
+    size_t i = 0;
+    for ( auto & arg : syscall.arguments() ) {
+      i++;
+
+      if ( arg.info().type == typeid( char * ) ) {
+        output << '"' << arg.value<string>() << '"';
+      }
+      else {
+        output << arg.value<long>();
+      }
+
+      if ( i != syscall.arguments().size() ) {
+        output << ", ";
+      }
+    }
+
+    output << ")";
+  }
+  else {
+    output << "sc-" << syscall.syscall_no() << "()";
+  }
+
+  return output.str();
 }
 
 TracedProcess::TracedProcess( function<int()> && child_procedure,

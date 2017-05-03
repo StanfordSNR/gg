@@ -25,6 +25,8 @@ struct TraceControlBlock
   TraceControlBlock( pid_t pid )
     : pid( pid )
   {}
+
+  std::string to_string() const;
 };
 
 class TracedProcess
