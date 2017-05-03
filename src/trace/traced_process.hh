@@ -9,6 +9,7 @@
 #include <cassert>
 #include <csignal>
 #include <map>
+#include <functional>
 
 #include "optional.hh"
 #include "syscall.hh"
@@ -29,7 +30,7 @@ private:
   bool ptrace_syscall( pid_t & out_pid );
 
 public:
-  TracedProcess( char * args[],
+  TracedProcess( std::function<int()> && child_procedure,
                  const int termination_signal = SIGHUP );
 
   bool wait_for_syscall( std::function<void( const SystemCallInvocation & )> before_entry,

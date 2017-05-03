@@ -1,5 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include <unistd.h>
 #include <cstring>
 #include <iostream>
 
@@ -56,7 +57,7 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    TracedProcess tp( &argv[ 1 ] );
+    TracedProcess tp( [&argv]() { return execvp( argv[ 1 ], &argv[ 1 ] ); } );
 
     while ( true ) {
       int waitres = tp.wait_for_syscall(

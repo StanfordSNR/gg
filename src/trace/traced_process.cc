@@ -33,7 +33,8 @@ int do_fork()
   return CheckSystemCall( "fork", fork() );
 }
 
-TracedProcess::TracedProcess( char * args[], const int termination_signal )
+TracedProcess::TracedProcess( function<int()> && child_procedure,
+                              const int termination_signal )
   : pid_( do_fork() ),
     exit_status_(),
     graceful_termination_signal_( termination_signal ),
@@ -44,7 +45,8 @@ TracedProcess::TracedProcess( char * args[], const int termination_signal )
   if ( pid_ == 0 ) { /* child */
     CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
     CheckSystemCall( "kill", kill( getpid(), SIGSTOP ) );
-    CheckSystemCall( "execvp", execvp( args[ 0 ], &args[ 0 ] ) );
+
+    _exit( child_procedure() );
   }
   else {}
 }
