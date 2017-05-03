@@ -1,5 +1,8 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include <sstream>
+#include <string>
+
 #include "invocation.hh"
 #include "traced_process.hh"
 
@@ -21,6 +24,7 @@ void Argument::set_value( const long value )
 
 template<> string Argument::value() const { return value_.string_val.get(); }
 template<> long   Argument::value() const { return value_.long_val.get(); }
+template<> int    Argument::value() const { return ( int )value_.long_val.get(); }
 
 Argument::Argument( ArgumentInfo info, const long raw_value )
   : info_( info ), raw_value_( raw_value ), value_()
@@ -57,5 +61,17 @@ SystemCallInvocation::SystemCallInvocation( const pid_t pid,
         last_arg.set_value( TracedProcess::get_syscall_arg<string>( pid, i ) );
       }
     }
+  }
+}
+
+std::string SystemCallInvocation::name()
+{
+  if ( signature_.initialized() ) {
+    return signature_.get().name();
+  }
+  else {
+    ostringstream out;
+    out << "sc-" << syscall_;
+    return out.str();
   }
 }

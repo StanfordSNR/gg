@@ -2,16 +2,42 @@
 
 #include "sandbox.hh"
 
+#include <fcntl.h>
+
 using namespace std;
 
-Sandbox::Sandbox( function<int()> && child_procedure,
-                  const unordered_set<string> & allowed_reads,
-                  const unordered_set<string> & allowed_writes )
-  : process_( move( child_procedure ) ),
-    allowed_reads_( allowed_reads ), allowed_writes_( allowed_writes )
+SandboxedProcess::SandboxedProcess( function<int()> && child_procedure,
+                                    const unordered_map<std::string, Permissions> & allowed_files )
+  : process_( move( child_procedure ) ), allowed_files_( allowed_files )
 {}
 
-void Sandbox::execute()
+inline void Check( const TraceControlBlock & tcb, bool status )
+{
+  if ( not status ) {
+    throw SandboxViolation( "Illegal syscall: ", tcb.to_string() );
+  }
+}
+
+bool SandboxedProcess::open_entry( const SystemCallInvocation & syscall )
+{
+  const string pathname = syscall.arguments().at( 0 ).value<string>();
+  const int access_mode = syscall.arguments().at( 1 ).value<int>() & O_ACCMODE;
+
+  if ( not allowed_files_.count( pathname ) ) {
+    return false;
+  }
+
+  Permissions file_flags = allowed_files_.at( pathname );
+
+  if ( access_mode == O_RDWR and
+       ( not file_flags.read or not file_flags.write ) ) { return false; }
+  if ( access_mode == O_WRONLY and ( not file_flags.write ) ) { return false; }
+  if ( access_mode == O_RDONLY and ( not file_flags.read ) ) { return false; }
+
+  return true;
+}
+
+void SandboxedProcess::execute()
 {
   auto syscall_entry =
     [&]( const TraceControlBlock & tcb )
@@ -20,10 +46,15 @@ void Sandbox::execute()
 
       switch ( syscall.syscall_no() ) {
       case SYS_open:
-        return;
+        Check( tcb, open_entry( syscall ) );
+        break;
+
+      case SYS_exit:
+      case SYS_exit_group:
+        break;
 
       default:
-        throw SandboxViolation( "Unknown syscall" );
+        throw SandboxViolation( "Unknown syscall", tcb.to_string() );
       }
     };
 

@@ -5,21 +5,28 @@
 
 #include <string>
 #include <functional>
-#include <unordered_set>
+#include <unordered_map>
 
 #include "traced_process.hh"
 
-class Sandbox
+struct Permissions
+{
+  bool read, write, execute;
+};
+
+class SandboxedProcess
 {
 private:
   TracedProcess process_;
-  std::unordered_set<std::string> allowed_reads_;
-  std::unordered_set<std::string> allowed_writes_;
+
+  /* map from pathname to access modes (O_RDONLY, O_WRONLY, O_RDRW) */
+  std::unordered_map<std::string, Permissions> allowed_files_;
+
+  bool open_entry( const SystemCallInvocation & syscall );
 
 public:
-  Sandbox( std::function<int()> && child_procedure,
-           const std::unordered_set<std::string> & allowed_reads,
-           const std::unordered_set<std::string> & allowed_writes );
+  SandboxedProcess( std::function<int()> && child_procedure,
+                    const std::unordered_map<std::string, Permissions> & allowed_files );
 
   /* throws an exception if sandbox violation happens. */
   void execute();
@@ -28,8 +35,8 @@ public:
 class SandboxViolation : public std::runtime_error
 {
 public:
-  SandboxViolation( const std::string & s_error )
-    : runtime_error( s_error )
+  SandboxViolation( const std::string & s_error, const std::string & details )
+    : runtime_error( s_error + ": " + details )
   {}
 };
 

@@ -35,6 +35,7 @@ int do_fork()
   return CheckSystemCall( "fork", fork() );
 }
 
+/* XXX refactor this */
 string TraceControlBlock::to_string() const
 {
   ostringstream output;

@@ -54,6 +54,7 @@ public:
                         bool fetch_arguments = true );
 
   long syscall_no() const { return syscall_; }
+  std::string name();
   Optional<SystemCallSignature> signature() const { return signature_; }
   std::vector<Argument> arguments() const { return arguments_; }
 };
