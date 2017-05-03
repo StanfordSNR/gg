@@ -1,0 +1,6 @@
+AM_CPPFLAGS = -I$(srcdir)/../$(OS)/$(ARCH) -I$(srcdir)/../util -I$(srcdir)/../trace $(CXX11_FLAGS)
+AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(NODEBUG_CXXFLAGS)
+
+noinst_LIBRARIES = libggsandbox.a
+
+libggsandbox_a_SOURCES = sandbox.hh sandbox.cc

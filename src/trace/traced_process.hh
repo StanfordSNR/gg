@@ -27,7 +27,6 @@ struct TraceControlBlock
   {}
 };
 
-
 class TracedProcess
 {
 private:

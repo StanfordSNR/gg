@@ -135,11 +135,7 @@ bool TracedProcess::wait_for_syscall( function<void( const TraceControlBlock & )
     before_entry( tcb );
   }
   else {
-    long syscall_no = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * ORIG_RAX );
     long syscall_ret = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * RAX );
-
-    assert( tcb.syscall_invocation.get().syscall_no() == syscall_no );
-
     after_exit( tcb, syscall_ret );
 
     tcb.syscall_invocation.clear();

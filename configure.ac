@@ -2,7 +2,7 @@
 AC_PREREQ([2.68])
 AC_INIT([gg], [0.01], [gg@cs.stanford.edu])
 AM_INIT_AUTOMAKE([foreign])
-#AC_CONFIG_SRCDIR([src/])
+AC_CONFIG_SRCDIR([src/frontend/gg-trace.cc])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
@@ -45,6 +45,12 @@ PKG_CHECK_MODULES([CRYPTO],[libcrypto])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT16_T
 
+# Used for loading the correct syscall table
+OS="$(uname | tr '[[:upper:]]' '[[:lower:]]')"
+ARCH="$(uname -m)"
+AC_SUBST([OS])
+AC_SUBST([ARCH])
+
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile
                  src/Makefile
@@ -52,6 +58,7 @@ AC_CONFIG_FILES([Makefile
                  src/util/Makefile
                  src/thunk/Makefile
                  src/trace/Makefile
+                 src/sandbox/Makefile
                  src/frontend/Makefile
                  src/tests/Makefile])
 

@@ -75,7 +75,7 @@ int main( int argc, char * argv[] )
     }
 
     if ( tp.exit_status().initialized() ) {
-      cerr << "Process exited with " << tp.exit_status().get() << endl;
+      cerr << endl << "Process exited with " << tp.exit_status().get() << endl;
     }
   }
   catch ( const exception &  e ) {
