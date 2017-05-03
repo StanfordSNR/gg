@@ -75,3 +75,35 @@ std::string SystemCallInvocation::name()
     return out.str();
   }
 }
+
+std::string SystemCallInvocation::to_string() const
+{
+  ostringstream out;
+
+  if ( signature().initialized() ) {
+    out << signature().get().name() << "(";
+
+    size_t i = 0;
+    for ( auto & arg : arguments() ) {
+      i++;
+
+      if ( arg.info().type == typeid( char * ) ) {
+        out << '"' << arg.value<string>() << '"';
+      }
+      else {
+        out << arg.value<long>();
+      }
+
+      if ( i != arguments().size() ) {
+        out << ", ";
+      }
+    }
+
+    out << ")";
+  }
+  else {
+    out << "sc-" << syscall_no() << "(?)";
+  }
+
+  return out.str();
+}

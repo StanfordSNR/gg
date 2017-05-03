@@ -57,6 +57,8 @@ public:
   std::string name();
   Optional<SystemCallSignature> signature() const { return signature_; }
   std::vector<Argument> arguments() const { return arguments_; }
+
+  std::string to_string() const;
 };
 
 #endif /* INVOCATION_HH */
