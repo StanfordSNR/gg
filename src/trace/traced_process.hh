@@ -13,6 +13,20 @@
 
 #include "optional.hh"
 #include "syscall.hh"
+#include "invocation.hh"
+
+struct TraceControlBlock
+{
+  pid_t pid;
+  bool initialized { false };
+
+  Optional<SystemCallInvocation> syscall_invocation {};
+
+  TraceControlBlock( pid_t pid )
+    : pid( pid )
+  {}
+};
+
 
 class TracedProcess
 {
@@ -33,18 +47,15 @@ public:
   TracedProcess( std::function<int()> && child_procedure,
                  const int termination_signal = SIGHUP );
 
-  bool wait_for_syscall( std::function<void( const SystemCallInvocation & )> before_entry,
-                         std::function<void( const SystemCallInvocation &, long )> after_exit );
+  bool wait_for_syscall( std::function<void( const TraceControlBlock & )> before_entry,
+                         std::function<void( const TraceControlBlock &, long )> after_exit );
 
   void resume( void );
 
   template<typename T>
-  T get_syscall_arg( const TraceControlBlock & tcb, uint8_t argnum ) const;
+  static T get_syscall_arg( const pid_t pid, uint8_t argnum );
 
-  user_regs_struct get_regs( const TraceControlBlock & tcb ) const;
-
-  template<typename T>
-  void set_syscall_arg( TraceControlBlock tcb, uint8_t argnum, T value );
+  static user_regs_struct get_regs( const pid_t pid );
 
   pid_t pid( void ) const { assert( not moved_away_ ); return pid_; }
   Optional<int> exit_status() { return exit_status_; }

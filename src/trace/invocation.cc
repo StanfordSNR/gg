@@ -1,9 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "syscall.hh"
+#include "invocation.hh"
 #include "traced_process.hh"
-
-#include <iostream>
 
 using namespace std;
 
@@ -30,11 +28,10 @@ Argument::Argument( ArgumentInfo info, const long raw_value )
 
 /* SystemCallInvocation */
 
-SystemCallInvocation::SystemCallInvocation( const TracedProcess & tp,
-                                            const TraceControlBlock & tcb,
+SystemCallInvocation::SystemCallInvocation( const pid_t pid,
                                             const long syscall_no,
                                             bool fetch_arguments )
-  : tcb_( tcb ), syscall_( syscall_no ), signature_(), arguments_()
+  : syscall_( syscall_no ), signature_(), arguments_()
 {
   if ( syscall_signatures.count( syscall_no ) ) {
     const SystemCallSignature & sig = syscall_signatures.at( syscall_no );
@@ -49,7 +46,7 @@ SystemCallInvocation::SystemCallInvocation( const TracedProcess & tp,
     for ( size_t i = 0; i < args.size(); i++ ) {
       const ArgumentInfo & arg_info = args.at( i );
 
-      arguments_.emplace_back( arg_info, tp.get_syscall_arg<long>( tcb, i ) );
+      arguments_.emplace_back( arg_info, TracedProcess::get_syscall_arg<long>( pid, i ) );
 
       Argument & last_arg = arguments_.back();
 
@@ -57,7 +54,7 @@ SystemCallInvocation::SystemCallInvocation( const TracedProcess & tp,
         last_arg.set_value( last_arg.raw_value() );
       }
       else {
-        last_arg.set_value( tp.get_syscall_arg<string>( tcb, i ) );
+        last_arg.set_value( TracedProcess::get_syscall_arg<string>( pid, i ) );
       }
     }
   }

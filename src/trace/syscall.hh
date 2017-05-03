@@ -9,23 +9,7 @@
 #include <typeindex>
 #include <string>
 #include <vector>
-#include <map>
-#include <tuple>
-
-#include "optional.hh"
-
-struct TracedProcess;
-
-struct TraceControlBlock
-{
-  pid_t pid;
-  bool in_syscall { false };
-  bool initialized { false };
-
-  TraceControlBlock( pid_t pid )
-    : pid( pid )
-  {}
-};
+#include <map> /* needed by syscalltbl */
 
 using ArgumentType = std::type_index;
 
@@ -71,59 +55,5 @@ public:
 };
 
 #include "syscalltbl.hh"
-
-struct ArgumentValue
-{
-  Optional<std::string> string_val {};
-  Optional<long> long_val {};
-};
-
-class Argument
-{
-private:
-  ArgumentInfo info_;
-  long raw_value_;
-
-  ArgumentValue value_;
-
-public:
-  Argument( ArgumentInfo info, const long raw_value );
-
-  long raw_value() const { return raw_value_; }
-
-  template<typename T>
-  void set_value( const T value );
-
-  template<typename T>
-  T value() const;
-
-  ArgumentInfo info() const { return info_; }
-};
-
-class SystemCallInvocation
-{
-private:
-  /* information about the process that invoked this system call */
-  TraceControlBlock tcb_;
-
-  /* basic information about the invoked system call */
-  long syscall_;
-
-  /* signature of the invoked system call, if available */
-  Optional<SystemCallSignature> signature_;
-
-  /* arguments to this system call */
-  std::vector<Argument> arguments_;
-
-public:
-  SystemCallInvocation( const TracedProcess & tp,
-                        const TraceControlBlock & tcb,
-                        const long syscall_no, bool fetch_arguments = true );
-
-  pid_t pid() const { return tcb_.pid; }
-  long syscall_no() const { return syscall_; }
-  Optional<SystemCallSignature> signature() const { return signature_; }
-  std::vector<Argument> arguments() const { return arguments_; }
-};
 
 #endif /* SYSCALL_HH */

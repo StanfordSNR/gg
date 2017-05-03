@@ -9,6 +9,7 @@
 #include <sys/user.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <errno.h>
 #include <cstring>
 #include <exception>
 
@@ -117,8 +118,8 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
   }
 }
 
-bool TracedProcess::wait_for_syscall( function<void( const SystemCallInvocation & )> before_entry,
-                                      function<void( const SystemCallInvocation &, long )> after_exit )
+bool TracedProcess::wait_for_syscall( function<void( const TraceControlBlock & )> before_entry,
+                                      function<void( const TraceControlBlock &, long )> after_exit )
 {
   pid_t cpid;
 
@@ -128,24 +129,20 @@ bool TracedProcess::wait_for_syscall( function<void( const SystemCallInvocation 
 
   TraceControlBlock & tcb = processes_.at( cpid );
 
-  if ( not tcb.in_syscall ) {
-    tcb.in_syscall = true;
-
+  if ( not tcb.syscall_invocation.initialized() ) {
     long syscall_no = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * ORIG_RAX );
-    before_entry( { *this, tcb, syscall_no } );
+    tcb.syscall_invocation.reset( tcb.pid, syscall_no );
+    before_entry( tcb );
   }
   else {
     long syscall_no = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * ORIG_RAX );
     long syscall_ret = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * RAX );
 
-    if ( not ( syscall_no == SYS_execve and syscall_ret == 0 ) ) {
-      after_exit( { *this, tcb, syscall_no }, syscall_ret );
-    }
-    else {
-      after_exit( { *this, tcb, syscall_no, false }, syscall_ret );
-    }
+    assert( tcb.syscall_invocation.get().syscall_no() == syscall_no );
 
-    tcb.in_syscall = false;
+    after_exit( tcb, syscall_ret );
+
+    tcb.syscall_invocation.clear();
   }
 
   CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, cpid, 0, 0 ) );
@@ -153,24 +150,29 @@ bool TracedProcess::wait_for_syscall( function<void( const SystemCallInvocation 
 }
 
 template<typename T>
-T TracedProcess::get_syscall_arg( const TraceControlBlock & tcb, uint8_t argnum ) const
+T TracedProcess::get_syscall_arg( const pid_t pid, uint8_t argnum )
 {
-  assert( tcb.in_syscall );
-
-  return ( T ) ptrace( PTRACE_PEEKUSER, tcb.pid,
+  return ( T ) ptrace( PTRACE_PEEKUSER, pid,
                        sizeof( long ) * SYSCALL_ARG_REGS[ argnum ], NULL );
 }
 
 template<>
-string TracedProcess::get_syscall_arg( const TraceControlBlock & tcb, uint8_t argnum ) const
+string TracedProcess::get_syscall_arg( const pid_t pid, uint8_t argnum )
 {
   string result;
 
-  char * str_addr = get_syscall_arg<char *>( tcb, argnum );
+  char * str_addr = get_syscall_arg<char *>( pid, argnum );
   size_t i = 0;
 
   do {
-    int val = CheckSystemCall( "ptrace(PEEKTEXT)", ptrace( PTRACE_PEEKTEXT, tcb.pid, str_addr, NULL ) );
+    errno = 0;
+
+    int val = ptrace( PTRACE_PEEKTEXT, pid, str_addr, NULL );
+
+    if ( errno and val < 0 ) {
+      throw unix_error( "ptrace(PEEKTEXT)" );
+    }
+
     str_addr += sizeof( int );
 
     char * p = reinterpret_cast<char *>( &val );
@@ -187,12 +189,12 @@ string TracedProcess::get_syscall_arg( const TraceControlBlock & tcb, uint8_t ar
   return result;
 }
 
-user_regs_struct TracedProcess::get_regs( const TraceControlBlock & tcb ) const
+user_regs_struct TracedProcess::get_regs( const pid_t pid )
 {
   user_regs_struct result;
-  CheckSystemCall( "ptrace(GETREGS)", ptrace( PTRACE_GETREGS, tcb.pid, NULL, &result ) );
+  CheckSystemCall( "ptrace(GETREGS)", ptrace( PTRACE_GETREGS, pid, NULL, &result ) );
   return result;
 }
 
-template int TracedProcess::get_syscall_arg( const TraceControlBlock &, uint8_t ) const;
-template long TracedProcess::get_syscall_arg( const TraceControlBlock &, uint8_t ) const;
+template int TracedProcess::get_syscall_arg( const pid_t, uint8_t );
+template long TracedProcess::get_syscall_arg( const pid_t, uint8_t );

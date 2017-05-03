@@ -15,15 +15,15 @@ void usage( const char * argv0 )
   cerr << argv0 << " COMMAND [option]..." << endl;
 }
 
-void print_invocation( const SystemCallInvocation & invocation )
+void print_invocation( const TraceControlBlock & tcb )
 {
-  cerr << "[" << invocation.pid() << "] ";
+  cerr << "[" << tcb.pid << "] ";
 
-  if ( invocation.signature().initialized() ) {
-    cerr << invocation.signature().get().name() << "(";
+  if ( tcb.syscall_invocation.get().signature().initialized() ) {
+    cerr << tcb.syscall_invocation.get().signature().get().name() << "(";
 
     size_t i = 0;
-    for ( auto & arg : invocation.arguments() ) {
+    for ( auto & arg : tcb.syscall_invocation.get().arguments() ) {
       i++;
 
       if ( arg.info().type == typeid( char * ) ) {
@@ -33,7 +33,7 @@ void print_invocation( const SystemCallInvocation & invocation )
         cerr << arg.value<long>();
       }
 
-      if ( i != invocation.arguments().size() ) {
+      if ( i != tcb.syscall_invocation.get().arguments().size() ) {
         cerr << ", ";
       }
     }
@@ -41,7 +41,7 @@ void print_invocation( const SystemCallInvocation & invocation )
     cerr << ")";
   }
   else {
-    cerr << "scno_" << invocation.syscall_no() << "()";
+    cerr << "scno_" << tcb.syscall_invocation.get().syscall_no() << "()";
   }
 }
 
@@ -61,11 +61,11 @@ int main( int argc, char * argv[] )
 
     while ( true ) {
       int waitres = tp.wait_for_syscall(
-        [&]( const SystemCallInvocation & invocation )
+        [&]( const TraceControlBlock & tcb )
         {
-          print_invocation( invocation );
+          print_invocation( tcb );
         },
-        [&]( const SystemCallInvocation &, long retval )
+        [&]( const TraceControlBlock &, long retval )
         {
           cerr << " = " << retval << endl;
         }
