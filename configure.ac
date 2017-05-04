@@ -25,6 +25,12 @@ AC_SUBST(EXTRA_CXXFLAGS)
 
 # Checks for libraries.
 PKG_CHECK_MODULES([CRYPTO],[libcrypto])
+PKG_CHECK_MODULES([PROTOBUF], [protobuf])
+
+# Protobuf compiler
+AC_PATH_PROG([PROTOC], [protoc], [])
+AS_IF([test x"$PROTOC" = x],
+  [AC_MSG_ERROR([cannot find protoc, the Protocol Buffers compiler])])
 
 # Checks for header files.
 AC_LANG_PUSH(C++)
@@ -44,6 +50,7 @@ AC_SUBST([ARCH])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/linux/Makefile
+                 src/protobufs/Makefile
                  src/util/Makefile
                  src/thunk/Makefile
                  src/trace/Makefile
