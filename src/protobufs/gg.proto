@@ -1,0 +1,7 @@
+syntax = 'proto3';
+
+package gg;
+
+message Thunk {
+  string test = 1;
+}
