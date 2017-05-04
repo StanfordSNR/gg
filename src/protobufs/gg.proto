@@ -2,6 +2,20 @@ syntax = 'proto3';
 
 package gg;
 
+message Function {
+  string exe = 1;
+  repeated string args = 2;
+  string hash = 3;
+}
+
+message InFile {
+  string filename = 1;
+  string hash = 2;
+  uint32 order = 3;
+}
+
 message Thunk {
-  string test = 1;
+  Function function = 1;
+  repeated InFile infiles = 2;
+  string outfile = 3;
 }
