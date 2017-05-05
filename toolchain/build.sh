@@ -40,8 +40,6 @@ fi
 
 ## Apply patches if code is changed
 
-echo "Dan is awesome"
-exit
 
 ## Create musl standalone(static) compiler
 ## Custom Optimizations
