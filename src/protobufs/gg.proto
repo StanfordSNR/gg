@@ -1,6 +1,6 @@
 syntax = 'proto3';
 
-package gg;
+package gg.protobuf;
 
 message Function {
   string exe = 1;
