@@ -1,7 +1,7 @@
 OS=$(shell uname | tr '[:upper:]' '[:lower:]')
 ARCH=$(shell uname -m)
 
-AM_CPPFLAGS = -I$(srcdir)/../$(OS)/$(ARCH)/  $(CXX11_FLAGS) $(JSON_CFLAGS) 
+AM_CPPFLAGS = -I$(srcdir)/../$(OS)/$(ARCH)/  $(CXX14_FLAGS) $(JSON_CFLAGS) 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(NODEBUG_CXXFLAGS)
 
 noinst_LIBRARIES = libthunk.a
