@@ -16,7 +16,7 @@ before_script:
 
 script:
   - ./autogen.sh
-  - ./configure
+  - ./configure --enable-sanitize
   - make -j3 distcheck || (cat gg-0.01/_build/src/tests/test-suite.log && exit 1)
 
 notifications:
