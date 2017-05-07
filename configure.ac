@@ -16,26 +16,12 @@ AC_SUBST([CXX14_FLAGS])
 AC_SUBST([PICKY_CXXFLAGS])
 AC_LANG_PUSH(C++)
 
-AC_ARG_ENABLE([debug],
-  [AS_HELP_STRING([--enable-debug@<:@=no/asserts/sanitize@:>@],
-     [Turn on asserts or santizers])],
-  [case "$enableval" in
-     no)
-       NODEBUG_CXXFLAGS="-DNDEBUG"
-       ;;
-     '' | yes | sanitize)
-       NODEBUG_CXXFLAGS="-fsanitize=address -fsanitize=undefined -fuse-ld=bfd"
-       ;;
-     asserts)
-       NODEBUG_CXXFLAGS=""
-       ;;
-     *)
-       AC_MSG_ERROR([Unknown argument '$enableval' to --enable-debug])
-       ;;
-   esac],
-  [NODEBUG_CXXFLAGS="-DNDEBUG"])
+AC_ARG_ENABLE([sanitize],
+  [AS_HELP_STRING([--enable-sanitize],
+     [build with address and undefined-behavior santizers])],
+     [EXTRA_CXXFLAGS="-fsanitize=address -fsanitize=undefined -fuse-ld=bfd"])
 
-AC_SUBST(NODEBUG_CXXFLAGS)
+AC_SUBST(EXTRA_CXXFLAGS)
 
 # Checks for libraries.
 PKG_CHECK_MODULES([CRYPTO],[libcrypto])

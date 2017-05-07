@@ -4,7 +4,7 @@ ARCH=$(shell uname -m)
 AM_CPPFLAGS = -I$(srcdir)/../util -I$(srcdir)/../$(OS)/$(ARCH)/ \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox $(CXX14_FLAGS)
-AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(NODEBUG_CXXFLAGS)
+AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
 BASE_LDADD = ../util/libggutil.a ../trace/libggtrace.a  ../sandbox/libggsandbox.a \
              ../thunk/libthunk.a
