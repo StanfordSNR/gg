@@ -41,6 +41,9 @@ AC_SUBST(NODEBUG_CXXFLAGS)
 PKG_CHECK_MODULES([CRYPTO],[libcrypto])
 
 # Checks for header files.
+AC_LANG_PUSH(C++)
+AC_CHECK_HEADERS([cajun/json/elements.h], [], [AC_MSG_ERROR([Missing libcajun header files.])])
+AC_LANG_POP(C++)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT16_T
