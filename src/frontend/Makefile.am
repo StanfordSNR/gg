@@ -1,6 +1,3 @@
-OS=$(shell uname | tr '[:upper:]' '[:lower:]')
-ARCH=$(shell uname -m)
-
 AM_CPPFLAGS = -I$(srcdir)/../util -I$(srcdir)/../$(OS)/$(ARCH)/ \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox $(CXX14_FLAGS)
