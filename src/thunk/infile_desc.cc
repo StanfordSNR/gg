@@ -9,6 +9,16 @@
 #include "infile_desc.hh"
 
 using namespace std;
+using namespace gg;
+
+InFileDescriptor::InFileDescriptor( string filename )
+  : filename_( filename ), hash_( compute_hash( filename ) ), order_( 0 )
+{}
+
+InFileDescriptor::InFileDescriptor( const protobuf::InFile & infile_proto )
+  : filename_( infile_proto.filename() ), hash_( infile_proto.hash() ),
+    order_( infile_proto.order() )
+{}
 
 string InFileDescriptor::compute_hash( string filename ){
   // TODO : Check if file exists!
@@ -35,19 +45,12 @@ string InFileDescriptor::compute_hash( string filename ){
   return md5string.str();
 }
 
-
-InFileDescriptor::InFileDescriptor( string filename )
-  : filename_( filename ), hash_( compute_hash( filename ) ), order_( 0 )
-{}
-
-InFileDescriptor::~InFileDescriptor()
-{}
-
-json::Object InFileDescriptor::to_json()
+protobuf::InFile InFileDescriptor::to_protobuf()
 {
-  json::Object j;
-  j[ "filename" ] = json::String( filename_ );
-  j[ "hash" ] = json::String( hash_ );
-  j[ "order" ] = json::Number( order_ );
-  return j;
+  protobuf::InFile infile;
+  infile.set_filename( filename_ );
+  infile.set_hash( hash_ );
+  infile.set_order( order_ );
+
+  return infile;
 }
