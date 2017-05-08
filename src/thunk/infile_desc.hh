@@ -3,7 +3,8 @@
 #pragma once
 
 #include <string>
-#include <cajun/json/elements.h>
+
+#include "gg.pb.h"
 
 class InFileDescriptor
 {
@@ -20,11 +21,10 @@ private:
   void get_thunk_order();
 
 public:
-
   // TODO : This currently does not check the order (if it is a thunk or not)
   InFileDescriptor( std::string filename );
 
-  ~InFileDescriptor();
+  InFileDescriptor( const gg::protobuf::InFile & infile_proto );
 
-  json::Object to_json();
+  gg::protobuf::InFile to_protobuf();
 };
