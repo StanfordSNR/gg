@@ -15,9 +15,7 @@
 #include "syscall.hh"
 #include "traced_process.hh"
 #include "thunk.hh"
-#include "thunk_func.hh"
 #include "thunk_writer.hh"
-
 
 using namespace std;
 
@@ -75,9 +73,9 @@ bool getPreprocArgs(int argc, char *argv[], vector<char *>& preproc_args, char o
 void create_thunk( char *purefile, char *objectfile, const char** cmd ){
   string outfile( objectfile );
   vector<string> cmd_vec( cmd , cmd + COMMAND_LEN );
-  ThunkFunc thunkfunc( cmd_vec );
+  Function Function( cmd_vec );
   InFile infile( purefile );
-  Thunk thunk( outfile, thunkfunc, {infile});
+  Thunk thunk( outfile, Function, {infile});
   ThunkWriter::write_thunk( thunk );
 }
 

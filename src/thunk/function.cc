@@ -1,6 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "thunk_func.hh"
+#include "thunk.hh"
 
 #include <iostream>
 #include <stdexcept>
@@ -15,7 +15,7 @@ using namespace gg;
 
 const size_t PATH_MAX_LEN = 128;
 
-ThunkFunc::ThunkFunc( const vector<string> & cmd )
+Function::Function( const vector<string> & cmd )
   : exe_( get_exe_path( cmd[0] ) ), args_( cmd ), exe_hash_( hash_exe( exe_ ) )
 {
   // TODO : Remove print statement
@@ -25,17 +25,17 @@ ThunkFunc::ThunkFunc( const vector<string> & cmd )
   cout << endl;
 }
 
-ThunkFunc::ThunkFunc( const protobuf::Function & func_proto )
+Function::Function( const protobuf::Function & func_proto )
   : exe_( func_proto.exe() ), args_( func_proto.args().begin(), func_proto.args().end() ),
     exe_hash_( func_proto.hash() )
 {}
 
-string ThunkFunc::get_exe_path( string exe ) {
+string Function::get_exe_path( string exe ) {
   // TODO : Implement this for real
   return "/usr/bin/" + exe;
 }
 
-string ThunkFunc::hash_exe( string exe ){
+string Function::hash_exe( string exe ){
   std::ifstream file( exe, std::ifstream::binary );
   SHA256_CTX md5Context;
   SHA256_Init( &md5Context );
@@ -56,7 +56,7 @@ string ThunkFunc::hash_exe( string exe ){
   return md5string.str();
 }
 
-protobuf::Function ThunkFunc::to_protobuf() const
+protobuf::Function Function::to_protobuf() const
 {
   protobuf::Function func;
 
