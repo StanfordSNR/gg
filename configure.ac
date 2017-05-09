@@ -33,9 +33,6 @@ AS_IF([test x"$PROTOC" = x],
   [AC_MSG_ERROR([cannot find protoc, the Protocol Buffers compiler])])
 
 # Checks for header files.
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADERS([cajun/json/elements.h], [], [AC_MSG_ERROR([Missing libcajun header files.])])
-AC_LANG_POP(C++)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT16_T
@@ -50,8 +47,8 @@ AC_SUBST([ARCH])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/linux/Makefile
-                 src/protobufs/Makefile
                  src/util/Makefile
+                 src/protobufs/Makefile
                  src/thunk/Makefile
                  src/trace/Makefile
                  src/sandbox/Makefile

@@ -3,6 +3,7 @@
 #include "thunk.hh"
 
 using namespace std;
+using namespace gg;
 
 Thunk::Thunk( string outfile, ThunkFunc thunkfunc,
               vector<InFileDescriptor> infiles )
@@ -10,26 +11,25 @@ Thunk::Thunk( string outfile, ThunkFunc thunkfunc,
     order_( 0 )
 {}
 
-Thunk::~Thunk()
-{}
-
-json::Object Thunk::to_json()
+Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
+  : outfile_( thunk_proto.outfile() ), thunkfunc_( thunk_proto.function() ),
+    infiles_(), order_( 0 )
 {
-  json::Object obj;
-
-  obj[ "outfile" ] = json::String( outfile_ );
-  obj[ "function" ] = thunkfunc_.to_json();
-
-  json::Array j_infiles;
-  for ( auto it = infiles_.begin(); it != infiles_.end(); ++it ) {
-      j_infiles.Insert( it->to_json() );
+  for ( protobuf::InFile infile : thunk_proto.infiles() ) {
+    infiles_.push_back( { infile } );
   }
-
-  obj[ "infiles" ] = j_infiles;
-
-  return obj;
 }
 
-string Thunk::get_outfile() {
-  return outfile_;
+protobuf::Thunk Thunk::to_protobuf() const
+{
+  protobuf::Thunk thunk;
+
+  thunk.set_outfile( outfile_ );
+  *thunk.mutable_function() = thunkfunc_.to_protobuf();
+
+  for ( const InFileDescriptor & infile : infiles_ ) {
+    *thunk.add_infiles() = infile.to_protobuf();
+  }
+
+  return thunk;
 }

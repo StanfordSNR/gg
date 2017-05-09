@@ -26,5 +26,5 @@ public:
 
   InFileDescriptor( const gg::protobuf::InFile & infile_proto );
 
-  gg::protobuf::InFile to_protobuf();
+  gg::protobuf::InFile to_protobuf() const;
 };

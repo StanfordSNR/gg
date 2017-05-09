@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "thunk.hh"
+#include "gg.pb.h"
 
 class ThunkWriter
 {
@@ -14,6 +15,4 @@ private:
 
 public:
   static bool write_thunk( Thunk thunk );
-
-  static Thunk read_thunk( std::string filename );
 };

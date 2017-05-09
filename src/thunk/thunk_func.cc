@@ -1,5 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include "thunk_func.hh"
+
 #include <iostream>
 #include <stdexcept>
 #include <unistd.h>
@@ -8,12 +10,25 @@
 #include <sstream>
 #include <iomanip>
 
-#include "thunk_func.hh"
-
-
 using namespace std;
+using namespace gg;
 
 const size_t PATH_MAX_LEN = 128;
+
+ThunkFunc::ThunkFunc( const vector<string> & cmd )
+  : exe_( get_exe_path( cmd[0] ) ), args_( cmd ), exe_hash_( hash_exe( exe_ ) )
+{
+  // TODO : Remove print statement
+  for ( auto & c : cmd ) {
+    cout << c << " ";
+  }
+  cout << endl;
+}
+
+ThunkFunc::ThunkFunc( const protobuf::Function & func_proto )
+  : exe_( func_proto.exe() ), args_( func_proto.args().begin(), func_proto.args().end() ),
+    exe_hash_( func_proto.hash() )
+{}
 
 string ThunkFunc::get_exe_path( string exe ) {
   // TODO : Implement this for real
@@ -41,28 +56,17 @@ string ThunkFunc::hash_exe( string exe ){
   return md5string.str();
 }
 
-ThunkFunc::ThunkFunc( const vector<string> & cmd )
-  : exe_( get_exe_path( cmd[0] ) ), args_( cmd ), exe_hash_( hash_exe( exe_ ) )
+protobuf::Function ThunkFunc::to_protobuf() const
 {
-  // TODO : Remove print statement
-  for ( auto & c : cmd ) {
-    cout << c << " ";
-  }
-  cout << endl;
-}
+  protobuf::Function func;
 
-ThunkFunc::~ThunkFunc()
-{}
+  func.set_exe( exe_ );
 
-json::Object ThunkFunc::to_json()
-{
-  json::Object j;
-  j[ "exe" ] = json::String( exe_ );
-  json::Array jargs;
-  for(auto it = args_.begin(); it != args_.end(); ++it){
-    jargs.Insert(json::String(*it));
+  for ( const string & arg : args_ ) {
+    func.add_args( arg );
   }
-  j[ "args" ] = jargs;
-  j[ "hash" ] = json::String( exe_hash_ );
-  return j;
+
+  func.set_hash( exe_hash_ );
+
+  return func;
 }

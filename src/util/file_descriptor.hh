@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cassert>
+#include <stdexcept>
 
 #include "exception.hh"
 #include "chunk.hh"
@@ -36,14 +37,14 @@ public:
   ~FileDescriptor()
   {
     if ( fd_ >= 0 ) {
-      SystemCall( "close", close( fd_ ) );
+      CheckSystemCall( "close", close( fd_ ) );
     }
   }
 
   uint64_t size( void ) const
   {
     struct stat file_info;
-    SystemCall( "fstat", fstat( fd_, &file_info ) );
+    CheckSystemCall( "fstat", fstat( fd_, &file_info ) );
     return file_info.st_size;
   }
 
@@ -75,7 +76,7 @@ public:
       throw std::runtime_error( "nothing to write" );
     }
 
-    ssize_t bytes_written = SystemCall( "write", ::write( fd_, &*begin, end - begin ) );
+    ssize_t bytes_written = CheckSystemCall( "write", ::write( fd_, &*begin, end - begin ) );
 
     if ( bytes_written == 0 ) {
       throw std::runtime_error( "write returned 0" );
@@ -101,10 +102,10 @@ public:
   {
     Chunk amount_left_to_write = buffer;
     while ( amount_left_to_write.size() > 0 ) {
-      ssize_t bytes_written = SystemCall( "write",
+      ssize_t bytes_written = CheckSystemCall( "write",
         ::write( fd_, amount_left_to_write.buffer(), amount_left_to_write.size() ) );
       if ( bytes_written == 0 ) {
-        throw internal_error( "write", "returned 0" );
+        throw std::runtime_error( "write returned 0" );
       }
       amount_left_to_write = amount_left_to_write( bytes_written );
     }
@@ -137,7 +138,7 @@ public:
       throw std::runtime_error( "read() called after eof was set" );
     }
 
-    ssize_t bytes_read = SystemCall( "read",
+    ssize_t bytes_read = CheckSystemCall( "read",
       ::read( fd_, buffer, std::min( BUFFER_SIZE, limit ) ) );
 
     if ( bytes_read == 0 ) {

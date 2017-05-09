@@ -4,7 +4,8 @@
 
 #include <string>
 #include <vector>
-#include <cajun/json/elements.h>
+
+#include "gg.pb.h"
 
 class ThunkFunc
 {
@@ -21,8 +22,7 @@ private:
 
 public:
   ThunkFunc( const std::vector<std::string> & cmd );
+  ThunkFunc( const gg::protobuf::Function & func_proto );
 
-  ~ThunkFunc();
-
-  json::Object to_json();
+  gg::protobuf::Function to_protobuf() const;
 };
