@@ -10,6 +10,8 @@
 namespace gg {
   namespace thunk {
 
+    static const std::string MAGIC_NUMBER = "##GGTHUNK##";
+
     class InFile
     {
     private:

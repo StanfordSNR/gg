@@ -14,6 +14,7 @@ using namespace gg::thunk;
 bool ThunkWriter::write_thunk( Thunk thunk )
 {
   ProtobufSerializer serializer { thunk.outfile() };
+  serializer.write_string( MAGIC_NUMBER );
   serializer.write_protobuf<protobuf::Thunk>( thunk.to_protobuf() );
 
   return true;
