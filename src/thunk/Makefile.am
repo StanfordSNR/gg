@@ -3,9 +3,9 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
 noinst_LIBRARIES = libthunk.a
 
-libthunk_a_SOURCES = infile_desc.cc infile_desc.hh thunk.cc thunk.hh \
-                thunk_func.cc thunk_func.hh thunk_writer.cc thunk_writer.hh \
-                thunk_reader.cc thunk_reader.hh
+libthunk_a_SOURCES = thunk.hh infile.cc thunk.cc \
+                     thunk_func.cc thunk_func.hh thunk_writer.cc thunk_writer.hh \
+                     thunk_reader.cc thunk_reader.hh
 
 BASE_LDADD = libthunk.a ../protobufs/libggprotobufs.a
 

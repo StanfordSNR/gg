@@ -6,21 +6,21 @@
 #include <sstream>
 #include <iomanip>
 
-#include "infile_desc.hh"
+#include "thunk.hh"
 
 using namespace std;
 using namespace gg;
 
-InFileDescriptor::InFileDescriptor( string filename )
+InFile::InFile( string filename )
   : filename_( filename ), hash_( compute_hash( filename ) ), order_( 0 )
 {}
 
-InFileDescriptor::InFileDescriptor( const protobuf::InFile & infile_proto )
+InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), hash_( infile_proto.hash() ),
     order_( infile_proto.order() )
 {}
 
-string InFileDescriptor::compute_hash( string filename ){
+string InFile::compute_hash( string filename ){
   // TODO : Check if file exists!
   std::ifstream file( filename, std::ifstream::binary );
   if( file.fail() ){
@@ -45,10 +45,10 @@ string InFileDescriptor::compute_hash( string filename ){
   return md5string.str();
 }
 
-protobuf::InFile InFileDescriptor::to_protobuf() const
+protobuf::InFile InFile::to_protobuf() const
 {
   protobuf::InFile infile;
-  
+
   infile.set_filename( filename_ );
   infile.set_hash( hash_ );
   infile.set_order( order_ );
