@@ -3,23 +3,17 @@
 #include "thunk_writer.hh"
 
 #include <iostream>
-#include <cajun/json/writer.h>
 #include <fstream>
-// TODO : should local header files be first or system header files?
+
+#include "serialization.hh"
 
 using namespace std;
+using namespace gg;
 
 bool ThunkWriter::write_thunk( Thunk thunk )
 {
-  // TODO : Remove print statements
-  std::stringstream stream;
-  json::Writer::Write( thunk.to_json(), stream );
-  cout << stream.str() << endl;
-
-  ofstream outfile;
-  outfile.open( thunk.get_outfile() );
-  outfile << stream.rdbuf();
-  outfile.close();
+  ProtobufSerializer serializer { thunk.outfile() };
+  serializer.write_protobuf<protobuf::Thunk>( thunk.to_protobuf() );
 
   return true;
 }

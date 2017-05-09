@@ -8,7 +8,8 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - g++-6
-    - libcajun-dev 
+    - protobuf-compiler
+    - libprotobuf-dev
     - libssl-dev
 
 before_script:

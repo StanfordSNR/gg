@@ -3,9 +3,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cajun/json/reader.h>
-#include <cajun/json/writer.h>
-#include <cajun/json/elements.h>
 
 #include "thunk_func.hh"
 #include "infile_desc.hh"

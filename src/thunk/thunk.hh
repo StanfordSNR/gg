@@ -4,9 +4,8 @@
 
 #include <string>
 #include <vector>
-#include <cajun/json/elements.h>
-#include <cajun/json/writer.h>
 
+#include "gg.pb.h"
 #include "thunk_func.hh"
 #include "infile_desc.hh"
 
@@ -22,9 +21,9 @@ public:
   Thunk( std::string outfile, ThunkFunc thunkfunc,
          std::vector<InFileDescriptor> infiles );
 
-  ~Thunk();
+  Thunk( const gg::protobuf::Thunk & thunk_proto );
 
-  std::string get_outfile();
+  std::string outfile() const { return outfile_; }
 
-  json::Object to_json();
+  gg::protobuf::Thunk to_protobuf() const;
 };

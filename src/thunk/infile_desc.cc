@@ -45,9 +45,10 @@ string InFileDescriptor::compute_hash( string filename ){
   return md5string.str();
 }
 
-protobuf::InFile InFileDescriptor::to_protobuf()
+protobuf::InFile InFileDescriptor::to_protobuf() const
 {
   protobuf::InFile infile;
+  
   infile.set_filename( filename_ );
   infile.set_hash( hash_ );
   infile.set_order( order_ );
