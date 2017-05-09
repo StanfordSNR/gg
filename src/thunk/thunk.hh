@@ -16,7 +16,7 @@ namespace gg {
 
       std::string filename_;
       std::string hash_;
-      int order_;
+      size_t order_;
 
       void is_thunk();
       void get_thunk_order();
@@ -26,12 +26,12 @@ namespace gg {
     public:
       // TODO : This currently does not check the order (if it is a thunk or not)
       InFile( const std::string & filename );
-      InFile( const std::string & filename, const std::string & hash, const int order );
+      InFile( const std::string & filename, const std::string & hash, const size_t order );
       InFile( const gg::protobuf::InFile & infile_proto );
 
       std::string filename() const { return filename_; }
       std::string hash() const { return hash_; }
-      int order() const { return order_; }
+      size_t order() const { return order_; }
 
       gg::protobuf::InFile to_protobuf() const;
 
@@ -72,7 +72,9 @@ namespace gg {
       std::string outfile_;
       Function function_;
       std::vector<InFile> infiles_;
-      int order_; // TODO : check infiles to figure out order
+      size_t order_;
+
+      size_t compute_order();
 
     public:
       Thunk( const std::string & outfile, const Function & function,
@@ -83,7 +85,7 @@ namespace gg {
       std::string outfile() const { return outfile_; }
       Function function() const { return function_; }
       std::vector<InFile> infiles() const { return infiles_; }
-      int order() const { return order_; }
+      size_t order() const { return order_; }
 
       gg::protobuf::Thunk to_protobuf() const;
 

@@ -16,7 +16,7 @@ InFile::InFile( const string & filename )
   : filename_( filename ), hash_( compute_hash( filename ) ), order_( 0 )
 {}
 
-InFile::InFile( const std::string & filename, const std::string & hash, const int order )
+InFile::InFile( const std::string & filename, const std::string & hash, const size_t order )
   : filename_( filename ), hash_( hash ), order_( order )
 {}
 
