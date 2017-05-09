@@ -6,14 +6,16 @@
 #include <sstream>
 #include <iomanip>
 
+#include "optional.hh"
 #include "thunk.hh"
+#include "thunk_reader.hh"
 
 using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
 InFile::InFile( const string & filename )
-  : filename_( filename ), hash_( compute_hash( filename ) ), order_( 0 )
+  : filename_( filename ), hash_( compute_hash( filename ) ), order_( compute_order() )
 {}
 
 InFile::InFile( const std::string & filename, const std::string & hash, const size_t order )
@@ -24,6 +26,20 @@ InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), hash_( infile_proto.hash() ),
     order_( infile_proto.order() )
 {}
+
+size_t InFile::compute_order() const
+{
+  Optional<Thunk> thunk = ThunkReader::read_thunk( filename_ );
+
+  // check if the file has the gg-thunk magic number
+  if ( not thunk.initialized() ) {
+    /* not a thunk file, so the order is 0 */
+    return 0;
+  }
+  else {
+    return thunk.get().order();
+  }
+}
 
 string InFile::compute_hash( const string & filename )
 {

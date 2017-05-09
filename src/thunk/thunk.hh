@@ -20,13 +20,10 @@ namespace gg {
       std::string hash_;
       size_t order_;
 
-      void is_thunk();
-      void get_thunk_order();
-
+      size_t compute_order() const;
       static std::string compute_hash( const std::string & filename );
 
     public:
-      // TODO : This currently does not check the order (if it is a thunk or not)
       InFile( const std::string & filename );
       InFile( const std::string & filename, const std::string & hash, const size_t order );
       InFile( const gg::protobuf::InFile & infile_proto );
@@ -76,7 +73,7 @@ namespace gg {
       std::vector<InFile> infiles_;
       size_t order_;
 
-      size_t compute_order();
+      size_t compute_order() const;
 
     public:
       Thunk( const std::string & outfile, const Function & function,

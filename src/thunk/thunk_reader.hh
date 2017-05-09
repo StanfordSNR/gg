@@ -5,8 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "thunk.hh"
 #include "gg.pb.h"
+#include "optional.hh"
+#include "thunk.hh"
 
 class ThunkReader
 {
@@ -14,5 +15,6 @@ private:
   ThunkReader();
 
 public:
-  static gg::thunk::Thunk read_thunk( const std::string & filename );
+  /* returns an empty optional if the file is not a valid Thunk */
+  static Optional<gg::thunk::Thunk> read_thunk( const std::string & filename );
 };
