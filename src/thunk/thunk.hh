@@ -29,7 +29,13 @@ namespace gg {
       InFile( const std::string & filename, const std::string & hash, const int order );
       InFile( const gg::protobuf::InFile & infile_proto );
 
+      std::string filename() const { return filename_; }
+      std::string hash() const { return hash_; }
+      int order() const { return order_; }
+
       gg::protobuf::InFile to_protobuf() const;
+
+      bool operator==( const InFile & other ) const;
     };
 
     class Function
@@ -48,7 +54,13 @@ namespace gg {
       Function( const std::vector<std::string> & cmd );
       Function( const gg::protobuf::Function & func_proto );
 
+      std::string exe() const { return exe_; }
+      std::vector<std::string> args() const { return args_; }
+      std::string hash() const { return exe_hash_; }
+
       gg::protobuf::Function to_protobuf() const;
+
+      bool operator==( const Function & other ) const;
     };
 
 
@@ -67,8 +79,13 @@ namespace gg {
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
       std::string outfile() const { return outfile_; }
+      Function function() const { return function_; }
+      std::vector<InFile> infiles() const { return infiles_; }
+      int order() const { return order_; }
 
       gg::protobuf::Thunk to_protobuf() const;
+
+      bool operator==( const Thunk & other ) const;
     };
   }
 }
