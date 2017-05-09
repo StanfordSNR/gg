@@ -36,6 +36,7 @@ namespace gg {
       gg::protobuf::InFile to_protobuf() const;
 
       bool operator==( const InFile & other ) const;
+      bool operator!=( const InFile & other ) const { return not operator==( other ); }
     };
 
     class Function
@@ -61,6 +62,7 @@ namespace gg {
       gg::protobuf::Function to_protobuf() const;
 
       bool operator==( const Function & other ) const;
+      bool operator!=( const Function & other ) const { return not operator==( other ); }
     };
 
 
@@ -86,6 +88,7 @@ namespace gg {
       gg::protobuf::Thunk to_protobuf() const;
 
       bool operator==( const Thunk & other ) const;
+      bool operator!=( const Thunk & other ) const { return not operator==( other ); }
     };
   }
 }
