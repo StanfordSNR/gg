@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "thunk_func.hh"
 #include "thunk.hh"
 #include "thunk_writer.hh"
 
@@ -20,7 +19,7 @@ int main() {
     "-DHAVE_CONFIG_H", "-I.", "-g", "-O2", "-MT", "remake.o", "-MD", "-MP",
     "-MF", ".deps/remake.Tpo", "-c", "-o", "remake.o", "remake.i" };
 
-  ThunkFunc thunkfunc( cmd );
+  Function Function( cmd );
 
   InFile infile1( "thunk.hh" );
   InFile infile2( "infile_desc.hh" );
@@ -28,7 +27,7 @@ int main() {
 
   vector<InFile> infiles = { infile1, infile2, infile3 };
 
-  Thunk thunk( outfile, thunkfunc, infiles );
+  Thunk thunk( outfile, Function, infiles );
 
   ThunkWriter::write_thunk( thunk );
 }

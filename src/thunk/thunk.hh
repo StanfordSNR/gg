@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "gg.pb.h"
-#include "thunk_func.hh"
 
 class InFile
 {
@@ -29,16 +28,36 @@ public:
   gg::protobuf::InFile to_protobuf() const;
 };
 
+class Function
+{
+private:
+  std::string exe_ {};
+  std::vector<std::string> args_; // args_ contains the exe_ in the first argument without the full path
+  std::string exe_hash_ {};
+
+  void parse_cmd();
+
+  static std::string get_exe_path( std::string exe );
+  static std::string hash_exe( std::string exe );
+
+public:
+  Function( const std::vector<std::string> & cmd );
+  Function( const gg::protobuf::Function & func_proto );
+
+  gg::protobuf::Function to_protobuf() const;
+};
+
+
 class Thunk
 {
 private:
   std::string outfile_;
-  ThunkFunc thunkfunc_;
+  Function Function_;
   std::vector<InFile> infiles_;
   int order_; // TODO : check infiles to figure out order
 
 public:
-  Thunk( std::string outfile, ThunkFunc thunkfunc,
+  Thunk( std::string outfile, Function Function,
          std::vector<InFile> infiles );
 
   Thunk( const gg::protobuf::Thunk & thunk_proto );
