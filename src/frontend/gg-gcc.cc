@@ -16,7 +16,6 @@
 #include "traced_process.hh"
 #include "thunk.hh"
 #include "thunk_func.hh"
-#include "infile_desc.hh"
 #include "thunk_writer.hh"
 
 
@@ -77,7 +76,7 @@ void create_thunk( char *purefile, char *objectfile, const char** cmd ){
   string outfile( objectfile );
   vector<string> cmd_vec( cmd , cmd + COMMAND_LEN );
   ThunkFunc thunkfunc( cmd_vec );
-  InFileDescriptor infile( purefile );
+  InFile infile( purefile );
   Thunk thunk( outfile, thunkfunc, {infile});
   ThunkWriter::write_thunk( thunk );
 }

@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "thunk_func.hh"
-#include "infile_desc.hh"
 #include "thunk.hh"
 #include "thunk_writer.hh"
 
@@ -23,11 +22,11 @@ int main() {
 
   ThunkFunc thunkfunc( cmd );
 
-  InFileDescriptor infile1( "thunk.hh" );
-  InFileDescriptor infile2( "infile_desc.hh" );
-  InFileDescriptor infile3( "thunk_func.hh" );
+  InFile infile1( "thunk.hh" );
+  InFile infile2( "infile_desc.hh" );
+  InFile infile3( "thunk_func.hh" );
 
-  vector<InFileDescriptor> infiles = { infile1, infile2, infile3 };
+  vector<InFile> infiles = { infile1, infile2, infile3 };
 
   Thunk thunk( outfile, thunkfunc, infiles );
 

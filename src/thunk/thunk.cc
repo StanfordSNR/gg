@@ -6,7 +6,7 @@ using namespace std;
 using namespace gg;
 
 Thunk::Thunk( string outfile, ThunkFunc thunkfunc,
-              vector<InFileDescriptor> infiles )
+              vector<InFile> infiles )
   : outfile_( outfile ), thunkfunc_( thunkfunc ), infiles_( infiles ),
     order_( 0 )
 {}
@@ -27,7 +27,7 @@ protobuf::Thunk Thunk::to_protobuf() const
   thunk.set_outfile( outfile_ );
   *thunk.mutable_function() = thunkfunc_.to_protobuf();
 
-  for ( const InFileDescriptor & infile : infiles_ ) {
+  for ( const InFile & infile : infiles_ ) {
     *thunk.add_infiles() = infile.to_protobuf();
   }
 
