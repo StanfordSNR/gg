@@ -9,16 +9,27 @@ using namespace gg::thunk;
 Thunk::Thunk( const string & outfile, const Function & function,
               const vector<InFile> & infiles )
   : outfile_( outfile ), function_( function ), infiles_( infiles ),
-    order_( 0 )
+    order_( compute_order() )
 {}
 
 Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   : outfile_( thunk_proto.outfile() ), function_( thunk_proto.function() ),
-    infiles_(), order_( 0 )
+    infiles_(), order_( compute_order() )
 {
   for ( protobuf::InFile infile : thunk_proto.infiles() ) {
     infiles_.push_back( { infile } );
   }
+}
+
+size_t Thunk::compute_order()
+{
+  size_t order = 0;
+
+  for ( const InFile & infile : infiles_ ) {
+    order = max( infile.order(), order );
+  }
+
+  return order + 1;
 }
 
 protobuf::Thunk Thunk::to_protobuf() const
