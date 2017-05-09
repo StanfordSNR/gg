@@ -2,7 +2,7 @@ source = gg.proto
 
 SUFFIXES = .proto .pb.cc
 
-AM_CPPFLAGS = $(CXX11_FLAGS) $(PROTOBUF_CFLAGS)
+AM_CPPFLAGS = $(CXX14_FLAGS) $(PROTOBUF_CFLAGS)
 
 .proto.pb.cc:
 	$(AM_V_GEN)$(PROTOC) --cpp_out=. -I$(srcdir) $<
