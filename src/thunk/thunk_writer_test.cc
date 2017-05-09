@@ -8,6 +8,7 @@
 #include "thunk_writer.hh"
 
 using namespace std;
+using namespace gg::thunk;
 
 int main() {
   cout << "Test started ... " << endl;

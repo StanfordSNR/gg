@@ -14,5 +14,5 @@ private:
   ThunkReader();
 
 public:
-  static Thunk read_thunk( const std::string & filename );
+  static gg::thunk::Thunk read_thunk( const std::string & filename );
 };

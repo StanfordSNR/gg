@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace gg;
+using namespace gg::thunk;
 
 const size_t PATH_MAX_LEN = 128;
 

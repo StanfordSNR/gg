@@ -7,62 +7,67 @@
 
 #include "gg.pb.h"
 
-class InFile
-{
-private:
+namespace gg {
+  namespace thunk {
 
-  std::string filename_;
-  std::string hash_;
-  int order_;
+    class InFile
+    {
+    private:
 
-  void is_thunk();
-  void get_thunk_order();
+      std::string filename_;
+      std::string hash_;
+      int order_;
 
-  static std::string compute_hash( std::string filename );
+      void is_thunk();
+      void get_thunk_order();
 
-public:
-  // TODO : This currently does not check the order (if it is a thunk or not)
-  InFile( std::string filename );
-  InFile( const gg::protobuf::InFile & infile_proto );
+      static std::string compute_hash( std::string filename );
 
-  gg::protobuf::InFile to_protobuf() const;
-};
+    public:
+      // TODO : This currently does not check the order (if it is a thunk or not)
+      InFile( std::string filename );
+      InFile( const gg::protobuf::InFile & infile_proto );
 
-class Function
-{
-private:
-  std::string exe_ {};
-  std::vector<std::string> args_; // args_ contains the exe_ in the first argument without the full path
-  std::string exe_hash_ {};
+      gg::protobuf::InFile to_protobuf() const;
+    };
 
-  void parse_cmd();
+    class Function
+    {
+    private:
+      std::string exe_ {};
+      std::vector<std::string> args_; // args_ contains the exe_ in the first argument without the full path
+      std::string exe_hash_ {};
 
-  static std::string get_exe_path( std::string exe );
-  static std::string hash_exe( std::string exe );
+      void parse_cmd();
 
-public:
-  Function( const std::vector<std::string> & cmd );
-  Function( const gg::protobuf::Function & func_proto );
+      static std::string get_exe_path( std::string exe );
+      static std::string hash_exe( std::string exe );
 
-  gg::protobuf::Function to_protobuf() const;
-};
+    public:
+      Function( const std::vector<std::string> & cmd );
+      Function( const gg::protobuf::Function & func_proto );
+
+      gg::protobuf::Function to_protobuf() const;
+    };
 
 
-class Thunk
-{
-private:
-  std::string outfile_;
-  Function Function_;
-  std::vector<InFile> infiles_;
-  int order_; // TODO : check infiles to figure out order
+    class Thunk
+    {
+    private:
+      std::string outfile_;
+      Function Function_;
+      std::vector<InFile> infiles_;
+      int order_; // TODO : check infiles to figure out order
 
-public:
-  Thunk( std::string outfile, Function Function,
-         std::vector<InFile> infiles );
+    public:
+      Thunk( std::string outfile, Function Function,
+             std::vector<InFile> infiles );
 
-  Thunk( const gg::protobuf::Thunk & thunk_proto );
+      Thunk( const gg::protobuf::Thunk & thunk_proto );
 
-  std::string outfile() const { return outfile_; }
+      std::string outfile() const { return outfile_; }
 
-  gg::protobuf::Thunk to_protobuf() const;
-};
+      gg::protobuf::Thunk to_protobuf() const;
+    };
+  }
+}

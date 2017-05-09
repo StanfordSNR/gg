@@ -4,6 +4,7 @@
 
 using namespace std;
 using namespace gg;
+using namespace gg::thunk;
 
 Thunk::Thunk( string outfile, Function Function,
               vector<InFile> infiles )
