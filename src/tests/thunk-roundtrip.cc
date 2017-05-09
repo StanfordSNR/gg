@@ -53,9 +53,9 @@ int main( int argc, char * argv[] )
     ThunkWriter::write_thunk( original_thunk );
 
     // Now reading it back
-    Thunk thunk = ThunkReader::read_thunk( outfile );
+    Optional<Thunk> thunk = ThunkReader::read_thunk( outfile );
 
-    if ( thunk == original_thunk ) {
+    if ( thunk.initialized() and thunk.get() == original_thunk ) {
       return EXIT_SUCCESS;
     }
     else {

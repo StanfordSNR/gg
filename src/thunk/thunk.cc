@@ -21,7 +21,7 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   }
 }
 
-size_t Thunk::compute_order()
+size_t Thunk::compute_order() const
 {
   size_t order = 0;
 
