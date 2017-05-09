@@ -18,7 +18,7 @@ shift "$((OPTIND-1))"
 ## Download all dependencies
 linux_file="linux-4.10.14"
 binutils_file="binutils-2.28"
-musl_file="musl-1.1.16"
+libgg_file="libgg"
 gcc_file="gcc-6.3.0"
 
 if [ ! -d $linux_file ]
@@ -29,17 +29,14 @@ if [ ! -d $binutils_file ]
 then
     curl https://ftp.gnu.org/gnu/binutils/binutils-2.28.tar.gz | tar xz
 fi
-if [ ! -d $musl_file ]
+if [ ! -d $libgg_file ]
 then
-    curl http://git.musl-libc.org/cgit/musl/snapshot/musl-1.1.16.tar.gz | tar xz
+    git clone https://github.com/StanfordSNR/libgg.git
 fi
 if [ ! -d $gcc_file ]
 then
     curl https://ftp.gnu.org/gnu/gcc/gcc-6.3.0/gcc-6.3.0.tar.gz | tar xz
 fi
-
-## Apply patches if code is changed
-
 
 ## Create musl standalone(static) compiler
 ## Custom Optimizations
@@ -82,16 +79,16 @@ cd "$PREFIX"
 ln -nfs . usr
 cd ..
 
-## Build temp musl
-rm -rf build-musl
-mkdir build-musl
-cd build-musl
-CROSS_COMPILE=" " ../musl*/configure --prefix="$PREFIX" --target="$ARCH" --disable-shared 1>/dev/null
+## Build temp libgg
+rm -rf build-libgg
+mkdir build-libgg
+cd build-libgg
+CROSS_COMPILE=" " ../libgg/configure --prefix="$PREFIX" --target="$ARCH" --disable-shared 1>/dev/null
 make -j$WORKERS 1>/dev/null
 make install 1>/dev/null
 cd ..
-rm -rf build-musl
-echo "1/7 musl done."
+rm -rf build-libgg
+echo "1/7 libgg done."
 
 ## Build temp binutils
 rm -rf build-binutils
@@ -138,16 +135,16 @@ cd "$PREFIX"
 ln -nfs . usr
 cd ..
 
-## Build final musl
-rm -rf build-musl
-mkdir build-musl
-cd build-musl
-CROSS_COMPILE="$TARGET-" ../musl*/configure --prefix="$PREFIX" --target="$ARCH" --disable-shared --syslibdir="$PREFIX/lib" 1>/dev/null
+## Build final libgg
+rm -rf build-libgg
+mkdir build-libgg
+cd build-libgg
+CROSS_COMPILE="$TARGET-" ../libgg/configure --prefix="$PREFIX" --target="$ARCH" --disable-shared --syslibdir="$PREFIX/lib" 1>/dev/null
 make -j$WORKERS 1>/dev/null
 make install 1>/dev/null
 cd ..
-rm -rf build-musl
-echo "5/7 musl done."
+rm -rf build-libgg
+echo "5/7 libgg done."
 
 ## Build final binutils
 rm -rf build-binutils
