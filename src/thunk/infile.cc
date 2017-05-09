@@ -16,6 +16,10 @@ InFile::InFile( const string & filename )
   : filename_( filename ), hash_( compute_hash( filename ) ), order_( 0 )
 {}
 
+InFile::InFile( const std::string & filename, const std::string & hash, const int order )
+  : filename_( filename ), hash_( hash ), order_( order )
+{}
+
 InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), hash_( infile_proto.hash() ),
     order_( infile_proto.order() )
