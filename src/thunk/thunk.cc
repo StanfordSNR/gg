@@ -34,3 +34,11 @@ protobuf::Thunk Thunk::to_protobuf() const
 
   return thunk;
 }
+
+bool Thunk::operator==( const Thunk & other ) const
+{
+  return ( outfile_ == other.outfile_ ) and
+         ( function_ == other.function_ ) and
+         ( infiles_ == other.infiles_ ) and
+         ( order_ == other.order_ );
+}

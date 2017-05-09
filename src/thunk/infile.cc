@@ -61,3 +61,10 @@ protobuf::InFile InFile::to_protobuf() const
 
   return infile;
 }
+
+bool InFile::operator==( const InFile & other ) const
+{
+  return ( filename_ == other.filename_ ) and
+         ( hash_ == other.hash_ ) and
+         ( order_ == other.order_ );
+}

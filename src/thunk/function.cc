@@ -73,3 +73,10 @@ protobuf::Function Function::to_protobuf() const
 
   return func;
 }
+
+bool Function::operator==( const Function & other ) const
+{
+  return ( exe_ == other.exe_ ) and
+         ( args_ == other.args_ ) and
+         ( exe_hash_ == other.exe_hash_ );
+}
