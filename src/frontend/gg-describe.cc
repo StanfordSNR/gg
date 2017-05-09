@@ -31,14 +31,11 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    Optional<Thunk> thunk = ThunkReader::read_thunk( argv[ 1 ] );
-
-    if ( not thunk.initialized() ) {
-      throw runtime_error( "Invalid thunk file" );
-    }
+    ThunkReader thunk_reader { argv[ 1 ] };
+    Thunk thunk = thunk_reader.read_thunk();
 
     string textf;
-    TextFormat::PrintToString( thunk.get().to_protobuf(), &textf );
+    TextFormat::PrintToString( thunk.to_protobuf(), &textf );
 
     cout << textf << endl;
   }
