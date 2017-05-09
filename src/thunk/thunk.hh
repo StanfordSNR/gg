@@ -26,6 +26,7 @@ namespace gg {
     public:
       // TODO : This currently does not check the order (if it is a thunk or not)
       InFile( const std::string & filename );
+      InFile( const std::string & filename, const std::string & hash, const int order );
       InFile( const gg::protobuf::InFile & infile_proto );
 
       gg::protobuf::InFile to_protobuf() const;
