@@ -30,10 +30,6 @@ Makefile.in
 /stamp-h1
 /test-driver
 
-/src/frontend/gg-trace
-/src/frontend/gg-gcc
-/src/frontend/gg-sandbox
-
 .idea
 CMakeLists.txt
 cmake-build-debug

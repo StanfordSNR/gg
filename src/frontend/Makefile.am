@@ -11,13 +11,16 @@ BASE_LDADD = ../util/libggutil.a  \
              ../thunk/libthunk.a \
              ../protobufs/libggprotobufs.a $(PROTOBUF_LIBS)
 
-bin_PROGRAMS = gg-trace gg-sandbox gg-gcc
+bin_PROGRAMS = gg-trace gg-sandbox gg-describe gg-gcc
 
 gg_trace_SOURCES = gg-trace.cc
 gg_trace_LDADD = $(BASE_LDADD)
 
 gg_sandbox_SOURCES = gg-sandbox.cc
 gg_sandbox_LDADD = $(BASE_LDADD)
+
+gg_describe_SOURCES = gg-describe.cc
+gg_describe_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_gcc_SOURCES = gg-gcc.cc
 gg_gcc_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
