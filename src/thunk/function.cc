@@ -31,12 +31,14 @@ Function::Function( const protobuf::Function & func_proto )
     exe_hash_( func_proto.hash() )
 {}
 
-string Function::get_exe_path( string exe ) {
+string Function::get_exe_path( const string & exe )
+{
   // TODO : Implement this for real
   return "/usr/bin/" + exe;
 }
 
-string Function::hash_exe( string exe ){
+string Function::hash_exe( const string & exe )
+{
   std::ifstream file( exe, std::ifstream::binary );
   SHA256_CTX md5Context;
   SHA256_Init( &md5Context );
