@@ -6,15 +6,18 @@
 #include <vector>
 
 #include "gg.pb.h"
-#include "optional.hh"
+#include "serialization.hh"
 #include "thunk.hh"
 
 class ThunkReader
 {
 private:
-  ThunkReader();
+  ProtobufDeserializer deserializer_;
+  bool is_thunk_;
 
 public:
-  /* returns an empty optional if the file is not a valid Thunk */
-  static Optional<gg::thunk::Thunk> read_thunk( const std::string & filename );
+  ThunkReader( const std::string & filename );
+
+  bool is_thunk() const { return is_thunk_; }
+  gg::thunk::Thunk read_thunk();
 };

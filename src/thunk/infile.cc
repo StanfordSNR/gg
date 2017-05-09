@@ -29,15 +29,15 @@ InFile::InFile( const protobuf::InFile & infile_proto )
 
 size_t InFile::compute_order() const
 {
-  Optional<Thunk> thunk = ThunkReader::read_thunk( filename_ );
+  ThunkReader thunk_reader { filename_ };
 
   // check if the file has the gg-thunk magic number
-  if ( not thunk.initialized() ) {
+  if ( not thunk_reader.is_thunk() ) {
     /* not a thunk file, so the order is 0 */
     return 0;
   }
   else {
-    return thunk.get().order();
+    return thunk_reader.read_thunk().order();
   }
 }
 

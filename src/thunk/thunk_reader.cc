@@ -11,16 +11,20 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
-Optional<Thunk> ThunkReader::read_thunk( const string & filename )
+ThunkReader::ThunkReader( const string & filename )
+  : deserializer_( filename ),
+    is_thunk_( MAGIC_NUMBER == deserializer_.read_string( MAGIC_NUMBER.length() ) )
+{}
+
+Thunk ThunkReader::read_thunk()
 {
   protobuf::Thunk thunk_proto;
 
-  ProtobufDeserializer deserializer( filename );
-  if ( MAGIC_NUMBER != deserializer.read_string( MAGIC_NUMBER.length() ) ) {
-    return {};
+  if ( not is_thunk() ) {
+    throw runtime_error( "invalid thunk file" );
   }
 
-  deserializer.read_protobuf( thunk_proto );
+  deserializer_.read_protobuf( thunk_proto );
 
   return { thunk_proto };
 }
