@@ -1,1 +1,1 @@
-SUBDIRS = linux util protobufs thunk trace sandbox frontend tests
+SUBDIRS = linux protobufs util thunk trace sandbox frontend tests
