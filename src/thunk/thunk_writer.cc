@@ -9,6 +9,7 @@
 
 using namespace std;
 using namespace gg;
+using namespace gg::thunk;
 
 bool ThunkWriter::write_thunk( Thunk thunk )
 {

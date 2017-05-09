@@ -9,6 +9,7 @@
 
 using namespace std;
 using namespace gg;
+using namespace gg::thunk;
 
 Thunk ThunkReader::read_thunk( const string & filename )
 {

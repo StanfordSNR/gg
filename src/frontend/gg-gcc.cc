@@ -18,6 +18,7 @@
 #include "thunk_writer.hh"
 
 using namespace std;
+using namespace gg::thunk;
 
 const char *PREPROC_FLAG = "-E";
 const char *COMPILER = "gcc";

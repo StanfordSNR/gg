@@ -14,5 +14,5 @@ private:
   ThunkWriter();
 
 public:
-  static bool write_thunk( Thunk thunk );
+  static bool write_thunk( gg::thunk::Thunk thunk );
 };

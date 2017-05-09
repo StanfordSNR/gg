@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace google::protobuf;
+using namespace gg::thunk;
 
 void usage( const char * argv0 )
 {

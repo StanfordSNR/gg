@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace gg;
+using namespace gg::thunk;
 
 InFile::InFile( string filename )
   : filename_( filename ), hash_( compute_hash( filename ) ), order_( 0 )
