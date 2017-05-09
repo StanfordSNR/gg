@@ -21,11 +21,11 @@ namespace gg {
       void is_thunk();
       void get_thunk_order();
 
-      static std::string compute_hash( std::string filename );
+      static std::string compute_hash( const std::string & filename );
 
     public:
       // TODO : This currently does not check the order (if it is a thunk or not)
-      InFile( std::string filename );
+      InFile( const std::string & filename );
       InFile( const gg::protobuf::InFile & infile_proto );
 
       gg::protobuf::InFile to_protobuf() const;
@@ -40,8 +40,8 @@ namespace gg {
 
       void parse_cmd();
 
-      static std::string get_exe_path( std::string exe );
-      static std::string hash_exe( std::string exe );
+      static std::string get_exe_path( const std::string & exe );
+      static std::string hash_exe( const std::string & exe );
 
     public:
       Function( const std::vector<std::string> & cmd );
@@ -55,13 +55,13 @@ namespace gg {
     {
     private:
       std::string outfile_;
-      Function Function_;
+      Function function_;
       std::vector<InFile> infiles_;
       int order_; // TODO : check infiles to figure out order
 
     public:
-      Thunk( std::string outfile, Function Function,
-             std::vector<InFile> infiles );
+      Thunk( const std::string & outfile, const Function & function,
+             const std::vector<InFile> & infiles );
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 

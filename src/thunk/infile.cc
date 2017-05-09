@@ -12,7 +12,7 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
-InFile::InFile( string filename )
+InFile::InFile( const string & filename )
   : filename_( filename ), hash_( compute_hash( filename ) ), order_( 0 )
 {}
 
@@ -21,7 +21,8 @@ InFile::InFile( const protobuf::InFile & infile_proto )
     order_( infile_proto.order() )
 {}
 
-string InFile::compute_hash( string filename ){
+string InFile::compute_hash( const string & filename )
+{
   // TODO : Check if file exists!
   std::ifstream file( filename, std::ifstream::binary );
   if( file.fail() ){
