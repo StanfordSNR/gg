@@ -24,7 +24,7 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   }
 }
 
-void Thunk::execute() const
+int Thunk::execute() const
 {
   if ( order_ != 1 ) {
     throw runtime_error( "cannot execute thunk with order != 1" );
@@ -55,7 +55,9 @@ void Thunk::execute() const
 
   envp[ infiles_.size() ] = NULL;
 
-  if ( execvpe( function_.exe().c_str(), argv, envp ) < 0 ) {
+  int retval;
+
+  if ( ( retval = execvpe( function_.exe().c_str(), argv, envp ) ) < 0 ) {
     for ( size_t i = 0; i < args.size(); i++ ) {
       delete[] argv[ i ];
     }
@@ -69,6 +71,8 @@ void Thunk::execute() const
 
     throw runtime_error( "execvpe failed" );
   }
+
+  return retval;
 }
 
 size_t Thunk::compute_order() const

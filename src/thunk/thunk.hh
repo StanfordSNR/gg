@@ -84,7 +84,7 @@ namespace gg {
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
-      void execute() const;
+      int execute() const;
 
       std::string outfile() const { return outfile_; }
       Function function() const { return function_; }
