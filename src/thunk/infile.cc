@@ -1,6 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <iostream>
+#include <cctype>
 #include <openssl/sha.h>
 #include <fstream>
 #include <sstream>
@@ -18,7 +19,7 @@ InFile::InFile( const string & filename )
   : filename_( filename ), hash_( compute_hash( filename ) ), order_( compute_order() )
 {}
 
-InFile::InFile( const std::string & filename, const std::string & hash, const size_t order )
+InFile::InFile( const string & filename, const string & hash, const size_t order )
   : filename_( filename ), hash_( hash ), order_( order )
 {}
 
@@ -44,7 +45,7 @@ size_t InFile::compute_order() const
 string InFile::compute_hash( const string & filename )
 {
   // TODO : Check if file exists!
-  std::ifstream file( filename, std::ifstream::binary );
+  ifstream file( filename, ifstream::binary );
   if( file.fail() ){
     throw runtime_error( "File " + filename + " does not exist." );
   }
@@ -59,12 +60,28 @@ string InFile::compute_hash( const string & filename )
   SHA256_Final( result, &md5Context );
 
   // TODO : Consider using a different object than string
-  std::stringstream md5string;
-  md5string << std::hex << std::uppercase << std::setfill('0');
+  stringstream md5string;
+  md5string << hex << uppercase << setfill('0');
   for( const auto &byte: result ){
-    md5string << std::setw( 2 ) << ( int )byte;
+    md5string << setw( 2 ) << ( int )byte;
   }
   return md5string.str();
+}
+
+string InFile::to_envar() const
+{
+  string result( filename_ );
+
+  for ( size_t i = 0; i < result.length(); i++ ) {
+    if ( not ( isalnum( result[ i ] ) or result[ i ] == '_' ) ) {
+      result[ i ] = '_';
+    }
+  }
+
+  result += '=';
+  result += hash_;
+
+  return result;
 }
 
 protobuf::InFile InFile::to_protobuf() const
