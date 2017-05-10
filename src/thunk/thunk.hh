@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "gg.pb.h"
 
@@ -31,6 +32,8 @@ namespace gg {
       std::string filename() const { return filename_; }
       std::string hash() const { return hash_; }
       size_t order() const { return order_; }
+
+      std::string to_envar() const;
 
       gg::protobuf::InFile to_protobuf() const;
 
@@ -80,6 +83,8 @@ namespace gg {
              const std::vector<InFile> & infiles );
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
+
+      void execute() const;
 
       std::string outfile() const { return outfile_; }
       Function function() const { return function_; }
