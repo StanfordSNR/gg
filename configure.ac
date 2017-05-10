@@ -46,7 +46,6 @@ AC_SUBST([ARCH])
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile
                  src/Makefile
-                 src/linux/Makefile
                  src/util/Makefile
                  src/protobufs/Makefile
                  src/thunk/Makefile

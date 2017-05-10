@@ -66,6 +66,6 @@ public:
   int flags() const { return flags_; }
 };
 
-#include "syscalltbl.hh"
+extern const std::map<long, SystemCallSignature> syscall_signatures;
 
 #endif /* SYSCALL_HH */
