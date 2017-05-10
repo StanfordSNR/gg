@@ -42,16 +42,18 @@ private:
   long number_;
   std::string name_;
   std::vector<ArgumentInfo> args_;
+  int flags_;
 
 public:
   SystemCallSignature( const long number, const std::string & name,
-                       const std::vector<ArgumentInfo> & args )
-    : number_( number ), name_( name ), args_( args )
+                       const std::vector<ArgumentInfo> & args, int flags = 0 )
+    : number_( number ), name_( name ), args_( args ), flags_( flags )
   {}
 
   long number() const { return number_; }
   std::string name() const { return name_; }
   std::vector<ArgumentInfo> args() const { return args_; }
+  int flags() const { return flags_; }
 };
 
 #include "syscalltbl.hh"
