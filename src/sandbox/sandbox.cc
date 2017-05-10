@@ -44,13 +44,16 @@ void SandboxedProcess::execute()
     {
       auto & syscall = tcb.syscall_invocation.get();
 
+      if ( syscall.signature().initialized() ) {
+        if ( not ( syscall.signature().get().flags() & TRACE_FILE ) ) {
+          return;
+          /* this system call is not file-related. allow it! */
+        }
+      }
+
       switch ( syscall.syscall_no() ) {
       case SYS_open:
         Check( tcb, open_entry( syscall ) );
-        break;
-
-      case SYS_exit:
-      case SYS_exit_group:
         break;
 
       default:
