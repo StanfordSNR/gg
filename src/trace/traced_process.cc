@@ -20,20 +20,7 @@ using namespace std;
 
 int SYSCALL_ARG_REGS[] = { /* ORIG_RAX, */ RDI, RSI, RDX, R10, R8, R9 };
 
-int do_fork()
-{
-  /* Verify that process is single-threaded before forking */
-  {
-    struct stat my_stat;
-    CheckSystemCall( "stat", stat( "/proc/self/task", &my_stat ) );
-
-    if ( my_stat.st_nlink != 3 ) {
-      throw runtime_error( "ChildProcess constructed in multi-threaded program" );
-    }
-  }
-
-  return CheckSystemCall( "fork", fork() );
-}
+extern int do_fork();
 
 string TraceControlBlock::to_string() const
 {
