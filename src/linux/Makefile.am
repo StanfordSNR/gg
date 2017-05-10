@@ -1,1 +1,1 @@
-EXTRA_DIST = x86_64/syscalltbl.hh
+EXTRA_DIST = generate_table.py x86_64/syscalltbl.hh
