@@ -1,5 +1,4 @@
 AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util \
-              -I$(srcdir)/../$(OS)/$(ARCH)/ \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox $(CXX14_FLAGS) $(PROTOBUF_CFLAGS)
 
@@ -8,7 +7,8 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 BASE_LDADD = ../trace/libggtrace.a \
              ../sandbox/libggsandbox.a \
              ../thunk/libthunk.a \
-             ../protobufs/libggprotobufs.a ../util/libggutil.a $(PROTOBUF_LIBS)
+             ../protobufs/libggprotobufs.a ../util/libggutil.a \
+             $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-sandbox gg-describe gg-gcc
 
