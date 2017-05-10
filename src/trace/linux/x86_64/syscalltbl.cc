@@ -1,4 +1,6 @@
-static std::map<long, SystemCallSignature> syscall_signatures =
+#include "syscall.hh"
+
+const std::map<long, SystemCallSignature> syscall_signatures =
 {
   {
     0,
