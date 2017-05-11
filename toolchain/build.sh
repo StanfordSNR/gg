@@ -36,6 +36,9 @@ fi
 if [ ! -d $gcc_file ]
 then
     curl https://ftp.gnu.org/gnu/gcc/gcc-6.3.0/gcc-6.3.0.tar.gz | tar xz
+    cd gcc*
+    ./contrib/download_prerequisites
+    cd -
 fi
 
 ## Create musl standalone(static) compiler
