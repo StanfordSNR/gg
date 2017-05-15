@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## Adapted from https://jstrapko.github.io/musl-gcc/
+
 OPTIND=1
 debug=0
 
