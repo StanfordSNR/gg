@@ -1855,14 +1855,16 @@ const std::map<long, SystemCallSignature> syscall_signatures =
       0
     }
   },*/
-  /*{
+  {
     231,
     {
       231, "exit_group",
-      {},
+      {
+        { typeid( int ), ARGUMENT_DIR_IN, 0 } /* status */
+      },
       TRACE_PROCESS | STACKTRACE_CAPTURE_ON_ENTER
     }
-  },*/
+  },
   /*{
     232,
     {

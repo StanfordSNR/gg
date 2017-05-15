@@ -45,7 +45,7 @@ SystemCallInvocation::SystemCallInvocation( const pid_t pid,
       return;
     }
 
-    vector<ArgumentInfo> args = sig.args();
+    vector<ArgumentInfo> args = sig.arguments();
 
     for ( size_t i = 0; i < args.size(); i++ ) {
       const ArgumentInfo & arg_info = args.at( i );

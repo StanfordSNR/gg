@@ -22,6 +22,8 @@ private:
   /* map from pathname to access modes (O_RDONLY, O_WRONLY, O_RDRW) */
   std::unordered_map<std::string, Permissions> allowed_files_;
 
+  bool file_syscall_entry( const SystemCallInvocation & syscall );
+
   bool open_entry( const SystemCallInvocation & syscall );
 
 public:

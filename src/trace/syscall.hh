@@ -62,7 +62,7 @@ public:
 
   long number() const { return number_; }
   std::string name() const { return name_; }
-  std::vector<ArgumentInfo> args() const { return args_; }
+  std::vector<ArgumentInfo> arguments() const { return args_; }
   int flags() const { return flags_; }
 };
 

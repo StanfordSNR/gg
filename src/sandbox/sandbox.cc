@@ -18,6 +18,20 @@ inline void Check( const TraceControlBlock & tcb, bool status )
   }
 }
 
+bool SandboxedProcess::file_syscall_entry( const SystemCallInvocation & syscall )
+{
+  for ( const Argument & arg : syscall.arguments() ) {
+    if ( arg.info().flags & ARGUMENT_F_PATHNAME ) { /* it's a path argument */
+      const string pathname = arg.value<string>();
+      if ( allowed_files_.count( pathname ) == 0 ) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 bool SandboxedProcess::open_entry( const SystemCallInvocation & syscall )
 {
   const string pathname = syscall.arguments().at( 0 ).value<string>();
@@ -42,21 +56,27 @@ void SandboxedProcess::execute()
   auto syscall_entry =
     [&]( const TraceControlBlock & tcb )
     {
-      auto & syscall = tcb.syscall_invocation.get();
+      const SystemCallInvocation & syscall = tcb.syscall_invocation.get();
 
       if ( syscall.signature().initialized() ) {
-        if ( not ( syscall.signature().get().flags() & TRACE_FILE ) ) {
+        SystemCallSignature & signature = syscall.signature().get();
+
+        if ( not ( signature.flags() & TRACE_FILE ) ) {
           return;
           /* this system call is not file-related. allow it! */
         }
+
+        switch ( syscall.syscall_no() ) {
+        case SYS_open:
+          Check( tcb, open_entry( syscall ) );
+          break;
+
+        default:
+          /* general check for file-related syscalls */
+          Check( tcb, file_syscall_entry( syscall ) );
+        }
       }
-
-      switch ( syscall.syscall_no() ) {
-      case SYS_open:
-        Check( tcb, open_entry( syscall ) );
-        break;
-
-      default:
+      else {
         throw SandboxViolation( "Unknown syscall", tcb.to_string() );
       }
     };

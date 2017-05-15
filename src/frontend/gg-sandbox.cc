@@ -30,7 +30,7 @@ int main( int argc, char * argv[] )
     }
 
     unordered_map<string, Permissions> allowed_files {
-      { "/dev/null", { false, true, true } }
+      { "/dev/null", { true, true, true } }
     };
 
     SandboxedProcess sp(
