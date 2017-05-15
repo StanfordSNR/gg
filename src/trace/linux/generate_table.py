@@ -19,7 +19,7 @@ item_template = """  {{
 
 sysent_pattern = r"\[(.+)\] = {(.+)},"
 
-out_start = "static std::map<long, SystemCallSignature> syscall_signatures =\n{\n"
+out_start = '#include "syscall.hh"\n\nconst std::map<long, SystemCallSignature> syscall_signatures =\n{\n'
 out_end = "};\n"
 
 strace_flags = {
