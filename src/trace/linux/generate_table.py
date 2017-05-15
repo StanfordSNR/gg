@@ -7,14 +7,14 @@ import os
 import sys
 import re
 
-item_template = """  {{
+item_template = """  /*{{
     {num},
     {{
       {num}, "{name}",
       {{}},
       {flags}
     }}
-  }},
+  }},*/
 """
 
 sysent_pattern = r"\[(.+)\] = {(.+)},"
