@@ -78,7 +78,7 @@ int main( int argc, char * argv[] )
         allowed_files[ gg_dir.append( infile.hash() ) ] = { true, true, true };
       }
 
-      SandboxedProcess process { [&]() { return thunk.execute(); }, allowed_files };
+      SandboxedProcess process { [&]() { return thunk.execute( gg_dir ); }, allowed_files };
       process.execute();
     }
   }

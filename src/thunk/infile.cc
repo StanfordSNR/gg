@@ -68,7 +68,7 @@ string InFile::compute_hash( const string & filename )
   return md5string.str();
 }
 
-string InFile::to_envar() const
+string InFile::to_envar( const string & root_dir ) const
 {
   string result( filename_ );
 
@@ -79,7 +79,7 @@ string InFile::to_envar() const
   }
 
   result += '=';
-  result += hash_;
+  result += root_dir + hash_;
 
   return result;
 }

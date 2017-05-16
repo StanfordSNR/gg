@@ -24,7 +24,7 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   }
 }
 
-int Thunk::execute() const
+int Thunk::execute( const string & root_dir ) const
 {
   if ( order_ != 1 ) {
     throw runtime_error( "cannot execute thunk with order != 1" );
@@ -47,7 +47,7 @@ int Thunk::execute() const
   char ** envp = new char * [ infiles_.size() + 1 ];
 
   for ( size_t i = 0; i < infiles_.size(); i++ ) {
-    string envar = infiles_[ i ].to_envar();
+    string envar = infiles_[ i ].to_envar( root_dir );
     envp[ i ] = new char[ envar.length() + 1 ];
     envar.copy( envp[ i ], envar.length() );
     envp[ i ][ envar.length() ] = '\0';

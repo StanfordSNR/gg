@@ -33,7 +33,7 @@ namespace gg {
       std::string hash() const { return hash_; }
       size_t order() const { return order_; }
 
-      std::string to_envar() const;
+      std::string to_envar( const std::string & root_dir ) const;
 
       gg::protobuf::InFile to_protobuf() const;
 
@@ -84,7 +84,7 @@ namespace gg {
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
-      int execute() const;
+      int execute( const std::string & root_dir = ".gg/" ) const;
 
       std::string outfile() const { return outfile_; }
       Function function() const { return function_; }
