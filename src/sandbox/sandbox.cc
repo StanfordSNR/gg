@@ -58,6 +58,13 @@ void SandboxedProcess::execute()
     {
       const SystemCallInvocation & syscall = tcb.syscall_invocation.get();
 
+      switch ( syscall.syscall_no() ) {
+      case SYS_chroot:
+      case SYS_chdir:
+      case SYS_fchdir:
+        throw SandboxViolation( "Forbidden syscall", tcb.to_string() );
+      }
+
       if ( syscall.signature().initialized() ) {
         SystemCallSignature & signature = syscall.signature().get();
 
