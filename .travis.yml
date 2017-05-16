@@ -11,6 +11,8 @@ addons:
     - protobuf-compiler
     - libprotobuf-dev
     - libssl-dev
+    - libcap-dev
+    - lib
 
 before_script:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 99

@@ -54,11 +54,15 @@ SystemCallInvocation::SystemCallInvocation( const pid_t pid,
 
       Argument & last_arg = arguments_.back();
 
-      if ( arg_info.type != typeid( char * ) ) {
-        last_arg.set_value( last_arg.raw_value() );
+      if ( arg_info.dir == ARGUMENT_DIR_OUT ) {
+        continue;
+      }
+
+      if ( arg_info.type == typeid( char * ) or arg_info.type == typeid( const char * ) ) {
+        last_arg.set_value( TracedProcess::get_syscall_arg<string>( pid, i ) );
       }
       else {
-        last_arg.set_value( TracedProcess::get_syscall_arg<string>( pid, i ) );
+        last_arg.set_value( last_arg.raw_value() );
       }
     }
   }

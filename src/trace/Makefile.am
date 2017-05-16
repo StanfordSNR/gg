@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(srcdir)/../util $(CXX14_FLAGS)
+AM_CPPFLAGS = -I$(srcdir)/../util $(CXX14_FLAGS) -fno-var-tracking
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
 noinst_LIBRARIES = libggtrace.a
