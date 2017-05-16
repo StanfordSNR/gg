@@ -34,7 +34,7 @@ Function::Function( const protobuf::Function & func_proto )
 string Function::get_exe_path( const string & exe )
 {
   // TODO : Implement this for real
-  return "/usr/bin/" + exe;
+  return exe;
 }
 
 string Function::hash_exe( const string & exe )
