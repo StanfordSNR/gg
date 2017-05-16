@@ -12,7 +12,7 @@ addons:
     - libprotobuf-dev
     - libssl-dev
     - libcap-dev
-    - lib
+    - libkeyutils-dev
 
 before_script:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 99
