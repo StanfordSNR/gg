@@ -3,6 +3,7 @@
 #include "sandbox.hh"
 
 #include <fcntl.h>
+#include <iostream>
 
 using namespace std;
 
@@ -56,12 +57,35 @@ void SandboxedProcess::execute()
   auto syscall_entry =
     [&]( const TraceControlBlock & tcb )
     {
+      if ( log_level_ >= LOG_LEVEL_DEBUG ) {
+        cerr << tcb.to_string() << endl;
+      }
+
       const SystemCallInvocation & syscall = tcb.syscall_invocation.get();
 
       switch ( syscall.syscall_no() ) {
       case SYS_chroot:
       case SYS_chdir:
       case SYS_fchdir:
+      case SYS_openat:
+      case SYS_mkdirat:
+      case SYS_mknodat:
+      case SYS_fchownat:
+      case SYS_futimesat:
+      case SYS_newfstatat:
+      case SYS_unlinkat:
+      case SYS_renameat:
+      case SYS_linkat:
+      case SYS_symlinkat:
+      case SYS_readlinkat:
+      case SYS_fchmodat:
+      case SYS_faccessat:
+      case SYS_utimensat:
+      case SYS_name_to_handle_at:
+      case SYS_open_by_handle_at:
+      case SYS_execveat:
+      case SYS_fanotify_mark:
+      case SYS_renameat2:
         throw SandboxViolation( "Forbidden syscall", tcb.to_string() );
       }
 

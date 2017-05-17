@@ -4,6 +4,7 @@
 
 #include <unistd.h>
 #include <cstring>
+#include <iostream>
 
 using namespace std;
 using namespace gg;
@@ -30,12 +31,15 @@ int Thunk::execute( const string & root_dir ) const
     throw runtime_error( "cannot execute thunk with order != 1" );
   }
 
+  size_t i = 0;
+
   // preparing argv
+  vector<string> args = function_.args();
+  char ** argv = new char * [ args.size() + 1 /* NULL at the end */ ];
 
-  const vector<string> args = function_.args();
-  char ** argv = new char * [ args.size() + 1 ];
+  args[ 0 ] = root_dir + function_.hash();
 
-  for ( size_t i = 0; i < args.size(); i++ ) {
+  for ( i = 0; i < args.size(); i++ ) {
     argv[ i ] = new char[ args[ i ].length() + 1 ];
     args[ i ].copy( argv[ i ], args[ i ].length() );
     argv[ i ][ args[ i ].length() ] = '\0';
@@ -44,25 +48,37 @@ int Thunk::execute( const string & root_dir ) const
   argv[ args.size() ] = NULL;
 
   // preparing envp
-  char ** envp = new char * [ infiles_.size() + 1 ];
+  vector<string> gg_envars = {
+    "PATH=" + root_dir + "bin",
+    "GG=1",
+    // "GG_VERBOSE=1"
+  };
 
-  for ( size_t i = 0; i < infiles_.size(); i++ ) {
+  size_t envp_len = infiles_.size() + gg_envars.size();
+  char ** envp = new char * [ envp_len + 1 ];
+
+  for ( i = 0; i < infiles_.size(); i++ ) {
     string envar = infiles_[ i ].to_envar( root_dir );
     envp[ i ] = new char[ envar.length() + 1 ];
     envar.copy( envp[ i ], envar.length() );
     envp[ i ][ envar.length() ] = '\0';
   }
 
-  envp[ infiles_.size() ] = NULL;
+  for ( const string & gg_envar : gg_envars ) {
+    envp[ i ] = new char[ gg_envar.length() + 1 ];
+    strcpy( envp[ i++ ], gg_envar.c_str() );
+  }
+
+  envp[ i++ ] = NULL;
 
   int retval;
 
-  if ( ( retval = execvpe( function_.exe().c_str(), argv, envp ) ) < 0 ) {
+  if ( ( retval = execvpe( argv[ 0 ], argv, envp ) ) < 0 ) {
     for ( size_t i = 0; i < args.size(); i++ ) {
       delete[] argv[ i ];
     }
 
-    for ( size_t i = 0; i < infiles_.size(); i++ ) {
+    for ( size_t i = 0; i < envp_len; i++ ) {
       delete[] envp[ i ];
     }
 

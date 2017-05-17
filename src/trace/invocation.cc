@@ -54,13 +54,12 @@ SystemCallInvocation::SystemCallInvocation( const pid_t pid,
 
       Argument & last_arg = arguments_.back();
 
-      if ( arg_info.dir != ARGUMENT_DIR_OUT and
-           ( arg_info.type == typeid( char * ) or arg_info.type == typeid( const char * ) ) ) {
+      if ( arg_info.is_readable_string() ) {
         last_arg.set_value( TracedProcess::get_syscall_arg<string>( pid, i ) );
       }
-      else {
-        last_arg.set_value( last_arg.raw_value() );
-      }
+
+      // let's set the raw value anyway
+      last_arg.set_value( last_arg.raw_value() );
     }
   }
 }
@@ -88,7 +87,7 @@ std::string SystemCallInvocation::to_string() const
     for ( auto & arg : arguments() ) {
       i++;
 
-      if ( arg.info().type == typeid( char * ) ) {
+      if ( arg.info().is_readable_string() ) {
         out << '"' << arg.value<string>() << '"';
       }
       else {

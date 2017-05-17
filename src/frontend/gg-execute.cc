@@ -16,7 +16,7 @@ using namespace gg::thunk;
 
 void usage( const char * argv0 )
 {
-  cerr << argv0 << "[--sandboxed,-s] [--gg-dir, -g=<arg>] THUNK" << endl;
+  cerr << argv0 << "[--verbose, -v] [--sandboxed,-s] [--gg-dir, -g=<arg>] THUNK" << endl;
 }
 
 int main( int argc, char * argv[] )
@@ -33,14 +33,16 @@ int main( int argc, char * argv[] )
 
     bool sandboxed = false;
     string gg_dir = ".gg/";
+    LogLevel log_level = LOG_LEVEL_NO_LOG;
 
     const option command_line_options[] = {
       { "sandboxed", no_argument,       nullptr, 's' },
       { "gg-dir",    required_argument, nullptr, 'g' },
+      { "verbose",   no_argument,       nullptr, 'v' },
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "sg:", command_line_options, nullptr );
+      const int opt = getopt_long( argc, argv, "vsg:", command_line_options, nullptr );
 
       if ( opt == -1 ) {
         break;
@@ -49,6 +51,7 @@ int main( int argc, char * argv[] )
       switch ( opt ) {
       case 's': sandboxed = true; break;
       case 'g': gg_dir = optarg; break;
+      case 'v': log_level = LOG_LEVEL_DEBUG; break;
       default:
         throw runtime_error( "invalid option" );
       }
@@ -78,7 +81,10 @@ int main( int argc, char * argv[] )
         allowed_files[ gg_dir + infile.hash() ] = { true, true, true };
       }
 
+      allowed_files[ thunk.outfile() ] = { true, true, true };
+
       SandboxedProcess process { [&]() { return thunk.execute( gg_dir ); }, allowed_files };
+      process.set_log_level( log_level );
       process.execute();
     }
   }

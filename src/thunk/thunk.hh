@@ -55,6 +55,7 @@ namespace gg {
 
     public:
       Function( const std::vector<std::string> & cmd );
+      Function( const std::vector<std::string> & cmd, const std::string & hash );
       Function( const gg::protobuf::Function & func_proto );
 
       std::string exe() const { return exe_; }

@@ -44,6 +44,10 @@ struct ArgumentInfo
   ArgumentType type;
   ArgumentDirection dir;
   int flags;
+
+  bool is_readable_string() const { return dir != ARGUMENT_DIR_OUT and
+                                           ( type == typeid( char * ) or
+                                             type == typeid( const char * ) ); }
 };
 
 class SystemCallSignature

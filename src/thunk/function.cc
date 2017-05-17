@@ -26,6 +26,10 @@ Function::Function( const vector<string> & cmd )
   cout << endl;
 }
 
+Function::Function( const std::vector<std::string> & cmd, const std::string & hash )
+  : exe_( get_exe_path( cmd[0] ) ), args_( cmd ), exe_hash_( hash )
+{}
+
 Function::Function( const protobuf::Function & func_proto )
   : exe_( func_proto.exe() ), args_( func_proto.args().begin(), func_proto.args().end() ),
     exe_hash_( func_proto.hash() )
