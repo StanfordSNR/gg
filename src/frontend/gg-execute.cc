@@ -75,7 +75,7 @@ int main( int argc, char * argv[] )
       unordered_map<string, Permissions> allowed_files;
 
       for ( const InFile & infile : thunk.infiles() ) {
-        allowed_files[ gg_dir.append( infile.hash() ) ] = { true, true, true };
+        allowed_files[ gg_dir + infile.hash() ] = { true, true, true };
       }
 
       SandboxedProcess process { [&]() { return thunk.execute( gg_dir ); }, allowed_files };
