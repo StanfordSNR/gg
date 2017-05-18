@@ -72,7 +72,7 @@ int main( int argc, char * argv[] )
         process.wait();
       }
 
-      cerr << "Exited: " << process.exit_status() << endl;
+      return process.exit_status();
     }
     else {
       unordered_map<string, Permissions> allowed_files;
@@ -86,12 +86,12 @@ int main( int argc, char * argv[] )
       SandboxedProcess process { [&]() { return thunk.execute( gg_dir ); }, allowed_files };
       process.set_log_level( log_level );
       process.execute();
+
+      return process.exit_status().get();
     }
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );
     return EXIT_FAILURE;
   }
-
-  return EXIT_SUCCESS;
 }
