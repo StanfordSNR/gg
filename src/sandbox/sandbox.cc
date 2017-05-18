@@ -83,7 +83,9 @@ void SandboxedProcess::execute()
       case SYS_utimensat:
       case SYS_name_to_handle_at:
       case SYS_open_by_handle_at:
+#ifdef SYS_execveat
       case SYS_execveat:
+#endif
       case SYS_fanotify_mark:
       case SYS_renameat2:
         throw SandboxViolation( "Forbidden syscall", tcb.to_string() );
