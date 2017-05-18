@@ -105,6 +105,12 @@ public:
     return not operator==( other );
   }
 
+  constexpr const T * operator->() const { assert( initialized() ); return &object_; }
+  constexpr T * operator->() { assert( initialized() ); return &object_; }
+
+  constexpr const T & operator*() const { assert( initialized() ); return object_; }
+  constexpr T & operator*() { assert( initialized() ); return object_; }
+
   /* getters */
   bool initialized( void ) const { return initialized_; }
   const T & get( void ) const { assert( initialized() ); return object_; }
