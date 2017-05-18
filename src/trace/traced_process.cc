@@ -120,7 +120,7 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
 }
 
 bool TracedProcess::wait_for_syscall( function<void( const TraceControlBlock & )> before_entry,
-                                      function<void( const TraceControlBlock &, long )> after_exit )
+                                      function<void( const TraceControlBlock & )> after_exit )
 {
   pid_t cpid;
 
@@ -137,7 +137,8 @@ bool TracedProcess::wait_for_syscall( function<void( const TraceControlBlock & )
   }
   else {
     long syscall_ret = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * RAX );
-    after_exit( tcb, syscall_ret );
+    tcb.syscall_invocation.get().set_retval( syscall_ret );
+    after_exit( tcb );
 
     tcb.syscall_invocation.clear();
   }

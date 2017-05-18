@@ -35,9 +35,11 @@ int main( int argc, char * argv[] )
         {
           cerr << tcb.to_string();
         },
-        [&]( const TraceControlBlock &, long retval )
+        [&]( const TraceControlBlock & tcb )
         {
-          cerr << " = " << retval << endl;
+          assert( tcb.syscall_invocation.initialized() and
+                  tcb.syscall_invocation.get().retval().initialized() );
+          cerr << " = " << tcb.syscall_invocation.get().retval().get() << endl;
         }
       );
 

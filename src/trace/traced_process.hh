@@ -49,7 +49,7 @@ public:
                  const int termination_signal = SIGHUP );
 
   bool wait_for_syscall( std::function<void( const TraceControlBlock & )> before_entry,
-                         std::function<void( const TraceControlBlock &, long )> after_exit );
+                         std::function<void( const TraceControlBlock & )> after_exit );
 
   void resume( void );
 

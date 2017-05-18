@@ -35,7 +35,7 @@ Argument::Argument( ArgumentInfo info, const long raw_value )
 SystemCallInvocation::SystemCallInvocation( const pid_t pid,
                                             const long syscall_no,
                                             bool fetch_arguments )
-  : syscall_( syscall_no ), signature_(), arguments_()
+  : syscall_( syscall_no ), signature_(), arguments_(), return_value_()
 {
   if ( syscall_signatures.count( syscall_no ) ) {
     const SystemCallSignature & sig = syscall_signatures.at( syscall_no );

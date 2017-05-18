@@ -115,7 +115,7 @@ void SandboxedProcess::execute()
     };
 
   auto syscall_exit =
-    [&]( const TraceControlBlock &, long )
+    [&]( const TraceControlBlock & )
     {};
 
   while ( true ) {

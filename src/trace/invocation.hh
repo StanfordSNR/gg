@@ -49,6 +49,9 @@ private:
   /* arguments to this system call */
   std::vector<Argument> arguments_;
 
+  /* syscall return value */
+  Optional<long> return_value_;
+
 public:
   SystemCallInvocation( const pid_t pid, const long syscall_no,
                         bool fetch_arguments = true );
@@ -57,6 +60,9 @@ public:
   std::string name();
   Optional<SystemCallSignature> signature() const { return signature_; }
   std::vector<Argument> arguments() const { return arguments_; }
+  Optional<long> retval() const { return return_value_; }
+
+  void set_retval( const long return_value ) { return_value_.reset( return_value ); }
 
   std::string to_string() const;
 };
