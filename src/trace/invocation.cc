@@ -67,7 +67,7 @@ SystemCallInvocation::SystemCallInvocation( const pid_t pid,
 std::string SystemCallInvocation::name()
 {
   if ( signature_.initialized() ) {
-    return signature_.get().name();
+    return signature_->name();
   }
   else {
     ostringstream out;
@@ -81,7 +81,7 @@ std::string SystemCallInvocation::to_string() const
   ostringstream out;
 
   if ( signature().initialized() ) {
-    out << signature().get().name() << "(";
+    out << signature()->name() << "(";
 
     size_t i = 0;
     for ( auto & arg : arguments() ) {

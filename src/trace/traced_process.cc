@@ -29,7 +29,7 @@ string TraceControlBlock::to_string() const
   out << "[" << pid << "]";
 
   if ( syscall_invocation.initialized() ) {
-    out << " " << syscall_invocation.get().to_string();
+    out << " " << syscall_invocation->to_string();
   }
 
   return out.str();
@@ -137,7 +137,7 @@ bool TracedProcess::wait_for_syscall( function<void( const TraceControlBlock & )
   }
   else {
     long syscall_ret = ptrace( PTRACE_PEEKUSER, cpid, sizeof( long ) * RAX );
-    tcb.syscall_invocation.get().set_retval( syscall_ret );
+    tcb.syscall_invocation->set_retval( syscall_ret );
     after_exit( tcb );
 
     tcb.syscall_invocation.clear();

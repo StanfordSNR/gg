@@ -38,8 +38,8 @@ int main( int argc, char * argv[] )
         [&]( const TraceControlBlock & tcb )
         {
           assert( tcb.syscall_invocation.initialized() and
-                  tcb.syscall_invocation.get().retval().initialized() );
-          cerr << " = " << tcb.syscall_invocation.get().retval().get() << endl;
+                  tcb.syscall_invocation->retval().initialized() );
+          cerr << " = " << *tcb.syscall_invocation->retval() << endl;
         }
       );
 
