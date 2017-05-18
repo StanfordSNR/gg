@@ -11,8 +11,9 @@ LDADD = ../trace/libggtrace.a \
         ../protobufs/libggprotobufs.a ../util/libggutil.a \
         $(PROTOBUF_LIBS) $(CRYPTO_LIBS)
 
-check_PROGRAMS = thunk-roundtrip
+check_PROGRAMS = thunk-roundtrip sandbox-test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
+sandbox_test_SOURCES = sandbox-test.cc
 
-TESTS = thunk-roundtrip
+TESTS = thunk-roundtrip sandbox-test

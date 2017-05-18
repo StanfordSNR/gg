@@ -41,6 +41,8 @@ public:
   void execute();
 
   void set_log_level( const LogLevel log_level ) { log_level_ = log_level; }
+
+  Optional<int> exit_status() { return process_.exit_status(); }
 };
 
 class SandboxViolation : public std::runtime_error
