@@ -40,6 +40,9 @@ public:
 class SystemCallInvocation
 {
 private:
+  /* pid of the calling process */
+  pid_t pid_;
+
   /* syscall number */
   long syscall_;
 
@@ -49,7 +52,9 @@ private:
   /* arguments to this system call */
   std::vector<Argument> arguments_;
 
-  /* syscall return value */
+  /* syscall return value.
+     if this value is not set, it means that the syscall has not been invoked
+     yet */
   Optional<long> return_value_;
 
 public:
@@ -63,6 +68,9 @@ public:
   Optional<long> retval() const { return return_value_; }
 
   void set_retval( const long return_value ) { return_value_.reset( return_value ); }
+
+  template<typename T>
+  void set_argument( uint8_t argnum, const T value );
 
   std::string to_string() const;
 };

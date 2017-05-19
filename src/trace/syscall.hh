@@ -9,7 +9,10 @@
 #include <typeindex>
 #include <string>
 #include <vector>
+#include <sys/reg.h>
 #include <map> /* needed by syscalltbl */
+
+constexpr int SYSCALL_ARG_REGS[] = { /* ORIG_RAX, */ RDI, RSI, RDX, R10, R8, R9 };
 
 using ArgumentType = std::type_index;
 

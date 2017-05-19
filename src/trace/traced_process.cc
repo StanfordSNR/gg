@@ -5,9 +5,9 @@
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/reg.h>
 #include <sys/user.h>
 #include <sys/stat.h>
+#include <linux/limits.h>
 #include <signal.h>
 #include <errno.h>
 #include <cstring>
@@ -17,8 +17,6 @@
 #include "exception.hh"
 
 using namespace std;
-
-int SYSCALL_ARG_REGS[] = { /* ORIG_RAX, */ RDI, RSI, RDX, R10, R8, R9 };
 
 extern int do_fork();
 
@@ -119,7 +117,7 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
   }
 }
 
-bool TracedProcess::wait_for_syscall( function<void( const TraceControlBlock & )> before_entry,
+bool TracedProcess::wait_for_syscall( function<void( TraceControlBlock & )> before_entry,
                                       function<void( const TraceControlBlock & )> after_exit )
 {
   pid_t cpid;
@@ -192,6 +190,48 @@ user_regs_struct TracedProcess::get_regs( const pid_t pid )
   user_regs_struct result;
   CheckSystemCall( "ptrace(GETREGS)", ptrace( PTRACE_GETREGS, pid, NULL, &result ) );
   return result;
+}
+
+template<typename T>
+void TracedProcess::set_syscall_arg( const pid_t pid, uint8_t argnum, const T & value )
+{
+  ptrace( PTRACE_POKEUSER, pid,
+          sizeof( long ) * SYSCALL_ARG_REGS[ argnum ], &value );
+}
+
+template<>
+void TracedProcess::set_syscall_arg( const pid_t pid, uint8_t argnum, const string & value )
+{
+  if ( value.length() >= PATH_MAX ) {
+    throw runtime_error( "maximum string length for set_syscall_arg is PATH_MAX" );
+  }
+
+  char * stack_addr = ( char * )ptrace( PTRACE_PEEKUSER, pid, sizeof( long ) * RSP, 0 );
+  stack_addr -= 128 + PATH_MAX * ( argnum + 1 );
+
+  char * const str_addr = stack_addr;
+
+  size_t i = 0;
+  long val = 0;
+  char * val_ptr = reinterpret_cast<char *>( &val );
+
+  for ( const char * c = value.c_str(); ; c++ ) {
+    val_ptr[ i++ ] = *c;
+
+    if ( i == sizeof( long ) or *c == '\0' ) {
+      ptrace( PTRACE_POKETEXT, pid, stack_addr, val );
+
+      stack_addr += i;
+      i = 0;
+      val = 0;
+    }
+
+    if ( *c == '\0' ) {
+      break;
+    }
+  }
+
+  ptrace( PTRACE_POKEUSER, pid, sizeof( long ) * SYSCALL_ARG_REGS[ argnum ], str_addr );
 }
 
 template int TracedProcess::get_syscall_arg( const pid_t, uint8_t );

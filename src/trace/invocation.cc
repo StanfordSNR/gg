@@ -35,7 +35,8 @@ Argument::Argument( ArgumentInfo info, const long raw_value )
 SystemCallInvocation::SystemCallInvocation( const pid_t pid,
                                             const long syscall_no,
                                             bool fetch_arguments )
-  : syscall_( syscall_no ), signature_(), arguments_(), return_value_()
+  : pid_( pid ), syscall_( syscall_no ), signature_(), arguments_(),
+    return_value_()
 {
   if ( syscall_signatures.count( syscall_no ) ) {
     const SystemCallSignature & sig = syscall_signatures.at( syscall_no );
@@ -107,3 +108,19 @@ std::string SystemCallInvocation::to_string() const
 
   return out.str();
 }
+
+template<>
+void SystemCallInvocation::set_argument( uint8_t argnum, const string value )
+{
+  TracedProcess::set_syscall_arg( pid_, argnum, value );
+  arguments_[ argnum ].set_value( value ); /* XXX what about the long_val? */
+}
+
+template<>
+void SystemCallInvocation::set_argument( uint8_t argnum, const char * value )
+{
+  string value_string( value );
+  set_argument( argnum, value_string );
+}
+
+template void SystemCallInvocation::set_argument( uint8_t argnum, const string value );

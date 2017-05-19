@@ -55,7 +55,7 @@ bool SandboxedProcess::open_entry( const SystemCallInvocation & syscall )
 void SandboxedProcess::execute()
 {
   auto syscall_entry =
-    [&]( const TraceControlBlock & tcb )
+    [&]( TraceControlBlock & tcb )
     {
       if ( log_level_ >= LOG_LEVEL_DEBUG ) {
         cerr << tcb.to_string() << endl;

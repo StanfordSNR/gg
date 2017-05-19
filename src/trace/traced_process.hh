@@ -48,13 +48,16 @@ public:
   TracedProcess( std::function<int()> && child_procedure,
                  const int termination_signal = SIGHUP );
 
-  bool wait_for_syscall( std::function<void( const TraceControlBlock & )> before_entry,
+  bool wait_for_syscall( std::function<void( TraceControlBlock & )> before_entry,
                          std::function<void( const TraceControlBlock & )> after_exit );
 
   void resume( void );
 
   template<typename T>
   static T get_syscall_arg( const pid_t pid, uint8_t argnum );
+
+  template<typename T>
+  static void set_syscall_arg( const pid_t pid, uint8_t argnum, const T & value );
 
   static user_regs_struct get_regs( const pid_t pid );
 
