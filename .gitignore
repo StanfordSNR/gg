@@ -34,3 +34,6 @@ Makefile.in
 .idea
 CMakeLists.txt
 cmake-build-debug
+.DS_Store
+._.DS_Store
+*.pyc
