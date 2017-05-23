@@ -1,5 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include <libgen.h>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -9,9 +10,14 @@
 
 using namespace std;
 
+/* XXX move this to a configuration file */
+unordered_map<string, string> model = {
+  { "ls", "/bin/pwd" },
+};
+
 void usage( const char * argv0 )
 {
-  cerr << argv0 << " COMMAND [option]..." << endl;
+  cerr << argv0 << " COMMAND..." << endl;
 }
 
 int main( int argc, char * argv[] )
@@ -30,18 +36,29 @@ int main( int argc, char * argv[] )
 
     while ( true ) {
       int waitres = tp.wait_for_syscall(
-        [&]( const TraceControlBlock & tcb )
+        [&]( TraceControlBlock & tcb )
         {
+          Optional<SystemCallInvocation> & invocation = tcb.syscall_invocation;
+
           #ifdef SYS_execveat
-          if ( tcb.syscall_invocation->syscall_no() == SYS_execveat ) {
+          if ( invocation->syscall_no() == SYS_execveat ) {
             throw runtime_error( "execveat() is not supported yet" );
           }
           #endif
 
-          if ( tcb.syscall_invocation->syscall_no() == SYS_execve ) {
-            cerr << "execve(\""
-            << tcb.syscall_invocation->arguments()[ 0 ].value<string>()
-            << "\")" << endl;
+          if ( invocation->syscall_no() == SYS_execve ) {
+            string exe_path = invocation->arguments()[ 0 ].value<string>();
+
+            /* XXX we should move to c++17 to use filesystem library for this */
+            vector<char> path_cstr( exe_path.c_str(), exe_path.c_str() + exe_path.size() + 1 );
+            string exe_filename { basename( path_cstr.data() ) };
+
+            if ( model.count( exe_filename ) ) {
+              invocation->set_argument( 0, model[ exe_filename ] );
+            }
+            else {
+              throw runtime_error( "could not find a model for " + exe_filename );
+            }
           }
         },
         [&]( const TraceControlBlock & ) {}
@@ -51,7 +68,7 @@ int main( int argc, char * argv[] )
     }
 
     if ( tp.exit_status().initialized() ) {
-      cerr << endl << "Process exited with " << tp.exit_status().get() << endl;
+      cerr << "Process exited with " << tp.exit_status().get() << endl;
     }
   }
   catch ( const exception &  e ) {
