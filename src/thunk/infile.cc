@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <cctype>
-#include <openssl/sha.h>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -10,6 +9,7 @@
 #include "optional.hh"
 #include "thunk.hh"
 #include "thunk_reader.hh"
+#include "digest.hh"
 
 using namespace std;
 using namespace gg;
@@ -46,26 +46,12 @@ string InFile::compute_hash( const string & filename )
 {
   // TODO : Check if file exists!
   ifstream file( filename, ifstream::binary );
+
   if( file.fail() ){
     throw runtime_error( "File " + filename + " does not exist." );
   }
-  SHA256_CTX md5Context;
-  SHA256_Init( &md5Context );
-  char buf[1024 * 16];
-  while ( file.good() ) {
-    file.read( buf, sizeof( buf ) );
-    SHA256_Update( &md5Context, buf, file.gcount() );
-  }
-  unsigned char result[ SHA256_DIGEST_LENGTH ];
-  SHA256_Final( result, &md5Context );
 
-  // TODO : Consider using a different object than string
-  stringstream md5string;
-  md5string << hex << uppercase << setfill('0');
-  for( const auto &byte: result ){
-    md5string << setw( 2 ) << ( int )byte;
-  }
-  return md5string.str();
+  return digest::SHA256( file ).hexdigest();
 }
 
 string InFile::to_envar( const string & root_dir ) const

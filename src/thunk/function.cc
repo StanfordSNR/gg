@@ -5,10 +5,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <unistd.h>
-#include <openssl/sha.h>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+
+#include "digest.hh"
 
 using namespace std;
 using namespace gg;
@@ -44,23 +45,7 @@ string Function::get_exe_path( const string & exe )
 string Function::hash_exe( const string & exe )
 {
   std::ifstream file( exe, std::ifstream::binary );
-  SHA256_CTX md5Context;
-  SHA256_Init( &md5Context );
-  char buf[1024 * 16];
-  while ( file.good() ) {
-    file.read( buf, sizeof( buf ) );
-    SHA256_Update( &md5Context, buf, file.gcount() );
-  }
-  unsigned char result[ SHA256_DIGEST_LENGTH ];
-  SHA256_Final( result, &md5Context );
-
-  // TODO : Consider using a different object than string
-  std::stringstream md5string;
-  md5string << std::hex << std::uppercase << std::setfill('0');
-  for( const auto &byte: result ){
-    md5string << std::setw( 2 ) << ( int )byte;
-  }
-  return md5string.str();
+  return digest::SHA256( file ).hexdigest();
 }
 
 protobuf::Function Function::to_protobuf() const
