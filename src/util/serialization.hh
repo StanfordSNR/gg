@@ -29,7 +29,6 @@ public:
 template<class EntryProtobufType>
 void ProtobufSerializer::write_protobuf( const EntryProtobufType & protobuf )
 {
-  coded_output_.WriteLittleEndian32( protobuf.ByteSize() );
   if ( not protobuf.SerializeToCodedStream( &coded_output_ ) ) {
     throw std::runtime_error( "write_protobuf: write error" );
   }
@@ -53,20 +52,9 @@ public:
 template<class EntryProtobufType>
 bool ProtobufDeserializer::read_protobuf( EntryProtobufType & message )
 {
-  google::protobuf::uint32 size;
   google::protobuf::io::CodedInputStream coded_input { &raw_input_ };
 
-  bool has_next = coded_input.ReadLittleEndian32( &size );
-
-  if ( not has_next ) {
-    return false;
-  }
-
-  google::protobuf::io::CodedInputStream::Limit message_limit =
-    coded_input.PushLimit( size );
-
   if ( message.ParseFromCodedStream( &coded_input ) ) {
-    coded_input.PopLimit( message_limit );
     return true;
   }
 
