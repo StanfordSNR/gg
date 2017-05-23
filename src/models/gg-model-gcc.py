@@ -1,18 +1,19 @@
+#!/usr/bin/python
 import sys
 import os
-sys.path.append("../protobufs/")
+prefix = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(prefix, "../protobufs/"))
 import gg_pb2 as gg
 import hashlib
 import argparse
-from shutil import copyfile
-
-sha256 = hashlib.sha256()
+from shutil import copyfile, copymode
 
 GG_DIR = "GG_DIR"
 OUTFLAG = "-o"
 SRCFLAG = "-c"
 GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc"
-CC1 = ".gg/exe/lib/gcc/x86_64-linux-musl/6.3.0/cc1"
+#CC1 = ".gg/exe/lib/gcc/x86_64-linux-musl/6.3.0/cc1"
+CC1=".gg/exe/bin/cc1"
 MAGIC_NUMBER = "##GGTHUNK##"
 
 
@@ -21,6 +22,7 @@ def print_error():
   exit(-1)
 
 def hash_file(filename):
+  sha256 = hashlib.sha256()
   block_size = 65536
   with open(filename, 'rb') as f:
     for block in iter(lambda: f.read(block_size), b''):
@@ -30,7 +32,7 @@ def hash_file(filename):
 def set_function(thunk):
   thunk.function.exe = GCC_COMPILER
   thunk.function.args.extend([thunk.function.exe] + sys.argv[1:])
-  thunk.function.hash = hash_file(thunk.function.exe)
+  thunk.function.hash = hash_file(GCC_COMPILER)
   return
 
 def set_default_infiles(thunk):
@@ -73,7 +75,10 @@ def set_outfile(thunk):
 
 def put_to_gg(infile):
   new_name = os.path.join(gg_dir, str(infile.order) + ":" + infile.hash)
+  new_name = os.path.join(gg_dir, infile.hash)
   copyfile(infile.filename, new_name)
+  copymode(infile.filename, new_name)
+  return
 
 def build_thunk():
   thunk = gg.Thunk()

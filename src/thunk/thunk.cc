@@ -49,9 +49,9 @@ int Thunk::execute( const string & root_dir ) const
 
   // preparing envp
   vector<string> gg_envars = {
-    "PATH=" + root_dir + "bin",
+    "PATH=" + root_dir + "exe/bin",
     "GG=1",
-    // "GG_VERBOSE=1"
+    //"GG_VERBOSE=1"
   };
 
   size_t envp_len = infiles_.size() + gg_envars.size();
