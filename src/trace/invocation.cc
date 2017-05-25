@@ -38,8 +38,8 @@ SystemCallInvocation::SystemCallInvocation( const pid_t pid,
   : pid_( pid ), syscall_( syscall_no ), signature_(), arguments_(),
     return_value_()
 {
-  if ( syscall_signatures.count( syscall_no ) ) {
-    const SystemCallSignature & sig = syscall_signatures.at( syscall_no );
+  if ( syscall_signature( syscall_no ).complete() ) {
+    const SystemCallSignature & sig = syscall_signature( syscall_no );
     signature_.reset( sig );
 
     if ( not fetch_arguments ) {

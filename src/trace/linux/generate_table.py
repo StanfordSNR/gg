@@ -17,17 +17,14 @@ import ctags
 
 from ctags import CTags, TagEntry
 
-item_template = """  // sys_{name}({signature_str}) [{file_info}]
-  {{
-    {num},
+item_template = """    // sys_{name}({signature_str}) [{file_info}]
     {{
       {num}, "{name}",
       {{
 {args}
       }},
-      {flags}
-    }}
-  }},
+      {flags}, {complete}
+    }},
 
 """
 
@@ -55,8 +52,21 @@ type_fixes = {
     'u64': '__u64',
 }
 
-out_start = '#include "syscall.hh"\n\n{includes}\n\nconst std::map<long, SystemCallSignature> syscall_signatures =\n{{\n'
-out_end = "};\n"
+out_start = '''#include "syscall.hh"
+
+{includes}
+
+const SystemCallSignature & syscall_signature( const size_t syscall_no )
+{{
+  static const SystemCallSignature syscall_signatures[] =
+  {{
+'''
+out_end = '''\
+  };
+
+  return syscall_signatures[ syscall_no ];
+}
+'''
 
 strace_flags = {
     "TD"  : "TRACE_DESC",
@@ -133,7 +143,7 @@ def generate(sysent_path, ctags_path, output_path):
                 data = re.split(r'[",\t ]+', m.group(2).strip())
                 syscall['name'] = data[3]
                 syscall['flags'] = fix_flags(data[1])
-                syscall['implemented'] = False
+                syscall['complete'] = False
 
                 syscall_data[syscall['num']] = syscall
 
@@ -143,6 +153,7 @@ def generate(sysent_path, ctags_path, output_path):
 
     tags = CTags(ctags_path)
     entry = TagEntry()
+    i = 0
     for k, syscall in syscall_data.items():
         if tags.find(entry, "sys_%s" % syscall['name'], ctags.TAG_FULLMATCH | ctags.TAG_OBSERVECASE):
             while entry['kind'] != 'prototype':
@@ -154,17 +165,26 @@ def generate(sysent_path, ctags_path, output_path):
             syscall['signature_str'] = sig_to_str(sig)
             syscall['args'] = "\n".join([arg_template.format(**x) for x in sig])
             syscall['file_info'] = "{}:{}".format(entry['file'], entry['lineNumber'])
-            syscall['implemented'] = True
+            syscall['complete'] = 'true'
         else:
             print("Could not find signature for {}".format(syscall['name']), file=sys.stderr)
+            syscall['signature_str'] = "?"
+            syscall['args'] = ''
+            syscall['file_info'] = '?'
+            syscall['complete'] = 'false'
 
     print("done.", file=sys.stderr)
 
     with open(output_path, "w") as fout:
         fout.write(out_start.format(includes="\n".join(includes)))
+        i = 0
         for syscall in sorted(syscall_data.values(), key=lambda x: x['num']):
-            if syscall['implemented']:
-                fout.write(item_template.format(**syscall))
+            if syscall['num'] != i:
+                raise Exception("There's a gap in syscall table.")
+
+            fout.write(item_template.format(**syscall))
+            i += 1
+
         fout.write(out_end)
 
 if __name__ == '__main__':

@@ -61,18 +61,24 @@ private:
   std::vector<ArgumentInfo> args_;
   int flags_;
 
+  bool complete_;
+
 public:
   SystemCallSignature( const long number, const std::string & name,
-                       const std::vector<ArgumentInfo> & args, int flags = 0 )
-    : number_( number ), name_( name ), args_( args ), flags_( flags )
+                       const std::vector<ArgumentInfo> & args, int flags = 0,
+                       const bool complete = false )
+    : number_( number ), name_( name ), args_( args ), flags_( flags ),
+      complete_( complete )
   {}
 
   long number() const { return number_; }
   std::string name() const { return name_; }
   std::vector<ArgumentInfo> arguments() const { return args_; }
   int flags() const { return flags_; }
+
+  bool complete() const { return complete_; }
 };
 
-extern const std::map<long, SystemCallSignature> syscall_signatures;
+extern const SystemCallSignature & syscall_signature( const size_t syscall_no );
 
 #endif /* SYSCALL_HH */
