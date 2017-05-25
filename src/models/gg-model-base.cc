@@ -8,9 +8,19 @@ using namespace gg::thunk;
 
 const char *GGModelBase::GG_DIR_FLAG = "GG_DIR";
 
+string safe_getenv(const char *flag){
+  char * var = getenv( flag );
+  if( var == NULL ) {
+    throw runtime_error("You must specify a GG directory" );
+  }
+  return string(var);
+}
+
 GGModelBase::GGModelBase() :
-  GG_DIR( string( getenv( GG_DIR_FLAG ) ) )
+  GG_DIR( safe_getenv(GG_DIR_FLAG) )
 {}
+
+GGModelBase::~GGModelBase(){}
 
 Thunk GGModelBase::build_thunk() {
 
