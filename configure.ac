@@ -26,7 +26,6 @@ AC_SUBST(EXTRA_CXXFLAGS)
 # Checks for libraries.
 PKG_CHECK_MODULES([CRYPTO],[libcrypto])
 PKG_CHECK_MODULES([PROTOBUF], [protobuf])
-PKG_CHECK_MODULES([LIBCAP], [libcap])
 
 # Protobuf compiler
 AC_PATH_PROG([PROTOC], [protoc], [])
@@ -34,7 +33,8 @@ AS_IF([test x"$PROTOC" = x],
   [AC_MSG_ERROR([cannot find protoc, the Protocol Buffers compiler])])
 
 # Checks for header files.
-AC_CHECK_HEADERS([keyutils.h], [], [AC_MSG_ERROR([Missing required header file])])
+AC_CHECK_HEADERS([keyutils.h], [], [AC_MSG_ERROR([Missing libkeyutils header file])])
+AC_CHECK_HEADERS([sys/capability.h], [], [AC_MSG_ERROR([Missing libcap header file])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT16_T
