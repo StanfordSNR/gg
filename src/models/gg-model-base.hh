@@ -9,7 +9,7 @@ class GGModelBase{
 protected:
   const std::string GG_DIR;
 
-  static const std::string GG_DIR_FLAG = "GG_DIR";
+  static const char *GG_DIR_FLAG;
 
   virtual gg::thunk::Function get_function() = 0;
 
@@ -19,6 +19,8 @@ protected:
 
 public:
   GGModelBase();
+
+  virtual ~GGModelBase() = 0;
 
   gg::thunk::Thunk build_thunk();
 

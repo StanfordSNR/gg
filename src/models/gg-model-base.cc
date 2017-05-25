@@ -6,8 +6,10 @@
 using namespace std;
 using namespace gg::thunk;
 
+const char *GGModelBase::GG_DIR_FLAG = "GG_DIR";
+
 GGModelBase::GGModelBase() :
-  GG_DIR( getenv( GG_DIR_FLAG ) )
+  GG_DIR( string( getenv( GG_DIR_FLAG ) ) )
 {}
 
 Thunk GGModelBase::build_thunk() {
@@ -24,6 +26,6 @@ void GGModelBase::write_thunk() {
 
   Thunk thunk = build_thunk();
   ThunkWriter::write_thunk( thunk );
-  
+
 }
 
