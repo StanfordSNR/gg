@@ -1,21 +1,21 @@
-syntax = 'proto2';
+syntax = 'proto3';
 
 package gg.protobuf;
 
 message Function {
-  optional string exe = 1;
+  string exe = 1;
   repeated string args = 2;
-  optional string hash = 3;
+  string hash = 3;
 }
 
 message InFile {
-  optional string filename = 1;
-  optional string hash = 2;
-  optional uint32 order = 3;
+  string filename = 1;
+  string hash = 2;
+  uint32 order = 3;
 }
 
 message Thunk {
-  optional Function function = 1;
+  Function function = 1;
   repeated InFile infiles = 2;
-  optional string outfile = 3;
+  string outfile = 3;
 }
