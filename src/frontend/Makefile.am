@@ -4,7 +4,7 @@ AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util \
 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
-BASE_LDADD = ../trace/libggtrace.a \
+BASE_LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
              ../sandbox/libggsandbox.a \
              ../thunk/libthunk.a \
              ../protobufs/libggprotobufs.a ../util/libggutil.a \
