@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
-#include <google/protobuf/text_format.h>
+#include <google/protobuf/util/json_util.h>
 
 #include "exception.hh"
 #include "syscall.hh"
@@ -11,7 +11,7 @@
 #include "thunk_reader.hh"
 
 using namespace std;
-using namespace google::protobuf;
+using namespace google::protobuf::util;
 using namespace gg::thunk;
 
 void usage( const char * argv0 )
@@ -35,7 +35,10 @@ int main( int argc, char * argv[] )
     Thunk thunk = thunk_reader.read_thunk();
 
     string textf;
-    TextFormat::PrintToString( thunk.to_protobuf(), &textf );
+    JsonPrintOptions options;
+    options.add_whitespace = true;
+    options.always_print_primitive_fields = true;
+    MessageToJsonString( thunk.to_protobuf(), &textf, options );
 
     cout << textf << endl;
   }
