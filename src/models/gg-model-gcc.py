@@ -12,7 +12,6 @@ GG_DIR = "GG_DIR"
 OUTFLAG = "-o"
 SRCFLAG = "-c"
 GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc"
-#CC1 = ".gg/exe/lib/gcc/x86_64-linux-musl/6.3.0/cc1"
 CC1=".gg/exe/bin/cc1"
 MAGIC_NUMBER = "##GGTHUNK##"
 
@@ -75,7 +74,8 @@ def set_outfile(thunk):
   return
 
 def put_to_gg(infile):
-  new_name = os.path.join(gg_dir, str(infile.order) + ":" + infile.hash)
+  #TODO : put back thunk order
+  #new_name = os.path.join(gg_dir, str(infile.order) + ":" + infile.hash)
   new_name = os.path.join(gg_dir, infile.hash)
   copyfile(infile.filename, new_name)
   copymode(infile.filename, new_name)
