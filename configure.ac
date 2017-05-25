@@ -19,7 +19,7 @@ AC_LANG_PUSH(C++)
 AC_ARG_ENABLE([sanitize],
   [AS_HELP_STRING([--enable-sanitize],
      [build with address and undefined-behavior santizers])],
-     [EXTRA_CXXFLAGS="-fsanitize=address -fsanitize=undefined -fuse-ld=bfd"])
+     [EXTRA_CXXFLAGS="-fsanitize=address -fsanitize=undefined -fuse-ld=gold"])
 
 AC_SUBST(EXTRA_CXXFLAGS)
 
