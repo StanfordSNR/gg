@@ -1,7 +1,7 @@
 
 AC_PREREQ([2.68])
 AC_INIT([gg], [0.01], [gg@cs.stanford.edu])
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_SRCDIR([src/frontend/gg-trace.cc])
 AC_CONFIG_HEADERS([config.h])
 
