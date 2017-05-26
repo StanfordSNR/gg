@@ -7,27 +7,36 @@
 using namespace std;
 using namespace gg::thunk;
 
+static const string GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc";
+static const string CC1=".gg/exe/bin/cc1";
 
 class GGModelCompile : public GGModelBase{
 private:
   string srcfile{};
   string outfile{};
+  vector<string> cmd{};
 
-  void parse_args(int argc, char **argv){
+  void parse_args( int argc, char **argv ){
     char arg;
-    while ((arg = getopt( argc, argv, "gScO:f:o:" )) != -1){
+    while ( ( arg = getopt( argc, argv, "gScO:f:o:" ) ) != -1){
       switch(arg){
         case 'o':
-          outfile = string(optarg);
+          outfile = string( optarg );
           break;
       }
     }
-    srcfile = argv[optind];
+    srcfile = argv[ optind ];
   };
+
+  void store_args( int argc, char **argv ){
+    for( int i = 0; i < argc; i++ ){
+      cmd.push_back( string( argv[i] ) );
+    }
+  }
 
 protected:
   Function get_function() {
-    return Function(vector<string>());
+    return Function(cmd);
   };
 
   string get_outfile() {
@@ -39,7 +48,8 @@ protected:
   };
 
   vector<InFile> get_infiles() {
-    return vector<InFile>();
+    vector<InFile> infiles { srcfile, GCC_COMPILER, CC1 };
+    return infiles;
   };
 
 
@@ -47,6 +57,7 @@ protected:
 public:
 
   GGModelCompile( int argc, char **argv ) : GGModelBase(){
+    store_args(argc, argv);
     parse_args(argc, argv);
   }
 
@@ -62,6 +73,5 @@ public:
 
 int main( int argc, char **argv ){
   GGModelCompile model { argc, argv };
-  cout << model.get_srcfile(argc, argv) << endl;
-  // model.write_thunk();
+  model.write_thunk();
 }
