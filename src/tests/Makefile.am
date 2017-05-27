@@ -11,8 +11,9 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         $(PROTOBUF_LIBS) $(CRYPTO_LIBS)
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
+check_SCRIPTS = compile-model-test.sh
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
-TESTS = thunk-roundtrip sandbox-test
+TESTS = thunk-roundtrip sandbox-test compile-model-test.sh

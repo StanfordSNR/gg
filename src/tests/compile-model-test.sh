@@ -31,15 +31,16 @@ fi
 
 
 # execute thunk
-
+../frontend/gg-execute remake.s
 
 
 # check difference
-
+diff remake.s remake.s.gold
 
 
 # Clean up
 # Note: Not cleaning up .gg directory
 rm -f remake.s.gold
+rm -f remake.s
 
 exit 0
