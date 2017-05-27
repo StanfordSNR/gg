@@ -20,7 +20,7 @@ fi
 $BIN/x86_64-linux-musl-gcc -g -O2 -c -S -frandom-seed=winstein -o remake.s.gold examples/remake.i
 
 # Create thunk
-GG_DIR=.gg/ python ../models/gg-model-compile.py -g -O2 -c -S -frandom-seed=winstein -o remake.s examples/remake.i
+GG_DIR=.gg/ python ../models/gg-model-compile.py -g -O2 -c -S -frandom-seed=winstein -o remake-python.s examples/remake.i
 
 
 # Assert it's a thunk
@@ -31,16 +31,17 @@ fi
 
 
 # execute thunk
-../frontend/gg-execute remake.s
+../frontend/gg-execute remake-python.s
 
 
 # check difference
-diff remake.s remake.s.gold
+diff remake-python.s remake.s.gold
 
 
 # Clean up
 # Note: Not cleaning up .gg directory
 rm -f remake.s.gold
-rm -f remake.s
+rm -f remake-python.s
+find .gg -maxdepth 1 -type f -delete
 
 exit 0
