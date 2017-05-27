@@ -5,6 +5,7 @@ PATH=`pwd`/$BIN:$PATH
 MAGIC="##GGTHUNK##"
 
 # Download binaries
+mkdir -p $BIN
 if [ ! -f $BIN/cc1 ]; then
   wget  https://s3-us-west-2.amazonaws.com/gg-us-west-2/bin/cc1 -O $BIN/cc1
   chmod u+x $BIN/cc1
