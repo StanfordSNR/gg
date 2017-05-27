@@ -30,7 +30,12 @@ private:
 
   void store_args( int argc, char **argv ){
     for( int i = 0; i < argc; i++ ){
-      cmd.push_back( string( argv[i] ) );
+      if( i == 0 ){
+        cmd.push_back( GCC_COMPILER );
+      } else {
+        cmd.push_back( string( argv[i] ) );
+      }
+
     }
   }
 

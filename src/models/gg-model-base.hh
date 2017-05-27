@@ -5,6 +5,8 @@
 #include "thunk.hh"
 
 class GGModelBase{
+private:
+  void copy_infiles_to_gg(std::vector<gg::thunk::InFile> & infiles);
 
 protected:
   const std::string GG_DIR;
@@ -16,6 +18,8 @@ protected:
   virtual std::string get_outfile() = 0;
 
   virtual std::vector<gg::thunk::InFile> get_infiles() = 0;
+
+
 
 public:
   GGModelBase();
