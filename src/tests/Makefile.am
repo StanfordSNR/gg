@@ -12,13 +12,13 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
 
 AM_TESTS_ENVIRONMENT = \
 	export DATADIR=$(srcdir); \
-	./download_binaries.sh;
+	$(srcdir)/download_binaries.sh;
 	
 
 EXTRA_DIST = examples/remake.i
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
-dist_check_SCRIPTS = compile-model-test.sh compile-model-test-python.sh
+dist_check_SCRIPTS = compile-model-test.sh compile-model-test-python.sh download_binaries.sh
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
