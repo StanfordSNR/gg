@@ -2,7 +2,7 @@ AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox $(CXX14_FLAGS) $(PROTOBUF_CFLAGS)
 
-AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
+AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS) 
 
 LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         ../sandbox/libggsandbox.a \
@@ -10,8 +10,12 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         ../protobufs/libggprotobufs.a ../util/libggutil.a \
         $(PROTOBUF_LIBS) $(CRYPTO_LIBS)
 
+AM_TESTS_ENVIRONMENT = \
+	export DATADIR=$(srcdir);
+
+EXTRA_DIST = examples/remake.i
+
 check_PROGRAMS = thunk-roundtrip sandbox-test
-#check_SCRIPTS = compile-model-test.sh compile-model-test-python.sh
 dist_check_SCRIPTS = compile-model-test.sh compile-model-test-python.sh
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc

@@ -18,10 +18,10 @@ fi
 
 
 # Run with GCC
-$BIN/x86_64-linux-musl-gcc -g -O2 -c -S -frandom-seed=winstein -o remake.s.gold examples/remake.i
+$BIN/x86_64-linux-musl-gcc -g -O2 -c -S -frandom-seed=winstein -o remake.s.gold $DATADIR/examples/remake.i
 
 # Create thunk
-GG_DIR=.gg/ python ../models/gg-model-compile.py -g -O2 -c -S -frandom-seed=winstein -o remake-python.s examples/remake.i
+GG_DIR=.gg/ python $DATADIR/../models/gg-model-compile.py -g -O2 -c -S -frandom-seed=winstein -o remake-python.s $DATADIR/examples/remake.i
 
 
 # Assert it's a thunk

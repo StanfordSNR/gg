@@ -3,6 +3,8 @@ import sys
 import os
 prefix = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(prefix, "../protobufs/"))
+if "DATADIR" in os.environ:
+    sys.path.append(os.path.join(os.environ["DATADIR"], "../../_build/sub/src/protobufs/"))
 import gg_pb2 as gg
 import hashlib
 import argparse

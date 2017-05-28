@@ -18,10 +18,10 @@ fi
 
 
 # Run with GCC
-$BIN/x86_64-linux-musl-gcc -g -O2 -c -S -frandom-seed=winstein -o remake.s.gold examples/remake.i
+$BIN/x86_64-linux-musl-gcc -g -O2 -c -S -frandom-seed=winstein -o remake.s.gold $DATADIR/examples/remake.i
 
 # Create thunk
-GG_DIR=.gg/ ../models/gg-model-compile -g -O2 -c -S -frandom-seed=winstein -o remake.s examples/remake.i
+GG_DIR=.gg/ ../models/gg-model-compile -g -O2 -c -S -frandom-seed=winstein -o remake.s $DATADIR/examples/remake.i
 
 
 # Assert it's a thunk
@@ -43,6 +43,6 @@ diff remake.s remake.s.gold
 # Note: Not cleaning up .gg directory
 rm -f remake.s.gold
 rm -f remake.s
-#find .gg -maxdepth 1 -type f -delete
+find .gg -maxdepth 1 -type f -delete
 
 exit 0
