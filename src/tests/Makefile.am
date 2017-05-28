@@ -11,7 +11,9 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         $(PROTOBUF_LIBS) $(CRYPTO_LIBS)
 
 AM_TESTS_ENVIRONMENT = \
-	export DATADIR=$(srcdir);
+	export DATADIR=$(srcdir); \
+	./download_binaries.sh;
+	
 
 EXTRA_DIST = examples/remake.i
 
