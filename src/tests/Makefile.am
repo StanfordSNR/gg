@@ -22,3 +22,6 @@ thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
 TESTS = thunk-roundtrip sandbox-test compile-model-test.sh compile-model-test-python.sh
+
+clean-local:
+	-rm -rf .gg/
