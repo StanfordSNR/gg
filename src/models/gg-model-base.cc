@@ -10,7 +10,7 @@
 using namespace std;
 using namespace gg::thunk;
 
-const char *GGModelBase::GG_DIR_FLAG = "GG_DIR";
+const string GGModelBase::GG_DIR_FLAG = "GG_DIR";
 
 string safe_getenv(const char *flag){
   char * var = getenv( flag );
@@ -21,7 +21,7 @@ string safe_getenv(const char *flag){
 }
 
 GGModelBase::GGModelBase() :
-  GG_DIR( safe_getenv(GG_DIR_FLAG) )
+  GG_DIR( safe_getenv(GG_DIR_FLAG.c_str()) )
 {}
 
 GGModelBase::~GGModelBase(){}

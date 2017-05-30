@@ -11,7 +11,7 @@ private:
 protected:
   const std::string GG_DIR;
 
-  static const char *GG_DIR_FLAG;
+  static const std::string GG_DIR_FLAG;
 
   virtual gg::thunk::Function get_function() = 0;
 
