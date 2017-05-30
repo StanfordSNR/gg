@@ -26,7 +26,7 @@ sandbox_test_SOURCES = sandbox-test.cc
 TESTS = download_binaries.test thunk-roundtrip sandbox-test compile-model-test.test compile-model-test-python.test
 
 compile-model-test.log: download_binaries.log
-compile-model-test-python.log: compile-model-test.log #download_binaries.log
+compile-model-test-python.log: compile-model-test.log
 
 clean-local:
 	-rm -rf .gg/

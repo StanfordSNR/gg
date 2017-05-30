@@ -17,6 +17,7 @@ before_script:
   - sudo apt-get update -qq
   - sudo apt-get install -y protobuf-compiler libprotobuf-dev
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 99
+  - pip install --user protobuf
 
 script:
   - ./autogen.sh

@@ -30,5 +30,6 @@ diff remake.s remake.s.gold
 # Note: Not cleaning up .gg directory
 rm -f remake.s.gold
 rm -f remake.s
+find .gg -maxdepth 1 -type f -delete
 
 exit 0

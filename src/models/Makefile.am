@@ -8,6 +8,7 @@ BASE_LDADD = ../thunk/libthunk.a \
              ../protobufs/libggprotobufs.a \
              ../util/libggutil.a \
              $(PROTOBUF_LIBS)
+
 EXTRA_DIST = gg-model-compile.py
 
 bin_PROGRAMS = gg-model-compile
