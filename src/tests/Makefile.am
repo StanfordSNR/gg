@@ -11,19 +11,22 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         $(PROTOBUF_LIBS) $(CRYPTO_LIBS)
 
 AM_TESTS_ENVIRONMENT = \
-	export DATADIR=$(srcdir); \
-	$(srcdir)/download_binaries.sh;
+	export DATADIR=$(srcdir);
+
 	
 
 EXTRA_DIST = examples/remake.i
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
-dist_check_SCRIPTS = compile-model-test.sh compile-model-test-python.sh download_binaries.sh
+dist_check_SCRIPTS = compile-model-test.test compile-model-test-python.test download_binaries.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
-TESTS = thunk-roundtrip sandbox-test compile-model-test.sh compile-model-test-python.sh
+TESTS = download_binaries.test thunk-roundtrip sandbox-test compile-model-test.test compile-model-test-python.test
+
+compile-model-test.log: download_binaries.log
+compile-model-test-python.log: compile-model-test.log #download_binaries.log
 
 clean-local:
 	-rm -rf .gg/
