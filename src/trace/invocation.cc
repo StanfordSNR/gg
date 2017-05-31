@@ -33,35 +33,36 @@ Argument::Argument( ArgumentInfo info, const long raw_value )
 /* SystemCallInvocation */
 
 SystemCallInvocation::SystemCallInvocation( const pid_t pid,
-                                            const long syscall_no,
-                                            bool fetch_arguments )
+                                            const long syscall_no )
   : pid_( pid ), syscall_( syscall_no ), signature_(), arguments_(),
     return_value_()
 {
   if ( syscall_signature( syscall_no ).complete() ) {
     const SystemCallSignature & sig = syscall_signature( syscall_no );
     signature_.reset( sig );
+  }
+}
 
-    if ( not fetch_arguments ) {
-      return;
+void SystemCallInvocation::fetch_arguments()
+{
+  const SystemCallSignature & sig = syscall_signature( syscall_ );
+  vector<ArgumentInfo> args = sig.arguments();
+
+  arguments_.reset();
+
+  for ( size_t i = 0; i < args.size(); i++ ) {
+    const ArgumentInfo & arg_info = args.at( i );
+
+    arguments_->emplace_back( arg_info, TracedProcess::get_syscall_arg<long>( pid_, i ) );
+
+    Argument & last_arg = arguments_->back();
+
+    if ( arg_info.is_readable_string() ) {
+      last_arg.set_value( TracedProcess::get_syscall_arg<string>( pid_, i ) );
     }
 
-    vector<ArgumentInfo> args = sig.arguments();
-
-    for ( size_t i = 0; i < args.size(); i++ ) {
-      const ArgumentInfo & arg_info = args.at( i );
-
-      arguments_.emplace_back( arg_info, TracedProcess::get_syscall_arg<long>( pid, i ) );
-
-      Argument & last_arg = arguments_.back();
-
-      if ( arg_info.is_readable_string() ) {
-        last_arg.set_value( TracedProcess::get_syscall_arg<string>( pid, i ) );
-      }
-
-      // let's set the raw value anyway
-      last_arg.set_value( last_arg.raw_value() );
-    }
+    // let's set the raw value anyway
+    last_arg.set_value( last_arg.raw_value() );
   }
 }
 
@@ -85,19 +86,24 @@ std::string SystemCallInvocation::to_string() const
     out << signature()->name() << "(";
 
     size_t i = 0;
-    for ( auto & arg : arguments() ) {
-      i++;
+    if ( arguments_.initialized() ) {
+      for ( auto & arg : *arguments_ ) {
+        i++;
 
-      if ( arg.info().is_readable_string() ) {
-        out << '"' << arg.value<string>() << '"';
-      }
-      else {
-        out << arg.value<long>();
-      }
+        if ( arg.info().is_readable_string() ) {
+          out << '"' << arg.value<string>() << '"';
+        }
+        else {
+          out << arg.value<long>();
+        }
 
-      if ( i != arguments().size() ) {
-        out << ", ";
+        if ( i != arguments_->size() ) {
+          out << ", ";
+        }
       }
+    }
+    else {
+      out << "?";
     }
 
     out << ")";
@@ -113,7 +119,10 @@ template<>
 void SystemCallInvocation::set_argument( uint8_t argnum, const string value )
 {
   TracedProcess::set_syscall_arg( pid_, argnum, value );
-  arguments_[ argnum ].set_value( value ); /* XXX what about the long_val? */
+
+  if ( arguments_.initialized() ) {
+    arguments_->at( argnum ).set_value( value ); /* XXX what about the long_val? */
+  }
 }
 
 template<>

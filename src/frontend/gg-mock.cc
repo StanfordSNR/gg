@@ -47,7 +47,9 @@ int main( int argc, char * argv[] )
           #endif
 
           if ( invocation->syscall_no() == SYS_execve ) {
-            string exe_path = invocation->arguments()[ 0 ].value<string>();
+            invocation->fetch_arguments();
+
+            string exe_path = invocation->arguments()->at( 0 ).value<string>();
 
             /* XXX we should move to c++17 to use filesystem library for this */
             vector<char> path_cstr( exe_path.c_str(), exe_path.c_str() + exe_path.size() + 1 );

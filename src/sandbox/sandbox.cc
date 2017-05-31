@@ -21,7 +21,9 @@ inline void Check( const TraceControlBlock & tcb, bool status )
 
 bool SandboxedProcess::file_syscall_entry( const SystemCallInvocation & syscall )
 {
-  for ( const Argument & arg : syscall.arguments() ) {
+  assert( syscall.arguments().initialized() );
+
+  for ( const Argument arg : *syscall.arguments() ) {
     if ( arg.info().flags & ARGUMENT_F_PATHNAME ) { /* it's a path argument */
       const string pathname = arg.value<string>();
       if ( allowed_files_.count( pathname ) == 0 ) {
@@ -35,8 +37,10 @@ bool SandboxedProcess::file_syscall_entry( const SystemCallInvocation & syscall 
 
 bool SandboxedProcess::open_entry( const SystemCallInvocation & syscall )
 {
-  const string pathname = syscall.arguments().at( 0 ).value<string>();
-  const int access_mode = syscall.arguments().at( 1 ).value<int>() & O_ACCMODE;
+  assert( syscall.arguments().initialized() );
+
+  const string pathname = syscall.arguments()->at( 0 ).value<string>();
+  const int access_mode = syscall.arguments()->at( 1 ).value<int>() & O_ACCMODE;
 
   if ( not allowed_files_.count( pathname ) ) {
     return false;
@@ -61,7 +65,7 @@ void SandboxedProcess::execute()
         cerr << tcb.to_string() << endl;
       }
 
-      const SystemCallInvocation & syscall = tcb.syscall_invocation.get();
+      SystemCallInvocation & syscall = tcb.syscall_invocation.get();
 
       switch ( syscall.syscall_no() ) {
       case SYS_chroot:
@@ -98,6 +102,9 @@ void SandboxedProcess::execute()
           return;
           /* this system call is not file-related. allow it! */
         }
+
+        /* only fetch the arguments when it's necessary */
+        syscall.fetch_arguments();
 
         switch ( syscall.syscall_no() ) {
         case SYS_open:

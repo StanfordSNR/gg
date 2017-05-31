@@ -50,7 +50,7 @@ private:
   Optional<SystemCallSignature> signature_;
 
   /* arguments to this system call */
-  std::vector<Argument> arguments_;
+  Optional<std::vector<Argument>> arguments_;
 
   /* syscall return value.
      if this value is not set, it means that the syscall has not been invoked
@@ -58,14 +58,15 @@ private:
   Optional<long> return_value_;
 
 public:
-  SystemCallInvocation( const pid_t pid, const long syscall_no,
-                        bool fetch_arguments = true );
+  SystemCallInvocation( const pid_t pid, const long syscall_no );
 
   long syscall_no() const { return syscall_; }
   std::string name();
   Optional<SystemCallSignature> signature() const { return signature_; }
-  std::vector<Argument> arguments() const { return arguments_; }
+  const Optional<std::vector<Argument>> & arguments() const { return arguments_; }
   Optional<long> retval() const { return return_value_; }
+
+  void fetch_arguments();
 
   void set_retval( const long return_value ) { return_value_.reset( return_value ); }
 
