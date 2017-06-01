@@ -15,4 +15,9 @@ if [ ! -f $BIN/x86_64-linux-musl-gcc ]; then
   chmod u+x $BIN/x86_64-linux-musl-gcc
 fi
 
+if [ ! -f $BIN/as ]; then
+  wget  https://s3-us-west-2.amazonaws.com/gg-us-west-2/bin/as -O $BIN/as
+  chmod u+x $BIN/as
+fi
+
 exit 0
