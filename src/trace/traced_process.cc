@@ -79,6 +79,9 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
   while ( true ) {
     cpid = CheckSystemCall( "waitpid", waitpid( -1, &status, __WALL ) );
 
+    int signum = 0;
+    unsigned int event = (unsigned int) status >> 16;
+
     if ( processes_.count( cpid ) == 0 ) {
       processes_.insert( { cpid, { cpid } } );
     }
@@ -95,11 +98,13 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
       processes_.at( cpid ).initialized = true;
     }
 
-    if ( WIFSTOPPED( status ) && WSTOPSIG( status ) & 0x80 ) {
+    if ( WIFSTOPPED( status ) and ( WSTOPSIG( status ) & 0x80 ) ) {
+      /* the process is stopped AND it's a syscall */
       return true;
     }
-    else if ( WIFEXITED( status ) ) {
-      if ( cpid == pid_ ) { /* the parent process exited */
+    else if ( WIFEXITED( status ) or WIFSIGNALED( status ) ) {
+      /* the process is terminated */
+      if ( WIFEXITED( status ) and cpid == pid_ ) { /* the parent process exited */
         exit_status_.reset( WEXITSTATUS( status ) );
       }
 
@@ -112,8 +117,26 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
         continue;
       }
     }
+    else if ( WIFSTOPPED( status ) ) {
+      /* the process is stopped, but it's not a syscall--it's because of a
+         signal */
+      signum = WSTOPSIG( status );
 
-    CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, cpid, NULL, NULL ) );
+      switch ( event ) {
+      case 0:
+        break;
+
+      case PTRACE_EVENT_EXIT:
+      default:
+        signum = 0;
+        break;
+      }
+    }
+    else {
+      throw runtime_error( "process did not stop" );
+    }
+
+    CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, cpid, NULL, signum ) );
   }
 }
 

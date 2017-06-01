@@ -31,9 +31,10 @@ int main( int argc, char * argv[] )
 
     while ( true ) {
       int waitres = tp.wait_for_syscall(
-        [&]( const TraceControlBlock & tcb )
+        [&]( TraceControlBlock & tcb )
         {
-          cerr << tcb.to_string();
+          tcb.syscall_invocation->fetch_arguments();
+          cerr << tcb.to_string() << endl;
         },
         [&]( const TraceControlBlock & tcb )
         {
