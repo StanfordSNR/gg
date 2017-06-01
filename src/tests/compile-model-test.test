@@ -19,7 +19,7 @@ fi
 
 
 # execute thunk
-../frontend/gg-execute remake.s
+../frontend/gg-execute -s remake.s
 
 
 # check difference

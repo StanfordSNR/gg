@@ -20,7 +20,7 @@ fi
 
 
 # execute thunk
-../frontend/gg-execute remake-python.s
+../frontend/gg-execute -s remake-python.s
 
 
 # check difference
