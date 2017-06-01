@@ -15,18 +15,19 @@ AM_TESTS_ENVIRONMENT = \
 
 	
 
-EXTRA_DIST = examples/remake.i
+EXTRA_DIST = examples/remake.i examples/remake.s
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
-dist_check_SCRIPTS = compile-model-test.test compile-model-test-python.test download_binaries.test
+dist_check_SCRIPTS = compile-model-test.test compile-model-test-python.test download_binaries.test assemble-model.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
-TESTS = download_binaries.test thunk-roundtrip sandbox-test compile-model-test.test compile-model-test-python.test
+TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 compile-model-test.log: download_binaries.log
 compile-model-test-python.log: compile-model-test.log
+assemble-model.log: compile-model-test-python.log
 
 clean-local:
 	-rm -rf .gg/

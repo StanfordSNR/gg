@@ -1,0 +1,35 @@
+#!/bin/bash -e
+
+BIN=.gg/exe/bin
+PATH=`pwd`/$BIN:$PATH
+MAGIC="##GGTHUNK##"
+
+# Run with GCC
+$BIN/x86_64-linux-musl-gcc -g -O2 -c -frandom-seed=winstein -o remake.o.gold $DATADIR/examples/remake.s
+
+# Create thunk
+GG_DIR=.gg/ ../models/gg-model-assemble -g -O2 -c -frandom-seed=winstein -o remake.o $DATADIR/examples/remake.s
+
+
+# Assert it's a thunk
+if [ $MAGIC != `head -c 11 remake.o` ]; then
+  echo "Failed to create thunk"
+  exit 1
+fi
+
+
+# execute thunk
+../frontend/gg-execute -s remake.o
+
+
+# check difference
+diff remake.o remake.o.gold
+
+
+# Clean up
+# Note: Not cleaning up .gg directory
+rm -f remake.o.gold
+rm -f remake.o
+find .gg -maxdepth 1 -type f -delete
+
+exit 0
