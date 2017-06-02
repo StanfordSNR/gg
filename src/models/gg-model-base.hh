@@ -29,6 +29,7 @@ protected:
 public:
   GGModelBase(int, char**);
   virtual ~GGModelBase() = 0;
+  
   std::string get_srcfile(int, char **);
   gg::thunk::Thunk build_thunk();
   void write_thunk();

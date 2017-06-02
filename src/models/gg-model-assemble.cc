@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <unistd.h>
-#include <getopt.h>
 
 using namespace std;
 using namespace gg::thunk;
@@ -12,7 +11,7 @@ using namespace gg::thunk;
 static const string GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc";
 static const string AS = ".gg/exe/bin/as";
 
-class GGModelAssemble : public GGModelCompile
+class GGModelAssemble : public GGModelBase
 {
 protected:
   vector<InFile> get_infiles()
