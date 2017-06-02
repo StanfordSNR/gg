@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <unistd.h>
-#include <getopt.h>
 
 using namespace std;
 using namespace gg::thunk;

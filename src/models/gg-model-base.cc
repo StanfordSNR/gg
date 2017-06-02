@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <getopt.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -13,6 +14,7 @@ using namespace std;
 using namespace gg::thunk;
 
 const string GGModelBase::GG_DIR_FLAG = "GG_DIR";
+static const string GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc";
 
 string safe_getenv( const char *flag )
 {
@@ -25,93 +27,89 @@ string safe_getenv( const char *flag )
   return string( var );
 }
 
-class GGModelBase 
+
+string srcfile {};
+string outfile {};
+vector<string> cmd {};
+
+Thunk GGModelBase::build_thunk()
 {
-  protected:
-    string srcfile {};
-    string outfile {};
-    vector<string> cmd {};
+  Function thunk_func = get_function();
+  vector<InFile> infiles = get_infiles();
+  copy_infiles_to_gg( infiles );
+  string outfile = get_outfile();
+  Thunk thunk { outfile, thunk_func, infiles };
 
-    Thunk build_thunk()
-    {
-      Function thunk_func = get_function();
-      vector<InFile> infiles = get_infiles();
-      copy_infiles_to_gg( infiles );
-      string outfile = get_outfile();
-      Thunk thunk { outfile, thunk_func, infiles };
+  return thunk;
+}
 
-      return thunk;
+void GGModelBase::write_thunk()
+{
+  Thunk thunk = build_thunk();
+  ThunkWriter::write_thunk( thunk );
+}
+
+void GGModelBase::copy_infiles_to_gg( vector<InFile> & infiles )
+{
+  for ( InFile infile : infiles ) {
+    ifstream src( infile.filename(), ios::binary );
+    ofstream dst( GG_DIR + infile.hash(), ios::binary );
+    struct stat fst;
+    stat( infile.filename().c_str(), &fst );
+    chmod( ( GG_DIR + infile.hash()).c_str(), fst.st_mode );
+    dst << src.rdbuf();
+  }
+}
+
+string GGModelBase::get_srcfile( int argc, char ** argv ) {
+  if ( srcfile.empty() ) {
+    parse_args( argc, argv );
+  }
+  return srcfile;
+}
+
+void GGModelBase::parse_args( int argc, char **argv )
+{
+  char arg;
+  while ( ( arg = getopt( argc, argv, "gScO:f:o:" ) ) != -1 ) {
+    switch ( arg ) {
+    case 'o':
+      outfile = string( optarg );
+      break;
     }
+  }
+  srcfile = argv[ optind ];
+}
 
-    void write_thunk()
-    {
-      Thunk thunk = build_thunk();
-      ThunkWriter::write_thunk( thunk );
+void GGModelBase::store_args( int argc, char **argv )
+{
+  for ( int i = 0; i < argc; i++ ){
+    if ( i == 0 ) {
+      cmd.push_back( GCC_COMPILER );
     }
-
-    void copy_infiles_to_gg( vector<InFile> & infiles )
-    {
-      for ( InFile infile : infiles ) {
-        ifstream src( infile.filename(), ios::binary );
-        ofstream dst( GG_DIR + infile.hash(), ios::binary );
-        struct stat fst;
-        stat( infile.filename().c_str(), &fst );
-        chmod( ( GG_DIR + infile.hash()).c_str(), fst.st_mode );
-        dst << src.rdbuf();
-      }
+    else {
+      cmd.push_back( string( argv[i] ) );
     }
+  }
+}
 
-    string get_srcfile( int argc, char ** argv ) {
-      if ( srcfile.empty() ) {
-        parse_args( argc, argv );
-      }
-      return srcfile;
-    }
+Function GGModelBase::get_function() { return Function(cmd); }
 
-    void parse_args( int argc, char **argv )
-    {
-      char arg;
-      while ( ( arg = getopt( argc, argv, "gScO:f:o:" ) ) != -1 ) {
-        switch ( arg ) {
-        case 'o':
-          outfile = string( optarg );
-          break;
-        }
-      }
-      srcfile = argv[ optind ];
-    }
+string GGModelBase::get_outfile()
+{
+  if ( outfile.empty() ) {
+    throw runtime_error( "Command line parameters were not parsed in model constructor" );
+  }
 
-    void store_args( int argc, char **argv )
-    {
-      for ( int i = 0; i < argc; i++ ){
-        if ( i == 0 ) {
-          cmd.push_back( GCC_COMPILER );
-        }
-        else {
-          cmd.push_back( string( argv[i] ) );
-        }
-      }
-    }
+  return outfile;
+}
 
-    Function get_function() { return Function(cmd); }
+GGModelBase::GGModelBase( int argc, char **argv )
+  : GG_DIR( safe_getenv( GG_DIR_FLAG.c_str() ) )
+{
+  store_args(argc, argv);
+  parse_args(argc, argv);
+}
 
-    string get_outfile()
-    {
-      if ( outfile.empty() ) {
-        throw runtime_error( "Command line parameters were not parsed in model constructor" );
-      }
-
-      return outfile;
-    }
-
-  public:
-    GGModelBase::GGModelBase( int argc, char **argv )
-      : GG_DIR( safe_getenv( GG_DIR_FLAG.c_str() ) )
-    {
-      store_args(argc, argv);
-      parse_args(argc, argv);
-    }
-
-    GGModelBase::~GGModelBase()
-    {}
-};
+GGModelBase::~GGModelBase()
+{}
