@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <getopt.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -13,6 +14,7 @@ using namespace std;
 using namespace gg::thunk;
 
 const string GGModelBase::GG_DIR_FLAG = "GG_DIR";
+static const string GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc";
 
 string safe_getenv( const char *flag )
 {
@@ -25,12 +27,10 @@ string safe_getenv( const char *flag )
   return string( var );
 }
 
-GGModelBase::GGModelBase()
-  : GG_DIR( safe_getenv( GG_DIR_FLAG.c_str() ) )
-{}
 
-GGModelBase::~GGModelBase()
-{}
+string srcfile {};
+string outfile {};
+vector<string> cmd {};
 
 Thunk GGModelBase::build_thunk()
 {
@@ -60,3 +60,56 @@ void GGModelBase::copy_infiles_to_gg( vector<InFile> & infiles )
     dst << src.rdbuf();
   }
 }
+
+string GGModelBase::get_srcfile( int argc, char ** argv ) {
+  if ( srcfile.empty() ) {
+    parse_args( argc, argv );
+  }
+  return srcfile;
+}
+
+void GGModelBase::parse_args( int argc, char **argv )
+{
+  char arg;
+  while ( ( arg = getopt( argc, argv, "gScO:f:o:" ) ) != -1 ) {
+    switch ( arg ) {
+    case 'o':
+      outfile = string( optarg );
+      break;
+    }
+  }
+  srcfile = argv[ optind ];
+}
+
+void GGModelBase::store_args( int argc, char **argv )
+{
+  for ( int i = 0; i < argc; i++ ){
+    if ( i == 0 ) {
+      cmd.push_back( GCC_COMPILER );
+    }
+    else {
+      cmd.push_back( string( argv[i] ) );
+    }
+  }
+}
+
+Function GGModelBase::get_function() { return Function(cmd); }
+
+string GGModelBase::get_outfile()
+{
+  if ( outfile.empty() ) {
+    throw runtime_error( "Command line parameters were not parsed in model constructor" );
+  }
+
+  return outfile;
+}
+
+GGModelBase::GGModelBase( int argc, char **argv )
+  : GG_DIR( safe_getenv( GG_DIR_FLAG.c_str() ) )
+{
+  store_args(argc, argv);
+  parse_args(argc, argv);
+}
+
+GGModelBase::~GGModelBase()
+{}
