@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <tuple>
 #include <getopt.h>
 #include <libgen.h>
 
@@ -57,6 +58,18 @@ Language name_to_language( const string & name )
   throw runtime_error( "unknown language name" );
 }
 
+GCCStage language_to_stage( const Language lang )
+{
+  switch ( lang ) {
+  case LANGUAGE_C: return PREPROCESS;
+  case LANGUAGE_C_HEADER: return PREPROCESS;
+  case LANGUAGE_CPP_OUTPUT: return COMPILE;
+  case LANGUAGE_ASSEMBLER: return ASSEMBLE;
+
+  default: throw runtime_error( "unknown language" );
+}
+}
+
 int main( int argc, char * argv[] )
 {
   Language current_langauge = LANGUAGE_NONE; /* -x arugment */
@@ -108,6 +121,38 @@ int main( int argc, char * argv[] )
 
     case 'c':
       end_stage = ( end_stage == NOT_SET ) ? ASSEMBLE : end_stage;
+      break;
+    }
+  }
+
+  if ( input_files.size() == 0 ) {
+    throw runtime_error( "no input files" );
+  }
+
+  if ( input_files.size() > 1 ) {
+    throw runtime_error( "accepting multiple input files is not supported yet" );
+  }
+
+  const auto & input = input_files.back();
+
+  GCCStage start_stage = language_to_stage( input.second );
+
+  for ( size_t stage = start_stage; stage <= end_stage; stage++ ) {
+    switch ( stage ) {
+    case PREPROCESS:
+      /* generate preprocess thunk */
+      break;
+
+    case COMPILE:
+      /* generate compile thunk */
+      break;
+
+    case ASSEMBLE:
+      /* generate assemble thunk */
+      break;
+
+    case LINK:
+      /* generate link thunk */
       break;
     }
   }
