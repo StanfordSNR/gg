@@ -25,7 +25,8 @@ enum Language
   LANGUAGE_C,
   LANGUAGE_C_HEADER,
   LANGUAGE_CPP_OUTPUT,
-  LANGUAGE_ASSEMBLER
+  LANGUAGE_ASSEMBLER,
+  LANGUAGE_OBJECT
 };
 
 Language filename_to_language( const string & path )
@@ -44,12 +45,14 @@ Language filename_to_language( const string & path )
   if ( extension == "h" ) return LANGUAGE_C_HEADER;
   if ( extension == "i" ) return LANGUAGE_CPP_OUTPUT;
   if ( extension == "s" ) return LANGUAGE_ASSEMBLER;
+  if ( extension == "o" ) return LANGUAGE_OBJECT;
 
   throw runtime_error( "unknown file extension" );
 }
 
 Language name_to_language( const string & name )
 {
+  if ( name == "none" ) return LANGUAGE_NONE;
   if ( name == "c" ) return LANGUAGE_C;
   if ( name == "c-header" ) return LANGUAGE_C_HEADER;
   if ( name == "cpp-output" ) return LANGUAGE_CPP_OUTPUT;
@@ -65,9 +68,10 @@ GCCStage language_to_stage( const Language lang )
   case LANGUAGE_C_HEADER: return PREPROCESS;
   case LANGUAGE_CPP_OUTPUT: return COMPILE;
   case LANGUAGE_ASSEMBLER: return ASSEMBLE;
+  case LANGUAGE_OBJECT: return LINK;
 
   default: throw runtime_error( "unknown language" );
-}
+  }
 }
 
 int main( int argc, char * argv[] )
@@ -104,6 +108,8 @@ int main( int argc, char * argv[] )
       }
 
       input_files.emplace_back( input_file, file_lang );
+
+      continue;
     }
 
     switch ( opt ) {
@@ -133,6 +139,10 @@ int main( int argc, char * argv[] )
     throw runtime_error( "accepting multiple input files is not supported yet" );
   }
 
+  if ( end_stage == NOT_SET ) {
+    end_stage = LINK;
+  }
+
   const auto & input = input_files.back();
 
   GCCStage start_stage = language_to_stage( input.second );
@@ -141,18 +151,22 @@ int main( int argc, char * argv[] )
     switch ( stage ) {
     case PREPROCESS:
       /* generate preprocess thunk */
+      cerr << ">> preprocessing " << input.first << endl;
       break;
 
     case COMPILE:
       /* generate compile thunk */
+      cerr << ">> compiling " << input.first << endl;
       break;
 
     case ASSEMBLE:
       /* generate assemble thunk */
+      cerr << ">> assembling " << input.first << endl;
       break;
 
     case LINK:
       /* generate link thunk */
+      cerr << ">> linking " << input.first << endl;
       break;
     }
   }
