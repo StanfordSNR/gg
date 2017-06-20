@@ -33,7 +33,7 @@ Language filename_to_language( const string & path )
 {
   vector<char> path_cstr( path.c_str(), path.c_str() + path.size() + 1 );
   const string filename { basename( path_cstr.data() ) };
-  auto const pos = filename.find_last_of( '.' );
+  const auto pos = filename.find_last_of( '.' );
 
   if ( pos == string::npos ) {
     /* did not find a file extension! */
@@ -74,24 +74,51 @@ GCCStage language_to_stage( const Language lang )
   }
 }
 
+string stage_output_name( const GCCStage stage, const string filename )
+{
+  /* XXX this needs serious attention in the future */
+  string result = filename;
+  const auto pos_dot = filename.find_last_of( '.' );
+  const auto pos_slash = filename.find_last_of( '/' );
+
+  if ( pos_slash == string::npos or pos_dot > pos_slash ) {
+    result = result.substr( 0, pos_dot );
+  }
+
+  switch ( stage ) {
+  case PREPROCESS: return result + ".i";
+  case COMPILE: return result + ".s";
+  case ASSEMBLE: return result + ".o";
+
+  case NOT_SET:
+  case LINK:
+    return "a.out";
+  }
+}
+
 int main( int argc, char * argv[] )
 {
   Language current_langauge = LANGUAGE_NONE; /* -x arugment */
   GCCStage last_stage = NOT_SET;
 
+  string last_stage_output_filename {};
+
   vector<pair<string, Language>> input_files;
 
   const option gcc_options[] = {
     { NULL, required_argument, NULL, 'x' }, /* Specify explicitly the language for the following input files */
+
     { NULL, no_argument,       NULL, 'E' }, /* Stop after the preprocessing stage */
     { NULL, no_argument,       NULL, 'S' }, /* Stop after the stage of compilation proper */
-    { NULL, no_argument,       NULL, 'c' }, /* Compile or assemble the source files, but do not link. */
+    { NULL, no_argument,       NULL, 'c' }, /* Compile or assemble the source files, but do not link */
+
+    { NULL, required_argument, NULL, 'o' }, /*  Output file name */
 
     { 0, 0, 0, 0 },
   };
 
   while ( true ) {
-    const int opt = getopt_long( argc, argv, "-x:ESc", gcc_options, nullptr );
+    const int opt = getopt_long( argc, argv, "-x:ESco:", gcc_options, nullptr );
 
     /* detect the end of options */
     if ( opt == -1 ) {
@@ -128,6 +155,10 @@ int main( int argc, char * argv[] )
     case 'c':
       last_stage = ( last_stage == NOT_SET ) ? ASSEMBLE : last_stage;
       break;
+
+    case 'o':
+      last_stage_output_filename = optarg;
+      break;
     }
   }
 
@@ -147,28 +178,44 @@ int main( int argc, char * argv[] )
 
   GCCStage first_stage = language_to_stage( input.second );
 
+  if ( last_stage_output_filename.length() == 0 ) {
+    switch ( last_stage ) {
+    case LINK:
+      last_stage_output_filename = "a.out";
+      break;
+
+    default:
+      last_stage_output_filename = stage_output_name( last_stage, input.first );
+    }
+  }
+
   for ( size_t stage = first_stage; stage <= last_stage; stage++ ) {
+    string output_name = ( stage == last_stage ) ? last_stage_output_filename
+                                                 : stage_output_name( static_cast<GCCStage>( stage ), input.first );
+
     switch ( stage ) {
     case PREPROCESS:
       /* generate preprocess thunk */
-      cerr << ">> preprocessing " << input.first << endl;
+      cerr << ">> preprocessing " << input.first;
       break;
 
     case COMPILE:
       /* generate compile thunk */
-      cerr << ">> compiling " << input.first << endl;
+      cerr << ">> compiling " << input.first;
       break;
 
     case ASSEMBLE:
       /* generate assemble thunk */
-      cerr << ">> assembling " << input.first << endl;
+      cerr << ">> assembling " << input.first;
       break;
 
     case LINK:
       /* generate link thunk */
-      cerr << ">> linking " << input.first << endl;
+      cerr << ">> linking " << input.first;
       break;
     }
+
+    cerr << ", output=" << output_name << endl;
   }
 
   return 0;
