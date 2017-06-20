@@ -77,7 +77,7 @@ GCCStage language_to_stage( const Language lang )
 int main( int argc, char * argv[] )
 {
   Language current_langauge = LANGUAGE_NONE; /* -x arugment */
-  GCCStage end_stage = NOT_SET;
+  GCCStage last_stage = NOT_SET;
 
   vector<pair<string, Language>> input_files;
 
@@ -118,15 +118,15 @@ int main( int argc, char * argv[] )
       break;
 
     case 'E':
-      end_stage = ( end_stage == NOT_SET ) ? PREPROCESS : end_stage;
+      last_stage = ( last_stage == NOT_SET ) ? PREPROCESS : last_stage;
       break;
 
     case 'S':
-      end_stage = ( end_stage == NOT_SET ) ? COMPILE : end_stage;
+      last_stage = ( last_stage == NOT_SET ) ? COMPILE : last_stage;
       break;
 
     case 'c':
-      end_stage = ( end_stage == NOT_SET ) ? ASSEMBLE : end_stage;
+      last_stage = ( last_stage == NOT_SET ) ? ASSEMBLE : last_stage;
       break;
     }
   }
@@ -139,15 +139,15 @@ int main( int argc, char * argv[] )
     throw runtime_error( "accepting multiple input files is not supported yet" );
   }
 
-  if ( end_stage == NOT_SET ) {
-    end_stage = LINK;
+  if ( last_stage == NOT_SET ) {
+    last_stage = LINK;
   }
 
   const auto & input = input_files.back();
 
-  GCCStage start_stage = language_to_stage( input.second );
+  GCCStage first_stage = language_to_stage( input.second );
 
-  for ( size_t stage = start_stage; stage <= end_stage; stage++ ) {
+  for ( size_t stage = first_stage; stage <= last_stage; stage++ ) {
     switch ( stage ) {
     case PREPROCESS:
       /* generate preprocess thunk */
