@@ -1,6 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <vector>
+#include <string>
 
 #include "gg-model-base.hh"
 #include "thunk.hh"
@@ -15,8 +16,8 @@ protected:
   std::vector<gg::thunk::InFile> get_infiles();
 
 public:
-  GGModelCompile( int argc, char **argv )
-    : GGModelBase( argc, argv ) {}
+  GGModelCompile( int argc, char **argv ) : GGModelBase( argc, argv ) {}
+  GGModelCompile( const std::vector<std::string> & args ) : GGModelBase( args ) {}
 
   ~GGModelCompile() {}
 };
@@ -27,8 +28,8 @@ protected:
   std::vector<gg::thunk::InFile> get_infiles();
 
 public:
-  GGModelAssemble( int argc, char **argv )
-    : GGModelBase( argc, argv ) {}
+  GGModelAssemble( int argc, char **argv ) : GGModelBase( argc, argv ) {}
+  GGModelAssemble( const std::vector<std::string> & args ) : GGModelBase( args ) {}
 
   ~GGModelAssemble() {}
 };

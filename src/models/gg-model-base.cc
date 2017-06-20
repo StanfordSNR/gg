@@ -16,7 +16,7 @@ using namespace gg::thunk;
 const string GGModelBase::GG_DIR_FLAG = "GG_DIR";
 static const string GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc";
 
-string safe_getenv( const char *flag )
+string safe_getenv( const char * flag )
 {
   char * var = getenv( flag );
 
@@ -26,7 +26,6 @@ string safe_getenv( const char *flag )
 
   return string( var );
 }
-
 
 string srcfile {};
 string outfile {};
@@ -104,11 +103,34 @@ string GGModelBase::get_outfile()
   return outfile;
 }
 
-GGModelBase::GGModelBase( int argc, char **argv )
+GGModelBase::GGModelBase( int argc, char ** argv )
   : GG_DIR( safe_getenv( GG_DIR_FLAG.c_str() ) )
 {
-  store_args(argc, argv);
-  parse_args(argc, argv);
+  store_args( argc, argv );
+  parse_args( argc, argv );
+}
+
+GGModelBase::GGModelBase( const std::vector<std::string> & args )
+  : GG_DIR( safe_getenv( GG_DIR_FLAG.c_str() ) )
+{
+  char ** argv = new char * [ args.size() + 1 /* NULL at the end */ ];
+
+  for ( size_t i = 0; i < args.size(); i++ ) {
+    argv[ i ] = new char[ args[ i ].length() + 1 ];
+    args[ i ].copy( argv[ i ], args[ i ].length() );
+    argv[ i ][ args[ i ].length() ] = '\0';
+  }
+
+  argv[ args.size() ] = NULL;
+
+  store_args( args.size(), argv );
+  parse_args( args.size(), argv );
+
+  for ( size_t i = 0; i < args.size(); i++ ) {
+    delete[] argv[ i ];
+  }
+
+  delete[] argv;
 }
 
 GGModelBase::~GGModelBase()

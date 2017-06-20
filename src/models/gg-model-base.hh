@@ -3,6 +3,7 @@
 #pragma once
 
 #include <string.h>
+#include <vector>
 
 #include "thunk.hh"
 
@@ -19,18 +20,20 @@ protected:
   std::string outfile {};
   std::vector<std::string> cmd {};
 
-  void parse_args(int, char**);
-  void store_args(int, char**);
+  void parse_args( int, char** );
+  void store_args( int, char** );
+
   gg::thunk::Function get_function();
   std::string get_outfile();
 
   virtual std::vector<gg::thunk::InFile> get_infiles() = 0;
 
 public:
-  GGModelBase(int, char**);
+  GGModelBase( int, char** );
+  GGModelBase( const std::vector<std::string> & args );
   virtual ~GGModelBase() = 0;
-  
-  std::string get_srcfile(int, char **);
+
+  std::string get_srcfile( int, char ** );
   gg::thunk::Thunk build_thunk();
   void write_thunk();
 };
