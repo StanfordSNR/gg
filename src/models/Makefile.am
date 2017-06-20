@@ -13,10 +13,10 @@ EXTRA_DIST = gg-model-compile.py
 
 bin_PROGRAMS = gg-model-compile gg-model-assemble gg-model-gcc
 
-gg_model_compile_SOURCES = gg-model-compile.cc gg-model-base.hh gg-model-base.cc
+gg_model_compile_SOURCES = model-gcc.hh gg-model-compile.cc gg-model-base.hh gg-model-base.cc
 gg_model_compile_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
-gg_model_assemble_SOURCES = gg-model-assemble.cc gg-model-base.hh gg-model-base.cc
+gg_model_assemble_SOURCES = model-gcc.hh gg-model-assemble.cc gg-model-base.hh gg-model-base.cc
 gg_model_assemble_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_model_gcc_SOURCES = gg-model-gcc.cc
