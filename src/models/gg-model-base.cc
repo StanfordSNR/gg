@@ -122,8 +122,6 @@ GGModelBase::GGModelBase( const std::vector<std::string> & args )
     argv[ i ] = new char[ args[ i ].length() + 1 ];
     args[ i ].copy( argv[ i ], args[ i ].length() );
     argv[ i ][ args[ i ].length() ] = '\0';
-
-    cerr << argv[ i ] << endl;
   }
 
   argv[ args.size() ] = NULL;

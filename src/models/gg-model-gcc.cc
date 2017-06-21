@@ -131,6 +131,38 @@ void prepare_args_for_compile( vector<string> & args, const string & output )
   }
 }
 
+void prepare_args_for_assemble( vector<string> & args, const string & output )
+{
+  /* For assemble (.s to .o) we need -c flag. In this function we make sure that
+     there are no extra flags (e.g. -E, -S) in the arguments. We also fix the
+     output file name. */
+
+  args.erase(
+    remove_if(
+      args.begin(), args.end(),
+      []( const string & s ) { return ( s == "-E" or s == "-S" ); }
+    ), args.end()
+  );
+
+  bool found_output_flag = false;
+
+  for ( size_t i = 0; i < args.size(); i++ ) {
+    if ( args[ i ] == "-o" ) {
+      if ( i + 1 == args.size() ) {
+        throw runtime_error( "invalid argument: -o option with no argument" );
+      }
+
+      args[ i++ ] = output;
+      found_output_flag = true;
+    }
+  }
+
+  if ( not found_output_flag ) {
+    args.push_back( "-o" );
+    args.push_back( output );
+  }
+}
+
 int main( int argc, char * argv[] )
 {
   Language current_langauge = LANGUAGE_NONE; /* -x arugment */
@@ -259,15 +291,25 @@ int main( int argc, char * argv[] )
       prepare_args_for_compile( args_compile, output_name );
 
       GGModelCompile compile_model( args_compile );
-      compile_model.write_thunk();
+      // compile_model.write_thunk();
 
       break;
     }
 
     case ASSEMBLE:
+    {
       /* generate assemble thunk */
       cerr << ">> assembling " << input.first;
+
+      vector<string> args_assemble = args;
+      args_assemble[ input_idx ] = stage_output[ stage - 1 ];
+      prepare_args_for_assemble( args_assemble, output_name );
+
+      GGModelAssemble assemble_model( args_assemble );
+      // assemble_model.write_thunk();
+
       break;
+    }
 
     case LINK:
       /* generate link thunk */
