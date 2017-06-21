@@ -278,20 +278,20 @@ int main( int argc, char * argv[] )
     switch ( stage ) {
     case PREPROCESS:
       /* generate preprocess thunk */
-      cerr << ">> preprocessing " << input.first;
+      cerr << ">> preprocessing " << input.first << endl;
       break;
 
     case COMPILE:
     {
       /* generate compile thunk */
-      cerr << ">> compiling " << input.first;
+      cerr << ">> compiling " << input.first << endl;
 
       vector<string> args_compile = args;
       args_compile[ input_idx ] = stage_output[ stage - 1 ];
       prepare_args_for_compile( args_compile, output_name );
 
       GGModelCompile compile_model( args_compile );
-      // compile_model.write_thunk();
+      compile_model.write_thunk();
 
       break;
     }
@@ -299,27 +299,27 @@ int main( int argc, char * argv[] )
     case ASSEMBLE:
     {
       /* generate assemble thunk */
-      cerr << ">> assembling " << input.first;
+      cerr << ">> assembling " << input.first << endl;
 
       vector<string> args_assemble = args;
       args_assemble[ input_idx ] = stage_output[ stage - 1 ];
       prepare_args_for_assemble( args_assemble, output_name );
 
       GGModelAssemble assemble_model( args_assemble );
-      // assemble_model.write_thunk();
+      assemble_model.write_thunk();
 
       break;
     }
 
     case LINK:
       /* generate link thunk */
-      cerr << ">> linking " << input.first;
+      cerr << ">> linking " << input.first << endl;
       break;
     }
 
     stage_output[ stage ] = output_name;
 
-    cerr << ", output=" << output_name << endl;
+    cerr << "[output=" << output_name << "]" << endl;
   }
 
   return 0;

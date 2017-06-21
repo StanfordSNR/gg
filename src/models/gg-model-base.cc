@@ -69,11 +69,14 @@ string GGModelBase::get_srcfile( int argc, char ** argv ) {
 
 void GGModelBase::parse_args( int argc, char ** argv )
 {
+  optind = 1; /* reset getopt */
+  opterr = 0; /* turn off error messages */
+
   char arg;
-  while ( ( arg = getopt( argc, argv, "-gScO:f:o:" ) ) != -1 ) {
+  while ( ( arg = getopt( argc, argv, "-o:" ) ) != -1 ) {
     switch ( arg ) {
     case 1:
-      srcfile = optarg;
+      srcfile = string( optarg );
       break;
 
     case 'o':
