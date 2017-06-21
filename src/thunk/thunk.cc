@@ -18,11 +18,13 @@ Thunk::Thunk( const string & outfile, const Function & function,
 
 Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   : outfile_( thunk_proto.outfile() ), function_( thunk_proto.function() ),
-    infiles_(), order_( compute_order() )
+    infiles_(), order_()
 {
   for ( protobuf::InFile infile : thunk_proto.infiles() ) {
     infiles_.push_back( { infile } );
   }
+
+  order_ = compute_order();
 }
 
 int Thunk::execute( const string & root_dir ) const
