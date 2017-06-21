@@ -99,16 +99,12 @@ string stage_output_name( const GCCStage stage, const string filename )
   }
 }
 
-void prepare_args_for_compile( vector<string> & args, const string & output )
+void prepare_args( const GCCStage stage, vector<string> & args, const string & output )
 {
-  /* For compile (.i to .s) we need -S flag. In this function we make sure that
-     there are no extra flags (e.g. -E, -c) in the arguments. We also fix the
-     output file name. */
-
   args.erase(
     remove_if(
       args.begin(), args.end(),
-      []( const string & s ) { return ( s == "-E" or s == "-c" ); }
+      []( const string & s ) { return ( s == "-E" or s == "-S" or s == "-c" ); }
     ), args.end()
   );
 
@@ -129,37 +125,17 @@ void prepare_args_for_compile( vector<string> & args, const string & output )
     args.push_back( "-o" );
     args.push_back( output );
   }
-}
 
-void prepare_args_for_assemble( vector<string> & args, const string & output )
-{
-  /* For assemble (.s to .o) we need -c flag. In this function we make sure that
-     there are no extra flags (e.g. -E, -S) in the arguments. We also fix the
-     output file name. */
+  switch ( stage ) {
+  case COMPILE:
+    args.push_back( "-S" );
+    break;
 
-  args.erase(
-    remove_if(
-      args.begin(), args.end(),
-      []( const string & s ) { return ( s == "-E" or s == "-S" ); }
-    ), args.end()
-  );
+  case ASSEMBLE:
+    args.push_back( "-c" );
+    break;
 
-  bool found_output_flag = false;
-
-  for ( size_t i = 0; i < args.size(); i++ ) {
-    if ( args[ i ] == "-o" ) {
-      if ( i + 1 == args.size() ) {
-        throw runtime_error( "invalid argument: -o option with no argument" );
-      }
-
-      args[ i++ ] = output;
-      found_output_flag = true;
-    }
-  }
-
-  if ( not found_output_flag ) {
-    args.push_back( "-o" );
-    args.push_back( output );
+  default: throw runtime_error( "not implemented" );
   }
 }
 
@@ -271,11 +247,21 @@ int main( int argc, char * argv[] )
   map<size_t, string> stage_output;
   stage_output[ first_stage - 1 ] = input.first;
 
-  for ( size_t stage = first_stage; stage <= last_stage; stage++ ) {
+  for ( size_t stage_num = first_stage; stage_num <= last_stage; stage_num++ ) {
+    GCCStage stage = static_cast<GCCStage>( stage_num );
+
     string output_name = ( stage == last_stage ) ? last_stage_output_filename
-                                                 : stage_output_name( static_cast<GCCStage>( stage ), input.first );
+                                                 : stage_output_name( stage, input.first );
+
+
+    vector<string> args_stage = args;
+    args_stage[ input_idx ] = stage_output[ stage - 1 ];
+    prepare_args( stage, args_stage, output_name );
 
     switch ( stage ) {
+    case NOT_SET:
+      throw runtime_error( "invalid GCC stage" );
+      
     case PREPROCESS:
       /* generate preprocess thunk */
       cerr << ">> preprocessing " << input.first << endl;
@@ -286,11 +272,7 @@ int main( int argc, char * argv[] )
       /* generate compile thunk */
       cerr << ">> compiling " << input.first << endl;
 
-      vector<string> args_compile = args;
-      args_compile[ input_idx ] = stage_output[ stage - 1 ];
-      prepare_args_for_compile( args_compile, output_name );
-
-      GGModelCompile compile_model( args_compile );
+      GGModelCompile compile_model( args_stage );
       compile_model.write_thunk();
 
       break;
@@ -301,11 +283,7 @@ int main( int argc, char * argv[] )
       /* generate assemble thunk */
       cerr << ">> assembling " << input.first << endl;
 
-      vector<string> args_assemble = args;
-      args_assemble[ input_idx ] = stage_output[ stage - 1 ];
-      prepare_args_for_assemble( args_assemble, output_name );
-
-      GGModelAssemble assemble_model( args_assemble );
+      GGModelAssemble assemble_model( args_stage );
       assemble_model.write_thunk();
 
       break;
@@ -318,7 +296,6 @@ int main( int argc, char * argv[] )
     }
 
     stage_output[ stage ] = output_name;
-
     cerr << "[output=" << output_name << "]" << endl;
   }
 
