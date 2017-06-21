@@ -8,12 +8,6 @@
 using namespace std;
 using namespace gg::thunk;
 
-vector<InFile> GGModelCompile::get_infiles()
-{
-  vector<InFile> infiles { srcfile, GCC_COMPILER, CC1 };
-  return infiles;
-}
-
 int main( int argc, char ** argv )
 {
   GGModelCompile model { argc, argv };

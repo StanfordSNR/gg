@@ -3,16 +3,19 @@
 #include <vector>
 #include <string>
 #include <tuple>
+#include <algorithm>
+#include <map>
 #include <getopt.h>
 #include <libgen.h>
 
 #include "exception.hh"
+#include "model-gcc.hh"
 
 using namespace std;
 
 enum GCCStage
 {
-  NOT_SET,
+  NOT_SET = 0,
   PREPROCESS,
   COMPILE,
   ASSEMBLE,
@@ -96,10 +99,48 @@ string stage_output_name( const GCCStage stage, const string filename )
   }
 }
 
+void prepare_args_for_compile( vector<string> & args, const string & output )
+{
+  /* For compile (.i to .s) we need -S flag. In this function we make sure that
+     there are no extra flags (e.g. -E, -c) in the arguments. We also fix the
+     output file name. */
+
+  args.erase(
+    remove_if(
+      args.begin(), args.end(),
+      []( const string & s ) { return ( s == "-E" or s == "-c" ); }
+    ), args.end()
+  );
+
+  bool found_output_flag = false;
+
+  for ( size_t i = 0; i < args.size(); i++ ) {
+    if ( args[ i ] == "-o" ) {
+      if ( i + 1 == args.size() ) {
+        throw runtime_error( "invalid argument: -o option with no argument" );
+      }
+
+      args[ i++ ] = output;
+      found_output_flag = true;
+    }
+  }
+
+  if ( not found_output_flag ) {
+    args.push_back( "-o" );
+    args.push_back( output );
+  }
+}
+
 int main( int argc, char * argv[] )
 {
   Language current_langauge = LANGUAGE_NONE; /* -x arugment */
   GCCStage last_stage = NOT_SET;
+
+  vector<string> args;
+
+  for ( int i = 0; i < argc; i++ ) {
+    args.push_back( argv[ i ] );
+  }
 
   string last_stage_output_filename {};
 
@@ -176,6 +217,9 @@ int main( int argc, char * argv[] )
 
   const auto & input = input_files.back();
 
+  const size_t input_idx = distance( args.begin(), find( args.begin(), args.end() , input.first ) );
+  assert( input_idx < args.size() );
+
   GCCStage first_stage = language_to_stage( input.second );
 
   if ( last_stage_output_filename.length() == 0 ) {
@@ -189,6 +233,12 @@ int main( int argc, char * argv[] )
     }
   }
 
+  assert( first_stage > NOT_SET );
+
+  /* stage -> output_name */
+  map<size_t, string> stage_output;
+  stage_output[ first_stage - 1 ] = input.first;
+
   for ( size_t stage = first_stage; stage <= last_stage; stage++ ) {
     string output_name = ( stage == last_stage ) ? last_stage_output_filename
                                                  : stage_output_name( static_cast<GCCStage>( stage ), input.first );
@@ -200,9 +250,19 @@ int main( int argc, char * argv[] )
       break;
 
     case COMPILE:
+    {
       /* generate compile thunk */
       cerr << ">> compiling " << input.first;
+
+      vector<string> args_compile = args;
+      args_compile[ input_idx ] = stage_output[ stage - 1 ];
+      prepare_args_for_compile( args_compile, output_name );
+
+      GGModelCompile compile_model( args_compile );
+      compile_model.write_thunk();
+
       break;
+    }
 
     case ASSEMBLE:
       /* generate assemble thunk */
@@ -214,6 +274,8 @@ int main( int argc, char * argv[] )
       cerr << ">> linking " << input.first;
       break;
     }
+
+    stage_output[ stage ] = output_name;
 
     cerr << ", output=" << output_name << endl;
   }

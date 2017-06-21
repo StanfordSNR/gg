@@ -13,7 +13,10 @@ static const std::string CC1 = ".gg/exe/bin/cc1";
 class GGModelCompile : public GGModelBase
 {
 protected:
-  std::vector<gg::thunk::InFile> get_infiles();
+  std::vector<gg::thunk::InFile> get_infiles()
+  {
+    return { srcfile, GCC_COMPILER, CC1 };
+  }
 
 public:
   GGModelCompile( int argc, char **argv ) : GGModelBase( argc, argv ) {}
@@ -25,7 +28,10 @@ public:
 class GGModelAssemble : public GGModelBase
 {
 protected:
-  std::vector<gg::thunk::InFile> get_infiles();
+  std::vector<gg::thunk::InFile> get_infiles()
+  {
+    return { srcfile, GCC_COMPILER, AS };
+  }
 
 public:
   GGModelAssemble( int argc, char **argv ) : GGModelBase( argc, argv ) {}

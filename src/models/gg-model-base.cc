@@ -67,27 +67,30 @@ string GGModelBase::get_srcfile( int argc, char ** argv ) {
   return srcfile;
 }
 
-void GGModelBase::parse_args( int argc, char **argv )
+void GGModelBase::parse_args( int argc, char ** argv )
 {
   char arg;
-  while ( ( arg = getopt( argc, argv, "gScO:f:o:" ) ) != -1 ) {
+  while ( ( arg = getopt( argc, argv, "-gScO:f:o:" ) ) != -1 ) {
     switch ( arg ) {
+    case 1:
+      srcfile = optarg;
+      break;
+
     case 'o':
       outfile = string( optarg );
       break;
     }
   }
-  srcfile = argv[ optind ];
 }
 
 void GGModelBase::store_args( int argc, char **argv )
 {
-  for ( int i = 0; i < argc; i++ ){
+  for ( int i = 0; i < argc; i++ ) {
     if ( i == 0 ) {
       cmd.push_back( GCC_COMPILER );
     }
     else {
-      cmd.push_back( string( argv[i] ) );
+      cmd.push_back( string( argv[ i ] ) );
     }
   }
 }
@@ -119,6 +122,8 @@ GGModelBase::GGModelBase( const std::vector<std::string> & args )
     argv[ i ] = new char[ args[ i ].length() + 1 ];
     args[ i ].copy( argv[ i ], args[ i ].length() );
     argv[ i ][ args[ i ].length() ] = '\0';
+
+    cerr << argv[ i ] << endl;
   }
 
   argv[ args.size() ] = NULL;
