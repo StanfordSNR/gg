@@ -96,6 +96,8 @@ string stage_output_name( const GCCStage stage, const string filename )
   case NOT_SET:
   case LINK:
     return "a.out";
+  default:
+    throw runtime_error( "invalid GCCstage stage" );
   }
 }
 
