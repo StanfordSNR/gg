@@ -9,13 +9,13 @@
 #include <libgen.h>
 
 #include "exception.hh"
+#include "optional.hh"
 #include "model-gcc.hh"
 
 using namespace std;
 
 enum GCCStage
 {
-  NOT_SET = 0,
   PREPROCESS,
   COMPILE,
   ASSEMBLE,
@@ -93,9 +93,9 @@ string stage_output_name( const GCCStage stage, const string filename )
   case COMPILE: return result + ".s";
   case ASSEMBLE: return result + ".o";
 
-  case NOT_SET:
   case LINK:
     return "a.out";
+
   default:
     throw runtime_error( "invalid GCCstage stage" );
   }
@@ -144,7 +144,7 @@ void prepare_args( const GCCStage stage, vector<string> & args, const string & o
 int main( int argc, char * argv[] )
 {
   Language current_langauge = LANGUAGE_NONE; /* -x arugment */
-  GCCStage last_stage = NOT_SET;
+  Optional<GCCStage> last_stage;
 
   vector<string> args;
 
@@ -196,15 +196,15 @@ int main( int argc, char * argv[] )
       break;
 
     case 'E':
-      last_stage = ( last_stage == NOT_SET ) ? PREPROCESS : last_stage;
+      last_stage = ( not last_stage.initialized() ) ? PREPROCESS : *last_stage;
       break;
 
     case 'S':
-      last_stage = ( last_stage == NOT_SET ) ? COMPILE : last_stage;
+      last_stage = ( not last_stage.initialized() ) ? COMPILE : *last_stage;
       break;
 
     case 'c':
-      last_stage = ( last_stage == NOT_SET ) ? ASSEMBLE : last_stage;
+      last_stage = ( not last_stage.initialized() ) ? ASSEMBLE : *last_stage;
       break;
 
     case 'o':
@@ -221,7 +221,7 @@ int main( int argc, char * argv[] )
     throw runtime_error( "accepting multiple input files is not supported yet" );
   }
 
-  if ( last_stage == NOT_SET ) {
+  if ( not last_stage.initialized() ) {
     last_stage = LINK;
   }
 
@@ -233,26 +233,24 @@ int main( int argc, char * argv[] )
   GCCStage first_stage = language_to_stage( input.second );
 
   if ( last_stage_output_filename.length() == 0 ) {
-    switch ( last_stage ) {
+    switch ( *last_stage ) {
     case LINK:
       last_stage_output_filename = "a.out";
       break;
 
     default:
-      last_stage_output_filename = stage_output_name( last_stage, input.first );
+      last_stage_output_filename = stage_output_name( *last_stage, input.first );
     }
   }
-
-  assert( first_stage > NOT_SET );
 
   /* stage -> output_name */
   map<size_t, string> stage_output;
   stage_output[ first_stage - 1 ] = input.first;
 
-  for ( size_t stage_num = first_stage; stage_num <= last_stage; stage_num++ ) {
+  for ( size_t stage_num = first_stage; stage_num <= *last_stage; stage_num++ ) {
     GCCStage stage = static_cast<GCCStage>( stage_num );
 
-    string output_name = ( stage == last_stage ) ? last_stage_output_filename
+    string output_name = ( stage == *last_stage ) ? last_stage_output_filename
                                                  : stage_output_name( stage, input.first );
 
 
@@ -261,9 +259,6 @@ int main( int argc, char * argv[] )
     prepare_args( stage, args_stage, output_name );
 
     switch ( stage ) {
-    case NOT_SET:
-      throw runtime_error( "invalid GCC stage" );
-      
     case PREPROCESS:
       /* generate preprocess thunk */
       cerr << ">> preprocessing " << input.first << endl;
