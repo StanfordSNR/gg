@@ -157,7 +157,7 @@ int main( int argc, char * argv[] )
   vector<pair<string, Language>> input_files;
 
   const option gcc_options[] = {
-    { NULL, required_argument, NULL, 'x' }, /* Specify explicitly the language for the following input files */
+    { NULL, required_argument, NULL, 'x' }, /* Explicitly specify the language for the following input files */
 
     { NULL, no_argument,       NULL, 'E' }, /* Stop after the preprocessing stage */
     { NULL, no_argument,       NULL, 'S' }, /* Stop after the stage of compilation proper */
@@ -167,6 +167,9 @@ int main( int argc, char * argv[] )
 
     { 0, 0, 0, 0 },
   };
+
+  optind = 1; /* reset getopt */
+  opterr = 0; /* turn off error messages */
 
   while ( true ) {
     const int opt = getopt_long( argc, argv, "-x:ESco:", gcc_options, nullptr );
