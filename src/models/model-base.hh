@@ -7,7 +7,7 @@
 
 #include "thunk.hh"
 
-class GGModelBase
+class ModelBase
 {
 private:
   void copy_infiles_to_gg( std::vector<gg::thunk::InFile> & infiles );
@@ -29,9 +29,9 @@ protected:
   virtual std::vector<gg::thunk::InFile> get_infiles() = 0;
 
 public:
-  GGModelBase( int, char** );
-  GGModelBase( const std::vector<std::string> & args );
-  virtual ~GGModelBase() = 0;
+  ModelBase( int, char** );
+  ModelBase( const std::vector<std::string> & args );
+  virtual ~ModelBase() = 0;
 
   std::string get_srcfile( int, char ** );
   gg::thunk::Thunk build_thunk();

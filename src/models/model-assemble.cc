@@ -10,6 +10,6 @@ using namespace gg::thunk;
 
 int main( int argc, char ** argv )
 {
-  GGModelCompile model { argc, argv };
+  ModelAssemble model { argc, argv };
   model.write_thunk();
 }

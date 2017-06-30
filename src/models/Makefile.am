@@ -9,15 +9,15 @@ BASE_LDADD = ../thunk/libthunk.a \
              ../util/libggutil.a \
              $(PROTOBUF_LIBS)
 
-EXTRA_DIST = gg-model-compile.py
+EXTRA_DIST = model-compile.py
 
-bin_PROGRAMS = gg-model-compile gg-model-assemble gg-model-gcc
+bin_PROGRAMS = model-compile model-assemble model-gcc
 
-gg_model_compile_SOURCES = model-gcc.hh gg-model-compile.cc gg-model-base.hh gg-model-base.cc
-gg_model_compile_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+model_compile_SOURCES = model-gcc.hh model-compile.cc model-base.hh model-base.cc
+model_compile_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
-gg_model_assemble_SOURCES = model-gcc.hh gg-model-assemble.cc gg-model-base.hh gg-model-base.cc
-gg_model_assemble_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+model_assemble_SOURCES = model-gcc.hh model-assemble.cc model-base.hh model-base.cc
+model_assemble_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
-gg_model_gcc_SOURCES = gg-model-gcc.cc gg-model-base.hh gg-model-base.cc
-gg_model_gcc_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+model_gcc_SOURCES = model-gcc.cc model-base.hh model-base.cc
+model_gcc_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)

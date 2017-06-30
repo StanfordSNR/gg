@@ -1,6 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "gg-model-base.hh"
+#include "model-base.hh"
 #include "thunk_writer.hh"
 
 #include <cstdlib>
@@ -13,7 +13,7 @@
 using namespace std;
 using namespace gg::thunk;
 
-const string GGModelBase::GG_DIR_FLAG = "GG_DIR";
+const string ModelBase::GG_DIR_FLAG = "GG_DIR";
 static const string GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc";
 
 string safe_getenv( const char * flag )
@@ -31,7 +31,7 @@ string srcfile {};
 string outfile {};
 vector<string> cmd {};
 
-Thunk GGModelBase::build_thunk()
+Thunk ModelBase::build_thunk()
 {
   Function thunk_func = get_function();
   vector<InFile> infiles = get_infiles();
@@ -42,13 +42,13 @@ Thunk GGModelBase::build_thunk()
   return thunk;
 }
 
-void GGModelBase::write_thunk()
+void ModelBase::write_thunk()
 {
   Thunk thunk = build_thunk();
   ThunkWriter::write_thunk( thunk );
 }
 
-void GGModelBase::copy_infiles_to_gg( vector<InFile> & infiles )
+void ModelBase::copy_infiles_to_gg( vector<InFile> & infiles )
 {
   for ( InFile infile : infiles ) {
     ifstream src( infile.filename(), ios::binary );
@@ -60,14 +60,14 @@ void GGModelBase::copy_infiles_to_gg( vector<InFile> & infiles )
   }
 }
 
-string GGModelBase::get_srcfile( int argc, char ** argv ) {
+string ModelBase::get_srcfile( int argc, char ** argv ) {
   if ( srcfile.empty() ) {
     parse_args( argc, argv );
   }
   return srcfile;
 }
 
-void GGModelBase::parse_args( int argc, char ** argv )
+void ModelBase::parse_args( int argc, char ** argv )
 {
   optind = 1; /* reset getopt */
   opterr = 0; /* turn off error messages */
@@ -86,7 +86,7 @@ void GGModelBase::parse_args( int argc, char ** argv )
   }
 }
 
-void GGModelBase::store_args( int argc, char **argv )
+void ModelBase::store_args( int argc, char **argv )
 {
   for ( int i = 0; i < argc; i++ ) {
     if ( i == 0 ) {
@@ -98,9 +98,9 @@ void GGModelBase::store_args( int argc, char **argv )
   }
 }
 
-Function GGModelBase::get_function() { return Function(cmd); }
+Function ModelBase::get_function() { return Function(cmd); }
 
-string GGModelBase::get_outfile()
+string ModelBase::get_outfile()
 {
   if ( outfile.empty() ) {
     throw runtime_error( "Command line parameters were not parsed in model constructor" );
@@ -109,14 +109,14 @@ string GGModelBase::get_outfile()
   return outfile;
 }
 
-GGModelBase::GGModelBase( int argc, char ** argv )
+ModelBase::ModelBase( int argc, char ** argv )
   : GG_DIR( safe_getenv( GG_DIR_FLAG.c_str() ) )
 {
   store_args( argc, argv );
   parse_args( argc, argv );
 }
 
-GGModelBase::GGModelBase( const std::vector<std::string> & args )
+ModelBase::ModelBase( const std::vector<std::string> & args )
   : GG_DIR( safe_getenv( GG_DIR_FLAG.c_str() ) )
 {
   char ** argv = new char * [ args.size() + 1 /* NULL at the end */ ];
@@ -139,5 +139,5 @@ GGModelBase::GGModelBase( const std::vector<std::string> & args )
   delete[] argv;
 }
 
-GGModelBase::~GGModelBase()
+ModelBase::~ModelBase()
 {}

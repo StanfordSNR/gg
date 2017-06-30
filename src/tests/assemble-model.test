@@ -8,7 +8,7 @@ MAGIC="##GGTHUNK##"
 $BIN/x86_64-linux-musl-gcc -g -O2 -c -frandom-seed=winstein -o remake.o.gold $DATADIR/examples/remake.s
 
 # Create thunk
-GG_DIR=.gg/ ../models/gg-model-assemble -g -O2 -c -frandom-seed=winstein -o remake.o $DATADIR/examples/remake.s
+GG_DIR=.gg/ ../models/model-assemble -g -O2 -c -frandom-seed=winstein -o remake.o $DATADIR/examples/remake.s
 
 
 # Assert it's a thunk

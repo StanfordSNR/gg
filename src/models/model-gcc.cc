@@ -269,7 +269,7 @@ int main( int argc, char * argv[] )
       /* generate compile thunk */
       cerr << ">> compiling " << input.first << endl;
 
-      GGModelCompile compile_model( args_stage );
+      ModelCompile compile_model( args_stage );
       compile_model.write_thunk();
 
       break;
@@ -280,7 +280,7 @@ int main( int argc, char * argv[] )
       /* generate assemble thunk */
       cerr << ">> assembling " << input.first << endl;
 
-      GGModelAssemble assemble_model( args_stage );
+      ModelAssemble assemble_model( args_stage );
       assemble_model.write_thunk();
 
       break;
