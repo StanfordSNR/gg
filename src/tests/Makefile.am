@@ -2,18 +2,17 @@ AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox $(CXX14_FLAGS) $(PROTOBUF_CFLAGS)
 
-AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS) 
+AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
 LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         ../sandbox/libggsandbox.a \
         ../thunk/libthunk.a \
         ../protobufs/libggprotobufs.a ../util/libggutil.a \
-        $(PROTOBUF_LIBS) $(CRYPTO_LIBS)
+        $(PROTOBUF_LIBS) $(CRYPTO_LIBS) \
+        $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
 
 AM_TESTS_ENVIRONMENT = \
 	export DATADIR=$(srcdir);
-
-	
 
 EXTRA_DIST = examples/remake.i examples/remake.s
 

@@ -10,6 +10,8 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
+namespace fs = boost::filesystem;
+
 Thunk::Thunk( const string & outfile, const Function & function,
               const vector<InFile> & infiles )
   : outfile_( outfile ), function_( function ), infiles_( infiles ),
@@ -116,6 +118,21 @@ protobuf::Thunk Thunk::to_protobuf() const
   }
 
   return thunk;
+}
+
+void Thunk::collect_infiles( const fs::path & gg_dir ) const
+{
+  for ( InFile infile : infiles_ ) {
+    /* XXX the file hash should probably be cached somewhere */
+    fs::path target_path = gg_dir / infile.hash();
+
+    if ( fs::exists( target_path ) ) {
+      /* XXX we might want to implement stricter checks, like hash check */
+      continue;
+    }
+
+    fs::copy_file( infile.filename(), target_path );
+  }
 }
 
 bool Thunk::operator==( const Thunk & other ) const

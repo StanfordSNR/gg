@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <boost/filesystem.hpp>
 
 #include "gg.pb.h"
 
@@ -93,6 +94,8 @@ namespace gg {
       size_t order() const { return order_; }
 
       gg::protobuf::Thunk to_protobuf() const;
+
+      void collect_infiles( const boost::filesystem::path & gg_dir ) const;
 
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }

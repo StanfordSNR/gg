@@ -7,7 +7,8 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 BASE_LDADD = ../thunk/libthunk.a \
              ../protobufs/libggprotobufs.a \
              ../util/libggutil.a \
-             $(PROTOBUF_LIBS)
+             $(PROTOBUF_LIBS) \
+             $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
 
 EXTRA_DIST = model-compile.py
 
