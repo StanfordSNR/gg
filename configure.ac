@@ -27,6 +27,10 @@ AC_SUBST(EXTRA_CXXFLAGS)
 PKG_CHECK_MODULES([CRYPTO],[libcrypto])
 PKG_CHECK_MODULES([PROTOBUF], [protobuf])
 
+AX_BOOST_BASE([1.54.0])
+AX_BOOST_FILESYSTEM
+
+
 # Protobuf compiler
 AC_PATH_PROG([PROTOC], [protoc], [])
 AS_IF([test x"$PROTOC" = x],
