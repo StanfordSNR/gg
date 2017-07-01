@@ -9,9 +9,6 @@
 
 class ModelBase
 {
-private:
-  void copy_infiles_to_gg( std::vector<gg::thunk::InFile> & infiles );
-
 protected:
   const std::string GG_DIR;
   static const std::string GG_DIR_FLAG;

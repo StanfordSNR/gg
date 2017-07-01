@@ -35,9 +35,10 @@ Thunk ModelBase::build_thunk()
 {
   Function thunk_func = get_function();
   vector<InFile> infiles = get_infiles();
-  copy_infiles_to_gg( infiles );
   string outfile = get_outfile();
   Thunk thunk { outfile, thunk_func, infiles };
+
+  thunk.collect_infiles( GG_DIR );
 
   return thunk;
 }
@@ -46,18 +47,6 @@ void ModelBase::write_thunk()
 {
   Thunk thunk = build_thunk();
   ThunkWriter::write_thunk( thunk );
-}
-
-void ModelBase::copy_infiles_to_gg( vector<InFile> & infiles )
-{
-  for ( InFile infile : infiles ) {
-    ifstream src( infile.filename(), ios::binary );
-    ofstream dst( GG_DIR + infile.hash(), ios::binary );
-    struct stat fst;
-    stat( infile.filename().c_str(), &fst );
-    chmod( ( GG_DIR + infile.hash()).c_str(), fst.st_mode );
-    dst << src.rdbuf();
-  }
 }
 
 string ModelBase::get_srcfile( int argc, char ** argv ) {
