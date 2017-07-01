@@ -96,9 +96,7 @@ void SandboxedProcess::execute()
       }
 
       if ( syscall.signature().initialized() ) {
-        SystemCallSignature & signature = syscall.signature().get();
-
-        if ( not ( signature.flags() & TRACE_FILE ) ) {
+        if ( not ( syscall.signature()->flags() & TRACE_FILE ) ) {
           return;
           /* this system call is not file-related. allow it! */
         }

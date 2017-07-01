@@ -26,7 +26,7 @@ const char *OUTFLAG = "-o";
 const char *COMPILEFLAG = "-c";
 const char PREPROC_SUFFIX = 'i';
 bool verbose = false; // TODO add to commandline args
-const char *COMPILE_COMMAND[] = {"gcc", "-g", "-O2", "-c", "-o", "",  "", '\0'};
+const char *COMPILE_COMMAND[] = {"gcc", "-g", "-O2", "-c", "-o", "",  "", NULL};
 const size_t COMMAND_LEN = 7;
 const int OUTINDEX = 5;
 const int SRCINDEX = OUTINDEX+1;
@@ -66,7 +66,7 @@ bool getPreprocArgs(int argc, char *argv[], vector<char *>& preproc_args, char o
     preproc_args[object_index+1][strlen(argv[object_index])-1] = PREPROC_SUFFIX;
 
   }
-  preproc_args[argc+1] = '\0';
+  preproc_args[argc+1] = NULL;
 
   return isLinking;
 }
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]){
   }
 
   if ( verbose ) {
-    for (char** x = cmd; *x != '\0'; ++x){
+    for (char** x = cmd; *x != NULL; ++x){
       cout << *x << " ";
     }
     cout << endl;
