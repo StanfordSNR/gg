@@ -6,6 +6,8 @@
 #include <cstring>
 #include <iostream>
 
+#include "thunk_writer.hh"
+
 using namespace std;
 using namespace gg;
 using namespace gg::thunk;
@@ -133,6 +135,15 @@ void Thunk::collect_infiles( const fs::path & gg_dir ) const
 
     fs::copy_file( infile.filename(), target_path );
   }
+}
+
+void Thunk::store( const fs::path & gg_dir ) const
+{
+  collect_infiles( gg_dir );
+
+  ThunkWriter::write_thunk( *this );
+  string thunk_hash = InFile::compute_hash( outfile() );
+  fs::copy_file( outfile(), gg_dir / thunk_hash );
 }
 
 bool Thunk::operator==( const Thunk & other ) const

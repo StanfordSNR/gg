@@ -23,7 +23,6 @@ namespace gg {
       size_t order_;
 
       size_t compute_order() const;
-      static std::string compute_hash( const std::string & filename );
 
     public:
       InFile( const std::string & filename );
@@ -40,6 +39,8 @@ namespace gg {
 
       bool operator==( const InFile & other ) const;
       bool operator!=( const InFile & other ) const { return not operator==( other ); }
+
+      static std::string compute_hash( const std::string & filename );
     };
 
     class Function
@@ -96,6 +97,11 @@ namespace gg {
       gg::protobuf::Thunk to_protobuf() const;
 
       void collect_infiles( const boost::filesystem::path & gg_dir ) const;
+
+      /* this function will collect all of the infiles in .gg directory, and
+         will store two copies for the thunk, both in the working directory
+         and .gg directory. */
+      void store( const boost::filesystem::path & gg_dir ) const;
 
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
