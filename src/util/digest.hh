@@ -6,6 +6,7 @@
 #include <openssl/evp.h>
 #include <istream>
 #include <string>
+#include <fstream>
 
 namespace digest
 {
@@ -14,8 +15,10 @@ namespace digest
   {
   private:
     unsigned char hash_[ EVP_MAX_MD_SIZE ];
+    unsigned int compute_hash( std::istream & input );
 
   public:
+    Digest( const std::string & filename );
     Digest( std::istream & input );
     std::string hexdigest() const;
   };

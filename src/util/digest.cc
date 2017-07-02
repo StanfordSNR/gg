@@ -10,7 +10,7 @@ using namespace std;
 using namespace digest;
 
 template<const EVP_MD * evp_func(void)>
-Digest<evp_func>::Digest( istream & input )
+unsigned int Digest<evp_func>::compute_hash( std::istream & input )
 {
   EVP_MD_CTX context;
   EVP_DigestInit( &context, evp_func() );
@@ -23,6 +23,21 @@ Digest<evp_func>::Digest( istream & input )
 
   unsigned int len;
   EVP_DigestFinal( &context, hash_, &len );
+
+  return len;
+}
+
+template<const EVP_MD * evp_func(void)>
+Digest<evp_func>::Digest( const std::string & filename )
+{
+  ifstream fin( filename, ios::binary );
+  compute_hash( fin );
+}
+
+template<const EVP_MD * evp_func(void)>
+Digest<evp_func>::Digest( istream & input )
+{
+  compute_hash( input );
 }
 
 template<const EVP_MD * evp_func(void)>
