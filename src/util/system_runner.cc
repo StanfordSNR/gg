@@ -71,3 +71,21 @@ int ezexec( const vector<string> & command,
 
   return ( path_search ? execvpe : execve )( &argv[ 0 ][ 0 ], &argv[ 0 ], &envp[ 0 ] );
 }
+
+void run( const vector<string> & command, const vector<string> & environment )
+{
+  ChildProcess command_process( command[ 0 ],
+    [&]()
+    {
+      return ezexec( command, environment );
+    }
+  );
+
+  while ( !command_process.terminated() ) {
+    command_process.wait();
+  }
+
+  if ( command_process.exit_status() != 0 ) {
+    command_process.throw_exception();
+  }
+}

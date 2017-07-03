@@ -11,4 +11,7 @@ int ezexec( const std::vector<std::string> & command,
             const std::vector<std::string> & environment,
             const bool path_search = false );
 
+void run( const std::vector<std::string> & command,
+          const std::vector<std::string> & environment );
+
 #endif /* SYSTEM_RUNNER_HH */
