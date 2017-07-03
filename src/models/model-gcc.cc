@@ -6,16 +6,20 @@
 #include <algorithm>
 #include <map>
 #include <boost/filesystem.hpp>
+#include <boost/tokenizer.hpp>
 #include <getopt.h>
 #include <libgen.h>
 
 #include "exception.hh"
 #include "optional.hh"
 #include "digest.hh"
+#include "temp_file.hh"
+#include "system_runner.hh"
 #include "thunk.hh"
 #include "utils.hh"
 
 using namespace std;
+using namespace boost;
 using namespace gg::thunk;
 
 namespace fs = boost::filesystem;
@@ -42,6 +46,68 @@ enum Language
   LANGUAGE_ASSEMBLER,
   LANGUAGE_OBJECT
 };
+
+vector<string> get_dependencies( const vector<string> & gcc_args )
+{
+  vector<string> args { gcc_args };
+  args.insert( args.begin(), "gcc" );
+
+  string dep_out_filename;
+
+  auto has_dependencies_option = find_if(
+    args.begin(), args.end(),
+    []( const string & opt )
+    {
+      return ( opt == "-M" ) or ( opt == "-MF" ) or ( opt == "-MM" ) or
+             ( opt == "-MG" ) or ( opt == "-MP" ) or ( opt == "-MQ" ) or
+             ( opt == "-MD" ) or ( opt == "-MMD" );
+    }
+  );
+
+  if ( has_dependencies_option != args.end() ) {
+    throw runtime_error( "find dependencies: command already has -M flag" );
+  }
+
+  {
+    UniqueFile gcc_mf_output { "/tmp/gg-model-gcc-mf" };
+    dep_out_filename = gcc_mf_output.name();
+
+    /* XXX we should probably get rid of -o option */
+    args.push_back( "-M" );
+    args.push_back( "-MF" );
+    args.push_back( dep_out_filename );
+  }
+
+  run( args, {}, true, true );
+
+  vector<string> dependencies;
+
+  ifstream depin { dep_out_filename };
+  string line;
+  bool first_line = true;
+
+  while ( getline( depin, line ) ) {
+    if ( first_line ) {
+      line = line.substr( line.find(':') + 2, line.length() );
+      first_line = false;
+    }
+    else {
+      line = line.substr( 1, line.length() );
+    }
+
+    if ( line[ line.length() - 1 ] == '\\' ) {
+      line = line.substr( 0, line.length() - 2 );
+    }
+
+    tokenizer<escaped_list_separator<char>> tok( line, { "\\", " ", "\"\'" } );
+
+    for ( auto t = tok.begin(); t != tok.end(); t++ ) {
+      dependencies.push_back( *t );
+    }
+  }
+
+  return dependencies;
+}
 
 Language filename_to_language( const string & path )
 {
@@ -134,6 +200,13 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   }
 
   switch ( stage ) {
+  case PREPROCESS:
+  {
+    vector<string> dependencies = get_dependencies( args );
+    args.push_back( "-E" );
+    return { output, { GCC_COMPILER, args }, { input, GCC_COMPILER, CC1 } };
+  }
+
   case COMPILE:
     args.push_back( "-S" );
     return { output, { GCC_COMPILER, args }, { input, GCC_COMPILER, CC1 } };
