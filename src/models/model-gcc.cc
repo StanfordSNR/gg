@@ -37,14 +37,14 @@ enum GCCStage
   LINK
 };
 
-enum Language
+enum class Language
 {
-  LANGUAGE_NONE,
-  LANGUAGE_C,
-  LANGUAGE_C_HEADER,
-  LANGUAGE_CPP_OUTPUT,
-  LANGUAGE_ASSEMBLER,
-  LANGUAGE_OBJECT
+  NONE,
+  C,
+  C_HEADER,
+  CPP_OUTPUT,
+  ASSEMBLER,
+  OBJECT
 };
 
 vector<string> get_dependencies( const vector<string> & gcc_args )
@@ -121,22 +121,22 @@ Language filename_to_language( const string & path )
 
   string extension = filename.substr( pos + 1 );
 
-  if ( extension == "c" ) return LANGUAGE_C;
-  if ( extension == "h" ) return LANGUAGE_C_HEADER;
-  if ( extension == "i" ) return LANGUAGE_CPP_OUTPUT;
-  if ( extension == "s" ) return LANGUAGE_ASSEMBLER;
-  if ( extension == "o" ) return LANGUAGE_OBJECT;
+  if ( extension == "c" ) return Language::C;
+  if ( extension == "h" ) return Language::C_HEADER;
+  if ( extension == "i" ) return Language::CPP_OUTPUT;
+  if ( extension == "s" ) return Language::ASSEMBLER;
+  if ( extension == "o" ) return Language::OBJECT;
 
   throw runtime_error( "unknown file extension" );
 }
 
 Language name_to_language( const string & name )
 {
-  if ( name == "none" ) return LANGUAGE_NONE;
-  if ( name == "c" ) return LANGUAGE_C;
-  if ( name == "c-header" ) return LANGUAGE_C_HEADER;
-  if ( name == "cpp-output" ) return LANGUAGE_CPP_OUTPUT;
-  if ( name == "assembler" ) return LANGUAGE_ASSEMBLER;
+  if ( name == "none" ) return Language::NONE;
+  if ( name == "c" ) return Language::C;
+  if ( name == "c-header" ) return Language::C_HEADER;
+  if ( name == "cpp-output" ) return Language::CPP_OUTPUT;
+  if ( name == "assembler" ) return Language::ASSEMBLER;
 
   throw runtime_error( "unknown language name" );
 }
@@ -144,11 +144,11 @@ Language name_to_language( const string & name )
 GCCStage language_to_stage( const Language lang )
 {
   switch ( lang ) {
-  case LANGUAGE_C: return PREPROCESS;
-  case LANGUAGE_C_HEADER: return PREPROCESS;
-  case LANGUAGE_CPP_OUTPUT: return COMPILE;
-  case LANGUAGE_ASSEMBLER: return ASSEMBLE;
-  case LANGUAGE_OBJECT: return LINK;
+  case Language::C: return PREPROCESS;
+  case Language::C_HEADER: return PREPROCESS;
+  case Language::CPP_OUTPUT: return COMPILE;
+  case Language::ASSEMBLER: return ASSEMBLE;
+  case Language::OBJECT: return LINK;
 
   default: throw runtime_error( "unknown language" );
   }
@@ -229,7 +229,7 @@ int main( int argc, char * argv[] )
 {
   fs::path gg_dir = gg::models::gg_dir();
 
-  Language current_langauge = LANGUAGE_NONE; /* -x arugment */
+  Language current_langauge = Language::NONE; /* -x arugment */
   Optional<GCCStage> last_stage;
 
   vector<string> args;
@@ -270,7 +270,7 @@ int main( int argc, char * argv[] )
       string input_file { optarg };
       Language file_lang = current_langauge;
 
-      if ( current_langauge == LANGUAGE_NONE ) {
+      if ( current_langauge == Language::NONE ) {
         file_lang = filename_to_language( input_file );
       }
 
