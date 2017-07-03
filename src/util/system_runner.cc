@@ -12,8 +12,8 @@
 
 using namespace std;
 
-int ezexec( const vector<string> & command,
-            const vector<string> & environment, const bool path_search )
+int ezexec( const vector<string> & command, const vector<string> & environment,
+            const bool use_environ, const bool path_search )
 {
   if ( command.empty() ) {
     throw runtime_error( "ezexec: empty command" );
@@ -53,31 +53,35 @@ int ezexec( const vector<string> & command,
   vector<char *> envp;
   vector<vector<char>> envp_data;
 
-  for ( auto & x : environment ) {
-    vector<char> new_str;
-    for ( auto & ch : x ) {
-      new_str.push_back( ch );
+  if ( not use_environ ) {
+    for ( auto & x : environment ) {
+      vector<char> new_str;
+      for ( auto & ch : x ) {
+        new_str.push_back( ch );
+      }
+      new_str.push_back( 0 ); /* null-terminate */
+
+      envp_data.push_back( new_str );
     }
-    new_str.push_back( 0 ); /* null-terminate */
 
-    envp_data.push_back( new_str );
+    for ( auto & x : envp_data ) {
+      envp.push_back( &x[ 0 ] );
+    }
+
+    envp.push_back( 0 ); /* null-terminate */
   }
 
-  for ( auto & x : envp_data ) {
-    envp.push_back( &x[ 0 ] );
-  }
-
-  envp.push_back( 0 ); /* null-terminate */
-
-  return ( path_search ? execvpe : execve )( &argv[ 0 ][ 0 ], &argv[ 0 ], &envp[ 0 ] );
+  return ( path_search ? execvpe : execve )( &argv[ 0 ][ 0 ], &argv[ 0 ],
+                                             use_environ ? environ : &envp[ 0 ] );
 }
 
-void run( const vector<string> & command, const vector<string> & environment )
+void run( const vector<string> & command, const vector<string> & environment,
+          const bool use_environ, const bool path_search )
 {
   ChildProcess command_process( command[ 0 ],
     [&]()
     {
-      return ezexec( command, environment );
+      return ezexec( command, environment, use_environ, path_search );
     }
   );
 
