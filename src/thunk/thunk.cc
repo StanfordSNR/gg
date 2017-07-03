@@ -6,6 +6,7 @@
 #include <cstring>
 #include <iostream>
 
+#include "system_runner.hh"
 #include "thunk_writer.hh"
 
 using namespace std;
@@ -43,54 +44,20 @@ int Thunk::execute( const fs::path & root_dir ) const
   vector<string> args = function_.args();
   args.insert( args.begin(), ( root_dir / function_.hash() ).string() );
 
-  char ** argv = new char * [ args.size() + 1 ];
-
-  for ( i = 0; i < args.size(); i++ ) {
-    argv[ i ] = new char[ args[ i ].length() + 1 ];
-    args[ i ].copy( argv[ i ], args[ i ].length() );
-    argv[ i ][ args[ i ].length() ] = '\0';
-  }
-
-  argv[ args.size() ] = NULL;
-
   // preparing envp
-  vector<string> gg_envars = {
+  vector<string> envars = {
     "PATH=" + ( root_dir / "exe/bin" ).string(),
     "GG=1",
     "GG_VERBOSE=1"
   };
 
-  size_t envp_len = infiles_.size() + gg_envars.size();
-  char ** envp = new char * [ envp_len + 1 ];
-
   for ( i = 0; i < infiles_.size(); i++ ) {
-    string envar = infiles_[ i ].to_envar( root_dir );
-    envp[ i ] = new char[ envar.length() + 1 ];
-    envar.copy( envp[ i ], envar.length() );
-    envp[ i ][ envar.length() ] = '\0';
+    envars.push_back( infiles_[ i ].to_envar( root_dir ) );
   }
-
-  for ( const string & gg_envar : gg_envars ) {
-    envp[ i ] = new char[ gg_envar.length() + 1 ];
-    strcpy( envp[ i++ ], gg_envar.c_str() );
-  }
-
-  envp[ i++ ] = NULL;
 
   int retval;
 
-  if ( ( retval = execvpe( argv[ 0 ], argv, envp ) ) < 0 ) {
-    for ( size_t i = 0; i < args.size(); i++ ) {
-      delete[] argv[ i ];
-    }
-
-    for ( size_t i = 0; i < envp_len; i++ ) {
-      delete[] envp[ i ];
-    }
-
-    delete[] argv;
-    delete[] envp;
-
+  if ( ( retval = ezexec( args, envars ) ) < 0 ) {
     throw runtime_error( "execvpe failed" );
   }
 
