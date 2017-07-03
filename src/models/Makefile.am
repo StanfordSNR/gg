@@ -14,5 +14,5 @@ EXTRA_DIST = model-compile.py
 
 bin_PROGRAMS = model-gcc
 
-model_gcc_SOURCES = model-gcc.cc
+model_gcc_SOURCES = model-gcc.cc utils.hh
 model_gcc_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
