@@ -8,4 +8,5 @@ libggutil_a_SOURCES = exception.hh optional.hh file_descriptor.hh chunk.hh \
                       child_process.hh child_process.cc \
                       signalmask.hh signalmask.cc \
                       digest.hh digest.cc \
-                      system_runner.hh system_runner.cc
+                      system_runner.hh system_runner.cc \
+                      temp_file.hh temp_file.cc
