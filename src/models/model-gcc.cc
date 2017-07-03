@@ -203,8 +203,14 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   case PREPROCESS:
   {
     vector<string> dependencies = get_dependencies( args );
+    vector<InFile> preprocess_infiles { input, GCC_COMPILER, CC1 };
+
+    for ( const string & dep : dependencies ) {
+      preprocess_infiles.emplace_back( dep );
+    }
+
     args.push_back( "-E" );
-    return { output, { GCC_COMPILER, args }, { input, GCC_COMPILER, CC1 } };
+    return { output, { GCC_COMPILER, args }, preprocess_infiles };
   }
 
   case COMPILE:
