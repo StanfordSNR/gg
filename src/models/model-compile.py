@@ -32,7 +32,7 @@ def hash_file(filename):
 
 def set_function(thunk):
   thunk.function.exe = GCC_COMPILER
-  thunk.function.args.extend([thunk.function.exe] + sys.argv[1:])
+  thunk.function.args.extend(sys.argv[1:])
   if not "random-seed" in "".join(sys.argv):
     thunk.function.args.extend(["-frandom-seed=winstein"])
   thunk.function.hash = hash_file(GCC_COMPILER)

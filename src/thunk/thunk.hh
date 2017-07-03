@@ -36,7 +36,7 @@ namespace gg {
       std::string hash() const { return hash_; }
       size_t order() const { return order_; }
 
-      std::string to_envar( const std::string & root_dir ) const;
+      std::string to_envar( const boost::filesystem::path & root_dir ) const;
 
       gg::protobuf::InFile to_protobuf() const;
 
@@ -50,17 +50,17 @@ namespace gg {
     {
     private:
       std::string exe_ {};
-      std::vector<std::string> args_; // args_ contains the exe_ in the first argument without the full path
+      std::vector<std::string> args_;
       std::string exe_hash_ {};
 
       void parse_cmd();
 
-      static std::string get_exe_path( const std::string & exe );
       static std::string hash_exe( const std::string & exe );
 
     public:
-      Function( const std::vector<std::string> & cmd );
-      Function( const std::vector<std::string> & cmd, const std::string & hash );
+      Function( const std::string & exe, const std::vector<std::string> & cmd );
+      Function( const std::string & exe, const std::vector<std::string> & cmd,
+                const std::string & hash );
       Function( const gg::protobuf::Function & func_proto );
 
       std::string exe() const { return exe_; }
@@ -90,7 +90,7 @@ namespace gg {
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
-      int execute( const std::string & root_dir = ".gg/" ) const;
+      int execute( const boost::filesystem::path & root_dir = ".gg/" ) const;
 
       std::string outfile() const { return outfile_; }
       Function function() const { return function_; }

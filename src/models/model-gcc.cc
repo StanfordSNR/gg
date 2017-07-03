@@ -5,18 +5,29 @@
 #include <tuple>
 #include <algorithm>
 #include <map>
+#include <boost/filesystem.hpp>
 #include <getopt.h>
 #include <libgen.h>
 
 #include "exception.hh"
 #include "optional.hh"
-#include "model-gcc.hh"
+#include "digest.hh"
+#include "thunk.hh"
+#include "utils.hh"
 
 using namespace std;
+using namespace gg::thunk;
+
+namespace fs = boost::filesystem;
+
+/* TODO read this information from a config file */
+static const std::string GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc";
+static const std::string AS = ".gg/exe/bin/as";
+static const std::string CC1 = ".gg/exe/bin/cc1";
 
 enum GCCStage
 {
-  PREPROCESS,
+  PREPROCESS = 1,
   COMPILE,
   ASSEMBLE,
   LINK
@@ -77,32 +88,26 @@ GCCStage language_to_stage( const Language lang )
   }
 }
 
-string stage_output_name( const GCCStage stage, const string filename )
+string stage_output_name( const GCCStage stage, const string basename )
 {
-  /* XXX this needs serious attention in the future */
-  string result = filename;
-  const auto pos_dot = filename.find_last_of( '.' );
-  const auto pos_slash = filename.find_last_of( '/' );
-
-  if ( pos_slash == string::npos or pos_dot > pos_slash ) {
-    result = result.substr( 0, pos_dot );
-  }
+  string result = basename;
 
   switch ( stage ) {
   case PREPROCESS: return result + ".i";
   case COMPILE: return result + ".s";
   case ASSEMBLE: return result + ".o";
-
-  case LINK:
-    return "a.out";
+  case LINK: return result + ".out";
 
   default:
     throw runtime_error( "invalid GCCstage stage" );
   }
 }
 
-void prepare_args( const GCCStage stage, vector<string> & args, const string & output )
+Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
+                      const string & input, const string & output )
 {
+  vector<string> args { original_args };
+
   args.erase(
     remove_if(
       args.begin(), args.end(),
@@ -118,7 +123,7 @@ void prepare_args( const GCCStage stage, vector<string> & args, const string & o
         throw runtime_error( "invalid argument: -o option with no argument" );
       }
 
-      args[ i++ ] = output;
+      args[ ++i ] = output;
       found_output_flag = true;
     }
   }
@@ -131,11 +136,11 @@ void prepare_args( const GCCStage stage, vector<string> & args, const string & o
   switch ( stage ) {
   case COMPILE:
     args.push_back( "-S" );
-    break;
+    return { output, { GCC_COMPILER, args }, { input, GCC_COMPILER, CC1 } };
 
   case ASSEMBLE:
     args.push_back( "-c" );
-    break;
+    return { output, { GCC_COMPILER, args }, { input, GCC_COMPILER, AS } };
 
   default: throw runtime_error( "not implemented" );
   }
@@ -143,12 +148,14 @@ void prepare_args( const GCCStage stage, vector<string> & args, const string & o
 
 int main( int argc, char * argv[] )
 {
+  fs::path gg_dir = gg::models::gg_dir();
+
   Language current_langauge = LANGUAGE_NONE; /* -x arugment */
   Optional<GCCStage> last_stage;
 
   vector<string> args;
 
-  for ( int i = 0; i < argc; i++ ) {
+  for ( int i = 1; i < argc; i++ ) {
     args.push_back( argv[ i ] );
   }
 
@@ -199,15 +206,15 @@ int main( int argc, char * argv[] )
       break;
 
     case 'E':
-      last_stage = ( not last_stage.initialized() ) ? PREPROCESS : *last_stage;
+      last_stage = PREPROCESS;
       break;
 
     case 'S':
-      last_stage = ( not last_stage.initialized() ) ? COMPILE : *last_stage;
+      last_stage = ( not last_stage.initialized() or *last_stage >= COMPILE ) ? COMPILE : *last_stage;
       break;
 
     case 'c':
-      last_stage = ( not last_stage.initialized() ) ? ASSEMBLE : *last_stage;
+      last_stage = ( not last_stage.initialized() or *last_stage >= ASSEMBLE ) ? ASSEMBLE : *last_stage;
       break;
 
     case 'o':
@@ -246,6 +253,16 @@ int main( int argc, char * argv[] )
     }
   }
 
+  /* create the gg directory, if it doesn't exist */
+  if ( not fs::create_directories( gg_dir ) ) {
+    if ( not fs::is_directory( gg_dir ) ) {
+      throw runtime_error( "cannot create gg dir" );
+    }
+  }
+
+  /* input hash */
+  string input_hash = digest::SHA256( input.first ).hexdigest();
+
   /* stage -> output_name */
   map<size_t, string> stage_output;
   stage_output[ first_stage - 1 ] = input.first;
@@ -254,44 +271,35 @@ int main( int argc, char * argv[] )
     GCCStage stage = static_cast<GCCStage>( stage_num );
 
     string output_name = ( stage == *last_stage ) ? last_stage_output_filename
-                                                 : stage_output_name( stage, input.first );
+                                                  : stage_output_name( stage, input_hash );
 
 
     vector<string> args_stage = args;
     args_stage[ input_idx ] = stage_output[ stage - 1 ];
-    prepare_args( stage, args_stage, output_name );
+    Thunk stage_thunk = generate_thunk( stage, args_stage,
+                                        stage_output[ stage - 1 ], output_name );
+
+    stage_thunk.store( gg_dir );
 
     switch ( stage ) {
     case PREPROCESS:
       /* generate preprocess thunk */
-      cerr << ">> preprocessing " << input.first << endl;
+      cerr << ">> preprocessing " << stage_output[ stage - 1 ] << endl;
       break;
 
     case COMPILE:
-    {
       /* generate compile thunk */
-      cerr << ">> compiling " << input.first << endl;
-
-      ModelCompile compile_model( args_stage );
-      compile_model.write_thunk();
-
+      cerr << ">> compiling " << stage_output[ stage - 1 ] << endl;
       break;
-    }
 
     case ASSEMBLE:
-    {
       /* generate assemble thunk */
-      cerr << ">> assembling " << input.first << endl;
-
-      ModelAssemble assemble_model( args_stage );
-      assemble_model.write_thunk();
-
+      cerr << ">> assembling " << stage_output[ stage - 1 ] << endl;
       break;
-    }
 
     case LINK:
       /* generate link thunk */
-      cerr << ">> linking " << input.first << endl;
+      cerr << ">> linking " << stage_output[ stage - 1 ] << endl;
       break;
     }
 

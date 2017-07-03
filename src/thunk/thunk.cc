@@ -31,7 +31,7 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   order_ = compute_order();
 }
 
-int Thunk::execute( const string & root_dir ) const
+int Thunk::execute( const fs::path & root_dir ) const
 {
   if ( order_ != 1 ) {
     throw runtime_error( "cannot execute thunk with order != 1" );
@@ -41,9 +41,9 @@ int Thunk::execute( const string & root_dir ) const
 
   // preparing argv
   vector<string> args = function_.args();
-  char ** argv = new char * [ args.size() + 1 /* NULL at the end */ ];
+  args.insert( args.begin(), ( root_dir / function_.hash() ).string() );
 
-  args[ 0 ] = root_dir + function_.hash();
+  char ** argv = new char * [ args.size() + 1 ];
 
   for ( i = 0; i < args.size(); i++ ) {
     argv[ i ] = new char[ args[ i ].length() + 1 ];
@@ -55,9 +55,9 @@ int Thunk::execute( const string & root_dir ) const
 
   // preparing envp
   vector<string> gg_envars = {
-    "PATH=" + root_dir + "exe/bin",
+    "PATH=" + ( root_dir / "exe/bin" ).string(),
     "GG=1",
-    //"GG_VERBOSE=1"
+    "GG_VERBOSE=1"
   };
 
   size_t envp_len = infiles_.size() + gg_envars.size();
@@ -122,18 +122,21 @@ protobuf::Thunk Thunk::to_protobuf() const
   return thunk;
 }
 
+void put_file( const fs::path & src, const fs::path & dst )
+{
+  if ( fs::exists( dst ) ) {
+    /* XXX we might want to implement stricter checks, like hash check */
+    return;
+  }
+
+  fs::copy_file( src, dst );
+}
+
 void Thunk::collect_infiles( const fs::path & gg_dir ) const
 {
   for ( InFile infile : infiles_ ) {
-    /* XXX the file hash should probably be cached somewhere */
     fs::path target_path = gg_dir / infile.hash();
-
-    if ( fs::exists( target_path ) ) {
-      /* XXX we might want to implement stricter checks, like hash check */
-      continue;
-    }
-
-    fs::copy_file( infile.filename(), target_path );
+    put_file( infile.filename(), target_path );
   }
 }
 
@@ -143,7 +146,7 @@ void Thunk::store( const fs::path & gg_dir ) const
 
   ThunkWriter::write_thunk( *this );
   string thunk_hash = InFile::compute_hash( outfile() );
-  fs::copy_file( outfile(), gg_dir / thunk_hash );
+  fs::copy_file( outfile(), gg_dir / thunk_hash, fs::copy_option::overwrite_if_exists );
 }
 
 bool Thunk::operator==( const Thunk & other ) const

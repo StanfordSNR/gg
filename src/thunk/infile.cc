@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <boost/filesystem.hpp>
 
 #include "optional.hh"
 #include "thunk.hh"
@@ -14,6 +15,8 @@
 using namespace std;
 using namespace gg;
 using namespace gg::thunk;
+
+namespace fs = boost::filesystem;
 
 InFile::InFile( const string & filename )
   : filename_( filename ), hash_( compute_hash( filename ) ), order_( compute_order() )
@@ -54,7 +57,7 @@ string InFile::compute_hash( const string & filename )
   return digest::SHA256( file ).hexdigest();
 }
 
-string InFile::to_envar( const string & root_dir ) const
+string InFile::to_envar( const fs::path & root_dir ) const
 {
   string result( filename_ );
 
@@ -65,7 +68,7 @@ string InFile::to_envar( const string & root_dir ) const
   }
 
   result += '=';
-  result += root_dir + hash_;
+  result += ( root_dir / hash_ ).string();
 
   return result;
 }

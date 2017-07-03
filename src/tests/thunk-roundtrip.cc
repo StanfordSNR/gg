@@ -35,12 +35,13 @@ int main( int argc, char * argv[] )
 
     string outfile = "TEST_remake.o";
 
-    vector<string> cmd = { "gcc", "-DLOCALEDIR=\"/usr/local/share/locale\"",
+    string exe = "gcc";
+    vector<string> args = { "-DLOCALEDIR=\"/usr/local/share/locale\"",
       "-DLIBDIR=\"/usr/local/lib\"", "-DINCLUDEDIR=\"/usr/local/include\"",
       "-DHAVE_CONFIG_H", "-I.", "-g", "-O2", "-MT", "remake.o", "-MD", "-MP",
       "-MF", ".deps/remake.Tpo", "-c", "-o", "TEST_remake.o", "remake.i" };
 
-    Function Function( cmd );
+    Function function( exe, args );
 
     InFile infile1( "thunk.hh", "XXX", 0 );
     InFile infile2( "infile_desc.hh", "YYY", 0 );
@@ -48,7 +49,7 @@ int main( int argc, char * argv[] )
 
     vector<InFile> infiles = { infile1, infile2, infile3 };
 
-    Thunk original_thunk { outfile, Function, infiles };
+    Thunk original_thunk { outfile, function, infiles };
 
     ThunkWriter::write_thunk( original_thunk );
 
