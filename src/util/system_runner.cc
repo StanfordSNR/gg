@@ -1,4 +1,4 @@
-/* -*-mode:c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <cassert>
 #include <unistd.h>
@@ -12,7 +12,8 @@
 
 using namespace std;
 
-int ezexec( const vector<string> & command, const bool path_search )
+int ezexec( const vector<string> & command,
+            const vector<string> & environment, const bool path_search )
 {
   if ( command.empty() ) {
     throw runtime_error( "ezexec: empty command" );
@@ -30,12 +31,12 @@ int ezexec( const vector<string> & command, const bool path_search )
 
   /* copy the arguments to mutable structures */
   vector<char *> argv;
-  vector< vector< char > > argv_data;
+  vector<vector<char>> argv_data;
 
   for ( auto & x : command ) {
     vector<char> new_str;
     for ( auto & ch : x ) {
-        new_str.push_back( ch );
+      new_str.push_back( ch );
     }
     new_str.push_back( 0 ); /* null-terminate */
 
@@ -48,8 +49,25 @@ int ezexec( const vector<string> & command, const bool path_search )
 
   argv.push_back( 0 ); /* null-terminate */
 
-  CheckSystemCall( argv.front(), /* the program being called */
-                   ( path_search ? execvpe : execve )( &argv[ 0 ][ 0 ], &argv[ 0 ], environ ) );
-                   
-  throw runtime_error( "execve: failed" );
+  /* copy the environment variables to mutable structures */
+  vector<char *> envp;
+  vector<vector<char>> envp_data;
+
+  for ( auto & x : environment ) {
+    vector<char> new_str;
+    for ( auto & ch : x ) {
+      new_str.push_back( ch );
+    }
+    new_str.push_back( 0 ); /* null-terminate */
+
+    envp_data.push_back( new_str );
+  }
+
+  for ( auto & x : envp_data ) {
+    envp.push_back( &x[ 0 ] );
+  }
+
+  envp.push_back( 0 ); /* null-terminate */
+
+  return ( path_search ? execvpe : execve )( &argv[ 0 ][ 0 ], &argv[ 0 ], &envp[ 0 ] );
 }
