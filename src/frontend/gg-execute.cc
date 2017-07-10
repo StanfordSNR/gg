@@ -14,6 +14,8 @@
 using namespace std;
 using namespace gg::thunk;
 
+namespace fs = boost::filesystem;
+
 void usage( const char * argv0 )
 {
   cerr << argv0 << "[--verbose, -v] [--sandboxed,-s] [--gg-dir, -g=<arg>] THUNK" << endl;
@@ -62,11 +64,16 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    ThunkReader thunk_reader { argv[ optind ] };
+    string thunk_filename = argv[ optind ];
+
+    fs::path gg_path = fs::canonical( gg_dir );
+    fs::path thunk_path = fs::canonical( thunk_path );
+
+    ThunkReader thunk_reader { thunk_path.string() };
     Thunk thunk = thunk_reader.read_thunk();
 
     if ( not sandboxed ) {
-      ChildProcess process { thunk.outfile(), [&]() { return thunk.execute(); } };
+      ChildProcess process { thunk.outfile(), [&]() { return thunk.execute( gg_dir, thunk_path ); } };
 
       while ( not process.terminated() ) {
         process.wait();
@@ -83,7 +90,7 @@ int main( int argc, char * argv[] )
 
       allowed_files[ thunk.outfile() ] = { true, true, true };
 
-      SandboxedProcess process { [&]() { return thunk.execute( gg_dir ); }, allowed_files };
+      SandboxedProcess process { [&]() { return thunk.execute( gg_dir, thunk_path ); }, allowed_files };
       process.set_log_level( log_level );
       process.execute();
 

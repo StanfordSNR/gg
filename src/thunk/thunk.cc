@@ -32,13 +32,11 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   order_ = compute_order();
 }
 
-int Thunk::execute( const fs::path & root_dir ) const
+int Thunk::execute( const fs::path & root_dir, const fs::path & thunk_path ) const
 {
   if ( order_ != 1 ) {
     throw runtime_error( "cannot execute thunk with order != 1" );
   }
-
-  size_t i = 0;
 
   // preparing argv
   vector<string> args = function_.args();
@@ -47,13 +45,11 @@ int Thunk::execute( const fs::path & root_dir ) const
   // preparing envp
   vector<string> envars = {
     "PATH=" + ( root_dir / "exe/bin" ).string(),
-    "GG=1",
-    "GG_VERBOSE=1"
+    "__GG_THUNK_PATH__=" + thunk_path.string(),
+    "__GG_DIR__=" + root_dir.string(),
+    "__GG_ENABLED__=1",
+    //"__GG_VERBOSE__=1"
   };
-
-  for ( i = 0; i < infiles_.size(); i++ ) {
-    envars.push_back( infiles_[ i ].to_envar( root_dir ) );
-  }
 
   int retval;
 

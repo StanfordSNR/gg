@@ -90,7 +90,8 @@ namespace gg {
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
-      int execute( const boost::filesystem::path & root_dir = ".gg/" ) const;
+      int execute( const boost::filesystem::path & root_dir,
+                   const boost::filesystem::path & thunk_path ) const;
 
       std::string outfile() const { return outfile_; }
       Function function() const { return function_; }
