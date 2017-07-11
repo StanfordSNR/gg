@@ -67,7 +67,7 @@ int main( int argc, char * argv[] )
     string thunk_filename = argv[ optind ];
 
     fs::path gg_path = fs::canonical( gg_dir );
-    fs::path thunk_path = fs::canonical( thunk_path );
+    fs::path thunk_path = fs::canonical( thunk_filename );
 
     ThunkReader thunk_reader { thunk_path.string() };
     Thunk thunk = thunk_reader.read_thunk();
