@@ -13,7 +13,7 @@ from shutil import copyfile, copymode
 GG_DIR = "GG_DIR"
 OUTFLAG = "-o"
 SRCFLAG = "-c"
-GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc"
+GCC_COMPILER = ".gg/exe/bin/gcc"
 CC1=".gg/exe/bin/cc1"
 MAGIC_NUMBER = "##GGTHUNK##"
 

@@ -6,7 +6,7 @@ MAGIC="##GGTHUNK##"
 
 
 # Run with GCC
-$BIN/x86_64-linux-musl-gcc -g -O2 -S -frandom-seed=winstein -o remake.s.gold $DATADIR/examples/remake.i
+$BIN/gcc -g -O2 -S -frandom-seed=winstein -o remake.s.gold $DATADIR/examples/remake.i
 
 # Create thunk
 GG_DIR=.gg/ python $DATADIR/../models/model-compile.py -g -O2 -S -frandom-seed=winstein -o remake-python.s $DATADIR/examples/remake.i

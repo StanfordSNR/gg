@@ -25,7 +25,7 @@ using namespace gg::thunk;
 namespace fs = boost::filesystem;
 
 /* TODO read this information from a config file */
-static const std::string GCC_COMPILER = ".gg/exe/bin/x86_64-linux-musl-gcc";
+static const std::string GCC_COMPILER = ".gg/exe/bin/gcc";
 static const std::string AS = ".gg/exe/bin/as";
 static const std::string CC1 = ".gg/exe/bin/cc1";
 
