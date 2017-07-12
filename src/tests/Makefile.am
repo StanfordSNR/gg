@@ -25,9 +25,9 @@ sandbox_test_SOURCES = sandbox-test.cc
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 XFAIL_TESTS = preprocess-model.test
 
-compile-model-test.log: download_binaries.log
-compile-model-test-python.log: compile-model-test.log
-assemble-model.log: compile-model-test-python.log
+preprocess-model.log: download_binaries.log
+compile-model.log: preprocess-model.log
+assemble-model.log: compile-model.log
 
 clean-local:
 	-rm -rf .gg/
