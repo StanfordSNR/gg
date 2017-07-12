@@ -30,6 +30,30 @@ static const pair<string, string> AS           = { "as", ".gg/bin/as" };
 static const pair<string, string> CC1          = { "cc1", ".gg/bin/cc1" };
 static const string GCC_BIN_PREFIX             = "/__gg__/bin/";
 
+/* TODO these lists should be populated based on system gcc */
+static const vector<string> include_path = {
+  "-nostdinc",
+  "-isystem/usr/lib/gcc/x86_64-linux-gnu/7/include",
+  "-isystem/usr/local/include",
+  "-isystem/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed",
+  "-isystem/usr/include/x86_64-linux-gnu",
+  "-isystem/usr/include"
+};
+
+static const vector<string> library_path = {
+  "-L/usr/local/lib/x86_64-linux-gnu",
+  "-L/lib/x86_64-linux-gnu",
+  "-L/usr/lib/x86_64-linux-gnu",
+  "-L/usr/local/lib64",
+  "-L/lib64",
+  "-L/usr/lib64",
+  "-L/usr/local/lib",
+  "-L/lib",
+  "-L/usr/lib",
+  "-L/usr/x86_64-linux-gnu/lib64",
+  "-L/usr/x86_64-linux-gnu/lib",
+};
+
 enum GCCStage
 {
   PREPROCESS = 1,
@@ -206,14 +230,28 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   case PREPROCESS:
   {
     vector<string> dependencies = get_dependencies( args );
-    vector<InFile> preprocess_infiles { input, GCC_COMPILER.first, CC1.first };
+    vector<InFile> preprocess_infiles {
+      input,
+      { GCC_BIN_PREFIX + GCC_COMPILER.first, GCC_COMPILER.second },
+      { GCC_BIN_PREFIX + CC1.first, CC1.second }
+    };
 
     for ( const string & dep : dependencies ) {
       preprocess_infiles.emplace_back( dep );
     }
 
     args.push_back( "-E" );
-    return { output, { GCC_BIN_PREFIX + GCC_COMPILER.first, args, gcc_hash }, preprocess_infiles };
+
+    vector<string> all_args;
+    all_args.reserve( include_path.size() + args.size() );
+    all_args.insert( all_args.end(), include_path.begin(), include_path.end() );
+    all_args.insert( all_args.end(), args.begin(), args.end() );
+
+    return {
+      output,
+      { GCC_BIN_PREFIX + GCC_COMPILER.first, all_args, gcc_hash },
+      preprocess_infiles
+    };
   }
 
   case COMPILE:
