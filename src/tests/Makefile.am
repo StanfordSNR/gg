@@ -14,15 +14,16 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
 AM_TESTS_ENVIRONMENT = \
 	export DATADIR=$(srcdir);
 
-EXTRA_DIST = examples/remake.i examples/remake.s
+EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
-dist_check_SCRIPTS = compile-model.test download_binaries.test assemble-model.test
+dist_check_SCRIPTS = preprocess-model.test compile-model.test assemble-model.test download_binaries.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
+XFAIL_TESTS = preprocess-model.test
 
 compile-model-test.log: download_binaries.log
 compile-model-test-python.log: compile-model-test.log

@@ -5,10 +5,10 @@ PATH=`pwd`/$BIN:$PATH
 MAGIC="##GGTHUNK##"
 
 # Run with GCC
-$BIN/gcc -g -O2 -S -frandom-seed=winstein -o remake.s.gold $DATADIR/examples/remake.i
+$BIN/gcc -g -O2 -S -frandom-seed=winstein -o remake.s.gold $DATADIR/test_vectors/remake.i
 
 # Create thunk
-GG_DIR=.gg/ ../models/model-gcc -g -O2 -S -frandom-seed=winstein -o remake.s $DATADIR/examples/remake.i
+GG_DIR=.gg/ ../models/model-gcc -g -O2 -S -frandom-seed=winstein -o remake.s $DATADIR/test_vectors/remake.i
 
 
 # Assert it's a thunk
