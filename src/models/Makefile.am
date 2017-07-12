@@ -10,8 +10,6 @@ BASE_LDADD = ../thunk/libthunk.a \
              $(PROTOBUF_LIBS) \
              $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
 
-EXTRA_DIST = model-compile.py
-
 bin_PROGRAMS = model-gcc
 
 model_gcc_SOURCES = model-gcc.cc utils.hh
