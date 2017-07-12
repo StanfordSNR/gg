@@ -5,31 +5,31 @@ PATH=`pwd`/$BIN:$PATH
 MAGIC="##GGTHUNK##"
 
 # Run with GCC
-$BIN/gcc -g -O2 -E -frandom-seed=winstein -o remake.i.gold $DATADIR/test_vectors/server.c
+$BIN/gcc -g -O2 -E -frandom-seed=winstein -o server.i.gold $DATADIR/test_vectors/server.c
 
 # Create thunk
-GG_DIR=.gg/ ../models/model-gcc -g -O2 -E -frandom-seed=winstein -o remake.i $DATADIR/test_vectors/server.c
+GG_DIR=.gg/ ../models/model-gcc -g -O2 -E -frandom-seed=winstein -o server.i $DATADIR/test_vectors/server.c
 
 
 # Assert it's a thunk
-if [ $MAGIC != `head -c 11 remake.i` ]; then
+if [ $MAGIC != `head -c 11 server.i` ]; then
   echo "Failed to create thunk"
   exit 1
 fi
 
 
 # execute thunk
-../frontend/gg-execute -s remake.i
+../frontend/gg-execute -s server.i
 
 
 # check difference
-diff remake.i remake.i.gold
+diff server.i server.i.gold
 
 
 # Clean up
 # Note: Not cleaning up .gg directory
-rm -f remake.i.gold
-rm -f remake.i
+rm -f server.i.gold
+rm -f server.i
 find .gg -maxdepth 1 -type f -delete
 
 exit 0
