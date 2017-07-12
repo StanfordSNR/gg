@@ -17,7 +17,7 @@ AM_TESTS_ENVIRONMENT = \
 EXTRA_DIST = examples/remake.i examples/remake.s
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
-dist_check_SCRIPTS = compile-model-test.test download_binaries.test assemble-model.test
+dist_check_SCRIPTS = compile-model.test download_binaries.test assemble-model.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
