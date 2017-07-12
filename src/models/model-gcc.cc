@@ -31,27 +31,26 @@ static const pair<string, string> CC1          = { "cc1", ".gg/bin/cc1" };
 static const string GCC_BIN_PREFIX             = "/__gg__/bin/";
 
 /* TODO these lists should be populated based on system gcc */
-static const vector<string> include_path = {
-  "-nostdinc",
-  "-isystem/usr/lib/gcc/x86_64-linux-gnu/7/include",
-  "-isystem/usr/local/include",
-  "-isystem/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed",
-  "-isystem/usr/include/x86_64-linux-gnu",
-  "-isystem/usr/include"
+static const vector<string> c_include_path = {
+  "/usr/lib/gcc/x86_64-linux-gnu/7/include",
+  "/usr/local/include",
+  "/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed",
+  "/usr/include/x86_64-linux-gnu",
+  "/usr/include"
 };
 
 static const vector<string> library_path = {
-  "-L/usr/local/lib/x86_64-linux-gnu",
-  "-L/lib/x86_64-linux-gnu",
-  "-L/usr/lib/x86_64-linux-gnu",
-  "-L/usr/local/lib64",
-  "-L/lib64",
-  "-L/usr/lib64",
-  "-L/usr/local/lib",
-  "-L/lib",
-  "-L/usr/lib",
-  "-L/usr/x86_64-linux-gnu/lib64",
-  "-L/usr/x86_64-linux-gnu/lib",
+  "/usr/local/lib/x86_64-linux-gnu",
+  "/lib/x86_64-linux-gnu",
+  "/usr/lib/x86_64-linux-gnu",
+  "/usr/local/lib64",
+  "/lib64",
+  "/usr/lib64",
+  "/usr/local/lib",
+  "/lib",
+  "/usr/lib",
+  "/usr/x86_64-linux-gnu/lib64",
+  "/usr/x86_64-linux-gnu/lib",
 };
 
 enum GCCStage
@@ -243,8 +242,12 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
     args.push_back( "-E" );
 
     vector<string> all_args;
-    all_args.reserve( include_path.size() + args.size() );
-    all_args.insert( all_args.end(), include_path.begin(), include_path.end() );
+    all_args.reserve( c_include_path.size() + args.size() + 1 );
+    all_args.push_back( "-nostdinc" );
+    for ( const auto & p : c_include_path ) {
+      all_args.push_back( "-isystem" + p );
+    }
+
     all_args.insert( all_args.end(), args.begin(), args.end() );
 
     return {

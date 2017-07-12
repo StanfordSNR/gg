@@ -52,6 +52,8 @@ int Thunk::execute( const fs::path & root_dir, const fs::path & thunk_path ) con
 
   int retval;
 
+  cerr << "+ " << command_str( args, envars ) << endl;
+
   if ( ( retval = ezexec( args, envars ) ) < 0 ) {
     throw runtime_error( "execvpe failed" );
   }
