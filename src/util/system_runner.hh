@@ -17,4 +17,7 @@ void run( const std::vector<std::string> & command,
           const bool use_environ = false,
           const bool path_search = false );
 
+std::string command_str( const std::vector<std::string> & command,
+                         const std::vector<std::string> & environment );
+
 #endif /* SYSTEM_RUNNER_HH */

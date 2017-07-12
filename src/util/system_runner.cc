@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <thread>
 #include <exception>
+#include <sstream>
 
 #include "system_runner.hh"
 #include "child_process.hh"
@@ -92,4 +93,15 @@ void run( const vector<string> & command, const vector<string> & environment,
   if ( command_process.exit_status() != 0 ) {
     command_process.throw_exception();
   }
+}
+
+string command_str( const vector<string> & command,
+                    const vector<string> & environment )
+{
+  ostringstream oss;
+
+  for ( const auto & e : environment ) { oss << e << " "; }
+  for ( const auto & c : command ) { oss << c << " "; }
+
+  return oss.str();
 }
