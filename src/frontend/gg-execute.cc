@@ -73,7 +73,7 @@ int main( int argc, char * argv[] )
     Thunk thunk = thunk_reader.read_thunk();
 
     if ( not sandboxed ) {
-      ChildProcess process { thunk.outfile(), [&]() { return thunk.execute( gg_dir, thunk_path ); } };
+      ChildProcess process { thunk.outfile(), [&]() { return thunk.execute( gg_path, thunk_path ); } };
 
       while ( not process.terminated() ) {
         process.wait();
@@ -85,12 +85,13 @@ int main( int argc, char * argv[] )
       unordered_map<string, Permissions> allowed_files;
 
       for ( const InFile & infile : thunk.infiles() ) {
-        allowed_files[ gg_dir + infile.hash() ] = { true, true, true };
+        allowed_files[ ( gg_path / infile.hash() ).string() ] = { true, true, true };
       }
 
       allowed_files[ thunk.outfile() ] = { true, true, true };
+      allowed_files[ thunk_path.string() ] = { true, true, true };
 
-      SandboxedProcess process { [&]() { return thunk.execute( gg_dir, thunk_path ); }, allowed_files };
+      SandboxedProcess process { [&]() { return thunk.execute( gg_path, thunk_path ); }, allowed_files };
       process.set_log_level( log_level );
       process.execute();
 

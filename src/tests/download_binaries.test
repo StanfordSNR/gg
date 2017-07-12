@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-BIN=.gg/exe/bin
+BIN=.gg/bin
 PATH=`pwd`/$BIN:$PATH
 
 # Download binaries

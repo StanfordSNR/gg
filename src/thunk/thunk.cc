@@ -44,11 +44,10 @@ int Thunk::execute( const fs::path & root_dir, const fs::path & thunk_path ) con
 
   // preparing envp
   vector<string> envars = {
-    "PATH=" + ( root_dir / "exe/bin" ).string(),
     "__GG_THUNK_PATH__=" + thunk_path.string(),
     "__GG_DIR__=" + root_dir.string(),
     "__GG_ENABLED__=1",
-    //"__GG_VERBOSE__=1"
+    // "__GG_VERBOSE__=1"
   };
 
   int retval;

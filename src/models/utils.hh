@@ -8,13 +8,16 @@ namespace gg {
     boost::filesystem::path gg_dir()
     {
       char * envar = getenv( "GG_DIR" );
+      boost::filesystem::path gg_path;
 
       if ( envar == NULL ) {
-        return { ".gg/" };
+        gg_path  = ".gg";
       }
       else {
-        return { envar };
+        gg_path = envar;
       }
+
+      return boost::filesystem::absolute( gg_path );
     }
   }
 }

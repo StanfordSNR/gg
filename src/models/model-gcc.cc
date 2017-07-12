@@ -25,9 +25,10 @@ using namespace gg::thunk;
 namespace fs = boost::filesystem;
 
 /* TODO read this information from a config file */
-static const std::string GCC_COMPILER = ".gg/exe/bin/gcc";
-static const std::string AS = ".gg/exe/bin/as";
-static const std::string CC1 = ".gg/exe/bin/cc1";
+static const pair<string, string> GCC_COMPILER = { "gcc", ".gg/bin/gcc" };
+static const pair<string, string> AS           = { "as", ".gg/bin/as" };
+static const pair<string, string> CC1          = { "cc1", ".gg/bin/cc1" };
+static const string GCC_BIN_PREFIX             = "/__gg__/bin/";
 
 enum GCCStage
 {
@@ -199,27 +200,44 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
     args.push_back( output );
   }
 
+  string gcc_hash = InFile::compute_hash( GCC_COMPILER.second );
+
   switch ( stage ) {
   case PREPROCESS:
   {
     vector<string> dependencies = get_dependencies( args );
-    vector<InFile> preprocess_infiles { input, GCC_COMPILER, CC1 };
+    vector<InFile> preprocess_infiles { input, GCC_COMPILER.first, CC1.first };
 
     for ( const string & dep : dependencies ) {
       preprocess_infiles.emplace_back( dep );
     }
 
     args.push_back( "-E" );
-    return { output, { GCC_COMPILER, args }, preprocess_infiles };
+    return { output, { GCC_BIN_PREFIX + GCC_COMPILER.first, args, gcc_hash }, preprocess_infiles };
   }
 
   case COMPILE:
     args.push_back( "-S" );
-    return { output, { GCC_COMPILER, args }, { input, GCC_COMPILER, CC1 } };
+    return {
+      output,
+      { GCC_BIN_PREFIX + GCC_COMPILER.first, args, gcc_hash },
+      {
+        input,
+        { GCC_BIN_PREFIX + GCC_COMPILER.first, GCC_COMPILER.second },
+        { GCC_BIN_PREFIX + CC1.first, CC1.second }
+      }
+    };
 
   case ASSEMBLE:
     args.push_back( "-c" );
-    return { output, { GCC_COMPILER, args }, { input, GCC_COMPILER, AS } };
+    return { output,
+      { GCC_BIN_PREFIX + GCC_COMPILER.first, args, gcc_hash },
+      {
+        input,
+        { GCC_BIN_PREFIX + GCC_COMPILER.first, GCC_COMPILER.second },
+        { GCC_BIN_PREFIX + AS.first, AS.second }
+      }
+    };
 
   default: throw runtime_error( "not implemented" );
   }
@@ -299,6 +317,9 @@ int main( int argc, char * argv[] )
     case 'o':
       last_stage_output_filename = optarg;
       break;
+
+    case 'B':
+      throw runtime_error( "illegal -B flag" );
     }
   }
 
@@ -318,6 +339,8 @@ int main( int argc, char * argv[] )
 
   const size_t input_idx = distance( args.begin(), find( args.begin(), args.end() , input.first ) );
   assert( input_idx < args.size() );
+
+  args.push_back( "-B" + GCC_BIN_PREFIX );
 
   GCCStage first_stage = language_to_stage( input.second );
 
