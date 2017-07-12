@@ -20,8 +20,8 @@ namespace gg {
     class InFile
     {
     private:
-
       std::string filename_;
+      std::string real_filename_;
       std::string hash_;
       size_t order_;
 
@@ -29,14 +29,19 @@ namespace gg {
 
     public:
       InFile( const std::string & filename );
+
+      /* we use this constructor when the real file is stored somewhere other
+         than 'filename', but we want that file to be stored as 'filename' in
+         the thunk (e.g. see model-gcc). */
+      InFile( const std::string & filename, const std::string & real_filename );
+
       InFile( const std::string & filename, const std::string & hash, const size_t order );
       InFile( const gg::protobuf::InFile & infile_proto );
 
       std::string filename() const { return filename_; }
+      std::string real_filename() const { return real_filename_; }
       std::string hash() const { return hash_; }
       size_t order() const { return order_; }
-
-      std::string to_envar( const boost::filesystem::path & root_dir ) const;
 
       gg::protobuf::InFile to_protobuf() const;
 

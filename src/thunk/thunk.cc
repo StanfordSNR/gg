@@ -88,7 +88,7 @@ protobuf::Thunk Thunk::to_protobuf() const
 void put_file( const fs::path & src, const fs::path & dst )
 {
   if ( fs::exists( dst ) ) {
-    /* XXX we might want to implement stricter checks, like hash check */
+    /* XXX we might want to implement strict checks, like hash check */
     return;
   }
 
@@ -98,8 +98,9 @@ void put_file( const fs::path & src, const fs::path & dst )
 void Thunk::collect_infiles( const fs::path & gg_dir ) const
 {
   for ( InFile infile : infiles_ ) {
+    fs::path source_path = infile.real_filename();
     fs::path target_path = gg_dir / infile.hash();
-    put_file( infile.filename(), target_path );
+    put_file( source_path, target_path );
   }
 }
 

@@ -18,22 +18,28 @@ using namespace gg::thunk;
 
 namespace fs = boost::filesystem;
 
+InFile::InFile( const string & filename, const string & real_filename )
+  : filename_( filename ), real_filename_( real_filename ),
+    hash_( compute_hash( real_filename_ ) ), order_( compute_order() )
+{}
+
 InFile::InFile( const string & filename )
-  : filename_( filename ), hash_( compute_hash( filename ) ), order_( compute_order() )
+  : InFile( filename, filename )
 {}
 
 InFile::InFile( const string & filename, const string & hash, const size_t order )
-  : filename_( filename ), hash_( hash ), order_( order )
+  : filename_( filename ), real_filename_( filename ), hash_( hash ),
+    order_( order )
 {}
 
 InFile::InFile( const protobuf::InFile & infile_proto )
-  : filename_( infile_proto.filename() ), hash_( infile_proto.hash() ),
-    order_( infile_proto.order() )
+  : filename_( infile_proto.filename() ), real_filename_( filename_ ),
+    hash_( infile_proto.hash() ), order_( infile_proto.order() )
 {}
 
 size_t InFile::compute_order() const
 {
-  ThunkReader thunk_reader { filename_ };
+  ThunkReader thunk_reader { real_filename_ };
 
   // check if the file has the gg-thunk magic number
   if ( not thunk_reader.is_thunk() ) {
@@ -55,22 +61,6 @@ string InFile::compute_hash( const string & filename )
   }
 
   return digest::SHA256( file ).hexdigest();
-}
-
-string InFile::to_envar( const fs::path & root_dir ) const
-{
-  string result( filename_ );
-
-  for ( size_t i = 0; i < result.length(); i++ ) {
-    if ( not ( isalnum( result[ i ] ) or result[ i ] == '_' ) ) {
-      result[ i ] = '_';
-    }
-  }
-
-  result += '=';
-  result += ( root_dir / hash_ ).string();
-
-  return result;
 }
 
 protobuf::InFile InFile::to_protobuf() const
