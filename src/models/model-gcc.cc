@@ -239,6 +239,10 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
       preprocess_infiles.emplace_back( dep );
     }
 
+    for ( const string & dir : c_include_path ) {
+      preprocess_infiles.emplace_back( dir, "", 0 );
+    }
+
     args.push_back( "-E" );
 
     vector<string> all_args;

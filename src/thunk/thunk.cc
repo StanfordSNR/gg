@@ -99,6 +99,11 @@ void put_file( const fs::path & src, const fs::path & dst )
 void Thunk::collect_infiles( const fs::path & gg_dir ) const
 {
   for ( InFile infile : infiles_ ) {
+    if ( infile.hash().length() == 0 ) {
+      /* this is a directory, not a file. no need to copy anything */
+      continue;
+    }
+
     fs::path source_path = infile.real_filename();
     fs::path target_path = gg_dir / infile.hash();
     put_file( source_path, target_path );

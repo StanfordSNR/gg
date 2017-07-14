@@ -85,9 +85,15 @@ int main( int argc, char * argv[] )
       unordered_map<string, Permissions> allowed_files;
 
       for ( const InFile & infile : thunk.infiles() ) {
-        allowed_files[ ( gg_path / infile.hash() ).string() ] = { true, true, true };
+        if ( infile.hash().length() ) {
+          allowed_files[ ( gg_path / infile.hash() ).string() ] = { true, true, true };
+        }
+        else {
+          allowed_files[ infile.filename() ] = { true, true, true };
+        }
       }
 
+      allowed_files[ gg_path.string() ] = { true, true, true };
       allowed_files[ thunk.outfile() ] = { true, true, true };
       allowed_files[ thunk_path.string() ] = { true, true, true };
 
