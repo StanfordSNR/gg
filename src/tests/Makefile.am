@@ -17,7 +17,7 @@ AM_TESTS_ENVIRONMENT = \
 EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
-dist_check_SCRIPTS = download-binaries.test preprocess-model.test compile-model.test assemble-model.test
+dist_check_SCRIPTS = fetch-toolchain.test preprocess-model.test compile-model.test assemble-model.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
@@ -25,7 +25,7 @@ sandbox_test_SOURCES = sandbox-test.cc
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 XFAIL_TESTS = preprocess-model.test
 
-preprocess-model.log: download_binaries.log
+preprocess-model.log: fetch-toolchain.log
 compile-model.log: preprocess-model.log
 assemble-model.log: compile-model.log
 
