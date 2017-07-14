@@ -45,7 +45,8 @@ AC_TYPE_UINT16_T
 
 # gg-toolchain path
 AC_ARG_VAR([TOOLCHAIN_PATH], [Path to gg toolchain.])
-AS_IF([test "x$TOOLCHAIN_PATH" = x], [TOOLCHAIN_PATH="$HOME/gg-toolchain"])
+AS_IF([test "x$TOOLCHAIN_PATH" = x], [TOOLCHAIN_PATH="$HOME/gg-toolchain/bin"])
+AC_CHECK_FILE($TOOLCHAIN_PATH/gcc, [], [AC_MSG_ERROR([Could not find gcc in toolchain dir.])])
 
 # Used for loading the correct syscall table
 OS="$(uname | tr '[[:upper:]]' '[[:lower:]]')"
