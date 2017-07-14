@@ -18,6 +18,8 @@
 #include "thunk.hh"
 #include "utils.hh"
 
+#include "toolchain.hh"
+
 using namespace std;
 using namespace boost;
 using namespace gg::thunk;
