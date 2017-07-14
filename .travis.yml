@@ -22,8 +22,9 @@ before_script:
   - pip install --user protobuf
 
 script:
+  - ./fetch-toolchain.sh
   - ./autogen.sh
-  - ./configure --enable-sanitize
+  - ./configure --enable-sanitize TOOLCHAIN_PATH=~+/toolchain/bin
   - make -j3 distcheck || (cat gg-0.01/_build/src/tests/test-suite.log && exit 1)
 
 notifications:
