@@ -1,11 +1,10 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 BIN=.gg/bin
-PATH=`pwd`/$BIN:$PATH
 MAGIC="##GGTHUNK##"
 
 # Run with GCC
-$BIN/gcc -g -O2 -E -frandom-seed=winstein -o server.i.gold $DATADIR/test_vectors/server.c
+gcc -g -O2 -E -frandom-seed=winstein -o server.i.gold $DATADIR/test_vectors/server.c
 
 # Create thunk
 GG_DIR=.gg/ ../models/model-gcc -g -O2 -E -frandom-seed=winstein -o server.i $DATADIR/test_vectors/server.c
