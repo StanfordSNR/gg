@@ -43,6 +43,10 @@ AC_CHECK_HEADERS([sys/capability.h], [], [AC_MSG_ERROR([Missing libcap header fi
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT16_T
 
+# gg-toolchain path
+AC_ARG_VAR([TOOLCHAIN_PATH], [Path to gg toolchain.])
+AS_IF([test "x$TOOLCHAIN_PATH" = x], [TOOLCHAIN_PATH="$HOME/gg-toolchain"])
+
 # Used for loading the correct syscall table
 OS="$(uname | tr '[[:upper:]]' '[[:lower:]]')"
 ARCH="$(uname -m)"
