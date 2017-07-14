@@ -2,6 +2,10 @@ language: cpp
 sudo: required
 services: docker
 
+git:
+  depth: 3
+  submodules: false
+
 addons:
   apt:
     sources:
