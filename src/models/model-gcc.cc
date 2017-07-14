@@ -27,10 +27,32 @@ using namespace gg::thunk;
 namespace fs = boost::filesystem;
 
 /* TODO read this information from a config file */
-static const pair<string, string> GCC_COMPILER = { "gcc", ".gg/bin/gcc" };
-static const pair<string, string> AS           = { "as", ".gg/bin/as" };
-static const pair<string, string> CC1          = { "cc1", ".gg/bin/cc1" };
-static const string GCC_BIN_PREFIX             = "/__gg__/bin/";
+static const string GCC = "gcc";
+static const string AS  = "as";
+static const string CC1 = "cc1";
+static const string GCC_BIN_PREFIX = "/__gg__/bin/";
+static const fs::path toolchain_path { TOOLCHAIN_PATH };
+
+static auto gcc_function =
+  []( const vector<string> & args ) -> Function
+  {
+    return { GCC_BIN_PREFIX + GCC, args, program_hash( GCC ) };
+  };
+
+static const unordered_map<string, InFile> program_infiles {
+  {
+    GCC,
+    { GCC_BIN_PREFIX + GCC, ( toolchain_path / GCC ).string(), program_hash( GCC ), 0 }
+  },
+  {
+    CC1,
+    { GCC_BIN_PREFIX + CC1, ( toolchain_path / CC1 ).string(), program_hash( CC1 ), 0 }
+  },
+  {
+    AS,
+    { GCC_BIN_PREFIX + AS, ( toolchain_path / AS ).string(), program_hash( AS ), 0 }
+  },
+};
 
 /* TODO these lists should be populated based on system gcc */
 static const vector<string> c_include_path = {
@@ -225,16 +247,13 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
     args.push_back( output );
   }
 
-  string gcc_hash = InFile::compute_hash( GCC_COMPILER.second );
-
   switch ( stage ) {
   case PREPROCESS:
   {
     vector<string> dependencies = get_dependencies( args );
     vector<InFile> preprocess_infiles {
       input,
-      { GCC_BIN_PREFIX + GCC_COMPILER.first, GCC_COMPILER.second },
-      { GCC_BIN_PREFIX + CC1.first, CC1.second }
+      program_infiles.at( GCC ), program_infiles.at( CC1 )
     };
 
     for ( const string & dep : dependencies ) {
@@ -258,7 +277,7 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
 
     return {
       output,
-      { GCC_BIN_PREFIX + GCC_COMPILER.first, all_args, gcc_hash },
+      gcc_function( all_args ),
       preprocess_infiles
     };
   }
@@ -267,22 +286,20 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
     args.push_back( "-S" );
     return {
       output,
-      { GCC_BIN_PREFIX + GCC_COMPILER.first, args, gcc_hash },
+      gcc_function( args ),
       {
         input,
-        { GCC_BIN_PREFIX + GCC_COMPILER.first, GCC_COMPILER.second },
-        { GCC_BIN_PREFIX + CC1.first, CC1.second }
+        program_infiles.at( GCC ), program_infiles.at( CC1 )
       }
     };
 
   case ASSEMBLE:
     args.push_back( "-c" );
     return { output,
-      { GCC_BIN_PREFIX + GCC_COMPILER.first, args, gcc_hash },
+      gcc_function( args ),
       {
         input,
-        { GCC_BIN_PREFIX + GCC_COMPILER.first, GCC_COMPILER.second },
-        { GCC_BIN_PREFIX + AS.first, AS.second }
+        program_infiles.at( GCC ), program_infiles.at( AS )
       }
     };
 

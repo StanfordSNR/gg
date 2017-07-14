@@ -32,6 +32,12 @@ InFile::InFile( const string & filename, const string & hash, const size_t order
     order_( order )
 {}
 
+InFile::InFile( const string & filename, const string & real_filename,
+                const string & hash, const size_t order )
+  : filename_( filename ), real_filename_( real_filename ), hash_( hash ),
+    order_( order )
+{}
+
 InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), real_filename_( filename_ ),
     hash_( infile_proto.hash() ), order_( infile_proto.order() )

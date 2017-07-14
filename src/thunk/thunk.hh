@@ -20,7 +20,9 @@ namespace gg {
     class InFile
     {
     private:
+      /* name of the file in the thunk */
       std::string filename_;
+      /* where the actual content is */
       std::string real_filename_;
       std::string hash_;
       size_t order_;
@@ -36,6 +38,8 @@ namespace gg {
       InFile( const std::string & filename, const std::string & real_filename );
 
       InFile( const std::string & filename, const std::string & hash, const size_t order );
+      InFile( const std::string & filename, const std::string & real_filename,
+              const std::string & hash, const size_t order );
       InFile( const gg::protobuf::InFile & infile_proto );
 
       std::string filename() const { return filename_; }

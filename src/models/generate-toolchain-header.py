@@ -26,9 +26,11 @@ print("#include <unordered_map>")
 print("#include <string>")
 
 print()
+print('#define TOOLCHAIN_PATH "{}"'.format(BINDIR))
+print()
 
 print("""\
-const std::string & toolchain_program( const std::string & name )
+const std::string & program_hash( const std::string & name )
 {
   static const std::unordered_map<std::string, std::string> programs = {""")
 
