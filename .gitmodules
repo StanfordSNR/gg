@@ -1,3 +1,0 @@
-[submodule "toolchain"]
-	path = toolchain
-	url = https://github.com/stanfordsnr/gg-toolchain
