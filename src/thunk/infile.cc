@@ -27,11 +27,6 @@ InFile::InFile( const string & filename )
   : InFile( filename, filename )
 {}
 
-InFile::InFile( const string & filename, const string & hash, const size_t order )
-  : filename_( filename ), real_filename_( filename ), hash_( hash ),
-    order_( order )
-{}
-
 InFile::InFile( const string & filename, const string & real_filename,
                 const string & hash, const size_t order )
   : filename_( filename ), real_filename_( real_filename ), hash_( hash ),

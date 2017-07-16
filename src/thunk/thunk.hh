@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <sys/types.h>
 
 #define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
@@ -26,6 +27,7 @@ namespace gg {
       std::string real_filename_;
       std::string hash_;
       size_t order_;
+      off_t size_ { 0 };
 
       size_t compute_order() const;
 
@@ -37,15 +39,16 @@ namespace gg {
          the thunk (e.g. see model-gcc). */
       InFile( const std::string & filename, const std::string & real_filename );
 
-      InFile( const std::string & filename, const std::string & hash, const size_t order );
       InFile( const std::string & filename, const std::string & real_filename,
               const std::string & hash, const size_t order );
+
       InFile( const gg::protobuf::InFile & infile_proto );
 
       std::string filename() const { return filename_; }
       std::string real_filename() const { return real_filename_; }
       std::string hash() const { return hash_; }
       size_t order() const { return order_; }
+      off_t size() const { return size_; }
 
       gg::protobuf::InFile to_protobuf() const;
 
