@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-BIN=.gg/bin
-PATH=`pwd`/$BIN:$PATH
+BIN=$TOOLCHAIN_PATH
+PATH=$BIN:$PATH
 MAGIC="##GGTHUNK##"
 
 # Run with GCC
