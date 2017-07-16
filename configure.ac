@@ -43,9 +43,11 @@ AC_CHECK_HEADERS([sys/capability.h], [], [AC_MSG_ERROR([Missing libcap header fi
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT16_T
 
+abs_srcdir=$(readlink -f $srcdir)
+
 # gg-toolchain path
 AC_ARG_VAR([TOOLCHAIN_PATH], [Path to gg toolchain.])
-AS_IF([test "x$TOOLCHAIN_PATH" = x], [TOOLCHAIN_PATH="$srcdir/toolchain/bin"])
+AS_IF([test "x$TOOLCHAIN_PATH" = x], [TOOLCHAIN_PATH="$abs_srcdir/toolchain/bin"])
 AC_CHECK_FILE($TOOLCHAIN_PATH/gcc, [], [AC_MSG_ERROR([Could not find gcc in toolchain dir.])])
 
 # Used for loading the correct syscall table
