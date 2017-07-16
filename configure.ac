@@ -49,6 +49,8 @@ abs_srcdir=$(readlink -f $srcdir)
 AC_ARG_VAR([TOOLCHAIN_PATH], [Path to gg toolchain.])
 AS_IF([test "x$TOOLCHAIN_PATH" = x], [TOOLCHAIN_PATH="$abs_srcdir/toolchain/bin"])
 AC_CHECK_FILE($TOOLCHAIN_PATH/gcc, [], [AC_MSG_ERROR([Could not find gcc in toolchain dir.])])
+AC_CHECK_FILE($TOOLCHAIN_PATH/cc1, [], [AC_MSG_ERROR([Could not find cc1 in toolchain dir.])])
+AC_CHECK_FILE($TOOLCHAIN_PATH/as, [], [AC_MSG_ERROR([Could not find as in toolchain dir.])])
 
 # Used for loading the correct syscall table
 OS="$(uname | tr '[[:upper:]]' '[[:lower:]]')"
