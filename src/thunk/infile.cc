@@ -18,6 +18,30 @@ using namespace gg::thunk;
 
 namespace fs = boost::filesystem;
 
+InFile::Type type_from_protobuf( const int protobuf_type )
+{
+  switch ( protobuf_type ) {
+  case gg::protobuf::InFile_Type_FILE:
+    return InFile::Type::FILE;
+  case gg::protobuf::InFile_Type_DUMMY_DIRECTORY:
+    return InFile::Type::DUMMY_DIRECTORY;
+  default:
+    throw runtime_error( "invalid protobuf infile type" );
+  }
+}
+
+int type_to_protobuf( const InFile::Type type )
+{
+  switch ( type ) {
+  case InFile::Type::FILE:
+    return gg::protobuf::InFile_Type_FILE;
+  case InFile::Type::DUMMY_DIRECTORY:
+    return gg::protobuf::InFile_Type_DUMMY_DIRECTORY;
+  default:
+    throw runtime_error( "invalid infile type" );
+  }
+}
+
 InFile::InFile( const string & filename )
   : InFile( filename, filename )
 {}
@@ -48,8 +72,21 @@ InFile::InFile( const string & filename, const string & real_filename,
 InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), real_filename_( filename_ ),
     hash_( infile_proto.hash() ), order_( infile_proto.order() ),
-    size_( infile_proto.size() )
+    size_( infile_proto.size() ),
+    type_( type_from_protobuf( infile_proto.type() ) )
 {}
+
+InFile::InFile( const std::string & filename, const Type type )
+  : InFile( filename, filename, "", 0, 0 )
+{
+  type_ = type;
+
+  if ( type == Type::FILE ) {
+    hash_ = compute_hash( real_filename_ );
+    order_ = compute_order( real_filename_ );
+    size_ = compute_size( real_filename_ );
+  }
+}
 
 size_t InFile::compute_order( const string & filename )
 {

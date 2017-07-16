@@ -20,6 +20,13 @@ namespace gg {
 
     class InFile
     {
+    public:
+      enum class Type
+      {
+        FILE = 1,
+        DUMMY_DIRECTORY = 2,
+      };
+
     private:
       /* name of the file in the thunk */
       std::string filename_;
@@ -28,9 +35,13 @@ namespace gg {
       std::string hash_;
       size_t order_;
       off_t size_;
+      Type type_ { Type::FILE };
 
     public:
       InFile( const std::string & filename );
+
+      /* we use this constructor to create dummy directory entries */
+      InFile( const std::string & filename, const Type type );
 
       /* we use this constructor when the real file is stored somewhere other
          than 'filename', but we want that file to be stored as 'filename' in
@@ -53,6 +64,7 @@ namespace gg {
       std::string hash() const { return hash_; }
       size_t order() const { return order_; }
       off_t size() const { return size_; }
+      Type type() const { return type_; }
 
       gg::protobuf::InFile to_protobuf() const;
 

@@ -15,10 +15,10 @@ message InFile {
   uint64 size = 4;
 
   enum Type {
-    FILE = 1;
-    DUMMY_DIRECTORY = 2;
+    FILE = 0;
+    DUMMY_DIRECTORY = 1;
   }
-  
+
   Type type = 5;
 }
 
