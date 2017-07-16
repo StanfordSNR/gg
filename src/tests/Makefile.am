@@ -1,3 +1,5 @@
+export TOOLCHAIN_PATH := $(TOOLCHAIN_PATH)
+
 AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox $(CXX14_FLAGS) $(PROTOBUF_CFLAGS)
