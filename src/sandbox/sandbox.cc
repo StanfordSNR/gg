@@ -69,6 +69,8 @@ void SandboxedProcess::execute()
 
       switch ( syscall.syscall_no() ) {
       case SYS_chroot:
+      case SYS_stat:
+      case SYS_lstat:
       case SYS_chdir:
       case SYS_fchdir:
       case SYS_openat:
