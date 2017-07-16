@@ -12,6 +12,7 @@ message InFile {
   string filename = 1;
   string hash = 2;
   uint32 order = 3;
+  uint64 size = 4;
 }
 
 message Thunk {

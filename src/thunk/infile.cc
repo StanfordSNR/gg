@@ -48,7 +48,7 @@ InFile::InFile( const string & filename, const string & real_filename,
 InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), real_filename_( filename_ ),
     hash_( infile_proto.hash() ), order_( infile_proto.order() ),
-    size_( 0 ) /* XXX NEEDS TO BE TAKEN CARE OF */
+    size_( infile_proto.size() )
 {}
 
 size_t InFile::compute_order( const string & filename )
@@ -89,6 +89,7 @@ protobuf::InFile InFile::to_protobuf() const
   infile.set_filename( filename_ );
   infile.set_hash( hash_ );
   infile.set_order( order_ );
+  infile.set_size( size_ );
 
   return infile;
 }
@@ -97,5 +98,6 @@ bool InFile::operator==( const InFile & other ) const
 {
   return ( filename_ == other.filename_ ) and
          ( hash_ == other.hash_ ) and
-         ( order_ == other.order_ );
+         ( order_ == other.order_ ) and
+         ( size_ == other.size_ );
 }
