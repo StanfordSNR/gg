@@ -27,9 +27,7 @@ namespace gg {
       std::string real_filename_;
       std::string hash_;
       size_t order_;
-      off_t size_ { 0 };
-
-      size_t compute_order() const;
+      off_t size_;
 
     public:
       InFile( const std::string & filename );
@@ -40,7 +38,13 @@ namespace gg {
       InFile( const std::string & filename, const std::string & real_filename );
 
       InFile( const std::string & filename, const std::string & real_filename,
+              const std::string & hash );
+
+      InFile( const std::string & filename, const std::string & real_filename,
               const std::string & hash, const size_t order );
+
+      InFile( const std::string & filename, const std::string & real_filename,
+              const std::string & hash, const size_t order, const off_t size );
 
       InFile( const gg::protobuf::InFile & infile_proto );
 
@@ -55,7 +59,9 @@ namespace gg {
       bool operator==( const InFile & other ) const;
       bool operator!=( const InFile & other ) const { return not operator==( other ); }
 
+      static size_t compute_order( const std::string & filename );
       static std::string compute_hash( const std::string & filename );
+      static off_t compute_size( const std::string & filename );
     };
 
     class Function

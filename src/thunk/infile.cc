@@ -18,29 +18,42 @@ using namespace gg::thunk;
 
 namespace fs = boost::filesystem;
 
-InFile::InFile( const string & filename, const string & real_filename )
-  : filename_( filename ), real_filename_( real_filename ),
-    hash_( compute_hash( real_filename_ ) ), order_( compute_order() )
-{}
-
 InFile::InFile( const string & filename )
   : InFile( filename, filename )
 {}
 
+InFile::InFile( const string & filename, const string & real_filename )
+  : filename_( filename ), real_filename_( real_filename ),
+    hash_( compute_hash( real_filename_ ) ), order_( compute_order( real_filename_ ) ),
+    size_( compute_size( real_filename_ ) )
+{}
+
+InFile::InFile( const string & filename, const string & real_filename,
+                const string & hash, const size_t order, const off_t size )
+  : filename_( filename ), real_filename_( real_filename ), hash_( hash ),
+    order_( order ), size_( size )
+{}
+
 InFile::InFile( const string & filename, const string & real_filename,
                 const string & hash, const size_t order )
-  : filename_( filename ), real_filename_( real_filename ), hash_( hash ),
-    order_( order )
+  : InFile( filename, real_filename, hash, order, compute_size( real_filename ) )
+{}
+
+InFile::InFile( const string & filename, const string & real_filename,
+                const string & hash )
+  : InFile( filename, real_filename, hash, compute_order( real_filename ),
+            compute_size( real_filename ) )
 {}
 
 InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), real_filename_( filename_ ),
-    hash_( infile_proto.hash() ), order_( infile_proto.order() )
+    hash_( infile_proto.hash() ), order_( infile_proto.order() ),
+    size_( 0 ) /* XXX NEEDS TO BE TAKEN CARE OF */
 {}
 
-size_t InFile::compute_order() const
+size_t InFile::compute_order( const string & filename )
 {
-  ThunkReader thunk_reader { real_filename_ };
+  ThunkReader thunk_reader { filename };
 
   // check if the file has the gg-thunk magic number
   if ( not thunk_reader.is_thunk() ) {
@@ -62,6 +75,11 @@ string InFile::compute_hash( const string & filename )
   }
 
   return digest::SHA256( file ).hexdigest();
+}
+
+off_t InFile::compute_size( const string & filename )
+{
+  return fs::file_size( filename );
 }
 
 protobuf::InFile InFile::to_protobuf() const
