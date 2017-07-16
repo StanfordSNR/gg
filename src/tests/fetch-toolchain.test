@@ -1,3 +1,23 @@
-#!/bin/bash
+#!/usr/bin/perl -w
 
-cd ../../ && ./fetch-toolchain.sh
+my $target = q{toolchain};
+
+if ( -d $target ) {
+  print STDERR "$0: toolchain already in place\n";
+  exit 0;
+}
+
+my $src_toolchain = $ENV{ 'srcdir' } . q{/../../toolchain/bin};
+
+if ( -d $src_toolchain ) {
+  print STDERR "$0: toolchain is available in source directory\n";
+
+  system( qq{mkdir -p $target/bin} );
+  system( qq{cp $src_toolchain/* $target/bin} ) and die qq{Could not clone $src_toolchain locally};
+  exit 0;
+}
+
+print STDERR "$0: fetching toolchain from GitHub";
+
+system( qq{git clone --depth 1 https://github.com/stanfordsnr/gg-toolchain $target} )
+  and die qq{Couldn't clone https://github.com/stanfordsnr/gg-toolchain};

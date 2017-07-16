@@ -32,5 +32,6 @@ compile-model.log: preprocess-model.log
 assemble-model.log: compile-model.log
 
 clean-local:
+	-rm -rf toolchain/
 	-rm -rf .gg/
 	-rm -rf *.i *.i.gold *.s *.s.gold *.o *.o.gold
