@@ -30,7 +30,7 @@ InFile::Type type_from_protobuf( const int protobuf_type )
   }
 }
 
-int type_to_protobuf( const InFile::Type type )
+gg::protobuf::InFile_Type type_to_protobuf( const InFile::Type type )
 {
   switch ( type ) {
   case InFile::Type::FILE:
@@ -124,9 +124,13 @@ protobuf::InFile InFile::to_protobuf() const
   protobuf::InFile infile;
 
   infile.set_filename( filename_ );
-  infile.set_hash( hash_ );
-  infile.set_order( order_ );
-  infile.set_size( size_ );
+  infile.set_type( type_to_protobuf( type_ ) );
+
+  if ( type_ == Type::FILE ) {
+    infile.set_size( size_ );
+    infile.set_hash( hash_ );
+    infile.set_order( order_ );
+  }
 
   return infile;
 }
@@ -136,5 +140,6 @@ bool InFile::operator==( const InFile & other ) const
   return ( filename_ == other.filename_ ) and
          ( hash_ == other.hash_ ) and
          ( order_ == other.order_ ) and
-         ( size_ == other.size_ );
+         ( size_ == other.size_ ) and
+         ( type_ == other.type_ );
 }
