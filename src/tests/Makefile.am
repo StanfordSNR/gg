@@ -33,3 +33,4 @@ assemble-model.log: compile-model.log
 
 clean-local:
 	-rm -rf .gg/
+	-rm -rf *.i *.i.gold *.s *.s.gold *.o *.o.gold
