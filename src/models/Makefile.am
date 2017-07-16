@@ -21,5 +21,5 @@ model_gcc_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 noinst_SCRIPTS = generate-toolchain-header.py
 CLEANFILES = toolchain.hh
 
-toolchain.hh: generate-toolchain-header.py
+toolchain.hh: generate-toolchain-header.py $(TOOLCHAIN_PATH)/*
 	./generate-toolchain-header.py $(TOOLCHAIN_PATH) >toolchain.hh
