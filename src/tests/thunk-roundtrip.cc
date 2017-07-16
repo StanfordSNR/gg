@@ -43,9 +43,9 @@ int main( int argc, char * argv[] )
 
     Function function( exe, args );
 
-    InFile infile1( "thunk.hh", "XXX", 0 );
-    InFile infile2( "infile_desc.hh", "YYY", 0 );
-    InFile infile3( "thunk_func.hh", "ZZZ", 0 );
+    InFile infile1( "thunk.hh", "thunk.hh", "XXX", 0, 120 );
+    InFile infile2( "infile_desc.hh", "infile_desc.hh", "YYY", 0, 24000 );
+    InFile infile3( "thunk_func.hh", "infile_desc.hh", "ZZZ", 0, 59200 );
 
     vector<InFile> infiles = { infile1, infile2, infile3 };
 
