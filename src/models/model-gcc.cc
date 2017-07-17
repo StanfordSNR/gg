@@ -5,6 +5,10 @@
 #include <tuple>
 #include <algorithm>
 #include <map>
+#include <array>
+#include <memory>
+#include <cstdio>
+#include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
 #include <getopt.h>
@@ -86,6 +90,24 @@ enum class Language
   ASSEMBLER,
   OBJECT
 };
+
+void dump_gcc_specs( TempFile & target_file )
+{
+  array<char, 4096> buffer;
+
+  std::shared_ptr<FILE> readpipe( popen( "gcc -dumpspecs", "r" ), pclose );
+
+  if ( !readpipe ) {
+    throw runtime_error( "could not execute `gcc -dumpspecs`." );
+  }
+
+  while ( !feof( readpipe.get() ) ) {
+    if ( fgets( buffer.data(), 4096, readpipe.get() ) != nullptr ) {
+      string result = buffer.data();
+      target_file.write( result );
+    }
+  }
+}
 
 vector<string> get_dependencies( const vector<string> & gcc_args )
 {
