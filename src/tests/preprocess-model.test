@@ -7,7 +7,7 @@ OUTPUT_FILE=server.i
 
 GCC_ARGS="-g -O2 -E -frandom-seed=winstein ${INPUT_FILE}"
 
-INCLUDE_ARGS=$(gcc -E -Wp,-v - < /dev/null 2>&1 | grep "^ " | sed 's/\(.*\)/-isystem\1/' | tr '\n' ' ')
+INCLUDE_ARGS=$(gcc -E -Wp,-v - < /dev/null 2>&1 | grep "^ " | sed 's/ \(.*\)/-isystem\1/' | tr '\n' ' ')
 
 # Run with system GCC
 gcc -nostdinc \
