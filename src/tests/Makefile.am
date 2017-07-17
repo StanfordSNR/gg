@@ -25,7 +25,6 @@ thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
-XFAIL_TESTS = preprocess-model.test
 
 preprocess-model.log: fetch-toolchain.log
 compile-model.log: preprocess-model.log

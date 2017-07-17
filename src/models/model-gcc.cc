@@ -263,6 +263,8 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
     for ( const string & dir : c_include_path ) {
       preprocess_infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
     }
+    
+    preprocess_infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
 
     args.push_back( "-E" );
 
