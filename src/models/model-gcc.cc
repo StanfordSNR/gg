@@ -232,7 +232,8 @@ string stage_output_name( const GCCStage stage, const string basename )
 }
 
 Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
-                      const string & input, const string & output )
+                      const string & input, const string & output,
+                      const string & specsfile )
 {
   vector<string> args { original_args };
 
@@ -256,6 +257,15 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
     }
   }
 
+  vector<InFile> base_infiles = {
+    input, program_infiles.at( GCC )
+  };
+
+  if ( specsfile.length() ) {
+    base_infiles.emplace_back( "/__gg__/gcc-specs", specsfile );
+    args.insert( args.begin(), "-specs=/__gg__/gcc-specs" );
+  }
+
   if ( not found_output_flag ) {
     args.push_back( "-o" );
     args.push_back( output );
@@ -264,21 +274,27 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   switch ( stage ) {
   case PREPROCESS:
   {
+    if ( specsfile.length() != 0 ) {
+      args[ 0 ] = "-specs=" + specsfile;
+    }
+
     vector<string> dependencies = get_dependencies( args );
-    vector<InFile> preprocess_infiles {
-      input,
-      program_infiles.at( GCC ), program_infiles.at( CC1 )
-    };
+
+    if ( specsfile.length() != 0 ) {
+      args[ 0 ] = "-specs=/__gg__/gcc-specs";
+    }
+
+    base_infiles.emplace_back( program_infiles.at( CC1 ) );
 
     for ( const string & dep : dependencies ) {
-      preprocess_infiles.emplace_back( dep );
+      base_infiles.emplace_back( dep );
     }
 
     for ( const string & dir : c_include_path ) {
-      preprocess_infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+      base_infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
     }
 
-    preprocess_infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
+    base_infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
 
     args.push_back( "-E" );
 
@@ -291,33 +307,19 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
 
     all_args.insert( all_args.end(), args.begin(), args.end() );
 
-    return {
-      output,
-      gcc_function( all_args ),
-      preprocess_infiles
-    };
+    return { output, gcc_function( all_args ), base_infiles };
   }
 
   case COMPILE:
     args.push_back( "-S" );
-    return {
-      output,
-      gcc_function( args ),
-      {
-        input,
-        program_infiles.at( GCC ), program_infiles.at( CC1 )
-      }
-    };
+    base_infiles.push_back( program_infiles.at( CC1 ) );
+
+    return { output, gcc_function( args ), base_infiles };
 
   case ASSEMBLE:
     args.push_back( "-c" );
-    return { output,
-      gcc_function( args ),
-      {
-        input,
-        program_infiles.at( GCC ), program_infiles.at( AS )
-      }
-    };
+    base_infiles.push_back( program_infiles.at( AS ) );
+    return { output, gcc_function( args ), base_infiles };
 
   default: throw runtime_error( "not implemented" );
   }
@@ -415,6 +417,10 @@ int main( int argc, char * argv[] )
     last_stage = LINK;
   }
 
+  /* generate gcc specs file */
+  TempFile specs_tmpfile { "/tmp/gccspecs" };
+  dump_gcc_specs( specs_tmpfile );
+
   const auto & input = input_files.back();
 
   const size_t input_idx = distance( args.begin(), find( args.begin(), args.end() , input.first ) );
@@ -459,7 +465,8 @@ int main( int argc, char * argv[] )
     vector<string> args_stage = args;
     args_stage[ input_idx ] = stage_output[ stage - 1 ];
     Thunk stage_thunk = generate_thunk( stage, args_stage,
-                                        stage_output[ stage - 1 ], output_name );
+                                        stage_output[ stage - 1 ], output_name,
+                                        specs_tmpfile.name() );
 
     stage_thunk.store( gg_dir );
 
