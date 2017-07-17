@@ -12,11 +12,6 @@ INCLUDE_ARGS=$(gcc -E -Wp,-v - < /dev/null 2>&1 | grep "^ " | sed 's/ \(.*\)/-is
 # Run with system GCC
 gcc -nostdinc \
   ${INCLUDE_ARGS} \
-  -isystem /usr/lib/gcc/x86_64-linux-gnu/7/include \
-  -isystem /usr/local/include \
-  -isystem /usr/lib/gcc/x86_64-linux-gnu/7/include-fixed \
-  -isystem /usr/include/x86_64-linux-gnu \
-  -isystem /usr/include \
   ${GCC_ARGS} -o ${OUTPUT_FILE}.gold
 
 # Create thunk
