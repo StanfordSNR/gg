@@ -5,7 +5,7 @@ MAGIC="##GGTHUNK##"
 INPUT_FILE=$DATADIR/test_vectors/server.c
 OUTPUT_FILE=server.i
 
-GCC_ARGS="-g -O2 -E -frandom-seed=winstein ${INPUT_FILE}"
+GCC_ARGS="-D_FORTIFY_SOURCE=0 -g -O2 -E -frandom-seed=winstein ${INPUT_FILE}"
 
 INCLUDE_ARGS=$(gcc -E -Wp,-v - < /dev/null 2>&1 | grep "^ " | sed 's/ \(.*\)/-isystem\1/' | tr '\n' ' ')
 
