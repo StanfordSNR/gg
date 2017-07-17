@@ -5,6 +5,7 @@ from __future__ import print_function
 import os
 import sys
 import hashlib
+import subprocess as sub
 
 BINDIR = sys.argv[1]
 
@@ -16,6 +17,28 @@ def sha256_checksum(filename, block_size=65536):
             sha256.update(block)
 
     return sha256.hexdigest()
+
+def get_include_path():
+    command = "gcc -E -Wp,-v - < /dev/null >/dev/null"
+    output = sub.check_output(command, stderr=sub.STDOUT, shell=True)
+
+    include_dirs = []
+    include_dirs_started = False
+
+    for line in output.split("\n"):
+        if line.startswith("#include <...> search"):
+            include_dirs_started = True
+            continue
+        elif line.startswith("End of search list"):
+            break
+        elif not include_dirs_started:
+            continue
+
+        include_dirs += [line.strip()]
+
+    return include_dirs
+
+c_include_path = get_include_path()
 
 print("""\
 #ifndef TOOLCHAIN_HH
@@ -43,5 +66,10 @@ for exe in os.listdir(BINDIR):
 print("  };\n")
 print("  return programs.at( name );")
 print("}\n")
+
+print("static const std::vector<std::string> c_include_path = {")
+for path in c_include_path:
+    print('  "{}",'.format(path))
+print("};\n")
 
 print("#endif /* TOOLCHAIN_HH */")
