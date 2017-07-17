@@ -109,10 +109,14 @@ void dump_gcc_specs( TempFile & target_file )
   }
 }
 
-vector<string> get_dependencies( const vector<string> & gcc_args )
+vector<string> get_dependencies( const vector<string> & gcc_args,
+                                 const string & specsfile )
 {
-  vector<string> args { gcc_args };
-  args.insert( args.begin(), "gcc" );
+  vector<string> args;
+  args.reserve( 2 + gcc_args.size() );
+  args.push_back( "gcc" );
+  args.push_back( "-specs=" + specsfile );
+  args.insert( args.end(), gcc_args.begin(), gcc_args.end() );
 
   string dep_out_filename;
 
@@ -263,7 +267,12 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
 
   if ( specsfile.length() ) {
     base_infiles.emplace_back( "/__gg__/gcc-specs", specsfile );
-    args.insert( args.begin(), "-specs=/__gg__/gcc-specs" );
+
+    if ( stage != PREPROCESS ) {
+      /* For preprocess stage, we are going to use `args` to get the
+         dependencies, so we can't have this FAKE specs path here. */
+      args.insert( args.begin(), "-specs=/__gg__/gcc-specs" );
+    }
   }
 
   if ( not found_output_flag ) {
@@ -274,15 +283,8 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   switch ( stage ) {
   case PREPROCESS:
   {
-    if ( specsfile.length() != 0 ) {
-      args[ 0 ] = "-specs=" + specsfile;
-    }
 
-    vector<string> dependencies = get_dependencies( args );
-
-    if ( specsfile.length() != 0 ) {
-      args[ 0 ] = "-specs=/__gg__/gcc-specs";
-    }
+    vector<string> dependencies = get_dependencies( args, specsfile );
 
     base_infiles.emplace_back( program_infiles.at( CC1 ) );
 
@@ -299,7 +301,8 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
     args.push_back( "-E" );
 
     vector<string> all_args;
-    all_args.reserve( c_include_path.size() + args.size() + 1 );
+    all_args.reserve( c_include_path.size() + args.size() + 2 );
+    all_args.push_back( "-specs=/__gg__/gcc-specs" );
     all_args.push_back( "-nostdinc" );
     for ( const auto & p : c_include_path ) {
       all_args.push_back( "-isystem" + p );
