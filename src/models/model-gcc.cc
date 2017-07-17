@@ -264,7 +264,7 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
     all_args.reserve( c_include_path.size() + args.size() + 1 );
     all_args.push_back( "-nostdinc" );
     for ( const auto & p : c_include_path ) {
-      all_args.push_back( "-isystem" + p );
+      all_args.push_back( "-isystem " + p );
     }
 
     all_args.insert( all_args.end(), args.begin(), args.end() );
