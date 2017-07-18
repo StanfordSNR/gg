@@ -67,7 +67,6 @@ bool SandboxedProcess::open_exit( const SystemCallInvocation & syscall )
   assert( syscall.arguments().initialized() );
 
   const string pathname = syscall.arguments()->at( 0 ).value<string>();
-  cerr << pathname << endl;
 
   if ( allow_candidates_.count( pathname ) and *syscall.retval() != -1 ) {
     allow_candidates_.erase( pathname );
@@ -90,6 +89,7 @@ void SandboxedProcess::execute()
 
       switch ( syscall.syscall_no() ) {
       case SYS_chroot:
+      case SYS_rename:
       case SYS_stat:
       case SYS_lstat:
       case SYS_chdir:
