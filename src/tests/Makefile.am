@@ -14,28 +14,24 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
 
 AM_TESTS_ENVIRONMENT = \
-	export DATADIR=$(srcdir); \
+  export abs_builddir=$(abs_builddir); \
+	export DATADIR=$(abs_srcdir)/test_vectors; \
   export TOOLCHAIN_PATH=$(TOOLCHAIN_PATH); \
-  export TEST_TMPDIR=$(srcdir)/temp/; \
-  mkdir -p $(srcdir)/temp/;
+  export TEST_TMPDIR=$(abs_builddir)/temp; \
+  mkdir -p $(abs_builddir)/temp;
 
 EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
 dist_check_SCRIPTS = model-preprocess.test model-compile.test \
-                     model-assemble.test model-ar.test
+                     model-assemble.test model-ar.test cleanup.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
-model-compile.log: model-preprocess.log
-model-assemble.log: model-compile.log
-model-ar.log: model-assemble.log
+cleanup.log: model-preprocess.log model-compile.log model-assemble.log model-ar.log
 
 clean-local:
-	-rm -rf toolchain/
-	-rm -rf .gg/
-	-rm -f *.i *.i.gold *.s *.s.gold *.o *.o.gold archive.a archive.a.gold
-	-rm -f f1.txt f2.txt f3.txt
+	-rm -rf $(abs_builddir)/tmp

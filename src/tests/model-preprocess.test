@@ -1,8 +1,11 @@
 #!/bin/bash -ex
 
+cd ${TEST_TMPDIR}
+
+PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
 MAGIC="##GGTHUNK##"
 
-INPUT_FILE=$DATADIR/test_vectors/server.c
+INPUT_FILE=$DATADIR/server.c
 OUTPUT_FILE=server.i
 
 GCC_ARGS="-D_FORTIFY_SOURCE=0 -g -O2 -E -frandom-seed=winstein ${INPUT_FILE}"
@@ -13,7 +16,7 @@ INCLUDE_ARGS=$(gcc -E -Wp,-v - < /dev/null 2>&1 | grep "^ " | sed 's/ \(.*\)/-is
 gcc-7 -nostdinc ${INCLUDE_ARGS} ${GCC_ARGS} -o ${OUTPUT_FILE}.gold
 
 # Create thunk
-GG_DIR=.gg/ ../models/model-gcc ${GCC_ARGS} -o ${OUTPUT_FILE}
+GG_DIR=.gg/ model-gcc ${GCC_ARGS} -o ${OUTPUT_FILE}
 
 # Assert it's a thunk
 if [ $MAGIC != `head -c 11 ${OUTPUT_FILE}` ]; then
@@ -22,14 +25,7 @@ if [ $MAGIC != `head -c 11 ${OUTPUT_FILE}` ]; then
 fi
 
 # execute thunk
-../frontend/gg-execute -s ${OUTPUT_FILE}
+gg-execute -s ${OUTPUT_FILE}
 
 # check difference
 diff ${OUTPUT_FILE} ${OUTPUT_FILE}.gold
-
-# Clean up
-# Note: Not cleaning up .gg directory
-rm -f ${OUTPUT_FILE}.gold ${OUTPUT_FILE}
-find .gg -maxdepth 1 -type f -delete
-
-exit 0

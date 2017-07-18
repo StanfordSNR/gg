@@ -1,15 +1,15 @@
 #!/bin/bash -e
 
-BIN=$TOOLCHAIN_PATH
-PATH=$BIN:$PATH
+cd ${TEST_TMPDIR}
+
+PATH=${TOOLCHAIN_PATH}:${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
 MAGIC="##GGTHUNK##"
 
 # Run with GCC
-$BIN/gcc -g -O2 -c -frandom-seed=winstein -o remake.o.gold $DATADIR/test_vectors/remake.s
+${TOOLCHAIN_PATH}/gcc -g -O2 -c -frandom-seed=winstein -o remake.o.gold $DATADIR/remake.s
 
 # Create thunk
-GG_DIR=.gg/ ../models/model-gcc -g -O2 -c -frandom-seed=winstein -o remake.o $DATADIR/test_vectors/remake.s
-
+GG_DIR=.gg/ model-gcc -g -O2 -c -frandom-seed=winstein -o remake.o $DATADIR/remake.s
 
 # Assert it's a thunk
 if [ $MAGIC != `head -c 11 remake.o` ]; then
@@ -17,19 +17,8 @@ if [ $MAGIC != `head -c 11 remake.o` ]; then
   exit 1
 fi
 
-
 # execute thunk
-../frontend/gg-execute -s remake.o
-
+gg-execute -s remake.o
 
 # check difference
 diff remake.o remake.o.gold
-
-
-# Clean up
-# Note: Not cleaning up .gg directory
-rm -f remake.o.gold
-rm -f remake.o
-find .gg -maxdepth 1 -type f -delete
-
-exit 0

@@ -1,5 +1,8 @@
 #!/bin/bash -xe
 
+cd ${TEST_TMPDIR}
+
+PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
 MAGIC="##GGTHUNK##"
 OUTPUT=archive.a
 
@@ -11,18 +14,13 @@ done
 
 ar crD ${OUTPUT}.gold f1.txt f2.txt f3.txt
 
-GG_DIR=.gg/ ../models/model-ar crD ${OUTPUT} f1.txt f2.txt f3.txt
+GG_DIR=.gg/ model-ar crD ${OUTPUT} f1.txt f2.txt f3.txt
 
 if [ $MAGIC != `head -c 11 ${OUTPUT}` ]; then
   echo "Failed to create thunk"
   exit 1
 fi
 
-../frontend/gg-execute -s ${OUTPUT}
+gg-execute -s ${OUTPUT}
 
 diff ${OUTPUT} ${OUTPUT}.gold
-
-# cleanup
-rm ${OUTPUT}.gold ${OUTPUT}
-rm -f f1.txt f2.txt f3.txt
-rm -rf .gg/
