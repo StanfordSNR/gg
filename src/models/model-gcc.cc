@@ -58,21 +58,6 @@ static const unordered_map<string, InFile> program_infiles {
   },
 };
 
-/* TODO this should be populated based on system gcc */
-static const vector<string> library_path = {
-  "/usr/local/lib/x86_64-linux-gnu",
-  "/lib/x86_64-linux-gnu",
-  "/usr/lib/x86_64-linux-gnu",
-  "/usr/local/lib64",
-  "/lib64",
-  "/usr/lib64",
-  "/usr/local/lib",
-  "/lib",
-  "/usr/lib",
-  "/usr/x86_64-linux-gnu/lib64",
-  "/usr/x86_64-linux-gnu/lib",
-};
-
 enum GCCStage
 {
   PREPROCESS = 1,
