@@ -1,4 +1,4 @@
-export TOOLCHAIN_PATH := $(TOOLCHAIN_PATH)
+
 
 AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
@@ -14,12 +14,15 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
 
 AM_TESTS_ENVIRONMENT = \
-	export DATADIR=$(srcdir);
+	export DATADIR=$(srcdir); \
+  export TOOLCHAIN_PATH=$(TOOLCHAIN_PATH); \
+  export TEST_TMPDIR=$(srcdir)/temp/; \
+  mkdir -p $(srcdir)/temp/;
 
 EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
-dist_check_SCRIPTS = fetch-toolchain.test model-preprocess.test model-compile.test \
+dist_check_SCRIPTS = model-preprocess.test model-compile.test \
                      model-assemble.test model-ar.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
@@ -27,7 +30,6 @@ sandbox_test_SOURCES = sandbox-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
-model-preprocess.log: fetch-toolchain.log
 model-compile.log: model-preprocess.log
 model-assemble.log: model-compile.log
 model-ar.log: model-assemble.log
