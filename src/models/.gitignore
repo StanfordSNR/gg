@@ -4,3 +4,4 @@ model-compile
 model-assemble
 model-gcc
 model-ar
+model-ranlib
