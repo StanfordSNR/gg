@@ -39,7 +39,8 @@ string ProtobufDeserializer::read_string( const size_t size )
   google::protobuf::io::CodedInputStream coded_input { &raw_input_ };
 
   if ( not coded_input.ReadString( &ret, size ) ) {
-    throw runtime_error( "ReadString returned false" );
+    return "";
   }
+
   return ret;
 }

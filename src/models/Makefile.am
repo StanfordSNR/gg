@@ -10,13 +10,16 @@ BUILT_SOURCES = toolchain.hh
 BASE_LDADD = ../thunk/libthunk.a \
              ../protobufs/libggprotobufs.a \
              ../util/libggutil.a \
-             $(PROTOBUF_LIBS) \
+             $(CRYPTO_LIBS) $(PROTOBUF_LIBS) \
              $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
 
-bin_PROGRAMS = model-gcc
+bin_PROGRAMS = model-gcc model-ar
 
 model_gcc_SOURCES = model-gcc.cc utils.hh
-model_gcc_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+model_gcc_LDADD = $(BASE_LDADD)
+
+model_ar_SOURCES = model-ar.cc
+model_ar_LDADD = $(BASE_LDADD)
 
 EXTRA_DIST = generate-toolchain-header.py
 CLEANFILES = toolchain.hh

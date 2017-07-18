@@ -3,3 +3,4 @@ toolchain.hh
 model-compile
 model-assemble
 model-gcc
+model-ar
