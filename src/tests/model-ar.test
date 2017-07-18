@@ -1,0 +1,28 @@
+#!/bin/bash -xe
+
+MAGIC="##GGTHUNK##"
+OUTPUT=archive.a
+
+# create three random files
+for i in $(seq 1 3)
+do
+  cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 256 | head -n 1 >f${i}.txt
+done
+
+ar cru ${OUTPUT}.gold f1.txt f2.txt f3.txt
+
+GG_DIR=.gg/ ../models/model-ar cru ${OUTPUT} f1.txt f2.txt f3.txt
+
+if [ $MAGIC != `head -c 11 remake.s` ]; then
+  echo "Failed to create thunk"
+  exit 1
+fi
+
+../frontend/gg-execute -s ${OUTPUT}
+
+diff ${OUTPUT} ${OUTPUT}.gold
+
+# cleanup
+rm ${OUTPUT}.gold ${OUTPUT}
+rm -f f1.txt f2.txt f3.txt
+rm -rf .gg/
