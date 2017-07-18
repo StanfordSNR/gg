@@ -165,6 +165,10 @@ vector<string> get_dependencies( const vector<string> & gcc_args,
       line = line.substr( 0, line.length() - 2 );
     }
 
+    if ( line == "\\" ) {
+      continue;
+    }
+
     tokenizer<escaped_list_separator<char>> tok( line, { "\\", " ", "\"\'" } );
 
     for ( auto t = tok.begin(); t != tok.end(); t++ ) {
