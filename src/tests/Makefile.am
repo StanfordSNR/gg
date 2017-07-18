@@ -26,11 +26,11 @@ thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
-XFAIL_TESTS = model-ar.test
 
 model-preprocess.log: fetch-toolchain.log
 model-compile.log: model-preprocess.log
 model-assemble.log: model-compile.log
+model-ar.log: model-assemble.log
 
 clean-local:
 	-rm -rf toolchain/

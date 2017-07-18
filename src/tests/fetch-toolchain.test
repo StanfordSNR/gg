@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+system(q{mkdir -p .gg});
+
 my $target = q{toolchain};
 
 if ( -d $target ) {

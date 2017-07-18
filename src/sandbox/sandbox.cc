@@ -40,9 +40,15 @@ bool SandboxedProcess::open_entry( const SystemCallInvocation & syscall )
   assert( syscall.arguments().initialized() );
 
   const string pathname = syscall.arguments()->at( 0 ).value<string>();
-  const int access_mode = syscall.arguments()->at( 1 ).value<int>() & O_ACCMODE;
+  const int mode = syscall.arguments()->at( 1 ).value<int>();
+  const int access_mode = mode & O_ACCMODE;
 
   if ( not allowed_files_.count( pathname ) ) {
+    if ( ( mode & O_CREAT ) and ( mode & O_EXCL ) ) {
+      allow_candidates_.insert( pathname );
+      return true;
+    }
+
     return false;
   }
 
@@ -52,6 +58,21 @@ bool SandboxedProcess::open_entry( const SystemCallInvocation & syscall )
        ( not file_flags.read or not file_flags.write ) ) { return false; }
   if ( access_mode == O_WRONLY and ( not file_flags.write ) ) { return false; }
   if ( access_mode == O_RDONLY and ( not file_flags.read ) ) { return false; }
+
+  return true;
+}
+
+bool SandboxedProcess::open_exit( const SystemCallInvocation & syscall )
+{
+  assert( syscall.arguments().initialized() );
+
+  const string pathname = syscall.arguments()->at( 0 ).value<string>();
+  cerr << pathname << endl;
+
+  if ( allow_candidates_.count( pathname ) and *syscall.retval() != -1 ) {
+    allow_candidates_.erase( pathname );
+    allowed_files_[ pathname ] = { true, true, true };
+  }
 
   return true;
 }
@@ -122,8 +143,16 @@ void SandboxedProcess::execute()
     };
 
   auto syscall_exit =
-    [&]( const TraceControlBlock & )
-    {};
+    [&]( const TraceControlBlock & tcb )
+    {
+      const SystemCallInvocation & syscall = tcb.syscall_invocation.get();
+
+      switch ( syscall.syscall_no() ) {
+      case SYS_open:
+        Check( tcb, open_exit( syscall ) );
+        break;
+      }
+    };
 
   while ( true ) {
     int waitres = process_.wait_for_syscall( syscall_entry, syscall_exit );

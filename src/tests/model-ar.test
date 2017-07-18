@@ -9,11 +9,11 @@ do
   cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 256 | head -n 1 >f${i}.txt
 done
 
-ar cru ${OUTPUT}.gold f1.txt f2.txt f3.txt
+ar crD ${OUTPUT}.gold f1.txt f2.txt f3.txt
 
-GG_DIR=.gg/ ../models/model-ar cru ${OUTPUT} f1.txt f2.txt f3.txt
+GG_DIR=.gg/ ../models/model-ar crD ${OUTPUT} f1.txt f2.txt f3.txt
 
-if [ $MAGIC != `head -c 11 remake.s` ]; then
+if [ $MAGIC != `head -c 11 ${OUTPUT}` ]; then
   echo "Failed to create thunk"
   exit 1
 fi

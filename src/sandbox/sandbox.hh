@@ -6,6 +6,7 @@
 #include <string>
 #include <functional>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "traced_process.hh"
 
@@ -28,10 +29,12 @@ private:
 
   /* map from pathname to access modes (O_RDONLY, O_WRONLY, O_RDRW) */
   std::unordered_map<std::string, Permissions> allowed_files_;
+  std::unordered_set<std::string> allow_candidates_ {};
 
   bool file_syscall_entry( const SystemCallInvocation & syscall );
 
   bool open_entry( const SystemCallInvocation & syscall );
+  bool open_exit( const SystemCallInvocation & syscall );
 
 public:
   SandboxedProcess( std::function<int()> && child_procedure,
