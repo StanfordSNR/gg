@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import re
 import os
 import sys
 import hashlib
@@ -38,7 +39,19 @@ def get_include_path():
 
     return include_dirs
 
+def get_library_path():
+    command = "gcc -Wl,--verbose 2>/dev/null || exit 0"
+    output = sub.check_output(command, shell=True)
+
+    library_dirs = []
+
+    for d in re.findall(r'SEARCH_DIR\("=([^;]+)"\);', output):
+        library_dirs += [d]
+
+    return library_dirs
+
 c_include_path = get_include_path()
+c_library_path = get_library_path()
 
 print("""\
 #ifndef TOOLCHAIN_HH
@@ -69,6 +82,11 @@ print("}\n")
 
 print("static const std::vector<std::string> c_include_path = {")
 for path in c_include_path:
+    print('  "{}",'.format(path))
+print("};\n")
+
+print("static const std::vector<std::string> c_library_path = {")
+for path in c_library_path:
     print('  "{}",'.format(path))
 print("};\n")
 
