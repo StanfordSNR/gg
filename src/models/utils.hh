@@ -1,11 +1,13 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <string>
+#include <stdexcept>
 #include <boost/filesystem.hpp>
+
 
 namespace gg {
   namespace models {
-    boost::filesystem::path gg_dir()
+    boost::filesystem::path create_gg_dir()
     {
       char * envar = getenv( "GG_DIR" );
       boost::filesystem::path gg_path;
@@ -15,6 +17,13 @@ namespace gg {
       }
       else {
         gg_path = envar;
+      }
+
+      /* create the gg directory, if it doesn't exist */
+      if ( not boost::filesystem::create_directories( gg_path ) ) {
+        if ( not boost::filesystem::is_directory( gg_path ) ) {
+          throw std::runtime_error( "cannot create gg dir" );
+        }
       }
 
       return boost::filesystem::absolute( gg_path );

@@ -330,7 +330,7 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
 
 int main( int argc, char * argv[] )
 {
-  fs::path gg_dir = gg::models::gg_dir();
+  fs::path gg_dir = gg::models::create_gg_dir();
 
   Language current_langauge = Language::NONE; /* -x arugment */
   Optional<GCCStage> last_stage;
@@ -441,13 +441,6 @@ int main( int argc, char * argv[] )
 
     default:
       last_stage_output_filename = stage_output_name( *last_stage, input.first );
-    }
-  }
-
-  /* create the gg directory, if it doesn't exist */
-  if ( not fs::create_directories( gg_dir ) ) {
-    if ( not fs::is_directory( gg_dir ) ) {
-      throw runtime_error( "cannot create gg dir" );
     }
   }
 

@@ -19,18 +19,21 @@ AM_TESTS_ENVIRONMENT = \
 EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
-dist_check_SCRIPTS = fetch-toolchain.test preprocess-model.test compile-model.test assemble-model.test
+dist_check_SCRIPTS = fetch-toolchain.test model-preprocess.test model-compile.test \
+                     model-assemble.test model-ar.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
+XFAIL_TESTS = model-ar.test
 
-preprocess-model.log: fetch-toolchain.log
-compile-model.log: preprocess-model.log
-assemble-model.log: compile-model.log
+model-preprocess.log: fetch-toolchain.log
+model-compile.log: model-preprocess.log
+model-assemble.log: model-compile.log
 
 clean-local:
 	-rm -rf toolchain/
 	-rm -rf .gg/
-	-rm -rf *.i *.i.gold *.s *.s.gold *.o *.o.gold
+	-rm -f *.i *.i.gold *.s *.s.gold *.o *.o.gold archive.a archive.a.gold
+	-rm -f f1.txt f2.txt f3.txt

@@ -129,7 +129,7 @@ Thunk generate_thunk( int argc, char * argv[] )
 
 int main( int argc, char * argv[] )
 {
-  fs::path gg_dir = gg::models::gg_dir();
+  fs::path gg_dir = gg::models::create_gg_dir();
 
   Thunk thunk = generate_thunk( argc, argv );
   thunk.store( gg_dir );
