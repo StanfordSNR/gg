@@ -24,14 +24,16 @@ EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s
 
 check_PROGRAMS = thunk-roundtrip sandbox-test
 dist_check_SCRIPTS = model-preprocess.test model-compile.test \
-                     model-assemble.test model-ar.test cleanup.test
+                     model-assemble.test model-ar.test model-ranlib.test cleanup.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
+XFAIL_TESTS = model-ranlib.test
 
-cleanup.log: model-preprocess.log model-compile.log model-assemble.log model-ar.log
+cleanup.log: model-preprocess.log model-compile.log model-assemble.log \
+             model-ar.log model-ranlib.log
 
 clean-local:
 	-rm -rf $(abs_builddir)/tmp
