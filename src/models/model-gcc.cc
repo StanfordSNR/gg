@@ -78,6 +78,13 @@ enum class Language
   SHARED_LIBRARY,
 };
 
+struct InputFile
+{
+  string name;
+  Language language;
+  size_t index;
+};
+
 void dump_gcc_specs( TempFile & target_file )
 {
   array<char, 4096> buffer;
@@ -96,8 +103,60 @@ void dump_gcc_specs( TempFile & target_file )
   }
 }
 
-vector<string> get_dependencies( const vector<string> & gcc_args,
-                                 const string & specsfile )
+string search_for_library( const string & name )
+{
+  string expected_filename = "lib" + name + ".so";
+
+  for ( const string & sdir_str : c_library_path ) {
+    fs::path search_path { sdir_str };
+    fs::path expected_path { search_path / expected_filename };
+
+    if ( fs::exists( expected_path ) ) {
+      if ( fs::is_regular_file( expected_path ) and not fs::is_symlink( expected_path ) ) {
+        return expected_path.string();
+      }
+      else if ( fs::is_symlink( expected_path ) ) {
+        return fs::canonical( expected_path ).string();
+      }
+    }
+  }
+
+  return "";
+}
+
+vector<string> get_link_dependencies( const vector<InputFile> & link_inputs )
+{
+  vector<string> dependencies;
+
+  for ( const auto & link_input : link_inputs ) {
+    switch ( link_input.language ) {
+    case Language::OBJECT:
+    case Language::ARCHIVE_LIBRARY:
+      dependencies.push_back( link_input.name );
+      break;
+
+    case Language::SHARED_LIBRARY:
+    {
+      string path = search_for_library( link_input.name );
+
+      if ( not path.length() ) {
+        throw runtime_error( "could not find shared library: " + link_input.name );
+      }
+
+      dependencies.push_back( path );
+      break;
+    }
+
+    default:
+      throw runtime_error( "invalid input for link stage: " + link_input.name );
+    }
+  }
+
+  return dependencies;
+}
+
+vector<string> get_preprocess_dependencies( const vector<string> & gcc_args,
+                                            const string & specsfile )
 {
   vector<string> args;
   args.reserve( 2 + gcc_args.size() );
@@ -276,7 +335,7 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   case PREPROCESS:
   {
 
-    vector<string> dependencies = get_dependencies( args, specsfile );
+    vector<string> dependencies = get_preprocess_dependencies( args, specsfile );
 
     base_infiles.emplace_back( program_infiles.at( CC1 ) );
 
@@ -319,13 +378,6 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   default: throw runtime_error( "not implemented" );
   }
 }
-
-struct InputFile
-{
-  string name;
-  Language language;
-  size_t index;
-};
 
 int main( int argc, char * argv[] )
 {
@@ -494,9 +546,14 @@ int main( int argc, char * argv[] )
 
   if ( last_stage == LINK ) {
     cerr << "Link stage:" << endl;
-
+    auto deps = get_link_dependencies( link_inputs );
     for ( auto const & link_input : link_inputs ) {
       cerr << ">> linking " << link_input.name << endl;
+    }
+
+    cerr << ">> dependencies:" << endl;
+    for ( auto const & dependency : deps ) {
+      cerr << " - " << dependency << endl;
     }
   }
 
