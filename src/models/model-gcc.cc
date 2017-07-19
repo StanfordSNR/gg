@@ -336,7 +336,7 @@ int main( int argc, char * argv[] )
 
   vector<string> args;
 
-  for ( int i = 1; i < argc; i++ ) {
+  for ( int i = 0; i < argc; i++ ) {
     args.push_back( argv[ i ] );
   }
 
@@ -412,104 +412,92 @@ int main( int argc, char * argv[] )
     }
   }
 
-  if ( input_files.size() == 0 ) {
-    throw runtime_error( "no input files" );
-  }
-
-  bool link_only = true;
-
-  for ( const auto & input_file : input_files ) {
-    if ( not ( input_file.language == Language::SHARED_LIBRARY or
-         input_file.language == Language::ARCHIVE_LIBRARY or
-         input_file.language == Language::OBJECT ) ) {
-      link_only = false;
-      break;
-    }
-  }
-
-  GCCStage first_stage = PREPROCESS;
-
-  if ( link_only ) {
-    first_stage = LINK;
-  }
-  else if ( input_files.size() > 1) {
-    throw runtime_error( "multiple inputs are only accepted in link mode" );
-  }
-
   if ( not last_stage.initialized() ) {
     last_stage = LINK;
   }
 
-  /* generate gcc specs file */
-  TempFile specs_tmpfile { "/tmp/gccspecs" };
-  dump_gcc_specs( specs_tmpfile );
+  if ( input_files.size() == 0 ) {
+    throw runtime_error( "no input files" );
+  }
 
-  const auto & input = input_files.back();
-
-  const size_t input_idx = distance( args.begin(), find( args.begin(), args.end() , input.name ) );
-  assert( input_idx < args.size() );
-
+  /* push special gg prefix for gcc binaries */
   args.push_back( "-B" + GCC_BIN_PREFIX );
 
-  first_stage = language_to_stage( input.language );
+  vector<InputFile> link_inputs;
 
-  if ( last_stage_output_filename.length() == 0 ) {
-    switch ( *last_stage ) {
-    case LINK:
-      last_stage_output_filename = "a.out";
-      break;
+  for ( const InputFile & input : input_files ) {
+    switch( input.language ) {
+    case Language::SHARED_LIBRARY:
+    case Language::ARCHIVE_LIBRARY:
+    case Language::OBJECT:
+      link_inputs.push_back( input );
+      continue;
 
-    default:
-      last_stage_output_filename = stage_output_name( *last_stage, input.name );
+    default: break;
+    }
+
+    GCCStage first_stage = language_to_stage( input.language );
+    GCCStage input_last_stage = ( *last_stage == LINK ) ? ASSEMBLE : *last_stage;
+    string input_hash = digest::SHA256( input.name ).hexdigest();
+
+    map<size_t, string> stage_output;
+    stage_output[ first_stage - 1 ] = input.name;
+
+    for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
+      GCCStage stage = static_cast<GCCStage>( stage_num );
+
+      string output_name = ( stage == *last_stage ) ? last_stage_output_filename
+                                                    : stage_output_name( stage, input_hash );
+
+
+      //vector<string> args_stage = args;
+      //args_stage[ input_idx ] = stage_output[ stage - 1 ];
+      /* Thunk stage_thunk = generate_thunk( stage, args_stage,
+                                          stage_output[ stage - 1 ], output_name,
+                                          specs_tmpfile.name() );
+
+      stage_thunk.store( gg_dir );*/
+
+      switch ( stage ) {
+      case PREPROCESS:
+        /* generate preprocess thunk */
+        cerr << ">> preprocessing " << stage_output[ stage - 1 ] << endl;
+        break;
+
+      case COMPILE:
+        /* generate compile thunk */
+        cerr << ">> compiling " << stage_output[ stage - 1 ] << endl;
+        break;
+
+      case ASSEMBLE:
+      {
+        /* generate assemble thunk */
+        cerr << ">> assembling " << stage_output[ stage - 1 ] << endl;
+
+        InputFile link_input = input;
+        link_input.name = output_name;
+        link_input.language = Language::OBJECT;
+        link_input.index = input.index;
+        link_inputs.push_back( link_input );
+
+        break;
+      }
+
+      default:
+        throw runtime_error( "unexcepted stage" );
+      }
+
+      stage_output[ stage ] = output_name;
+      cerr << "[output=" << output_name << "]" << endl;
     }
   }
 
-  /* input hash */
-  string input_hash = digest::SHA256( input.name ).hexdigest();
+  if ( last_stage == LINK ) {
+    cerr << "Link stage:" << endl;
 
-  /* stage -> output_name */
-  map<size_t, string> stage_output;
-  stage_output[ first_stage - 1 ] = input.name;
-
-  for ( size_t stage_num = first_stage; stage_num <= *last_stage; stage_num++ ) {
-    GCCStage stage = static_cast<GCCStage>( stage_num );
-
-    string output_name = ( stage == *last_stage ) ? last_stage_output_filename
-                                                  : stage_output_name( stage, input_hash );
-
-
-    vector<string> args_stage = args;
-    args_stage[ input_idx ] = stage_output[ stage - 1 ];
-    Thunk stage_thunk = generate_thunk( stage, args_stage,
-                                        stage_output[ stage - 1 ], output_name,
-                                        specs_tmpfile.name() );
-
-    stage_thunk.store( gg_dir );
-
-    switch ( stage ) {
-    case PREPROCESS:
-      /* generate preprocess thunk */
-      cerr << ">> preprocessing " << stage_output[ stage - 1 ] << endl;
-      break;
-
-    case COMPILE:
-      /* generate compile thunk */
-      cerr << ">> compiling " << stage_output[ stage - 1 ] << endl;
-      break;
-
-    case ASSEMBLE:
-      /* generate assemble thunk */
-      cerr << ">> assembling " << stage_output[ stage - 1 ] << endl;
-      break;
-
-    case LINK:
-      /* generate link thunk */
-      cerr << ">> linking " << stage_output[ stage - 1 ] << endl;
-      break;
+    for ( auto const & link_input : link_inputs ) {
+      cerr << ">> linking " << link_input.name << endl;
     }
-
-    stage_output[ stage ] = output_name;
-    cerr << "[output=" << output_name << "]" << endl;
   }
 
   return 0;
