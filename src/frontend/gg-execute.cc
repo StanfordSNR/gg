@@ -86,16 +86,16 @@ int main( int argc, char * argv[] )
 
       for ( const InFile & infile : thunk.infiles() ) {
         if ( infile.hash().length() ) {
-          allowed_files[ ( gg_path / infile.hash() ).string() ] = { true, true, true };
+          allowed_files[ ( gg_path / infile.hash() ).string() ] = { true, false, false };
         }
         else {
-          allowed_files[ infile.filename() ] = { true, true, true };
+          allowed_files[ infile.filename() ] = { true, false, false };
         }
       }
 
-      allowed_files[ gg_path.string() ] = { true, true, true };
-      allowed_files[ thunk.outfile() ] = { true, true, true };
-      allowed_files[ thunk_path.string() ] = { true, true, true };
+      allowed_files[ gg_path.string() ] = { true, false, false };
+      allowed_files[ thunk_path.string() ] = { true, false, false };
+      allowed_files[ thunk.outfile() ] = { true, true, false };
 
       SandboxedProcess process { [&]() { return thunk.execute( gg_path, thunk_path ); }, allowed_files };
       process.set_log_level( log_level );
