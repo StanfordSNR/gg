@@ -76,6 +76,19 @@ bool SandboxedProcess::open_exit( const SystemCallInvocation & syscall )
   return true;
 }
 
+bool SandboxedProcess::rename_entry( const SystemCallInvocation & syscall )
+{
+  assert( syscall.arguments().initialized() );
+
+  const string src = syscall.arguments()->at( 0 ).value<string>();
+  const string dst = syscall.arguments()->at( 1 ).value<string>();
+
+  return ( allowed_files_.count( src ) > 0 ) and
+         ( allowed_files_[ src ].read ) and
+         ( allowed_files_.count( dst ) > 0 ) and
+         ( allowed_files_[ dst ].write );
+}
+
 void SandboxedProcess::execute()
 {
   auto syscall_entry =
@@ -89,7 +102,6 @@ void SandboxedProcess::execute()
 
       switch ( syscall.syscall_no() ) {
       case SYS_chroot:
-      case SYS_rename:
       case SYS_stat:
       case SYS_lstat:
       case SYS_chdir:
@@ -128,13 +140,11 @@ void SandboxedProcess::execute()
         syscall.fetch_arguments();
 
         switch ( syscall.syscall_no() ) {
-        case SYS_open:
-          Check( tcb, open_entry( syscall ) );
-          break;
+        case SYS_open:   Check( tcb, open_entry( syscall ) ); break;
+        case SYS_rename: Check( tcb, rename_entry( syscall ) ); break;
 
-        default:
-          /* general check for file-related syscalls */
-          Check( tcb, file_syscall_entry( syscall ) );
+        /* general check for file-related syscalls */
+        default: Check( tcb, file_syscall_entry( syscall ) );
         }
       }
       else {
