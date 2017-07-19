@@ -34,6 +34,8 @@ namespace fs = boost::filesystem;
 static const string GCC = "gcc";
 static const string AS  = "as";
 static const string CC1 = "cc1";
+static const string COLLECT2 = "collect2";
+static const string LD = "ld";
 static const string GCC_BIN_PREFIX = "/__gg__/bin/";
 static const fs::path toolchain_path { TOOLCHAIN_PATH };
 
@@ -55,6 +57,14 @@ static const unordered_map<string, InFile> program_infiles {
   {
     AS,
     { GCC_BIN_PREFIX + AS, ( toolchain_path / AS ).string(), program_hash( AS ), 0 }
+  },
+  {
+    COLLECT2,
+    { GCC_BIN_PREFIX + COLLECT2, ( toolchain_path / COLLECT2 ).string(), program_hash( COLLECT2 ), 0 }
+  },
+  {
+    LD,
+    { GCC_BIN_PREFIX + LD, ( toolchain_path / LD ).string(), program_hash( LD ), 0 }
   },
 };
 
@@ -82,6 +92,7 @@ struct InputFile
 {
   string name;
   Language language;
+  Language source_language;
   size_t index;
 };
 
@@ -112,12 +123,7 @@ string search_for_library( const string & name )
     fs::path expected_path { search_path / expected_filename };
 
     if ( fs::exists( expected_path ) ) {
-      if ( fs::is_regular_file( expected_path ) and not fs::is_symlink( expected_path ) ) {
-        return expected_path.string();
-      }
-      else if ( fs::is_symlink( expected_path ) ) {
-        return fs::canonical( expected_path ).string();
-      }
+      return expected_path.string();
     }
   }
 
@@ -379,6 +385,39 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   }
 }
 
+Thunk generate_link_thunk( const vector<string> & link_args,
+                           const vector<string> & dependencies )
+{
+  vector<string> args { link_args.begin() + 1, link_args.end() };
+
+  vector<InFile> infiles;
+  infiles.emplace_back( program_infiles.at( GCC ) );
+  infiles.emplace_back( program_infiles.at( COLLECT2 ) );
+  infiles.emplace_back( program_infiles.at( LD ) );
+  infiles.emplace_back( "/home/sadjad/projects/gg-toolchain/build/gg-gcc/gcc/liblto_plugin.so" );
+
+  for ( const string & dep : dependencies ) {
+    infiles.emplace_back( dep );
+  }
+
+  for ( const string & dir : c_library_path ) {
+    infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+  }
+
+  infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
+
+  vector<string> all_args;
+  all_args.reserve( c_library_path.size() + args.size() );
+  //all_args.push_back( "-specs=/__gg__/gcc-specs" );
+  for ( const auto & p : c_library_path ) {
+    all_args.push_back( "-L" + p );
+  }
+
+  all_args.insert( all_args.end(), args.begin(), args.end() );
+
+  return { "a.out", gcc_function( all_args ), infiles };
+}
+
 int main( int argc, char * argv[] )
 {
   fs::path gg_dir = gg::models::create_gg_dir();
@@ -429,14 +468,15 @@ int main( int argc, char * argv[] )
         file_lang = filename_to_language( input_file );
       }
 
-      input_files.push_back( { input_file, file_lang, arg_index } );
+      input_files.push_back( { input_file, file_lang, file_lang, arg_index } );
 
       continue;
     }
 
     switch ( opt ) {
     case 'l':
-      input_files.push_back( { optarg, Language::SHARED_LIBRARY, arg_index } );
+      input_files.push_back( { optarg, Language::SHARED_LIBRARY,
+                               Language::SHARED_LIBRARY, arg_index } );
       break;
 
     case 'x':
@@ -529,6 +569,7 @@ int main( int argc, char * argv[] )
         InputFile link_input = input;
         link_input.name = output_name;
         link_input.language = Language::OBJECT;
+        link_input.source_language = input.language;
         link_input.index = input.index;
         link_inputs.push_back( link_input );
 
@@ -545,16 +586,20 @@ int main( int argc, char * argv[] )
   }
 
   if ( last_stage == LINK ) {
-    cerr << "Link stage:" << endl;
-    auto deps = get_link_dependencies( link_inputs );
+    auto dependencies = get_link_dependencies( link_inputs );
+
+    vector<string> link_args { args };
+
     for ( auto const & link_input : link_inputs ) {
-      cerr << ">> linking " << link_input.name << endl;
+      if ( not ( link_input.source_language == Language::OBJECT or
+                 link_input.source_language == Language::ARCHIVE_LIBRARY or
+                 link_input.source_language == Language::SHARED_LIBRARY ) ) {
+        link_args[ link_input.index ] = link_input.name;
+      }
     }
 
-    cerr << ">> dependencies:" << endl;
-    for ( auto const & dependency : deps ) {
-      cerr << " - " << dependency << endl;
-    }
+    Thunk thunk = generate_link_thunk( link_args, dependencies );
+    thunk.store( gg_dir );
   }
 
   return 0;
