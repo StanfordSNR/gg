@@ -35,7 +35,7 @@ private:
 
   bool open_entry( const SystemCallInvocation & syscall );
   bool open_exit( const SystemCallInvocation & syscall );
-  bool rename_entry( const SystemCallInvocation & syscall )
+  bool rename_entry( const SystemCallInvocation & syscall );
 
 public:
   SandboxedProcess( std::function<int()> && child_procedure,
