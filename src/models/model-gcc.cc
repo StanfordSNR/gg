@@ -340,7 +340,6 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   switch ( stage ) {
   case PREPROCESS:
   {
-
     vector<string> dependencies = get_preprocess_dependencies( args, specsfile );
 
     base_infiles.emplace_back( program_infiles.at( CC1 ) );
@@ -427,7 +426,7 @@ int main( int argc, char * argv[] )
 
   vector<string> args;
 
-  for ( int i = 0; i < argc; i++ ) {
+  for ( int i = 1; i < argc; i++ ) {
     args.push_back( argv[ i ] );
   }
 
@@ -452,7 +451,7 @@ int main( int argc, char * argv[] )
 
   while ( true ) {
     const int opt = getopt_long( argc, argv, "-x:ESco:l:W:O:", gcc_options, nullptr );
-    size_t arg_index = static_cast<size_t>( optind - 1 );
+    size_t arg_index = static_cast<size_t>( optind - 2 );
 
     /* detect the end of options */
     if ( opt == -1 ) {
@@ -517,15 +516,32 @@ int main( int argc, char * argv[] )
 
   vector<InputFile> link_inputs;
 
-  for ( const InputFile & input : input_files ) {
-    switch( input.language ) {
-    case Language::SHARED_LIBRARY:
-    case Language::ARCHIVE_LIBRARY:
-    case Language::OBJECT:
-      link_inputs.push_back( input );
-      continue;
+  auto is_object_input =
+    []( const InputFile & input )
+    {
+      switch( input.language ) {
+      case Language::SHARED_LIBRARY:
+      case Language::ARCHIVE_LIBRARY:
+      case Language::OBJECT:
+        return true;
 
-    default: break;
+      default: return false;
+      }
+    };
+
+  size_t non_object_inputs = std::count_if( input_files.begin(), input_files.end(), is_object_input );
+
+  if ( non_object_inputs > 0 && input_files.size() > 1 ) {
+    throw runtime_error( "multiple inputs are only allowed for linking" );
+  }
+
+  /* generate gcc specs file */
+  TempFile specs_tmpfile { "/tmp/gccspecs" };
+  dump_gcc_specs( specs_tmpfile );
+
+  for ( const InputFile & input : input_files ) {
+    if ( is_object_input( input ) ) {
+      link_inputs.push_back( input );
     }
 
     GCCStage first_stage = language_to_stage( input.language );
@@ -542,13 +558,13 @@ int main( int argc, char * argv[] )
                                                     : stage_output_name( stage, input_hash );
 
 
-      //vector<string> args_stage = args;
-      //args_stage[ input_idx ] = stage_output[ stage - 1 ];
-      /* Thunk stage_thunk = generate_thunk( stage, args_stage,
+      vector<string> args_stage = args;
+      args_stage[ input.index ] = stage_output[ stage - 1 ];
+      Thunk stage_thunk = generate_thunk( stage, args_stage,
                                           stage_output[ stage - 1 ], output_name,
                                           specs_tmpfile.name() );
 
-      stage_thunk.store( gg_dir );*/
+      stage_thunk.store( gg_dir );
 
       switch ( stage ) {
       case PREPROCESS:
