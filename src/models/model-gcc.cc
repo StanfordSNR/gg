@@ -73,7 +73,9 @@ enum class Language
   C_HEADER,
   CPP_OUTPUT,
   ASSEMBLER,
-  OBJECT
+  OBJECT,
+  ARCHIVE_LIBRARY,
+  SHARED_LIBRARY,
 };
 
 void dump_gcc_specs( TempFile & target_file )
@@ -181,6 +183,7 @@ Language filename_to_language( const string & path )
   if ( extension == "i" ) return Language::CPP_OUTPUT;
   if ( extension == "s" ) return Language::ASSEMBLER;
   if ( extension == "o" ) return Language::OBJECT;
+  if ( extension == "a" ) return Language::ARCHIVE_LIBRARY;
 
   throw runtime_error( "unknown file extension" );
 }
@@ -350,7 +353,7 @@ int main( int argc, char * argv[] )
   opterr = 0; /* turn off error messages */
 
   while ( true ) {
-    const int opt = getopt_long( argc, argv, "-x:ESco:", gcc_options, nullptr );
+    const int opt = getopt_long( argc, argv, "-x:ESco:l:", gcc_options, nullptr );
 
     /* detect the end of options */
     if ( opt == -1 ) {
@@ -372,6 +375,10 @@ int main( int argc, char * argv[] )
     }
 
     switch ( opt ) {
+    case 'l':
+      input_files.emplace_back( optarg, Language::SHARED_LIBRARY );
+      break;
+
     case 'x':
       current_langauge = name_to_language( optarg );
       break;
@@ -401,8 +408,19 @@ int main( int argc, char * argv[] )
     throw runtime_error( "no input files" );
   }
 
-  if ( input_files.size() > 1 ) {
-    throw runtime_error( "accepting multiple input files is not supported yet" );
+  bool link_only = true;
+
+  for ( const auto & input_file : input_files ) {
+    if ( not ( input_file.second == Language::SHARED_LIBRARY or
+         input_file.second == Language::ARCHIVE_LIBRARY or
+         input_file.second == Language::OBJECT ) ) {
+      link_only = false;
+      break;
+    }
+  }
+
+  if ( not link_only and input_files.size() > 1) {
+    throw runtime_error( "multiple inputs are only accepted in link mode" );
   }
 
   if ( not last_stage.initialized() ) {
