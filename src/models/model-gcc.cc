@@ -320,6 +320,13 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   }
 }
 
+struct InputFile
+{
+  string name;
+  Language language;
+  size_t index;
+};
+
 int main( int argc, char * argv[] )
 {
   fs::path gg_dir = gg::models::create_gg_dir();
@@ -335,7 +342,7 @@ int main( int argc, char * argv[] )
 
   string last_stage_output_filename {};
 
-  vector<pair<string, Language>> input_files;
+  vector<InputFile> input_files;
 
   const option gcc_options[] = {
     { NULL, required_argument, NULL, 'x' }, /* Explicitly specify the language for the following input files */
@@ -353,7 +360,8 @@ int main( int argc, char * argv[] )
   opterr = 0; /* turn off error messages */
 
   while ( true ) {
-    const int opt = getopt_long( argc, argv, "-x:ESco:l:", gcc_options, nullptr );
+    const int opt = getopt_long( argc, argv, "-x:ESco:l:W:O:", gcc_options, nullptr );
+    size_t arg_index = static_cast<size_t>( optind - 1 );
 
     /* detect the end of options */
     if ( opt == -1 ) {
@@ -369,14 +377,14 @@ int main( int argc, char * argv[] )
         file_lang = filename_to_language( input_file );
       }
 
-      input_files.emplace_back( input_file, file_lang );
+      input_files.push_back( { input_file, file_lang, arg_index } );
 
       continue;
     }
 
     switch ( opt ) {
     case 'l':
-      input_files.emplace_back( optarg, Language::SHARED_LIBRARY );
+      input_files.push_back( { optarg, Language::SHARED_LIBRARY, arg_index } );
       break;
 
     case 'x':
@@ -411,15 +419,20 @@ int main( int argc, char * argv[] )
   bool link_only = true;
 
   for ( const auto & input_file : input_files ) {
-    if ( not ( input_file.second == Language::SHARED_LIBRARY or
-         input_file.second == Language::ARCHIVE_LIBRARY or
-         input_file.second == Language::OBJECT ) ) {
+    if ( not ( input_file.language == Language::SHARED_LIBRARY or
+         input_file.language == Language::ARCHIVE_LIBRARY or
+         input_file.language == Language::OBJECT ) ) {
       link_only = false;
       break;
     }
   }
 
-  if ( not link_only and input_files.size() > 1) {
+  GCCStage first_stage = PREPROCESS;
+
+  if ( link_only ) {
+    first_stage = LINK;
+  }
+  else if ( input_files.size() > 1) {
     throw runtime_error( "multiple inputs are only accepted in link mode" );
   }
 
@@ -433,12 +446,12 @@ int main( int argc, char * argv[] )
 
   const auto & input = input_files.back();
 
-  const size_t input_idx = distance( args.begin(), find( args.begin(), args.end() , input.first ) );
+  const size_t input_idx = distance( args.begin(), find( args.begin(), args.end() , input.name ) );
   assert( input_idx < args.size() );
 
   args.push_back( "-B" + GCC_BIN_PREFIX );
 
-  GCCStage first_stage = language_to_stage( input.second );
+  first_stage = language_to_stage( input.language );
 
   if ( last_stage_output_filename.length() == 0 ) {
     switch ( *last_stage ) {
@@ -447,16 +460,16 @@ int main( int argc, char * argv[] )
       break;
 
     default:
-      last_stage_output_filename = stage_output_name( *last_stage, input.first );
+      last_stage_output_filename = stage_output_name( *last_stage, input.name );
     }
   }
 
   /* input hash */
-  string input_hash = digest::SHA256( input.first ).hexdigest();
+  string input_hash = digest::SHA256( input.name ).hexdigest();
 
   /* stage -> output_name */
   map<size_t, string> stage_output;
-  stage_output[ first_stage - 1 ] = input.first;
+  stage_output[ first_stage - 1 ] = input.name;
 
   for ( size_t stage_num = first_stage; stage_num <= *last_stage; stage_num++ ) {
     GCCStage stage = static_cast<GCCStage>( stage_num );
