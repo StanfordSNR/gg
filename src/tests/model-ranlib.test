@@ -7,11 +7,10 @@ MAGIC="##GGTHUNK##"
 OUTPUT=libnet.a
 INPUT=$DATADIR/libnet.a
 
-cp ${INPUT} ${OUTPUT}
-ranlib ${OUTPUT}
-mv ${OUTPUT} ${OUTPUT}.gold
+cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}.gold
+ranlib ${OUTPUT}.gold
 
-cp ${INPUT} ${OUTPUT}
+cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
 GG_DIR=.gg/ model-ranlib ${OUTPUT}
 mv ${OUTPUT} ${OUTPUT}.thunk
 
@@ -20,7 +19,7 @@ if [ "$MAGIC" != "`head -c 11 ${OUTPUT}.thunk`" ]; then
   exit 1
 fi
 
-cp ${INPUT} ${OUTPUT}
+cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
 gg-execute -s ${OUTPUT}.thunk
 
 diff ${OUTPUT} ${OUTPUT}.gold
