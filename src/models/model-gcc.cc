@@ -22,7 +22,7 @@
 #include "thunk.hh"
 #include "utils.hh"
 
-#include "toolchain.hh"
+#include "model-gcc.hh"
 
 using namespace std;
 using namespace boost;
@@ -68,34 +68,6 @@ static const unordered_map<string, InFile> program_infiles {
   },
 };
 
-enum GCCStage
-{
-  PREPROCESS = 1,
-  COMPILE,
-  ASSEMBLE,
-  LINK
-};
-
-enum class Language
-{
-  NONE,
-  C,
-  C_HEADER,
-  CPP_OUTPUT,
-  ASSEMBLER,
-  OBJECT,
-  ARCHIVE_LIBRARY,
-  SHARED_LIBRARY,
-};
-
-struct InputFile
-{
-  string name;
-  Language language;
-  Language source_language;
-  size_t index;
-};
-
 void dump_gcc_specs( TempFile & target_file )
 {
   array<char, 4096> buffer;
@@ -112,53 +84,6 @@ void dump_gcc_specs( TempFile & target_file )
       target_file.write( result );
     }
   }
-}
-
-string search_for_library( const string & name )
-{
-  string expected_filename = "lib" + name + ".so";
-
-  for ( const string & sdir_str : c_library_path ) {
-    fs::path search_path { sdir_str };
-    fs::path expected_path { search_path / expected_filename };
-
-    if ( fs::exists( expected_path ) ) {
-      return expected_path.string();
-    }
-  }
-
-  return "";
-}
-
-vector<string> get_link_dependencies( const vector<InputFile> & link_inputs )
-{
-  vector<string> dependencies;
-
-  for ( const auto & link_input : link_inputs ) {
-    switch ( link_input.language ) {
-    case Language::OBJECT:
-    case Language::ARCHIVE_LIBRARY:
-      dependencies.push_back( link_input.name );
-      break;
-
-    case Language::SHARED_LIBRARY:
-    {
-      string path = search_for_library( link_input.name );
-
-      if ( not path.length() ) {
-        throw runtime_error( "could not find shared library: " + link_input.name );
-      }
-
-      dependencies.push_back( path );
-      break;
-    }
-
-    default:
-      throw runtime_error( "invalid input for link stage: " + link_input.name );
-    }
-  }
-
-  return dependencies;
 }
 
 vector<string> get_preprocess_dependencies( const vector<string> & gcc_args,

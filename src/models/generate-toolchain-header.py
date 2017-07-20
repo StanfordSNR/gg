@@ -53,41 +53,59 @@ def get_library_path():
 c_include_path = get_include_path()
 c_library_path = get_library_path()
 
-print("""\
+hh_file = open( "toolchain.hh", "w" );
+cc_file = open( "toolchain.cc", "w" );
+
+print_hh = lambda *args, **kwargs: print(*args, file=hh_file, **kwargs)
+print_cc = lambda *args, **kwargs: print(*args, file=cc_file, **kwargs)
+
+print_hh("""\
 #ifndef TOOLCHAIN_HH
 #define TOOLCHAIN_HH
 """)
 
-print("#include <unordered_map>")
-print("#include <string>")
+print_hh("#include <unordered_map>")
+print_hh("#include <string>")
+print_hh("#include <vector>")
 
-print()
-print('#define TOOLCHAIN_PATH "{}"'.format(BINDIR))
-print()
+print_hh()
+print_hh('#define TOOLCHAIN_PATH "{}"'.format(BINDIR))
+print_hh()
+print_hh("const std::string & program_hash( const std::string & name );")
+print_hh("extern const std::vector<std::string> c_include_path;")
+print_hh("extern const std::vector<std::string> c_library_path;")
+print_hh();
+print_hh("#endif /* TOOLCHAIN_HH */")
 
-print("""\
-const std::string & program_hash( const std::string & name )
+hh_file.close()
+
+print_cc('#include "toolchain.hh"')
+print_cc()
+print_cc("using namespace std;")
+print_cc();
+print_cc("""\
+const string & program_hash( const string & name )
 {
-  static const std::unordered_map<std::string, std::string> programs = {""")
+  static const unordered_map<string, string> programs = {""")
 
 for exe in os.listdir(BINDIR):
     exe_path = os.path.join(BINDIR, exe)
     exe_hash = sha256_checksum(exe_path)
-    print(" " * 4, end='')
-    print('{{ "{exe}", "{hash}" }},'.format(exe=exe, hash=exe_hash))
+    print_cc(" " * 4, end='')
+    print_cc('{{ "{exe}", "{hash}" }},'.format(exe=exe, hash=exe_hash))
 
-print("  };\n")
-print("  return programs.at( name );")
-print("}\n")
+print_cc("  };\n")
+print_cc("  return programs.at( name );")
+print_cc("}\n")
 
-print("static const std::vector<std::string> c_include_path = {")
+print_cc("const vector<string> c_include_path = {")
 for path in c_include_path:
-    print('  "{}",'.format(path))
-print("};\n")
+    print_cc('  "{}",'.format(path))
+print_cc("};\n")
 
-print("static const std::vector<std::string> c_library_path = {")
+print_cc("const vector<string> c_library_path = {")
 for path in c_library_path:
-    print('  "{}",'.format(path))
-print("};\n")
+    print_cc('  "{}",'.format(path))
+print_cc("};\n")
 
-print("#endif /* TOOLCHAIN_HH */")
+cc_file.close()
