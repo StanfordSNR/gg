@@ -516,20 +516,20 @@ int main( int argc, char * argv[] )
 
   vector<InputFile> link_inputs;
 
-  auto is_object_input =
+  auto is_non_object_input =
     []( const InputFile & input )
     {
       switch( input.language ) {
       case Language::SHARED_LIBRARY:
       case Language::ARCHIVE_LIBRARY:
       case Language::OBJECT:
-        return true;
+        return false;
 
-      default: return false;
+      default: return true;
       }
     };
 
-  size_t non_object_inputs = std::count_if( input_files.begin(), input_files.end(), is_object_input );
+  size_t non_object_inputs = std::count_if( input_files.begin(), input_files.end(), is_non_object_input );
 
   if ( non_object_inputs > 0 && input_files.size() > 1 ) {
     throw runtime_error( "multiple inputs are only allowed for linking" );
@@ -540,8 +540,9 @@ int main( int argc, char * argv[] )
   dump_gcc_specs( specs_tmpfile );
 
   for ( const InputFile & input : input_files ) {
-    if ( is_object_input( input ) ) {
+    if ( !is_non_object_input( input ) ) {
       link_inputs.push_back( input );
+      continue;
     }
 
     GCCStage first_stage = language_to_stage( input.language );
