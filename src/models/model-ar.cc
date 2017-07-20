@@ -24,11 +24,7 @@ Thunk generate_thunk( int argc, char * argv[] )
     throw runtime_error( "not enough arguments" );
   }
 
-  vector<string> original_args;
-
-  for ( int i = 1; i < argc; i++ ) {
-    original_args.push_back( argv[ i ] );
-  }
+  vector<string> original_args = gg::models::args_to_vector( argc, argv );
 
   struct option long_options[] = {
     { 0, 0, 0, 0 },

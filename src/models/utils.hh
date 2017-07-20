@@ -2,6 +2,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <vector>
 #include <boost/filesystem.hpp>
 
 
@@ -27,6 +28,18 @@ namespace gg {
       }
 
       return boost::filesystem::absolute( gg_path );
+    }
+
+    std::vector<std::string> args_to_vector( int argc, char ** argv )
+    {
+      std::vector<std::string> result;
+
+      /* ignores argv[ 0 ] */
+      for ( int i = 1; i < argc; i++ ) {
+        result.push_back( argv[ i ] );
+      }
+
+      return result;
     }
   }
 }
