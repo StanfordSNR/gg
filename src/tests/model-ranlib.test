@@ -8,7 +8,7 @@ OUTPUT=libnet.a
 INPUT=$DATADIR/libnet.a
 
 cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}.gold
-ranlib ${OUTPUT}.gold
+${TOOLCHAIN_PATH}/ranlib ${OUTPUT}.gold
 
 cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
 GG_DIR=.gg/ model-ranlib ${OUTPUT}
