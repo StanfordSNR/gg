@@ -217,6 +217,18 @@ string stage_output_name( const GCCStage stage, const string basename )
   }
 }
 
+bool is_non_object_input( const InputFile & input )
+{
+  switch( input.language ) {
+  case Language::SHARED_LIBRARY:
+  case Language::ARCHIVE_LIBRARY:
+  case Language::OBJECT:
+    return false;
+
+  default: return true;
+  }
+}
+
 Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
                       const string & input, const string & output,
                       const string & specsfile )
@@ -318,7 +330,6 @@ Thunk generate_link_thunk( const vector<string> & link_args,
   infiles.emplace_back( program_infiles.at( GCC ) );
   infiles.emplace_back( program_infiles.at( COLLECT2 ) );
   infiles.emplace_back( program_infiles.at( LD ) );
-  infiles.emplace_back( "/home/sadjad/projects/gg-toolchain/build/gg-gcc/gcc/liblto_plugin.so" );
 
   for ( const string & dep : dependencies ) {
     infiles.emplace_back( dep );
@@ -441,19 +452,6 @@ int main( int argc, char * argv[] )
 
   vector<InputFile> link_inputs;
 
-  auto is_non_object_input =
-    []( const InputFile & input )
-    {
-      switch( input.language ) {
-      case Language::SHARED_LIBRARY:
-      case Language::ARCHIVE_LIBRARY:
-      case Language::OBJECT:
-        return false;
-
-      default: return true;
-      }
-    };
-
   size_t non_object_inputs = std::count_if( input_files.begin(), input_files.end(), is_non_object_input );
 
   if ( non_object_inputs > 0 && input_files.size() > 1 ) {
@@ -528,8 +526,6 @@ int main( int argc, char * argv[] )
   }
 
   if ( last_stage == LINK ) {
-    auto dependencies = get_link_dependencies( link_inputs );
-
     vector<string> link_args { args };
 
     for ( auto const & link_input : link_inputs ) {
@@ -538,6 +534,13 @@ int main( int argc, char * argv[] )
                  link_input.source_language == Language::SHARED_LIBRARY ) ) {
         link_args[ link_input.index ] = link_input.name;
       }
+    }
+
+    auto dependencies = get_link_dependencies( link_inputs, args );
+
+    cerr << "* linkdeps:" << endl;
+    for ( const auto & dep : dependencies ) {
+      cerr << dep << endl;
     }
 
     Thunk thunk = generate_link_thunk( link_args, dependencies );

@@ -2,6 +2,12 @@
 
 #include "model-gcc.hh"
 
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <string>
+#include <array>
+#include <regex>
 #include <boost/filesystem.hpp>
 
 using namespace std;
@@ -24,33 +30,59 @@ string search_for_library( const string & name )
   return "";
 }
 
-vector<string> get_link_dependencies( const vector<InputFile> & link_inputs )
+vector<string> get_link_dependencies( const vector<InputFile> & link_inputs,
+                                      const vector<string> & gcc_args )
 {
   vector<string> dependencies;
+  vector<string> args { gcc_args };
 
-  for ( const auto & link_input : link_inputs ) {
-    switch ( link_input.language ) {
-    case Language::OBJECT:
-    case Language::ARCHIVE_LIBRARY:
-      dependencies.push_back( link_input.name );
-      break;
+  size_t last_index = SIZE_MAX;
+  for ( auto it = link_inputs.rbegin(); it != link_inputs.rend(); it++ ) {
+    if ( it->language == Language::SHARED_LIBRARY ) {
+      continue;
+    }
 
-    case Language::SHARED_LIBRARY:
-    {
-      string path = search_for_library( link_input.name );
+    assert( it->index < last_index );
+    args.erase( args.begin() + it->index );
+    last_index = it->index;
+  }
 
-      if ( not path.length() ) {
-        throw runtime_error( "could not find shared library: " + link_input.name );
+  args.insert( args.begin(), "gcc" );
+  args.push_back( "-Wl,--verbose" );
+
+  ostringstream command;
+  copy( args.begin(), args.end(), ostream_iterator<string>( command, " " ) );
+  command << "2>&1";
+
+  std::shared_ptr<FILE> readpipe( popen( command.str().c_str(), "r" ), pclose );
+
+  array<char, 4096> buffer;
+  size_t seperator_line_count = 0;
+
+  regex path_regex( "^(?:attempt to open|opened script file|found [^\\s]+ at) "
+                    "([^\\s]+)\\s?(?:succeeded|)\n$" );
+  smatch match;
+
+  while ( !feof( readpipe.get() ) ) {
+    if ( fgets( buffer.data(), 4096, readpipe.get() ) != nullptr ) {
+      string line = buffer.data();
+
+      if ( seperator_line_count < 2 and line[ 0 ] == '=' ) {
+        seperator_line_count++;
+        continue;
+      }
+      else if ( seperator_line_count < 2 ) {
+        continue;
       }
 
-      dependencies.push_back( path );
-      break;
-    }
-
-    default:
-      throw runtime_error( "invalid input for link stage: " + link_input.name );
+      regex_match( line, match, path_regex );
+      if ( match.size() == 2 ) {
+        cerr << match[ 1 ].str() << endl;
+      }
     }
   }
+
+  exit( 1 );
 
   return dependencies;
 }

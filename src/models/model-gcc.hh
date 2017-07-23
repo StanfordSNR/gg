@@ -37,6 +37,9 @@ struct InputFile
   size_t index;
 };
 
-std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs );
+bool is_non_object_input( const InputFile & input );
+
+std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs,
+                                                const std::vector<std::string> & args );
 
 #endif /* MODEL_LINKER_HH */
