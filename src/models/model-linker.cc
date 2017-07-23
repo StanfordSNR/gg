@@ -8,6 +8,7 @@
 #include <string>
 #include <array>
 #include <regex>
+#include <unordered_set>
 #include <boost/filesystem.hpp>
 
 using namespace std;
@@ -33,7 +34,7 @@ string search_for_library( const string & name )
 vector<string> get_link_dependencies( const vector<InputFile> & link_inputs,
                                       const vector<string> & gcc_args )
 {
-  vector<string> dependencies;
+  unordered_set<string> dependencies;
   vector<string> args { gcc_args };
 
   size_t last_index = SIZE_MAX;
@@ -77,12 +78,10 @@ vector<string> get_link_dependencies( const vector<InputFile> & link_inputs,
 
       regex_match( line, match, path_regex );
       if ( match.size() == 2 ) {
-        cerr << match[ 1 ].str() << endl;
+        dependencies.insert( match[ 1 ].str() );
       }
     }
   }
 
-  exit( 1 );
-
-  return dependencies;
+  return { dependencies.begin(), dependencies.end() };
 }
