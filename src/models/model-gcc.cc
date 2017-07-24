@@ -37,9 +37,9 @@ static const string GG_BIN_PREFIX = "/usr/bin/";
 static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
 static auto gcc_function =
-  []( const vector<string> & args ) -> Function
+  []( const vector<string> & args, const vector<string> & envars ) -> Function
   {
-    return { GG_BIN_PREFIX + GCC, args, {}, program_hash( GCC ) };
+    return { GG_BIN_PREFIX + GCC, args, envars, program_hash( GCC ) };
   };
 
 static const unordered_map<string, InFile> program_infiles {
@@ -227,8 +227,8 @@ bool is_non_object_input( const InputFile & input )
 }
 
 Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
-                      const string & input, const string & output,
-                      const string & specsfile )
+                      const vector<string> & envars, const string & input,
+                      const string & output, const string & specsfile )
 {
   vector<string> args { original_args };
 
@@ -300,19 +300,19 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
 
     all_args.insert( all_args.end(), args.begin(), args.end() );
 
-    return { output, gcc_function( all_args ), base_infiles };
+    return { output, gcc_function( all_args, envars ), base_infiles };
   }
 
   case COMPILE:
     args.push_back( "-S" );
     base_infiles.push_back( program_infiles.at( CC1 ) );
 
-    return { output, gcc_function( args ), base_infiles };
+    return { output, gcc_function( args, envars ), base_infiles };
 
   case ASSEMBLE:
     args.push_back( "-c" );
     base_infiles.push_back( program_infiles.at( AS ) );
-    return { output, gcc_function( args ), base_infiles };
+    return { output, gcc_function( args, envars ), base_infiles };
 
   default: throw runtime_error( "not implemented" );
   }
@@ -361,7 +361,7 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
 
   all_args.insert( all_args.end(), args.begin(), args.end() );
 
-  return { output, gcc_function( all_args ), infiles };
+  return { output, gcc_function( all_args, {} ), infiles };
 }
 
 int main( int argc, char * argv[] )
@@ -372,6 +372,7 @@ int main( int argc, char * argv[] )
   Optional<GCCStage> last_stage;
 
   vector<string> args;
+  vector<string> envars;
 
   for ( int i = 1; i < argc; i++ ) {
     args.push_back( argv[ i ] );
@@ -458,8 +459,8 @@ int main( int argc, char * argv[] )
     throw runtime_error( "no input files" );
   }
 
-  /* push special gg prefix for gcc binaries */
-  args.push_back( "-B" + GG_BIN_PREFIX );
+  /* let gcc know where to find the binaries */
+  envars.push_back( "COMPILER_PATH=" + GG_BIN_PREFIX );
 
   vector<InputFile> link_inputs;
 
@@ -495,7 +496,7 @@ int main( int argc, char * argv[] )
 
       vector<string> args_stage = args;
       args_stage[ input.index ] = stage_output[ stage - 1 ];
-      Thunk stage_thunk = generate_thunk( stage, args_stage,
+      Thunk stage_thunk = generate_thunk( stage, args_stage, envars,
                                           stage_output[ stage - 1 ], output_name,
                                           specs_tmpfile.name() );
 
@@ -552,8 +553,6 @@ int main( int argc, char * argv[] )
     }
 
     vector<string> dependencies = get_link_dependencies( link_inputs, args );
-
-    link_args.push_back( "-B/usr/lib/gcc" );
 
     Thunk thunk = generate_link_thunk( link_inputs, link_args, dependencies,
                                        last_stage_output_filename );
