@@ -321,36 +321,59 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
   }
 }
 
-Thunk generate_link_thunk( const vector<string> & link_args,
-                           const vector<string> & dependencies )
+Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
+                           const vector<string> & link_args,
+                           const vector<string> & dependencies,
+                           const string & output )
 {
-  vector<string> args { link_args.begin() + 1, link_args.end() };
+  vector<string> args { link_args.begin(), link_args.end() };
 
   vector<InFile> infiles;
   infiles.emplace_back( program_infiles.at( GCC ) );
   infiles.emplace_back( program_infiles.at( COLLECT2 ) );
   infiles.emplace_back( program_infiles.at( LD ) );
 
+  for ( auto const & link_input : link_inputs ) {
+    if ( link_input.source_language == Language::OBJECT or
+         link_input.source_language == Language::ARCHIVE_LIBRARY ) {
+      infiles.emplace_back( link_input.name );
+    }
+  }
+
   for ( const string & dep : dependencies ) {
-    infiles.emplace_back( dep );
+    fs::path dep_path;
+
+    if ( dep.substr( 0, 2 ) == "//" ) {
+        dep_path = dep.substr( 1 );
+    }
+    else {
+      dep_path = dep;
+    }
+
+    infiles.emplace_back( dep_path.lexically_normal().string() );
   }
 
   for ( const string & dir : c_library_path ) {
     infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
   }
 
-  infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
+  infiles.emplace_back( "/__gg__/bin/.", InFile::Type::DUMMY_DIRECTORY );
+  infiles.emplace_back( "/usr/lib/gcc/.", InFile::Type::DUMMY_DIRECTORY );
 
   vector<string> all_args;
   all_args.reserve( c_library_path.size() + args.size() );
   //all_args.push_back( "-specs=/__gg__/gcc-specs" );
+  for ( const auto & p : c_library_path ) {
+    all_args.push_back( "-Wl,-rpath-link," + p );
+  }
+
   for ( const auto & p : c_library_path ) {
     all_args.push_back( "-L" + p );
   }
 
   all_args.insert( all_args.end(), args.begin(), args.end() );
 
-  return { "a.out", gcc_function( all_args ), infiles };
+  return { output, gcc_function( all_args ), infiles };
 }
 
 int main( int argc, char * argv[] )
@@ -386,7 +409,7 @@ int main( int argc, char * argv[] )
   opterr = 0; /* turn off error messages */
 
   while ( true ) {
-    const int opt = getopt_long( argc, argv, "-x:ESco:l:W:O:", gcc_options, nullptr );
+    const int opt = getopt_long( argc, argv, "-x:ESco:l:W:O:B:", gcc_options, nullptr );
     size_t arg_index = static_cast<size_t>( optind - 2 );
 
     /* detect the end of options */
@@ -526,6 +549,10 @@ int main( int argc, char * argv[] )
   }
 
   if ( last_stage == LINK ) {
+    if ( last_stage_output_filename.length() == 0 ) {
+      last_stage_output_filename = "a.out";
+    }
+
     vector<string> link_args { args };
 
     for ( auto const & link_input : link_inputs ) {
@@ -536,14 +563,22 @@ int main( int argc, char * argv[] )
       }
     }
 
-    auto dependencies = get_link_dependencies( link_inputs, args );
+    vector<string> dependencies = get_link_dependencies( link_inputs, args );
 
-    cerr << "* linkdeps:" << endl;
+    /* cerr << "* linkdeps:" << endl;
     for ( const auto & dep : dependencies ) {
-      cerr << dep << endl;
-    }
+      fs::path dep_path { dep };
+      cerr << dep_path.lexically_normal().string() << " ";
+      if ( fs::is_symlink( dep ) ) {
+        cerr << "(symlink => " << fs::canonical( dep_path ) << ")";
+      }
+      cerr << endl;
+    } */
 
-    Thunk thunk = generate_link_thunk( link_args, dependencies );
+    link_args.push_back( "-B/usr/lib/gcc" );
+
+    Thunk thunk = generate_link_thunk( link_inputs, link_args, dependencies,
+                                       last_stage_output_filename );
     thunk.store( gg_dir );
   }
 
