@@ -23,7 +23,7 @@ before_script:
   - sudo -E add-apt-repository -y 'deb http://ftp.us.debian.org/debian unstable main contrib non-free'
   - sudo apt-get update -qq
   - sudo apt-get install -y protobuf-compiler libprotobuf-dev
-  - sudo apt-get install libboost-dev=1.62.0.1 libboost-filesystem-dev=1.62.0.1
+  - sudo apt-get install -y --allow-unauthenticated libboost-dev=1.62.0.1 libboost-filesystem-dev=1.62.0.1
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 99
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 99
 
