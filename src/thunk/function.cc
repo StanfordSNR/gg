@@ -31,7 +31,7 @@ Function::Function( const string & exe, const vector<string> & args,
 Function::Function( const protobuf::Function & func_proto )
   : exe_( func_proto.exe() ),
     args_( func_proto.args().begin(), func_proto.args().end() ),
-    exe_hash_( func_proto.hash() ), envars_()
+    exe_hash_( func_proto.hash() ), envars_( func_proto.envars().begin(), func_proto.envars().end() )
 {}
 
 protobuf::Function Function::to_protobuf() const
@@ -45,6 +45,10 @@ protobuf::Function Function::to_protobuf() const
   }
 
   func.set_hash( exe_hash_ );
+
+  for ( const string & envar : envars_ ) {
+    func.add_envars( envar );
+  }
 
   return func;
 }

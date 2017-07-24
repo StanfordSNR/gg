@@ -6,6 +6,7 @@ message Function {
   string exe = 1;
   repeated string args = 2;
   string hash = 3;
+  repeated string envars = 4;
 }
 
 message InFile {
