@@ -40,8 +40,9 @@ int main( int argc, char * argv[] )
       "-DLIBDIR=\"/usr/local/lib\"", "-DINCLUDEDIR=\"/usr/local/include\"",
       "-DHAVE_CONFIG_H", "-I.", "-g", "-O2", "-MT", "remake.o", "-MD", "-MP",
       "-MF", ".deps/remake.Tpo", "-c", "-o", "TEST_remake.o", "remake.i" };
+    vector<string> envars = { "A=a", "B=b", "C=c" };
 
-    Function function( exe, args );
+    Function function( exe, args, envars );
 
     InFile infile1( "thunk.hh", "thunk.hh", "XXX", 0, 120 );
     InFile infile2( "infile_desc.hh", "infile_desc.hh", "YYY", 0, 24000 );

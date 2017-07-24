@@ -79,20 +79,23 @@ namespace gg {
       std::string exe_ {};
       std::vector<std::string> args_;
       std::string exe_hash_ {};
+      std::vector<std::string> envars_ {};
 
       void parse_cmd();
 
       static std::string hash_exe( const std::string & exe );
 
     public:
-      Function( const std::string & exe, const std::vector<std::string> & cmd );
       Function( const std::string & exe, const std::vector<std::string> & cmd,
-                const std::string & hash );
+                const std::vector<std::string> & envars );
+      Function( const std::string & exe, const std::vector<std::string> & cmd,
+                const std::vector<std::string> & envars, const std::string & hash );
       Function( const gg::protobuf::Function & func_proto );
 
       std::string exe() const { return exe_; }
       std::vector<std::string> args() const { return args_; }
       std::string hash() const { return exe_hash_; }
+      std::vector<std::string> envars() const { return envars_; }
 
       gg::protobuf::Function to_protobuf() const;
 

@@ -117,7 +117,7 @@ Thunk generate_thunk( int argc, char * argv[] )
   }
 
   return { outfile,
-    { AR, original_args, program_hash( AR ) },
+    { AR, original_args, {}, program_hash( AR ) },
     infiles
   };
 }

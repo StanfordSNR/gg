@@ -39,7 +39,7 @@ static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 static auto gcc_function =
   []( const vector<string> & args ) -> Function
   {
-    return { GG_BIN_PREFIX + GCC, args, program_hash( GCC ) };
+    return { GG_BIN_PREFIX + GCC, args, {}, program_hash( GCC ) };
   };
 
 static const unordered_map<string, InFile> program_infiles {

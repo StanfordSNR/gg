@@ -33,7 +33,7 @@ Thunk generate_thunk( int argc, char * argv[] )
 
   return {
     archive,
-    { RANLIB, gg::models::args_to_vector( argc, argv ), program_hash( RANLIB ) },
+    { RANLIB, gg::models::args_to_vector( argc, argv ), {}, program_hash( RANLIB ) },
     {
       archive,
       { RANLIB, ( toolchain_path / RANLIB ).string(), program_hash( RANLIB ), 0 },
