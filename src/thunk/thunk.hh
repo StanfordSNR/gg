@@ -93,9 +93,9 @@ namespace gg {
       Function( const gg::protobuf::Function & func_proto );
 
       std::string exe() const { return exe_; }
-      std::vector<std::string> args() const { return args_; }
+      const std::vector<std::string> & args() const { return args_; }
       std::string hash() const { return exe_hash_; }
-      std::vector<std::string> envars() const { return envars_; }
+      const std::vector<std::string> & envars() const { return envars_; }
 
       gg::protobuf::Function to_protobuf() const;
 
