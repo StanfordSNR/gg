@@ -50,8 +50,32 @@ def get_library_path():
 
     return library_dirs
 
+def get_gcc_envars():
+    command = "gcc -print-search-dirs"
+    output = sub.check_output(command, shell=True)
+
+    PROGRAMS_PREFIX = "program: ="
+    LIBRARIES_PREFIX = "libraries: ="
+
+    res = {}
+
+    for line in output.split("\n"):
+        if line.startswith(LIBRARIES_PREFIX):
+            path = line[len(LIBRARIES_PREFIX):]
+            path = path.split(":")
+            rpath = []
+
+            for p in path:
+                if os.path.exists(p):
+                    rpath += [os.path.abspath(p)]
+
+            res["LIBRARY_PATH"] = "LIBRARY_PATH=" + ":".join(rpath)
+
+    return res
+
 c_include_path = get_include_path()
 c_library_path = get_library_path()
+gcc_envars = get_gcc_envars()
 
 hh_file = open( "toolchain.hh", "w" );
 cc_file = open( "toolchain.cc", "w" );
@@ -74,6 +98,7 @@ print_hh()
 print_hh("const std::string & program_hash( const std::string & name );")
 print_hh("extern const std::vector<std::string> c_include_path;")
 print_hh("extern const std::vector<std::string> c_library_path;")
+print_hh("extern const std::string gcc_library_path_envar;")
 print_hh();
 print_hh("#endif /* TOOLCHAIN_HH */")
 
@@ -107,5 +132,7 @@ print_cc("const vector<string> c_library_path = {")
 for path in c_library_path:
     print_cc('  "{}",'.format(path))
 print_cc("};\n")
+
+print_cc('const std::string gcc_library_path_envar = "{}";\n'.format(gcc_envars.get("LIBRARY_PATH")))
 
 cc_file.close()
