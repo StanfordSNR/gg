@@ -38,7 +38,7 @@ int Thunk::execute( const roost::path & root_dir, const roost::path & thunk_path
 
   // preparing argv
   vector<string> args = function_.args();
-  args.insert( args.begin(), ( root_dir / function_.hash() ).string() );
+  args.insert( args.begin(), function_.exe() );
 
   // preparing envp
   vector<string> envars = {
@@ -53,7 +53,7 @@ int Thunk::execute( const roost::path & root_dir, const roost::path & thunk_path
 
   cerr << "+ " << command_str( args, envars ) << endl;
 
-  if ( ( retval = ezexec( args, envars ) ) < 0 ) {
+  if ( ( retval = ezexec( ( root_dir / function_.hash() ).string(), args, envars ) ) < 0 ) {
     throw runtime_error( "execvpe failed" );
   }
 

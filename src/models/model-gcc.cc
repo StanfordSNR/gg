@@ -33,35 +33,35 @@ static const string AS  = "as";
 static const string CC1 = "cc1";
 static const string COLLECT2 = "collect2";
 static const string LD = "ld";
-static const string GCC_BIN_PREFIX = "/__gg__/bin/";
+static const string GG_BIN_PREFIX = "/usr/bin/";
 static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
 static auto gcc_function =
   []( const vector<string> & args ) -> Function
   {
-    return { GCC_BIN_PREFIX + GCC, args, program_hash( GCC ) };
+    return { GG_BIN_PREFIX + GCC, args, program_hash( GCC ) };
   };
 
 static const unordered_map<string, InFile> program_infiles {
   {
     GCC,
-    { GCC_BIN_PREFIX + GCC, ( toolchain_path / GCC ).string(), program_hash( GCC ), 0 }
+    { GG_BIN_PREFIX + GCC, ( toolchain_path / GCC ).string(), program_hash( GCC ), 0 }
   },
   {
     CC1,
-    { GCC_BIN_PREFIX + CC1, ( toolchain_path / CC1 ).string(), program_hash( CC1 ), 0 }
+    { GG_BIN_PREFIX + CC1, ( toolchain_path / CC1 ).string(), program_hash( CC1 ), 0 }
   },
   {
     AS,
-    { GCC_BIN_PREFIX + AS, ( toolchain_path / AS ).string(), program_hash( AS ), 0 }
+    { GG_BIN_PREFIX + AS, ( toolchain_path / AS ).string(), program_hash( AS ), 0 }
   },
   {
     COLLECT2,
-    { GCC_BIN_PREFIX + COLLECT2, ( toolchain_path / COLLECT2 ).string(), program_hash( COLLECT2 ), 0 }
+    { GG_BIN_PREFIX + COLLECT2, ( toolchain_path / COLLECT2 ).string(), program_hash( COLLECT2 ), 0 }
   },
   {
     LD,
-    { GCC_BIN_PREFIX + LD, ( toolchain_path / LD ).string(), program_hash( LD ), 0 }
+    { GG_BIN_PREFIX + LD, ( toolchain_path / LD ).string(), program_hash( LD ), 0 }
   },
 };
 
@@ -118,7 +118,7 @@ vector<string> get_preprocess_dependencies( const vector<string> & gcc_args,
     args.push_back( dep_out_filename );
   }
 
-  run( args, {}, true, true );
+  run( args[ 0 ], args, {}, true, true );
 
   vector<string> dependencies;
 
@@ -459,7 +459,7 @@ int main( int argc, char * argv[] )
   }
 
   /* push special gg prefix for gcc binaries */
-  args.push_back( "-B" + GCC_BIN_PREFIX );
+  args.push_back( "-B" + GG_BIN_PREFIX );
 
   vector<InputFile> link_inputs;
 

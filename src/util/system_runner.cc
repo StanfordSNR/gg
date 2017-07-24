@@ -13,16 +13,17 @@
 
 using namespace std;
 
-int ezexec( const vector<string> & command, const vector<string> & environment,
-            const bool use_environ, const bool path_search )
+int ezexec( const string & filename, const vector<string> & args,
+            const vector<string> & env, const bool use_environ,
+            const bool path_search )
 {
-  if ( command.empty() ) {
-    throw runtime_error( "ezexec: empty command" );
+  if ( args.empty() ) {
+    throw runtime_error( "ezexec: empty args" );
   }
 
   if ( geteuid() == 0 or getegid() == 0 ) {
     if ( environ ) {
-      throw runtime_error( "BUG: root's environment not cleared" );
+      throw runtime_error( "BUG: root's env not cleared" );
     }
 
     if ( path_search ) {
@@ -34,7 +35,7 @@ int ezexec( const vector<string> & command, const vector<string> & environment,
   vector<char *> argv;
   vector<vector<char>> argv_data;
 
-  for ( auto & x : command ) {
+  for ( auto & x : args ) {
     vector<char> new_str;
     for ( auto & ch : x ) {
       new_str.push_back( ch );
@@ -50,12 +51,12 @@ int ezexec( const vector<string> & command, const vector<string> & environment,
 
   argv.push_back( 0 ); /* null-terminate */
 
-  /* copy the environment variables to mutable structures */
+  /* copy the env variables to mutable structures */
   vector<char *> envp;
   vector<vector<char>> envp_data;
 
   if ( not use_environ ) {
-    for ( auto & x : environment ) {
+    for ( auto & x : env ) {
       vector<char> new_str;
       for ( auto & ch : x ) {
         new_str.push_back( ch );
@@ -72,17 +73,18 @@ int ezexec( const vector<string> & command, const vector<string> & environment,
     envp.push_back( 0 ); /* null-terminate */
   }
 
-  return ( path_search ? execvpe : execve )( &argv[ 0 ][ 0 ], &argv[ 0 ],
+  return ( path_search ? execvpe : execve )( filename.c_str(), &argv[ 0 ],
                                              use_environ ? environ : &envp[ 0 ] );
 }
 
-void run( const vector<string> & command, const vector<string> & environment,
-          const bool use_environ, const bool path_search )
+void run( const string & filename, const vector<string> & args,
+          const vector<string> & env, const bool use_environ,
+          const bool path_search )
 {
-  ChildProcess command_process( command[ 0 ],
+  ChildProcess command_process( args[ 0 ],
     [&]()
     {
-      return ezexec( command, environment, use_environ, path_search );
+      return ezexec( filename, args, env, use_environ, path_search );
     }
   );
 
