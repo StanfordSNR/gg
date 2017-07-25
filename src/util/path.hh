@@ -30,6 +30,7 @@ namespace roost {
   path absolute( const path & pathn );
   void copy_file( const path & src, const path & dest );
   path operator/( const path & prefix, const path & suffix );
+  path canonical( const path & path );
 }
 
 #endif /* PATH_HH */

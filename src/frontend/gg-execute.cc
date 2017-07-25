@@ -10,11 +10,10 @@
 #include "thunk_reader.hh"
 #include "child_process.hh"
 #include "sandbox.hh"
+#include "path.hh"
 
 using namespace std;
 using namespace gg::thunk;
-
-namespace fs = boost::filesystem;
 
 void usage( const char * argv0 )
 {
@@ -66,8 +65,8 @@ int main( int argc, char * argv[] )
 
     string thunk_filename = argv[ optind ];
 
-    fs::path gg_path = fs::canonical( gg_dir );
-    fs::path thunk_path = fs::canonical( thunk_filename );
+    roost::path gg_path = roost::canonical( gg_dir );
+    roost::path thunk_path = roost::canonical( thunk_filename );
 
     ThunkReader thunk_reader { thunk_path.string() };
     Thunk thunk = thunk_reader.read_thunk();

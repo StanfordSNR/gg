@@ -43,6 +43,11 @@ namespace roost {
     return boost::filesystem::absolute( pathn.boost_path() );
   }
 
+  path canonical( const path & pathn )
+  {
+    return boost::filesystem::canonical( pathn.boost_path() );
+  }
+  
   void copy_file( const path & src, const path & dst )
   {
     return boost::filesystem::copy_file( src.boost_path(),
