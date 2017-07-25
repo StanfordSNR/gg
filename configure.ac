@@ -27,13 +27,7 @@ AC_SUBST(EXTRA_CXXFLAGS)
 PKG_CHECK_MODULES([CRYPTO],[libcrypto])
 PKG_CHECK_MODULES([PROTOBUF], [protobuf])
 
-<<<<<<< HEAD
 AX_BOOST_BASE([1.54.0])
-=======
-AX_BOOST_BASE([1.62.0])
-AX_BOOST_SYSTEM
-AX_BOOST_FILESYSTEM
->>>>>>> 5337ca5... configure.ac: bump up required boost version to 1.62.0.
 
 # Protobuf compiler
 AC_PATH_PROG([PROTOC], [protoc], [])

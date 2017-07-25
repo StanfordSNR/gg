@@ -69,12 +69,12 @@ def get_gcc_envars():
                 if os.path.exists(p):
                     rpath += [os.path.abspath(p)]
 
-            res["LIBRARY_PATH"] = "LIBRARY_PATH=" + ":".join(rpath)
+            res["LIBRARY_PATH"] = rpath
 
     return res
 
 c_include_path = get_include_path()
-c_library_path = get_library_path()
+ld_search_path = get_library_path()
 gcc_envars = get_gcc_envars()
 
 hh_file = open( "toolchain.hh", "w" );
@@ -97,8 +97,8 @@ print_hh('#define TOOLCHAIN_PATH "{}"'.format(BINDIR))
 print_hh()
 print_hh("const std::string & program_hash( const std::string & name );")
 print_hh("extern const std::vector<std::string> c_include_path;")
-print_hh("extern const std::vector<std::string> c_library_path;")
-print_hh("extern const std::string gcc_library_path_envar;")
+print_hh("extern const std::vector<std::string> ld_search_path;")
+print_hh("extern const std::vector<std::string> gcc_library_path;")
 print_hh();
 print_hh("#endif /* TOOLCHAIN_HH */")
 
@@ -128,11 +128,14 @@ for path in c_include_path:
     print_cc('  "{}",'.format(path))
 print_cc("};\n")
 
-print_cc("const vector<string> c_library_path = {")
-for path in c_library_path:
+print_cc("const vector<string> ld_search_path = {")
+for path in ld_search_path:
     print_cc('  "{}",'.format(path))
 print_cc("};\n")
 
-print_cc('const std::string gcc_library_path_envar = "{}";\n'.format(gcc_envars.get("LIBRARY_PATH")))
+print_cc('const vector<string> gcc_library_path = {')
+for path in gcc_envars.get('LIBRARY_PATH', []):
+    print_cc('  "{}",'.format(path))
+print_cc("};\n")
 
 cc_file.close()

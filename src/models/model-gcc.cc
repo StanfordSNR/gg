@@ -9,6 +9,7 @@
 #include <memory>
 #include <cstdio>
 #include <fstream>
+#include <sstream>
 #include <boost/tokenizer.hpp>
 #include <getopt.h>
 #include <libgen.h>
@@ -320,11 +321,10 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
 
 Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
                            const vector<string> & link_args,
+                           const vector<string> & envars,
                            const vector<string> & dependencies,
                            const string & output )
 {
-  vector<string> args { link_args.begin(), link_args.end() };
-
   vector<InFile> infiles;
   infiles.emplace_back( program_infiles.at( GCC ) );
   infiles.emplace_back( program_infiles.at( COLLECT2 ) );
@@ -341,27 +341,18 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
     infiles.emplace_back( roost::path( dep ).lexically_normal().string() );
   }
 
-  for ( const string & dir : c_library_path ) {
+  for ( const string & dir : gcc_library_path ) {
     infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
   }
 
-  infiles.emplace_back( "/__gg__/bin/.", InFile::Type::DUMMY_DIRECTORY );
+  for ( const string & dir : ld_search_path ) {
+    infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+  }
+
+  infiles.emplace_back( "/usr/bin/.", InFile::Type::DUMMY_DIRECTORY );
   infiles.emplace_back( "/usr/lib/gcc/.", InFile::Type::DUMMY_DIRECTORY );
 
-  vector<string> all_args;
-  all_args.reserve( c_library_path.size() + args.size() );
-  //all_args.push_back( "-specs=/__gg__/gcc-specs" );
-  for ( const auto & p : c_library_path ) {
-    all_args.push_back( "-Wl,-rpath-link," + p );
-  }
-
-  for ( const auto & p : c_library_path ) {
-    all_args.push_back( "-L" + p );
-  }
-
-  all_args.insert( all_args.end(), args.begin(), args.end() );
-
-  return { output, gcc_function( all_args, {} ), infiles };
+  return { output, gcc_function( link_args, envars ), infiles };
 }
 
 int main( int argc, char * argv[] )
@@ -554,8 +545,21 @@ int main( int argc, char * argv[] )
 
     vector<string> dependencies = get_link_dependencies( link_inputs, args );
 
-    Thunk thunk = generate_link_thunk( link_inputs, link_args, dependencies,
-                                       last_stage_output_filename );
+    ostringstream libray_path_envar_ss { "LIBRARY_PATH=" };
+
+    bool first = true;
+    for ( auto const & path : gcc_library_path ) {
+      if ( not first ) {
+        libray_path_envar_ss << ":";
+      }
+
+      libray_path_envar_ss << path;
+      first = false;
+    }
+
+    envars.push_back( libray_path_envar_ss.str() );
+    Thunk thunk = generate_link_thunk( link_inputs, link_args, envars,
+                                       dependencies, last_stage_output_filename );
     thunk.store( gg_dir );
   }
 
