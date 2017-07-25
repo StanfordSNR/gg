@@ -11,13 +11,9 @@ namespace roost {
     : path_( pathn )
   {}
 
-  path::path( const boost::filesystem::path & boost_path_ ) /* XXX */
-    : path_( boost_path_.string() )
-  {}
-
   path path::lexically_normal() const
   {
-    return boost_path().lexically_normal();
+    return boost_path().lexically_normal().string();
   }
 
   const string & path::string() const
@@ -42,12 +38,12 @@ namespace roost {
 
   path absolute( const path & pathn )
   {
-    return boost::filesystem::absolute( pathn.boost_path() );
+    return boost::filesystem::absolute( pathn.boost_path() ).string();
   }
 
   path canonical( const path & pathn )
   {
-    return boost::filesystem::canonical( pathn.boost_path() );
+    return boost::filesystem::canonical( pathn.boost_path() ).string();
   }
   
   void copy_file( const path & src, const path & dst )
@@ -59,7 +55,7 @@ namespace roost {
 
   path operator/( const path & prefix, const path & suffix )
   {
-    return prefix.boost_path() / suffix.boost_path();
+    return (prefix.boost_path() / suffix.boost_path()).string();
   }
 
   void create_directories( const path & pathn )
