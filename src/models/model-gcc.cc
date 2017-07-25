@@ -9,7 +9,6 @@
 #include <memory>
 #include <cstdio>
 #include <fstream>
-#include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
 #include <getopt.h>
 #include <libgen.h>
@@ -28,8 +27,6 @@ using namespace std;
 using namespace boost;
 using namespace gg::thunk;
 
-namespace fs = boost::filesystem;
-
 /* TODO read this information from a config file */
 static const string GCC = "gcc";
 static const string AS  = "as";
@@ -37,7 +34,7 @@ static const string CC1 = "cc1";
 static const string COLLECT2 = "collect2";
 static const string LD = "ld";
 static const string GCC_BIN_PREFIX = "/__gg__/bin/";
-static const fs::path toolchain_path { TOOLCHAIN_PATH };
+static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
 static auto gcc_function =
   []( const vector<string> & args ) -> Function
@@ -341,16 +338,7 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
   }
 
   for ( const string & dep : dependencies ) {
-    fs::path dep_path;
-
-    if ( dep.substr( 0, 2 ) == "//" ) {
-        dep_path = dep.substr( 1 );
-    }
-    else {
-      dep_path = dep;
-    }
-
-    infiles.emplace_back( dep_path.lexically_normal().string() );
+    infiles.emplace_back( roost::path( dep ).lexically_normal().string() );
   }
 
   for ( const string & dir : c_library_path ) {
@@ -378,7 +366,7 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
 
 int main( int argc, char * argv[] )
 {
-  fs::path gg_dir = gg::models::create_gg_dir();
+  roost::path gg_dir = gg::models::create_gg_dir();
 
   Language current_langauge = Language::NONE; /* -x arugment */
   Optional<GCCStage> last_stage;
@@ -564,16 +552,6 @@ int main( int argc, char * argv[] )
     }
 
     vector<string> dependencies = get_link_dependencies( link_inputs, args );
-
-    /* cerr << "* linkdeps:" << endl;
-    for ( const auto & dep : dependencies ) {
-      fs::path dep_path { dep };
-      cerr << dep_path.lexically_normal().string() << " ";
-      if ( fs::is_symlink( dep ) ) {
-        cerr << "(symlink => " << fs::canonical( dep_path ) << ")";
-      }
-      cerr << endl;
-    } */
 
     link_args.push_back( "-B/usr/lib/gcc" );
 

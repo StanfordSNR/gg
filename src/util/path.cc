@@ -1,5 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include <stdexcept>
 #include "path.hh"
 
 using namespace std;
@@ -58,5 +59,17 @@ namespace roost {
   path operator/( const path & prefix, const path & suffix )
   {
     return prefix.boost_path() / suffix.boost_path();
+  }
+
+  void create_directories( const path & pathn )
+  {
+    if ( not boost::filesystem::create_directories( pathn.boost_path() ) ) {
+      throw runtime_error( "could not create directory: " + pathn.string() );
+    }
+  }
+
+  bool is_directory( const path & pathn )
+  {
+    return boost::filesystem::is_directory( pathn.boost_path() );
   }
 }

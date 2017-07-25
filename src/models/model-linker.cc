@@ -9,21 +9,18 @@
 #include <array>
 #include <regex>
 #include <unordered_set>
-#include <boost/filesystem.hpp>
 
 using namespace std;
-
-namespace fs = boost::filesystem;
 
 string search_for_library( const string & name )
 {
   string expected_filename = "lib" + name + ".so";
 
   for ( const string & sdir_str : c_library_path ) {
-    fs::path search_path { sdir_str };
-    fs::path expected_path { search_path / expected_filename };
+    roost::path search_path { sdir_str };
+    roost::path expected_path { search_path / expected_filename };
 
-    if ( fs::exists( expected_path ) ) {
+    if ( roost::exists( expected_path ) ) {
       return expected_path.string();
     }
   }

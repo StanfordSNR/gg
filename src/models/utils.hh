@@ -3,31 +3,22 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
-#include <boost/filesystem.hpp>
 
+#include "path.hh"
 
 namespace gg {
   namespace models {
-    boost::filesystem::path create_gg_dir()
+    roost::path create_gg_dir()
     {
-      char * envar = getenv( "GG_DIR" );
-      boost::filesystem::path gg_path;
-
-      if ( envar == NULL ) {
-        gg_path  = ".gg";
-      }
-      else {
-        gg_path = envar;
-      }
+      const char * envar = getenv( "GG_DIR" );
+      roost::path gg_path { envar ? std::string( envar ) : std::string( ".gg" ) };
 
       /* create the gg directory, if it doesn't exist */
-      if ( not boost::filesystem::create_directories( gg_path ) ) {
-        if ( not boost::filesystem::is_directory( gg_path ) ) {
-          throw std::runtime_error( "cannot create gg dir" );
-        }
+      if ( not roost::is_directory( gg_path ) ) {
+        roost::create_directories( gg_path );
       }
 
-      return boost::filesystem::absolute( gg_path );
+      return roost::absolute( gg_path );
     }
 
     std::vector<std::string> args_to_vector( int argc, char ** argv )

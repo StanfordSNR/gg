@@ -3,19 +3,18 @@
 #include <string>
 #include <cstring>
 #include <getopt.h>
-#include <boost/filesystem.hpp>
 
 #include "thunk.hh"
 #include "utils.hh"
+#include "path.hh"
 
 #include "toolchain.hh"
 
 using namespace std;
 using namespace gg::thunk;
-namespace fs = boost::filesystem;
 
 static const string AR = "ar";
-static const fs::path toolchain_path { TOOLCHAIN_PATH };
+static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
 /* this function is based on ar source code */
 Thunk generate_thunk( int argc, char * argv[] )
@@ -125,7 +124,7 @@ Thunk generate_thunk( int argc, char * argv[] )
 
 int main( int argc, char * argv[] )
 {
-  fs::path gg_dir = gg::models::create_gg_dir();
+  roost::path gg_dir = gg::models::create_gg_dir();
 
   Thunk thunk = generate_thunk( argc, argv );
   thunk.store( gg_dir );
