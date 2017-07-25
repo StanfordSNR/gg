@@ -7,10 +7,7 @@
 #include <functional>
 #include <sys/types.h>
 
-#define BOOST_NO_CXX11_SCOPED_ENUMS
-#include <boost/filesystem.hpp>
-#undef BOOST_NO_CXX11_SCOPED_ENUMS
-
+#include "path.hh"
 #include "gg.pb.h"
 
 namespace gg {
@@ -120,8 +117,8 @@ namespace gg {
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
-      int execute( const boost::filesystem::path & root_dir,
-                   const boost::filesystem::path & thunk_path ) const;
+      int execute( const roost::path & root_dir,
+                   const roost::path & thunk_path ) const;
 
       std::string outfile() const { return outfile_; }
       Function function() const { return function_; }
@@ -130,12 +127,12 @@ namespace gg {
 
       gg::protobuf::Thunk to_protobuf() const;
 
-      void collect_infiles( const boost::filesystem::path & gg_dir ) const;
+      void collect_infiles( const roost::path & gg_dir ) const;
 
       /* this function will collect all of the infiles in .gg directory, and
          will store two copies for the thunk, both in the working directory
          and .gg directory. */
-      void store( const boost::filesystem::path & gg_dir ) const;
+      void store( const roost::path & gg_dir ) const;
 
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }

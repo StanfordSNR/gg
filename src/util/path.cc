@@ -3,44 +3,55 @@
 #include "path.hh"
 
 using namespace std;
-using namespace roost;
 
-Path::Path( const std::string & path )
-  : path_( path )
-{}
+namespace roost {
+  path::path( const std::string & pathn )
+    : path_( pathn )
+  {}
 
-Path::Path( const boost::filesystem::path & boost_path_ )
-  : path_( boost_path_ )
-{}
+  path::path( const boost::filesystem::path & boost_path_ ) /* XXX */
+    : path_( boost_path_ )
+  {}
 
-Path Path::lexically_normal() const
-{
-  return path_.lexically_normal();
-}
+  path path::lexically_normal() const
+  {
+    return path_.lexically_normal();
+  }
 
-const string & Path::string() const
-{
-  return path_.string();
-}
+  const string & path::string() const
+  {
+    return path_.string();
+  }
 
-bool exists( const Path & path )
-{
-  return boost::filesystem::exists( path.boost_path() );
-}
+  const boost::filesystem::path & path::boost_path() const /* XXX */
+  {
+    return path_;
+  }
+  
+  bool exists( const path & pathn )
+  {
+    return boost::filesystem::exists( pathn.boost_path() );
+  }
 
-size_t file_size( const Path & path )
-{
-  return boost::filesystem::file_size( path.boost_path() );
-}
+  size_t file_size( const path & pathn )
+  {
+    return boost::filesystem::file_size( pathn.boost_path() );
+  }
 
-Path absolute( const Path & path )
-{
-  return boost::filesystem::absolute( path.boost_path() );
-}
+  path absolute( const path & pathn )
+  {
+    return boost::filesystem::absolute( pathn.boost_path() );
+  }
 
-void copy_file( const Path & src, const Path & dst )
-{
-  return boost::filesystem::copy_file( src.boost_path(),
-				       dst.boost_path(),
-				       boost::filesystem::copy_option::overwrite_if_exists );
+  void copy_file( const path & src, const path & dst )
+  {
+    return boost::filesystem::copy_file( src.boost_path(),
+					 dst.boost_path(),
+					 boost::filesystem::copy_option::overwrite_if_exists );
+  }
+
+  path operator/( const path & prefix, const path & suffix )
+  {
+    return prefix.boost_path() / suffix.boost_path();
+  }
 }

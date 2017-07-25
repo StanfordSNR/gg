@@ -13,8 +13,6 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
-namespace fs = boost::filesystem;
-
 Thunk::Thunk( const string & outfile, const Function & function,
               const vector<InFile> & infiles )
   : outfile_( outfile ), function_( function ), infiles_( infiles ),
@@ -32,7 +30,7 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   order_ = compute_order();
 }
 
-int Thunk::execute( const fs::path & root_dir, const fs::path & thunk_path ) const
+int Thunk::execute( const roost::path & root_dir, const roost::path & thunk_path ) const
 {
   if ( order_ != 1 ) {
     throw runtime_error( "cannot execute thunk with order != 1" );
@@ -87,17 +85,17 @@ protobuf::Thunk Thunk::to_protobuf() const
   return thunk;
 }
 
-void put_file( const fs::path & src, const fs::path & dst )
+void put_file( const roost::path & src, const roost::path & dst )
 {
-  if ( fs::exists( dst ) ) {
+  if ( roost::exists( dst ) ) {
     /* XXX we might want to implement strict checks, like hash check */
     return;
   }
 
-  fs::copy_file( src, dst );
+  roost::copy_file( src, dst );
 }
 
-void Thunk::collect_infiles( const fs::path & gg_dir ) const
+void Thunk::collect_infiles( const roost::path & gg_dir ) const
 {
   for ( InFile infile : infiles_ ) {
     if ( infile.hash().length() == 0 ) {
@@ -105,19 +103,19 @@ void Thunk::collect_infiles( const fs::path & gg_dir ) const
       continue;
     }
 
-    fs::path source_path = infile.real_filename();
-    fs::path target_path = gg_dir / infile.hash();
+    roost::path source_path = infile.real_filename();
+    roost::path target_path = gg_dir / infile.hash();
     put_file( source_path, target_path );
   }
 }
 
-void Thunk::store( const fs::path & gg_dir ) const
+void Thunk::store( const roost::path & gg_dir ) const
 {
   collect_infiles( gg_dir );
 
   ThunkWriter::write_thunk( *this );
   string thunk_hash = InFile::compute_hash( outfile() );
-  fs::copy_file( outfile(), gg_dir / thunk_hash, fs::copy_option::overwrite_if_exists );
+  roost::copy_file( outfile(), gg_dir / thunk_hash );
 }
 
 bool Thunk::operator==( const Thunk & other ) const

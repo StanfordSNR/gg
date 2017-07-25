@@ -4,28 +4,32 @@
 #define PATH_HH
 
 #include <string>
+
+#define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
+#undef BOOST_NO_CXX11_SCOPED_ENUMS
 
 namespace roost {
-  class Path
+  class path
   {
   private:
     boost::filesystem::path path_;
 
   public:
-    Path( const std::string & path );
+    path( const std::string & pathn );
     
-    Path lexically_normal() const;
+    path lexically_normal() const;
     const std::string & string() const;
 
-    Path( const boost::filesystem::path & boost_path_ ); /* XXX */
+    path( const boost::filesystem::path & boost_path_ ); /* XXX */
     const boost::filesystem::path & boost_path() const; /* XXX */
   };
 
-  bool exists( const Path & Path );
-  size_t file_size( const Path & path );
-  Path absolute( const Path & path );
-  void copy_file( const Path & src, const Path & dest );
+  bool exists( const path & pathn );
+  size_t file_size( const path & pathn );
+  path absolute( const path & pathn );
+  void copy_file( const path & src, const path & dest );
+  path operator/( const path & prefix, const path & suffix );
 }
 
 #endif /* PATH_HH */
