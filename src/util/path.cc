@@ -1,6 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <stdexcept>
+
 #include "path.hh"
 
 using namespace std;
@@ -11,22 +12,22 @@ namespace roost {
   {}
 
   path::path( const boost::filesystem::path & boost_path_ ) /* XXX */
-    : path_( boost_path_ )
+    : path_( boost_path_.string() )
   {}
 
   path path::lexically_normal() const
   {
-    return path_.lexically_normal();
+    return boost_path().lexically_normal();
   }
 
   const string & path::string() const
   {
-    return path_.string();
+    return path_;
   }
 
-  const boost::filesystem::path & path::boost_path() const /* XXX */
+  boost::filesystem::path path::boost_path() const /* XXX */
   {
-    return path_;
+    return boost::filesystem::path( path_ );
   }
   
   bool exists( const path & pathn )

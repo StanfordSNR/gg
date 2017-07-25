@@ -13,7 +13,7 @@ namespace roost {
   class path
   {
   private:
-    boost::filesystem::path path_;
+    std::string path_;
 
   public:
     path( const std::string & pathn );
@@ -22,7 +22,7 @@ namespace roost {
     const std::string & string() const;
 
     path( const boost::filesystem::path & boost_path_ ); /* XXX */
-    const boost::filesystem::path & boost_path() const; /* XXX */
+    boost::filesystem::path boost_path() const; /* XXX */
   };
 
   bool exists( const path & pathn );
