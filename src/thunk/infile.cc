@@ -5,18 +5,16 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <boost/filesystem.hpp>
 
 #include "optional.hh"
 #include "thunk.hh"
 #include "thunk_reader.hh"
 #include "digest.hh"
+#include "path.hh"
 
 using namespace std;
 using namespace gg;
 using namespace gg::thunk;
-
-namespace fs = boost::filesystem;
 
 InFile::Type type_from_protobuf( const int protobuf_type )
 {
@@ -116,7 +114,7 @@ string InFile::compute_hash( const string & filename )
 
 off_t InFile::compute_size( const string & filename )
 {
-  return fs::file_size( filename );
+  return roost::file_size( filename );
 }
 
 protobuf::InFile InFile::to_protobuf() const
