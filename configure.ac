@@ -29,7 +29,6 @@ PKG_CHECK_MODULES([PROTOBUF], [protobuf])
 
 AX_BOOST_BASE([1.54.0])
 AX_BOOST_SYSTEM
-AX_BOOST_FILESYSTEM
 
 # Protobuf compiler
 AC_PATH_PROG([PROTOC], [protoc], [])
