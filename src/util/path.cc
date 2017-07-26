@@ -41,7 +41,7 @@ namespace roost {
 
     int num() const { return fd_; }
   };
-  
+
   path::path( const std::string & pathn )
     : path_( pathn )
   {}
@@ -85,7 +85,7 @@ namespace roost {
 
     return string( canonical_file_name );
   }
-  
+
   void copy_file( const path & src, const path & dst )
   {
     FileDescriptor src_file { CheckSystemCall( "open (" + src.string() + ")",
@@ -106,7 +106,13 @@ namespace roost {
 
   path operator/( const path & prefix, const path & suffix )
   {
-    return prefix.string() + "/" + suffix.string();
+    if ( ( not prefix.string().empty() and prefix.string().back() == '/' ) or
+         ( not suffix.string().empty() and suffix.string().front() == '/') ) {
+      return prefix.string() + suffix.string();
+    }
+    else {
+      return prefix.string() + "/" + suffix.string();
+    }
   }
 
   void create_directories_relative( const Directory & parent_directory,
@@ -121,7 +127,7 @@ namespace roost {
     if ( begin->empty() ) {
       return create_directories_relative( parent_directory, begin + 1, end );
     }
-    
+
     try {
       CheckSystemCall( "mkdirat (" + *begin + ")",
 		       mkdirat( parent_directory.num(),
@@ -148,10 +154,10 @@ namespace roost {
     if ( components.front().empty() ) {
       components.front() = "/";
     }
-    
+
     create_directories_relative( Directory( "." ), components.begin(), components.end() );
   }
-  
+
   bool is_directory( const path & pathn )
   {
     struct stat file_info;
