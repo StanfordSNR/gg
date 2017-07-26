@@ -20,8 +20,6 @@ namespace roost {
     
     path lexically_normal() const;
     const std::string & string() const;
-
-    boost::filesystem::path boost_path() const; /* XXX */
   };
 
   bool exists( const path & pathn );
