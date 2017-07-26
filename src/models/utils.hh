@@ -13,8 +13,11 @@ namespace gg {
       const char * envar = getenv( "GG_DIR" );
       roost::path gg_path { envar ? std::string( envar ) : std::string( ".gg" ) };
 
-      /* create the gg directory, if it doesn't exist */
-      if ( not roost::is_directory( gg_path ) ) {
+      if ( roost::exists( gg_path ) ) {
+        if ( not roost::is_directory( gg_path ) ) {
+          throw std::runtime_error( gg_path.string() + " is not a directory" );
+        }
+      } else { /* does not exist */
         roost::create_directories( gg_path );
       }
 

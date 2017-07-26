@@ -75,6 +75,9 @@ namespace roost {
 
   bool is_directory( const path & pathn )
   {
-    return boost::filesystem::is_directory( pathn.string() );
+    struct stat file_info;
+    CheckSystemCall( "stat " + pathn.string(),
+		     stat( pathn.string().c_str(), &file_info ) );
+    return S_ISDIR( file_info.st_mode );
   }
 }
