@@ -1,9 +1,12 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <stdexcept>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "path.hh"
+#include "exception.hh"
 
 using namespace std;
 
@@ -27,9 +30,18 @@ namespace roost {
     return not access( pathn.string().c_str(), F_OK );
   }
 
+  /* XXX need to be careful about race conditions if file size
+     changes between when this is called, and later copy */
+
+  /* maybe could have a thunk sanity check at the end, making sure
+     all sizes match the objects in the gg directory? */
+
   size_t file_size( const path & pathn )
   {
-    return boost::filesystem::file_size( pathn.string() );
+    struct stat file_info;
+    CheckSystemCall( "stat " + pathn.string(),
+		     stat( pathn.string().c_str(), &file_info ) );
+    return file_info.st_size;
   }
 
   path absolute( const path & pathn )
