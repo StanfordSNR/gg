@@ -10,6 +10,7 @@
 #include "path.hh"
 #include "exception.hh"
 #include "tokenize.hh"
+#include "file_descriptor.hh"
 
 #define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
@@ -89,9 +90,20 @@ namespace roost {
   
   void copy_file( const path & src, const path & dst )
   {
-    return boost::filesystem::copy_file( src.string(),
-					 dst.string(),
-					 boost::filesystem::copy_option::overwrite_if_exists );
+    FileDescriptor src_file { CheckSystemCall( "open (" + src.string() + ")",
+					       open( src.string().c_str(), O_RDONLY | O_CLOEXEC ) ) };
+    struct stat src_info;
+    CheckSystemCall( "fstat", fstat( src_file.fd_num(), &src_info ) );
+
+    if ( not S_ISREG( src_info.st_mode ) ) {
+      throw runtime_error( src.string() + " is not a regular file" );
+    }
+
+    FileDescriptor dst_file { CheckSystemCall( "open (" + dst.string() + ")",
+					       open( dst.string().c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
+						     src_info.st_mode ) ) };
+
+    dst_file.write( src_file.read_exactly( src_info.st_size ) );
   }
 
   path operator/( const path & prefix, const path & suffix )
