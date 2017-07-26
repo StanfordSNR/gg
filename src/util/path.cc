@@ -7,6 +7,9 @@
 #include <fcntl.h>
 #include <deque>
 #include <climits>
+#include <vector>
+#include <string>
+#include <sstream>
 
 #include "path.hh"
 #include "exception.hh"
@@ -48,7 +51,43 @@ namespace roost {
 
   path path::lexically_normal() const
   {
-    throw runtime_error( "unimplemented" );
+    vector<std::string> components_vector = path_components();
+    vector<std::string> normalized;
+
+    if ( components_vector.empty() ) {
+      return std::string();
+    }
+
+    if ( components_vector.at( 0 ).empty() ) {
+      normalized.push_back( "" );
+    }
+
+    for ( const std::string & component : components_vector ) {
+      if ( component == ".." ) {
+        if ( normalized.size() == 0 or normalized.back() == ".." ) {
+          normalized.push_back( component );
+        }
+        else if ( !normalized.back().empty() ) {
+          normalized.pop_back();
+        }
+      }
+      else if ( component != "." and not component.empty() ) {
+        normalized.push_back( component );
+      }
+    }
+
+    ostringstream path_oss;
+    for ( const std::string & component : normalized ) {
+      path_oss << component << "/";
+    }
+
+    std::string p = path_oss.str();
+
+    if ( p.length() > 1 and p.back() == '/' ) {
+      p.erase( p.length() - 1 );
+    }
+
+    return p;
   }
 
   const string & path::string() const
