@@ -8,8 +8,7 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         ../sandbox/libggsandbox.a \
         ../thunk/libthunk.a \
         ../protobufs/libggprotobufs.a ../util/libggutil.a \
-        $(PROTOBUF_LIBS) $(CRYPTO_LIBS) \
-        $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
+        $(PROTOBUF_LIBS) $(CRYPTO_LIBS)
 
 AM_TESTS_ENVIRONMENT = \
   export abs_builddir=$(abs_builddir); \

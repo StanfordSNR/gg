@@ -8,8 +8,7 @@ BASE_LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
              ../sandbox/libggsandbox.a \
              ../thunk/libthunk.a \
              ../protobufs/libggprotobufs.a ../util/libggutil.a \
-             $(PROTOBUF_LIBS) \
-             $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
+             $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-execute gg-mock
 

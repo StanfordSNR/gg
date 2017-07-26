@@ -10,8 +10,7 @@ BUILT_SOURCES = toolchain.hh toolchain.cc
 BASE_LDADD = ../thunk/libthunk.a \
              ../protobufs/libggprotobufs.a \
              ../util/libggutil.a \
-             $(CRYPTO_LIBS) $(PROTOBUF_LIBS) \
-             $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
+             $(CRYPTO_LIBS) $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = model-gcc model-ar model-ranlib
 
