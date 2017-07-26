@@ -6,15 +6,12 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <deque>
+#include <climits>
 
 #include "path.hh"
 #include "exception.hh"
 #include "tokenize.hh"
 #include "file_descriptor.hh"
-
-#define BOOST_NO_CXX11_SCOPED_ENUMS
-#include <boost/filesystem.hpp>
-#undef BOOST_NO_CXX11_SCOPED_ENUMS
 
 using namespace std;
 
@@ -80,7 +77,13 @@ namespace roost {
 
   path canonical( const path & pathn )
   {
-    return boost::filesystem::canonical( pathn.string() ).string();
+    char canonical_file_name[ PATH_MAX ];
+
+    if ( nullptr == realpath( pathn.string().c_str(), canonical_file_name ) ) {
+      throw unix_error( "realpath", errno );
+    }
+
+    return string( canonical_file_name );
   }
   
   void copy_file( const path & src, const path & dst )
