@@ -4,6 +4,7 @@
 #define PATH_HH
 
 #include <string>
+#include <vector>
 
 namespace roost {
   class path
@@ -16,6 +17,7 @@ namespace roost {
     
     path lexically_normal() const;
     const std::string & string() const;
+    std::vector<std::string> path_components() const;
   };
 
   bool exists( const path & pathn );

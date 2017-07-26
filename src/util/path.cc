@@ -4,9 +4,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <deque>
 
 #include "path.hh"
 #include "exception.hh"
+#include "tokenize.hh"
 
 #define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
@@ -15,6 +18,32 @@
 using namespace std;
 
 namespace roost {
+  class Directory
+  {
+  private:
+    int fd_;
+
+  public:
+    Directory( const string & path )
+      : fd_( CheckSystemCall( "open directory (" + path + ")",
+			      open( path.c_str(), O_DIRECTORY | O_PATH | O_CLOEXEC ) ) )
+    {}
+
+    Directory( const Directory & parent, const string & path )
+      : fd_( CheckSystemCall( "openat directory (" + path + ")",
+			      openat( parent.num(), path.c_str(), O_DIRECTORY | O_PATH | O_CLOEXEC ) ) )
+    {}
+
+    ~Directory()
+    {
+      try {
+	CheckSystemCall( "close", close( fd_ ) );
+      } catch ( const exception & e ) {}
+    }
+
+    int num() const { return fd_; }
+  };
+  
   path::path( const std::string & pathn )
     : path_( pathn )
   {}
@@ -70,18 +99,59 @@ namespace roost {
     return prefix.string() + "/" + suffix.string();
   }
 
-  void create_directories( const path & pathn )
+  void create_directories_relative( const Directory & parent_directory,
+				    const vector<string>::const_iterator & begin,
+				    const vector<string>::const_iterator & end )
   {
-    if ( not boost::filesystem::create_directories( pathn.string() ) ) {
-      throw runtime_error( "could not create directory: " + pathn.string() );
+    if ( begin == end ) {
+      return;
     }
+
+    /* empty path component -> skip */
+    if ( begin->empty() ) {
+      return create_directories_relative( parent_directory, begin + 1, end );
+    }
+    
+    try {
+      CheckSystemCall( "mkdirat (" + *begin + ")",
+		       mkdirat( parent_directory.num(),
+				begin->c_str(),
+				S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) );
+    } catch ( const unix_error & e ) {
+      if ( e.saved_errno() == EEXIST ) {
+	/* okay */
+      } else {
+	throw;
+      }
+    }
+
+    create_directories_relative( Directory( parent_directory, *begin ), begin + 1, end );
   }
 
+  void create_directories( const path & pathn )
+  {
+    vector<string> components = pathn.path_components();
+    if ( components.empty() ) {
+      return;
+    }
+
+    if ( components.front().empty() ) {
+      components.front() = "/";
+    }
+    
+    create_directories_relative( Directory( "." ), components.begin(), components.end() );
+  }
+  
   bool is_directory( const path & pathn )
   {
     struct stat file_info;
     CheckSystemCall( "stat " + pathn.string(),
 		     stat( pathn.string().c_str(), &file_info ) );
     return S_ISDIR( file_info.st_mode );
+  }
+
+  vector<string> path::path_components() const
+  {
+    return split( path_, "/" );
   }
 }

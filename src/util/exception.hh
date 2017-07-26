@@ -26,11 +26,17 @@ public:
 
 class unix_error : public tagged_error
 {
+private:
+  int errno_;
+
 public:
   unix_error ( const std::string & s_attempt,
                const int s_errno = errno )
-    : tagged_error( std::system_category(), s_attempt, s_errno )
+    : tagged_error( std::system_category(), s_attempt, s_errno ),
+      errno_( s_errno )
   {}
+
+  int saved_errno() const { return errno_; }
 };
 
 inline void print_exception( const char * argv0, const std::exception & e )
