@@ -1,6 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <stdexcept>
+#include <unistd.h>
 
 #include "path.hh"
 
@@ -23,7 +24,7 @@ namespace roost {
 
   bool exists( const path & pathn )
   {
-    return boost::filesystem::exists( pathn.string() );
+    return not access( pathn.string().c_str(), F_OK );
   }
 
   size_t file_size( const path & pathn )
