@@ -20,13 +20,14 @@ AM_TESTS_ENVIRONMENT = \
 EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s \
              test_vectors/libnet.a
 
-check_PROGRAMS = thunk-roundtrip sandbox-test
+check_PROGRAMS = thunk-roundtrip sandbox-test path-test
 dist_check_SCRIPTS = model-preprocess.test model-compile.test \
                      model-assemble.test model-link.test model-ar.test \
                      model-ranlib.test cleanup.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
+path_test_SOURCES = path-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 XFAIL_TESTS = model-link.test
