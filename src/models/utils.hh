@@ -21,7 +21,7 @@ namespace gg {
         roost::create_directories( gg_path );
       }
 
-      return roost::absolute( gg_path );
+      return roost::canonical( gg_path );
     }
 
     std::vector<std::string> args_to_vector( int argc, char ** argv )

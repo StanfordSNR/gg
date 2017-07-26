@@ -51,7 +51,7 @@ namespace roost {
 
   path path::lexically_normal() const
   {
-    throw runtime_error( "unimplimented" );
+    throw runtime_error( "unimplemented" );
   }
 
   const string & path::string() const
@@ -76,11 +76,6 @@ namespace roost {
     CheckSystemCall( "stat " + pathn.string(),
 		     stat( pathn.string().c_str(), &file_info ) );
     return file_info.st_size;
-  }
-
-  path absolute( const path & pathn )
-  {
-    return boost::filesystem::absolute( pathn.string() ).string();
   }
 
   path canonical( const path & pathn )
