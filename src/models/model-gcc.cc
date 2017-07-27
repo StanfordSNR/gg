@@ -341,8 +341,12 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
     infiles.emplace_back( roost::path( dep ).lexically_normal().string() );
   }
 
+  vector<string> args;
+  args.reserve( link_args.size() + gcc_library_path.size() );
+
   for ( const string & dir : gcc_library_path ) {
     infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+    args.push_back( "-L" + dir );
   }
 
   for ( const string & dir : ld_search_path ) {
@@ -352,7 +356,9 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
   infiles.emplace_back( "/usr/bin", InFile::Type::DUMMY_DIRECTORY );
   infiles.emplace_back( "/usr/lib/gcc", InFile::Type::DUMMY_DIRECTORY );
 
-  return { output, gcc_function( link_args, envars ), infiles };
+  args.insert( args.end(), link_args.begin(), link_args.end() );
+
+  return { output, gcc_function( args, envars ), infiles };
 }
 
 int main( int argc, char * argv[] )
@@ -545,7 +551,11 @@ int main( int argc, char * argv[] )
 
     vector<string> dependencies = get_link_dependencies( link_inputs, args );
 
-    ostringstream libray_path_envar_ss;
+    /* NOTE gg-gcc is NOT a native compiler, it is a cross compiler, so
+       this doesn't work, because GCC looks for this environment variable
+       only when it is configured as a NATIVE compiler. We will use -L
+       flag to pass library search path. *sigh* */
+    /* ostringstream libray_path_envar_ss;
     libray_path_envar_ss << "LIBRARY_PATH=";
 
     bool first = true;
@@ -558,10 +568,10 @@ int main( int argc, char * argv[] )
       first = false;
     }
 
-    envars.push_back( libray_path_envar_ss.str() );
+    envars.push_back( libray_path_envar_ss.str() ); */
 
     link_args.push_back( "-Wl,-rpath-link,/lib/x86_64-linux-gnu" );
-    
+
     Thunk thunk = generate_link_thunk( link_inputs, link_args, envars,
                                        dependencies, last_stage_output_filename );
     thunk.store( gg_dir );
