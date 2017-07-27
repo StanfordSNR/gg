@@ -27,7 +27,12 @@ Thunk generate_thunk( int argc, char * argv[] )
   optind = 1; /* reset getopt */
   opterr = 0; /* turn off error messages */
   int opt;
-  while ( ( opt = getopt_long( argc, argv, "", long_options, NULL ) ) != -1 ) {}
+  while ( ( opt = getopt_long( argc, argv, "o:", long_options, NULL ) ) != -1 ) {
+    switch ( opt ) {
+    case 'o':
+      throw runtime_error( "-o argument not supported" );
+    }
+  }
 
   string stripf = argv[ optind ];
 
