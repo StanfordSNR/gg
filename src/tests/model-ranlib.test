@@ -12,14 +12,12 @@ ${TOOLCHAIN_PATH}/ranlib ${OUTPUT}.gold
 
 cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
 GG_DIR=.gg/ model-ranlib ${OUTPUT}
-mv ${OUTPUT} ${OUTPUT}.thunk
 
-if [ "$MAGIC" != "`head -c 11 ${OUTPUT}.thunk`" ]; then
+if [ "$MAGIC" != "`head -c 11 ${OUTPUT}`" ]; then
   echo "Failed to create thunk"
   exit 1
 fi
 
-cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
-gg-execute -s ${OUTPUT}.thunk
+gg-execute -s ${OUTPUT}
 
 diff ${OUTPUT} ${OUTPUT}.gold
