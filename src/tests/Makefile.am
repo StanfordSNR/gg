@@ -12,11 +12,11 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
 
 AM_TESTS_ENVIRONMENT = \
   export TMPDIR_ROOT=$(abs_builddir)/test_temp; \
-  mkdir -p $$(TMPDIR_ROOT); \
+  mkdir -p $$TMPDIR_ROOT; \
   export abs_builddir=$(abs_builddir); \
 	export DATADIR=$(abs_srcdir)/test_vectors; \
   export TOOLCHAIN_PATH=$(TOOLCHAIN_PATH); \
-  export TEST_TMPDIR=`mktemp -d $$(TMPDIR_ROOT)/test.XXXXXX`;
+  export TEST_TMPDIR=`mktemp -d $$TMPDIR_ROOT/test.XXXXXX`;
 
 EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s \
              test_vectors/libnet.a test_vectors/curhello.o
