@@ -349,8 +349,8 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
     infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
   }
 
-  infiles.emplace_back( "/usr/bin/.", InFile::Type::DUMMY_DIRECTORY );
-  infiles.emplace_back( "/usr/lib/gcc/.", InFile::Type::DUMMY_DIRECTORY );
+  infiles.emplace_back( "/usr/bin", InFile::Type::DUMMY_DIRECTORY );
+  infiles.emplace_back( "/usr/lib/gcc", InFile::Type::DUMMY_DIRECTORY );
 
   return { output, gcc_function( link_args, envars ), infiles };
 }
@@ -545,7 +545,8 @@ int main( int argc, char * argv[] )
 
     vector<string> dependencies = get_link_dependencies( link_inputs, args );
 
-    ostringstream libray_path_envar_ss { "LIBRARY_PATH=" };
+    ostringstream libray_path_envar_ss;
+    libray_path_envar_ss << "LIBRARY_PATH=";
 
     bool first = true;
     for ( auto const & path : gcc_library_path ) {
@@ -558,6 +559,9 @@ int main( int argc, char * argv[] )
     }
 
     envars.push_back( libray_path_envar_ss.str() );
+
+    link_args.push_back( "-Wl,-rpath-link,/lib/x86_64-linux-gnu" );
+    
     Thunk thunk = generate_link_thunk( link_inputs, link_args, envars,
                                        dependencies, last_stage_output_filename );
     thunk.store( gg_dir );
