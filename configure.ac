@@ -7,6 +7,8 @@ AC_CONFIG_HEADERS([config.h])
 
 #m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
+AC_SUBST(ARFLAGS, [cr])
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_RANLIB
