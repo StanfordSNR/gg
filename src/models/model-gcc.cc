@@ -28,44 +28,6 @@ using namespace std;
 using namespace boost;
 using namespace gg::thunk;
 
-/* TODO read this information from a config file */
-static const string GCC = "gcc";
-static const string AS  = "as";
-static const string CC1 = "cc1";
-static const string COLLECT2 = "collect2";
-static const string LD = "ld";
-static const string GG_BIN_PREFIX = "/usr/bin/";
-static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
-
-static auto gcc_function =
-  []( const vector<string> & args, const vector<string> & envars ) -> Function
-  {
-    return { GG_BIN_PREFIX + GCC, args, envars, program_hash( GCC ) };
-  };
-
-static const unordered_map<string, InFile> program_infiles {
-  {
-    GCC,
-    { GG_BIN_PREFIX + GCC, ( toolchain_path / GCC ).string(), program_hash( GCC ), 0 }
-  },
-  {
-    CC1,
-    { GG_BIN_PREFIX + CC1, ( toolchain_path / CC1 ).string(), program_hash( CC1 ), 0 }
-  },
-  {
-    AS,
-    { GG_BIN_PREFIX + AS, ( toolchain_path / AS ).string(), program_hash( AS ), 0 }
-  },
-  {
-    COLLECT2,
-    { GG_BIN_PREFIX + COLLECT2, ( toolchain_path / COLLECT2 ).string(), program_hash( COLLECT2 ), 0 }
-  },
-  {
-    LD,
-    { GG_BIN_PREFIX + LD, ( toolchain_path / LD ).string(), program_hash( LD ), 0 }
-  },
-};
-
 void dump_gcc_specs( TempFile & target_file )
 {
   array<char, 4096> buffer;
