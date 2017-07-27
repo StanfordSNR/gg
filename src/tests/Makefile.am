@@ -11,11 +11,12 @@ LDADD = ../trace/libggtrace.a ../trace/libggsyscalltable.a \
         $(PROTOBUF_LIBS) $(CRYPTO_LIBS)
 
 AM_TESTS_ENVIRONMENT = \
+  export TMPDIR_ROOT=$(abs_builddir)/test_temp; \
+  mkdir -p $$(TMPDIR_ROOT); \
   export abs_builddir=$(abs_builddir); \
 	export DATADIR=$(abs_srcdir)/test_vectors; \
   export TOOLCHAIN_PATH=$(TOOLCHAIN_PATH); \
-  export TEST_TMPDIR=$(abs_builddir)/temp; \
-  mkdir -p $(abs_builddir)/temp;
+  export TEST_TMPDIR=`mktemp -d $$(TMPDIR_ROOT)/test.XXXXXX`;
 
 EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s \
              test_vectors/libnet.a test_vectors/curhello.o
@@ -35,4 +36,4 @@ cleanup.log: model-preprocess.log model-compile.log model-assemble.log \
              model-link.log model-ar.log model-ranlib.log
 
 clean-local:
-	-rm -rf $(abs_builddir)/tmp
+	-rm -rf $(abs_builddir)/test_temp

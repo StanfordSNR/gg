@@ -1,3 +1,3 @@
 #!/bin/bash -xe
 
-rm -rf ${TEST_TMPDIR}
+rm -rf ${TMPDIR_ROOT}
