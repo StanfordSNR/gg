@@ -30,7 +30,6 @@ sandbox_test_SOURCES = sandbox-test.cc
 path_test_SOURCES = path-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
-XFAIL_TESTS = model-link.test
 
 cleanup.log: model-preprocess.log model-compile.log model-assemble.log \
              model-link.log model-ar.log model-ranlib.log
