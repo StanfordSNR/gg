@@ -43,7 +43,7 @@ int Thunk::execute( const roost::path & root_dir, const roost::path & thunk_path
   // preparing envp
   const vector<string> & f_envars = function_.envars();
   vector<string> envars = {
-    "PATH=/__gg__/bin/.",
+    "PATH=/usr/bin/",
     "__GG_THUNK_PATH__=" + thunk_path.string(),
     "__GG_DIR__=" + root_dir.string(),
     "__GG_ENABLED__=1",
@@ -118,7 +118,11 @@ void Thunk::store( const roost::path & gg_dir ) const
 
   ThunkWriter::write_thunk( *this );
   string thunk_hash = InFile::compute_hash( outfile() );
-  roost::copy_file( outfile(), gg_dir / thunk_hash );
+  roost::path thunk_in_gg_path = gg_dir / thunk_hash;
+
+  if ( not roost::exists( thunk_in_gg_path ) ) {
+    roost::copy_file( outfile(), thunk_in_gg_path );
+  }
 }
 
 bool Thunk::operator==( const Thunk & other ) const
