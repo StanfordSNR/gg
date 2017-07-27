@@ -43,7 +43,6 @@ int Thunk::execute( const roost::path & root_dir, const roost::path & thunk_path
   // preparing envp
   const vector<string> & f_envars = function_.envars();
   vector<string> envars = {
-    "PATH=/usr/bin/",
     "__GG_THUNK_PATH__=" + thunk_path.string(),
     "__GG_DIR__=" + root_dir.string(),
     "__GG_ENABLED__=1",

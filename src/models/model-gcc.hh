@@ -43,36 +43,36 @@ static const std::string AS  = "as";
 static const std::string CC1 = "cc1";
 static const std::string COLLECT2 = "collect2";
 static const std::string LD = "ld";
-static const std::string GG_BIN_PREFIX = "/usr/bin/";
+static const std::string GG_BIN_PREFIX = "/__gg__";
 static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
 static auto gcc_function =
   []( const std::vector<std::string> & args,
       const std::vector<std::string> & envars ) -> gg::thunk::Function
   {
-    return { GG_BIN_PREFIX + GCC, args, envars, program_hash( GCC ) };
+    return { GG_BIN_PREFIX + "/" + GCC, args, envars, program_hash( GCC ) };
   };
 
 static const std::unordered_map<std::string, gg::thunk::InFile> program_infiles {
   {
     GCC,
-    { GG_BIN_PREFIX + GCC, ( toolchain_path / GCC ).string(), program_hash( GCC ), 0 }
+    { GG_BIN_PREFIX + "/" + GCC, ( toolchain_path / GCC ).string(), program_hash( GCC ), 0 }
   },
   {
     CC1,
-    { GG_BIN_PREFIX + CC1, ( toolchain_path / CC1 ).string(), program_hash( CC1 ), 0 }
+    { GG_BIN_PREFIX + "/" + CC1, ( toolchain_path / CC1 ).string(), program_hash( CC1 ), 0 }
   },
   {
     AS,
-    { GG_BIN_PREFIX + AS, ( toolchain_path / AS ).string(), program_hash( AS ), 0 }
+    { GG_BIN_PREFIX + "/" + AS, ( toolchain_path / AS ).string(), program_hash( AS ), 0 }
   },
   {
     COLLECT2,
-    { GG_BIN_PREFIX + COLLECT2, ( toolchain_path / COLLECT2 ).string(), program_hash( COLLECT2 ), 0 }
+    { GG_BIN_PREFIX + "/" + COLLECT2, ( toolchain_path / COLLECT2 ).string(), program_hash( COLLECT2 ), 0 }
   },
   {
     LD,
-    { GG_BIN_PREFIX + LD, ( toolchain_path / LD ).string(), program_hash( LD ), 0 }
+    { GG_BIN_PREFIX + "/" + LD, ( toolchain_path / LD ).string(), program_hash( LD ), 0 }
   },
 };
 

@@ -315,10 +315,11 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
     infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
   }
 
-  infiles.emplace_back( "/usr/bin", InFile::Type::DUMMY_DIRECTORY );
   infiles.emplace_back( "/usr/lib/gcc", InFile::Type::DUMMY_DIRECTORY );
 
   args.insert( args.end(), link_args.begin(), link_args.end() );
+
+  args.push_back( "-B/usr/lib/gcc" );
 
   return { output, gcc_function( args, envars ), infiles };
 }
@@ -419,7 +420,7 @@ int main( int argc, char * argv[] )
   }
 
   /* let gcc know where to find the binaries */
-  envars.push_back( "COMPILER_PATH=" + GG_BIN_PREFIX );
+  envars.push_back( "PATH=" + GG_BIN_PREFIX );
 
   vector<InputFile> link_inputs;
 
