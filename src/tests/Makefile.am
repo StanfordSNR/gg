@@ -18,7 +18,7 @@ AM_TESTS_ENVIRONMENT = \
   mkdir -p $(abs_builddir)/temp;
 
 EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s \
-             test_vectors/libnet.a
+             test_vectors/libnet.a test_vectors/curhello.o
 
 check_PROGRAMS = thunk-roundtrip sandbox-test path-test
 dist_check_SCRIPTS = model-preprocess.test model-compile.test \
