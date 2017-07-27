@@ -9,7 +9,7 @@ OUTPUT=curhello
 GCC_ARGS="$DATADIR/curhello.o -lncurses"
 
 # Run with GCC
-${TOOLCHAIN_PATH}/gcc ${GCC_ARGS} -o ${OUTPUT}.gold -pie -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/x86_64-linux-gnu -L/usr/lib -L/lib/x86_64-linux-gnu -L/lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib -L/usr/lib -L/lib -L/usr/lib -Wl,-rpath-link,/lib/x86_64-linux-gnu -B/usr/lib/gcc
+PATH=${TOOLCHAIN_PATH}:$PATH gcc ${GCC_ARGS} -o ${OUTPUT}.gold -pie -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/x86_64-linux-gnu -L/usr/lib -L/lib/x86_64-linux-gnu -L/lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib -L/usr/lib -L/lib -L/usr/lib -Wl,-rpath-link,/lib/x86_64-linux-gnu -B/usr/lib/gcc
 
 # Create thunk
 GG_DIR=.gg/ model-gcc -pie ${GCC_ARGS} -o ${OUTPUT}
