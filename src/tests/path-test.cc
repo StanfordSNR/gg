@@ -18,6 +18,10 @@ int main()
 {
   test_lexically_normal( "/", "/" );
 
+  test_lexically_normal( "./", "" );
+
+  test_lexically_normal( ".", "" );
+
   test_lexically_normal( "/home/sadjad", "/home/sadjad" );
 
   test_lexically_normal( "./home/sadjad", "home/sadjad" );
