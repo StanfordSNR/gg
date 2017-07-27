@@ -328,7 +328,7 @@ int main( int argc, char * argv[] )
 {
   roost::path gg_dir = gg::models::create_gg_dir();
 
-  Language current_langauge = Language::NONE; /* -x arugment */
+  Language current_language = Language::NONE; /* -x arugment */
   Optional<GCCStage> last_stage;
 
   vector<string> args;
@@ -369,9 +369,9 @@ int main( int argc, char * argv[] )
     /* detect non-option argument */
     if ( opt == 1 ) {
       string input_file { optarg };
-      Language file_lang = current_langauge;
+      Language file_lang = current_language;
 
-      if ( current_langauge == Language::NONE ) {
+      if ( current_language == Language::NONE ) {
         file_lang = filename_to_language( input_file );
       }
 
@@ -387,7 +387,7 @@ int main( int argc, char * argv[] )
       break;
 
     case 'x':
-      current_langauge = name_to_language( optarg );
+      current_language = name_to_language( optarg );
       break;
 
     case 'E':
