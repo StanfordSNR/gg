@@ -29,8 +29,9 @@ vector<string> get_link_dependencies( const vector<InputFile> & link_inputs,
     last_index = it->index;
   }
 
-  args.insert( args.begin(), "gcc" );
+  args.insert( args.begin(), ( toolchain_path / GCC ).string() );
   args.push_back( "-Wl,--verbose" );
+  args.push_back( "-B" + gcc_install_path );
 
   ostringstream command;
   copy( args.begin(), args.end(), ostream_iterator<string>( command, " " ) );
