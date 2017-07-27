@@ -54,22 +54,24 @@ def get_gcc_envars():
     command = "gcc -print-search-dirs"
     output = sub.check_output(command, shell=True)
 
-    PROGRAMS_PREFIX = "program: ="
-    LIBRARIES_PREFIX = "libraries: ="
+    INSTALL_PREFIX = ("install: ", "INSTALL_PATH")
+    PROGRAMS_PREFIX = ("programs: =", "PROGRAMS_PATH")
+    LIBRARIES_PREFIX = ("libraries: =", "LIBRARY_PATH")
 
     res = {}
 
     for line in output.split("\n"):
-        if line.startswith(LIBRARIES_PREFIX):
-            path = line[len(LIBRARIES_PREFIX):]
-            path = path.split(":")
-            rpath = []
+        for prefix in [INSTALL_PREFIX, PROGRAMS_PREFIX, LIBRARIES_PREFIX]:
+            if line.startswith(prefix[0]):
+                path = line[len(prefix[0]):]
+                path = path.split(":")
+                rpath = []
 
-            for p in path:
-                if os.path.exists(p):
-                    rpath += [os.path.abspath(p)]
+                for p in path:
+                    if os.path.exists(p):
+                        rpath += [os.path.abspath(p)]
 
-            res["LIBRARY_PATH"] = rpath
+                res[prefix[1]] = rpath
 
     return res
 
@@ -99,6 +101,7 @@ print_hh("const std::string & program_hash( const std::string & name );")
 print_hh("extern const std::vector<std::string> c_include_path;")
 print_hh("extern const std::vector<std::string> ld_search_path;")
 print_hh("extern const std::vector<std::string> gcc_library_path;")
+print_hh("extern const std::string gcc_install_path;")
 print_hh();
 print_hh("#endif /* TOOLCHAIN_HH */")
 
@@ -137,5 +140,7 @@ print_cc('const vector<string> gcc_library_path = {')
 for path in gcc_envars.get('LIBRARY_PATH', []):
     print_cc('  "{}",'.format(path))
 print_cc("};\n")
+
+print_cc('const string gcc_install_path = "{}";\n'.format(gcc_envars.get('INSTALL_PATH',[''])[0]))
 
 cc_file.close()
