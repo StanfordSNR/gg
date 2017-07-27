@@ -31,5 +31,5 @@ model_strip_LDADD = $(BASE_LDADD)
 EXTRA_DIST = generate-toolchain-header.py
 CLEANFILES = toolchain.hh toolchain.cc
 
-toolchain.cc toolchain.hh: $(TOOLCHAIN_PATH)/*
+toolchain.cc toolchain.hh: generate-toolchain-header.py $(TOOLCHAIN_PATH)/*
 	$(srcdir)/generate-toolchain-header.py $(TOOLCHAIN_PATH)

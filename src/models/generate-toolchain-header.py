@@ -20,7 +20,7 @@ def sha256_checksum(filename, block_size=65536):
     return sha256.hexdigest()
 
 def get_include_path():
-    command = "gcc -E -Wp,-v - < /dev/null >/dev/null"
+    command = "gcc-7 -E -Wp,-v - < /dev/null >/dev/null"
     output = sub.check_output(command, stderr=sub.STDOUT, shell=True)
 
     include_dirs = []
@@ -40,7 +40,7 @@ def get_include_path():
     return include_dirs
 
 def get_library_path():
-    command = "gcc -Wl,--verbose 2>/dev/null || exit 0"
+    command = "gcc-7 -Wl,--verbose 2>/dev/null || exit 0"
     output = sub.check_output(command, shell=True)
 
     library_dirs = []
@@ -51,7 +51,7 @@ def get_library_path():
     return library_dirs
 
 def get_gcc_envars():
-    command = "gcc -print-search-dirs"
+    command = "gcc-7 -print-search-dirs"
     output = sub.check_output(command, shell=True)
 
     INSTALL_PREFIX = ("install: ", "INSTALL_PATH")

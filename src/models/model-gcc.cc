@@ -32,10 +32,10 @@ void dump_gcc_specs( TempFile & target_file )
 {
   array<char, 4096> buffer;
 
-  std::shared_ptr<FILE> readpipe( popen( "gcc -dumpspecs", "r" ), pclose );
+  std::shared_ptr<FILE> readpipe( popen( "gcc-7 -dumpspecs", "r" ), pclose );
 
   if ( !readpipe ) {
-    throw runtime_error( "could not execute `gcc -dumpspecs`." );
+    throw runtime_error( "could not execute `gcc-7 -dumpspecs`." );
   }
 
   while ( !feof( readpipe.get() ) ) {
@@ -51,7 +51,7 @@ vector<string> get_preprocess_dependencies( const vector<string> & gcc_args,
 {
   vector<string> args;
   args.reserve( 2 + gcc_args.size() );
-  args.push_back( "gcc" );
+  args.push_back( "gcc-7" );
   args.push_back( "-specs=" + specsfile );
   args.insert( args.end(), gcc_args.begin(), gcc_args.end() );
 
