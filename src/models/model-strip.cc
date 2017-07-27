@@ -1,19 +1,18 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include <boost/filesystem.hpp>
 #include <getopt.h>
 
 #include "thunk.hh"
 #include "utils.hh"
+#include "path.hh"
 
 #include "toolchain.hh"
 
 using namespace std;
 using namespace gg::thunk;
-namespace fs = boost::filesystem;
 
 static const string STRIP = "strip";
-static const fs::path toolchain_path { TOOLCHAIN_PATH };
+static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
 Thunk generate_thunk( int argc, char * argv[] )
 {
@@ -34,7 +33,7 @@ Thunk generate_thunk( int argc, char * argv[] )
 
   return {
     stripf,
-    { STRIP, gg::models::args_to_vector( argc, argv ), program_hash( STRIP ) },
+    { STRIP, gg::models::args_to_vector( argc, argv ), {}, program_hash( STRIP ) },
     {
       stripf,
       { STRIP, ( toolchain_path / STRIP ).string(), program_hash( STRIP ), 0 },
@@ -44,7 +43,7 @@ Thunk generate_thunk( int argc, char * argv[] )
 
 int main( int argc, char * argv[] )
 {
-  fs::path gg_dir = gg::models::create_gg_dir();
+  roost::path gg_dir = gg::models::create_gg_dir();
 
   Thunk thunk = generate_thunk( argc, argv );
   thunk.store( gg_dir );
