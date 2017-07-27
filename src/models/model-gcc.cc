@@ -315,11 +315,11 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
     infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
   }
 
-  infiles.emplace_back( "/usr/lib/gcc", InFile::Type::DUMMY_DIRECTORY );
+  infiles.emplace_back( gcc_install_path, InFile::Type::DUMMY_DIRECTORY );
 
   args.insert( args.end(), link_args.begin(), link_args.end() );
 
-  args.push_back( "-B/usr/lib/gcc" );
+  args.push_back( "-B" + gcc_install_path );
 
   return { output, gcc_function( args, envars ), infiles };
 }
