@@ -57,9 +57,9 @@ namespace gg {
 
       InFile( const gg::protobuf::InFile & infile_proto );
 
-      std::string filename() const { return filename_; }
-      std::string real_filename() const { return real_filename_; }
-      std::string hash() const { return hash_; }
+      const std::string & filename() const { return filename_; }
+      const std::string & real_filename() const { return real_filename_; }
+      const std::string & hash() const { return hash_; }
       size_t order() const { return order_; }
       off_t size() const { return size_; }
       Type type() const { return type_; }
@@ -93,9 +93,9 @@ namespace gg {
                 const std::vector<std::string> & envars, const std::string & hash );
       Function( const gg::protobuf::Function & func_proto );
 
-      std::string exe() const { return exe_; }
+      const std::string & exe() const { return exe_; }
       const std::vector<std::string> & args() const { return args_; }
-      std::string hash() const { return exe_hash_; }
+      const std::string & hash() const { return exe_hash_; }
       const std::vector<std::string> & envars() const { return envars_; }
 
       gg::protobuf::Function to_protobuf() const;
@@ -124,9 +124,9 @@ namespace gg {
       int execute( const roost::path & root_dir,
                    const roost::path & thunk_path ) const;
 
-      std::string outfile() const { return outfile_; }
-      Function function() const { return function_; }
-      std::vector<InFile> infiles() const { return infiles_; }
+      const std::string & outfile() const { return outfile_; }
+      const Function & function() const { return function_; }
+      const std::vector<InFile> & infiles() const { return infiles_; }
       size_t order() const { return order_; }
 
       gg::protobuf::Thunk to_protobuf() const;
