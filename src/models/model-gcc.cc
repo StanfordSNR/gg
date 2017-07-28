@@ -10,7 +10,6 @@
 #include <cstdio>
 #include <fstream>
 #include <sstream>
-#include <boost/tokenizer.hpp>
 #include <getopt.h>
 #include <libgen.h>
 
@@ -18,14 +17,12 @@
 #include "optional.hh"
 #include "digest.hh"
 #include "temp_file.hh"
-#include "system_runner.hh"
 #include "thunk.hh"
 #include "utils.hh"
 
 #include "model-gcc.hh"
 
 using namespace std;
-using namespace boost;
 using namespace gg::thunk;
 
 void dump_gcc_specs( TempFile & target_file )
@@ -43,149 +40,6 @@ void dump_gcc_specs( TempFile & target_file )
       string result = buffer.data();
       target_file.write( result );
     }
-  }
-}
-
-vector<string> get_preprocess_dependencies( const vector<string> & gcc_args,
-                                            const string & specsfile )
-{
-  vector<string> args;
-  args.reserve( 2 + gcc_args.size() );
-  args.push_back( "gcc-7" );
-  args.push_back( "-specs=" + specsfile );
-  args.insert( args.end(), gcc_args.begin(), gcc_args.end() );
-
-  string dep_out_filename;
-
-  auto has_dependencies_option = find_if(
-    args.begin(), args.end(),
-    []( const string & opt )
-    {
-      return ( opt == "-M" ) or ( opt == "-MF" ) or ( opt == "-MM" ) or
-             ( opt == "-MG" ) or ( opt == "-MP" ) or ( opt == "-MQ" ) or
-             ( opt == "-MD" ) or ( opt == "-MMD" );
-    }
-  );
-
-  if ( has_dependencies_option != args.end() ) {
-    throw runtime_error( "find dependencies: command already has -M flag" );
-  }
-
-  {
-    UniqueFile gcc_mf_output { "/tmp/gg-model-gcc-mf" };
-    dep_out_filename = gcc_mf_output.name();
-
-    /* XXX we should probably get rid of -o option */
-    args.push_back( "-M" );
-    args.push_back( "-MF" );
-    args.push_back( dep_out_filename );
-  }
-
-  run( args[ 0 ], args, {}, true, true );
-
-  vector<string> dependencies;
-
-  ifstream depin { dep_out_filename };
-  string line;
-  bool first_line = true;
-
-  while ( getline( depin, line ) ) {
-    if ( first_line ) {
-      line = line.substr( line.find(':') + 2, line.length() );
-      first_line = false;
-    }
-    else {
-      line = line.substr( 1, line.length() );
-    }
-
-    if ( line[ line.length() - 1 ] == '\\' ) {
-      line = line.substr( 0, line.length() - 2 );
-    }
-
-    if ( line == "\\" ) {
-      continue;
-    }
-
-    tokenizer<escaped_list_separator<char>> tok( line, { "\\", " ", "\"\'" } );
-
-    for ( auto t = tok.begin(); t != tok.end(); t++ ) {
-      dependencies.push_back( *t );
-    }
-  }
-
-  return dependencies;
-}
-
-Language filename_to_language( const string & path )
-{
-  vector<char> path_cstr( path.c_str(), path.c_str() + path.size() + 1 );
-  const string filename { basename( path_cstr.data() ) };
-  const auto pos = filename.find_last_of( '.' );
-
-  if ( pos == string::npos ) {
-    /* did not find a file extension! */
-  }
-
-  string extension = filename.substr( pos + 1 );
-
-  if ( extension == "c" ) return Language::C;
-  if ( extension == "h" ) return Language::C_HEADER;
-  if ( extension == "i" ) return Language::CPP_OUTPUT;
-  if ( extension == "s" ) return Language::ASSEMBLER;
-  if ( extension == "o" ) return Language::OBJECT;
-  if ( extension == "a" ) return Language::ARCHIVE_LIBRARY;
-
-  throw runtime_error( "unknown file extension" );
-}
-
-Language name_to_language( const string & name )
-{
-  if ( name == "none" ) return Language::NONE;
-  if ( name == "c" ) return Language::C;
-  if ( name == "c-header" ) return Language::C_HEADER;
-  if ( name == "cpp-output" ) return Language::CPP_OUTPUT;
-  if ( name == "assembler" ) return Language::ASSEMBLER;
-
-  throw runtime_error( "unknown language name" );
-}
-
-GCCStage language_to_stage( const Language lang )
-{
-  switch ( lang ) {
-  case Language::C: return PREPROCESS;
-  case Language::C_HEADER: return PREPROCESS;
-  case Language::CPP_OUTPUT: return COMPILE;
-  case Language::ASSEMBLER: return ASSEMBLE;
-  case Language::OBJECT: return LINK;
-
-  default: throw runtime_error( "unknown language" );
-  }
-}
-
-string stage_output_name( const GCCStage stage, const string basename )
-{
-  string result = basename;
-
-  switch ( stage ) {
-  case PREPROCESS: return result + ".i";
-  case COMPILE: return result + ".s";
-  case ASSEMBLE: return result + ".o";
-  case LINK: return result + ".out";
-
-  default:
-    throw runtime_error( "invalid GCCstage stage" );
-  }
-}
-
-bool is_non_object_input( const InputFile & input )
-{
-  switch( input.language ) {
-  case Language::SHARED_LIBRARY:
-  case Language::ARCHIVE_LIBRARY:
-  case Language::OBJECT:
-    return false;
-
-  default: return true;
   }
 }
 

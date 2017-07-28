@@ -16,7 +16,8 @@ bin_PROGRAMS = model-gcc model-ar model-ranlib model-strip
 
 COMMON_TOOLCHAIN_SOURCES = toolchain.hh toolchain.cc utils.hh model-gcc.hh
 
-model_gcc_SOURCES = model-gcc.cc model-linker.cc $(COMMON_TOOLCHAIN_SOURCES)
+model_gcc_SOURCES = model-gcc.cc model-gcc-base.cc  model-preprocessor.cc \
+                    model-linker.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_gcc_LDADD = $(BASE_LDADD)
 
 model_ar_SOURCES = model-ar.cc $(COMMON_TOOLCHAIN_SOURCES)

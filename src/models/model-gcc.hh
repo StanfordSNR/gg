@@ -78,7 +78,16 @@ static const std::unordered_map<std::string, gg::thunk::InFile> program_infiles 
 
 bool is_non_object_input( const InputFile & input );
 
+Language filename_to_language( const std::string & path );
+Language name_to_language( const std::string & name );
+GCCStage language_to_stage( const Language lang );
+std::string stage_output_name( const GCCStage stage, const std::string basename );
+
+
 std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs,
                                                 const std::vector<std::string> & args );
+
+std::vector<std::string> get_preprocess_dependencies( const std::vector<std::string> & gcc_args,
+                                                      const std::string & specsfile );
 
 #endif /* MODEL_LINKER_HH */
