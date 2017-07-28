@@ -209,4 +209,20 @@ namespace roost {
   {
     return split( path_, "/" );
   }
+
+  bool remove( const path & pathn )
+  {
+    if ( not exists( pathn ) ) {
+      return false;
+    }
+
+    CheckSystemCall( "unlink " + pathn.string(), unlink( pathn.string().c_str() ) );
+
+    return true;
+  }
+
+  bool remove_directory( const path & )
+  {
+    throw runtime_error( "not implemented" );
+  }
 }

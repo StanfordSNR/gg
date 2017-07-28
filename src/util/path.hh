@@ -14,7 +14,7 @@ namespace roost {
 
   public:
     path( const std::string & pathn );
-    
+
     path lexically_normal() const;
     const std::string & string() const;
     std::vector<std::string> path_components() const;
@@ -27,6 +27,8 @@ namespace roost {
   path canonical( const path & pathn );
   void create_directories( const path & pathn );
   bool is_directory( const path & pathn );
+  bool remove( const path & pathn );
+  bool remove_directory( const path & pathn );
 }
 
 #endif /* PATH_HH */
