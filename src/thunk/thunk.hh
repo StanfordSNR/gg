@@ -7,6 +7,7 @@
 #include <functional>
 #include <sys/types.h>
 
+#include "sandbox.hh"
 #include "path.hh"
 #include "gg.pb.h"
 
@@ -139,6 +140,10 @@ namespace gg {
 
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
+
+      /* Returns a SandboxedProcess object that is ready to execute the thunk. */
+      SandboxedProcess create_sandbox( const roost::path & gg_path,
+                                       const roost::path & thunk_path );
     };
   }
 }

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <unordered_map>
 
 #include "system_runner.hh"
 #include "thunk_writer.hh"
@@ -130,4 +131,25 @@ bool Thunk::operator==( const Thunk & other ) const
          ( function_ == other.function_ ) and
          ( infiles_ == other.infiles_ ) and
          ( order_ == other.order_ );
+}
+
+SandboxedProcess Thunk::create_sandbox( const roost::path & gg_path,
+                                        const roost::path & thunk_path )
+{
+  unordered_map<string, Permissions> allowed_files;
+
+  for ( const InFile & infile : infiles() ) {
+    if ( infile.hash().length() ) {
+      allowed_files[ ( gg_path / infile.hash() ).string() ] = { true, false, false };
+    }
+    else {
+      allowed_files[ infile.filename() ] = { true, false, false };
+    }
+  }
+
+  allowed_files[ gg_path.string() ] = { true, false, false };
+  allowed_files[ thunk_path.string() ] = { true, false, false };
+  allowed_files[ outfile() ] = { true, true, false };
+
+  return SandboxedProcess( [=]() { return this->execute( gg_path, thunk_path ); }, allowed_files );
 }

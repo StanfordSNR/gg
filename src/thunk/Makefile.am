@@ -1,4 +1,5 @@
-AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util $(CXX14_FLAGS)
+AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util -I$(srcdir)/../trace \
+              -I$(srcdir)/../sandbox $(CXX14_FLAGS)
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
 noinst_LIBRARIES = libthunk.a

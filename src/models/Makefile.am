@@ -8,6 +8,8 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 BUILT_SOURCES = toolchain.hh toolchain.cc
 
 BASE_LDADD = ../thunk/libthunk.a \
+             ../sandbox/libggsandbox.a \
+             ../trace/libggtrace.a ../trace/libggsyscalltable.a \
              ../protobufs/libggprotobufs.a \
              ../util/libggutil.a \
              $(CRYPTO_LIBS) $(PROTOBUF_LIBS)

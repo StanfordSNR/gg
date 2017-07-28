@@ -81,22 +81,8 @@ int main( int argc, char * argv[] )
       return process.exit_status();
     }
     else {
-      unordered_map<string, Permissions> allowed_files;
+      SandboxedProcess process { move( thunk.create_sandbox( gg_path, thunk_path ) ) };
 
-      for ( const InFile & infile : thunk.infiles() ) {
-        if ( infile.hash().length() ) {
-          allowed_files[ ( gg_path / infile.hash() ).string() ] = { true, false, false };
-        }
-        else {
-          allowed_files[ infile.filename() ] = { true, false, false };
-        }
-      }
-
-      allowed_files[ gg_path.string() ] = { true, false, false };
-      allowed_files[ thunk_path.string() ] = { true, false, false };
-      allowed_files[ thunk.outfile() ] = { true, true, false };
-
-      SandboxedProcess process { [&]() { return thunk.execute( gg_path, thunk_path ); }, allowed_files };
       process.set_log_level( log_level );
       process.execute();
 
