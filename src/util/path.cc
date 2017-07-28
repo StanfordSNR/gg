@@ -5,11 +5,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <dirent.h>
 #include <deque>
 #include <climits>
 #include <vector>
 #include <string>
 #include <sstream>
+#include <memory>
 
 #include "path.hh"
 #include "exception.hh"
@@ -19,31 +21,25 @@
 using namespace std;
 
 namespace roost {
-  class Directory
+  Directory::Directory( const string & path )
+    : fd_( CheckSystemCall( "open directory (" + path + ")",
+                            open( path.c_str(),
+                            O_DIRECTORY | O_CLOEXEC ) ) )
+  {}
+
+  Directory::Directory( const Directory & parent, const string & path )
+    : fd_( CheckSystemCall( "openat directory (" + path + ")",
+                            openat( parent.num(), path.c_str(),
+                            O_DIRECTORY | O_CLOEXEC ) ) )
+  {}
+
+  Directory::~Directory()
   {
-  private:
-    int fd_;
-
-  public:
-    Directory( const string & path )
-      : fd_( CheckSystemCall( "open directory (" + path + ")",
-			      open( path.c_str(), O_DIRECTORY | O_PATH | O_CLOEXEC ) ) )
-    {}
-
-    Directory( const Directory & parent, const string & path )
-      : fd_( CheckSystemCall( "openat directory (" + path + ")",
-			      openat( parent.num(), path.c_str(), O_DIRECTORY | O_PATH | O_CLOEXEC ) ) )
-    {}
-
-    ~Directory()
-    {
-      try {
-	CheckSystemCall( "close", close( fd_ ) );
-      } catch ( const exception & e ) {}
+    try {
+      CheckSystemCall( "close", close( fd_ ) );
     }
-
-    int num() const { return fd_; }
-  };
+    catch ( const exception & e ) {}
+  }
 
   path::path( const std::string & pathn )
     : path_( pathn )
@@ -110,7 +106,7 @@ namespace roost {
   {
     struct stat file_info;
     CheckSystemCall( "stat " + pathn.string(),
-		     stat( pathn.string().c_str(), &file_info ) );
+                     stat( pathn.string().c_str(), &file_info ) );
     return file_info.st_size;
   }
 
@@ -128,7 +124,7 @@ namespace roost {
   void copy_file( const path & src, const path & dst )
   {
     FileDescriptor src_file { CheckSystemCall( "open (" + src.string() + ")",
-					       open( src.string().c_str(), O_RDONLY | O_CLOEXEC ) ) };
+                              open( src.string().c_str(), O_RDONLY | O_CLOEXEC ) ) };
     struct stat src_info;
     CheckSystemCall( "fstat", fstat( src_file.fd_num(), &src_info ) );
 
@@ -137,8 +133,9 @@ namespace roost {
     }
 
     FileDescriptor dst_file { CheckSystemCall( "open (" + dst.string() + ")",
-					       open( dst.string().c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
-						     src_info.st_mode ) ) };
+                              open( dst.string().c_str(),
+                                    O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
+                              src_info.st_mode ) ) };
 
     dst_file.write( src_file.read_exactly( src_info.st_size ) );
   }
@@ -155,8 +152,8 @@ namespace roost {
   }
 
   void create_directories_relative( const Directory & parent_directory,
-				    const vector<string>::const_iterator & begin,
-				    const vector<string>::const_iterator & end )
+                                    const vector<string>::const_iterator & begin,
+                                    const vector<string>::const_iterator & end )
   {
     if ( begin == end ) {
       return;
@@ -169,14 +166,16 @@ namespace roost {
 
     try {
       CheckSystemCall( "mkdirat (" + *begin + ")",
-		       mkdirat( parent_directory.num(),
-				begin->c_str(),
-				S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) );
-    } catch ( const unix_error & e ) {
+                       mkdirat( parent_directory.num(),
+                       begin->c_str(),
+                       S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) );
+    }
+    catch ( const unix_error & e ) {
       if ( e.saved_errno() == EEXIST ) {
-	/* okay */
-      } else {
-	throw;
+        /* okay */
+      }
+      else {
+        throw;
       }
     }
 
@@ -201,7 +200,16 @@ namespace roost {
   {
     struct stat file_info;
     CheckSystemCall( "stat " + pathn.string(),
-		     stat( pathn.string().c_str(), &file_info ) );
+                     stat( pathn.string().c_str(), &file_info ) );
+    return S_ISDIR( file_info.st_mode );
+  }
+
+  bool is_directory_at( const Directory & parent_directory, const path & pathn )
+  {
+    struct stat file_info;
+    CheckSystemCall( "fstatat " + pathn.string(),
+                     fstatat( parent_directory.num(), pathn.string().c_str(),
+                              &file_info, 0 ) );
     return S_ISDIR( file_info.st_mode );
   }
 
@@ -216,13 +224,63 @@ namespace roost {
       return false;
     }
 
-    CheckSystemCall( "unlink " + pathn.string(), unlink( pathn.string().c_str() ) );
+    CheckSystemCall( "remove " + pathn.string(),
+                     ::remove( pathn.string().c_str() ) );
 
     return true;
   }
 
-  bool remove_directory( const path & )
+  bool remove_at( const Directory & parent_directory, const path & pathn,
+                  const bool is_directory )
   {
-    throw runtime_error( "not implemented" );
+    CheckSystemCall( "unlinkat " + pathn.string(),
+                     unlinkat( parent_directory.num(),
+                               pathn.string().c_str(),
+                               is_directory ? AT_REMOVEDIR : 0 ) );
+
+    return true;
+  }
+
+  void empty_directory_relative( const Directory & parent_directory,
+                                 const string & pathn )
+  {
+    Directory directory( parent_directory, pathn );
+
+    shared_ptr<DIR> dir { fdopendir( directory.num() ), closedir };
+
+    if ( dir.get() == NULL ) {
+      throw unix_error( "fdopendir" );
+    }
+
+    struct dirent * entry = NULL;
+
+    while ( ( errno = 0, entry = readdir( dir.get() ) ) != NULL ) {
+      string name { entry->d_name };
+
+      cerr << pathn << " / " << name << endl;
+
+      if ( name == "." or name  == ".." ) {
+        continue;
+      }
+
+      bool is_dir = is_directory_at( directory, name );
+
+      if ( is_dir ) {
+        empty_directory_relative( directory, name );
+      }
+
+      remove_at( directory, name, is_dir );
+    }
+
+    if ( errno ) {
+      throw unix_error( "readdir" );
+    }
+  }
+
+  void remove_directory( const path & pathn )
+  {
+    Directory directory { pathn.string() };
+    empty_directory_relative( directory, "." );
+    remove( pathn );
   }
 }

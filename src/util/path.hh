@@ -7,6 +7,20 @@
 #include <vector>
 
 namespace roost {
+  class Directory
+  {
+  private:
+    int fd_;
+
+  public:
+    Directory( const std::string & path );
+    Directory( const Directory & parent, const std::string & path );
+
+    ~Directory();
+
+    int num() const { return fd_; }
+  };
+
   class path
   {
   private:
@@ -28,7 +42,9 @@ namespace roost {
   void create_directories( const path & pathn );
   bool is_directory( const path & pathn );
   bool remove( const path & pathn );
-  bool remove_directory( const path & pathn );
+  bool remove_at( const Directory & directory, const path & pathn,
+                  const bool is_directory = false );
+  void remove_directory( const path & pathn );
 }
 
 #endif /* PATH_HH */
