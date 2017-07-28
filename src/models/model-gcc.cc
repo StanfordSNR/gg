@@ -358,13 +358,17 @@ int main( int argc, char * argv[] )
 
     vector<string> link_args { args };
 
+    cerr << ">> linking ";
     for ( auto const & link_input : link_inputs ) {
       if ( not ( link_input.source_language == Language::OBJECT or
                  link_input.source_language == Language::ARCHIVE_LIBRARY or
                  link_input.source_language == Language::SHARED_LIBRARY ) ) {
         link_args[ link_input.index ] = link_input.name;
       }
+
+      cerr << link_input.name << " ";
     }
+    cerr << endl;
 
     vector<string> dependencies = get_link_dependencies( link_inputs, args );
 
