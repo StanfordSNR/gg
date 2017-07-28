@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <unordered_map>
 #include <sys/types.h>
 
 #include "sandbox.hh"
@@ -141,9 +142,11 @@ namespace gg {
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
 
-      /* Returns a SandboxedProcess object that is ready to execute the thunk. */
-      SandboxedProcess create_sandbox( const roost::path & gg_path,
-                                       const roost::path & thunk_path );
+      /* Returns a list of files that can be accessed while executing this
+         thunk. */
+      std::unordered_map<std::string, Permissions>
+      get_allowed_files( const roost::path & gg_path,
+                         const roost::path & thunk_path ) const;
     };
   }
 }

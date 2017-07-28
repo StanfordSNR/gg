@@ -81,7 +81,11 @@ int main( int argc, char * argv[] )
       return process.exit_status();
     }
     else {
-      SandboxedProcess process { move( thunk.create_sandbox( gg_path, thunk_path ) ) };
+      auto allowed_files = thunk.get_allowed_files( gg_path, thunk_path );
+
+      SandboxedProcess process {
+        [&]() { return thunk.execute( gg_path, thunk_path ); }, allowed_files
+      };
 
       process.set_log_level( log_level );
       process.execute();

@@ -15,9 +15,26 @@
 using namespace std;
 using namespace gg::thunk;
 
+static bool sandboxed = false;
+static LogLevel log_level = LOG_LEVEL_NO_LOG;
+
 void usage( const char * argv0 )
 {
   cerr << argv0 << "[--verbose, -v] [--sandboxed,-s] [--gg-dir, -g=<arg>] THUNK" << endl;
+}
+
+void execute_thunk( const Thunk & thunk )
+{
+  assert( thunk.order() == 0 );
+
+  /* when executing the thunk, we create a temp directory, and execute the thunk
+     in that directory. then we take the outfile, compute the hash, and move it
+     to the .gg directory. */
+}
+
+void reduce_thunk( const roost::path &, const roost::path & thunk_path )
+{
+  Thunk thunk = ThunkReader( thunk_path.string() ).read_thunk();
 }
 
 int main( int argc, char * argv[] )
@@ -32,9 +49,7 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    bool sandboxed = false;
     string gg_dir = ".gg/";
-    LogLevel log_level = LOG_LEVEL_NO_LOG;
 
     const option command_line_options[] = {
       { "sandboxed", no_argument,       nullptr, 's' },
@@ -68,26 +83,7 @@ int main( int argc, char * argv[] )
     roost::path gg_path = roost::canonical( gg_dir );
     roost::path thunk_path = roost::canonical( thunk_filename );
 
-    ThunkReader thunk_reader { thunk_path.string() };
-    Thunk thunk = thunk_reader.read_thunk();
-
-    if ( not sandboxed ) {
-      ChildProcess process { thunk.outfile(), [&]() { return thunk.execute( gg_path, thunk_path ); } };
-
-      while ( not process.terminated() ) {
-        process.wait();
-      }
-
-      return process.exit_status();
-    }
-    else {
-      SandboxedProcess process { move( thunk.create_sandbox( gg_path, thunk_path ) ) };
-
-      process.set_log_level( log_level );
-      process.execute();
-
-      return process.exit_status().get();
-    }
+    reduce_thunk( gg_path, thunk_path );
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );

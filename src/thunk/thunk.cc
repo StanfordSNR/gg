@@ -133,8 +133,8 @@ bool Thunk::operator==( const Thunk & other ) const
          ( order_ == other.order_ );
 }
 
-SandboxedProcess Thunk::create_sandbox( const roost::path & gg_path,
-                                        const roost::path & thunk_path )
+unordered_map<string, Permissions> Thunk::get_allowed_files( const roost::path & gg_path,
+                                                             const roost::path & thunk_path ) const
 {
   unordered_map<string, Permissions> allowed_files;
 
@@ -151,5 +151,5 @@ SandboxedProcess Thunk::create_sandbox( const roost::path & gg_path,
   allowed_files[ thunk_path.string() ] = { true, false, false };
   allowed_files[ outfile() ] = { true, true, false };
 
-  return SandboxedProcess( [=]() { return this->execute( gg_path, thunk_path ); }, allowed_files );
+  return allowed_files;
 }
