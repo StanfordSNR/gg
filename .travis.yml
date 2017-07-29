@@ -30,7 +30,7 @@ script:
   - ./fetch-toolchain.sh
   - ./autogen.sh
   - ./configure --enable-sanitize
-  - make -j3 distcheck || (cat gg-0.01/_build/src/tests/test-suite.log && exit 1)
+  - make -j3 distcheck V=1 || (cat gg-0.01/_build/src/tests/test-suite.log && exit 1)
 
 notifications:
   slack: keithw:RFEz0IvxWUHbHFan10UNb3Qo
