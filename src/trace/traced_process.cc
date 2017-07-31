@@ -34,6 +34,7 @@ string TraceControlBlock::to_string() const
 }
 
 TracedProcess::TracedProcess( function<int()> && child_procedure,
+                              function<void()> && preparation_procedure,
                               const int termination_signal )
   : pid_( do_fork() ),
     exit_status_(),
@@ -43,6 +44,8 @@ TracedProcess::TracedProcess( function<int()> && child_procedure,
     processes_()
 {
   if ( pid_ == 0 ) { /* child */
+    preparation_procedure();
+
     CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
     CheckSystemCall( "kill", kill( getpid(), SIGSTOP ) );
 

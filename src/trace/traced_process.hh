@@ -46,6 +46,7 @@ private:
 
 public:
   TracedProcess( std::function<int()> && child_procedure,
+                 std::function<void()> && preparation_procedure = [](){},
                  const int termination_signal = SIGHUP );
 
   bool wait_for_syscall( std::function<void( TraceControlBlock & )> before_entry,

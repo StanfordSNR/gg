@@ -62,9 +62,10 @@ bool execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
     auto allowed_files = thunk.get_allowed_files( gg_path, thunk_path );
 
     SandboxedProcess process {
+      allowed_files,
       [thunk, thunk_path]() {
         return thunk.execute( gg_path, thunk_path );
-      }, allowed_files
+      }
     };
 
     process.set_log_level( log_level );

@@ -7,9 +7,11 @@
 
 using namespace std;
 
-SandboxedProcess::SandboxedProcess( function<int()> && child_procedure,
-                                    const unordered_map<std::string, Permissions> & allowed_files )
-  : process_( move( child_procedure ) ), allowed_files_( allowed_files )
+SandboxedProcess::SandboxedProcess( const unordered_map<std::string, Permissions> & allowed_files,
+                                    function<int()> && child_procedure,
+                                    function<void()> && preparation_procedure )
+  : process_( move( child_procedure ), move (preparation_procedure ) ),
+    allowed_files_( allowed_files )
 {}
 
 inline void Check( const TraceControlBlock & tcb, bool status )

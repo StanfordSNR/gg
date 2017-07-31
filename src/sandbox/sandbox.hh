@@ -38,8 +38,9 @@ private:
   bool rename_entry( const SystemCallInvocation & syscall );
 
 public:
-  SandboxedProcess( std::function<int()> && child_procedure,
-                    const std::unordered_map<std::string, Permissions> & allowed_files );
+  SandboxedProcess( const std::unordered_map<std::string, Permissions> & allowed_files,
+                    std::function<int()> && child_procedure,
+                    std::function<void()> && preparation_procedure = [](){} );
 
   /* throws an exception if sandbox violation happens. */
   void execute();

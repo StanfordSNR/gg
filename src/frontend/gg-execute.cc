@@ -84,7 +84,8 @@ int main( int argc, char * argv[] )
       auto allowed_files = thunk.get_allowed_files( gg_path, thunk_path );
 
       SandboxedProcess process {
-        [&]() { return thunk.execute( gg_path, thunk_path ); }, allowed_files
+        allowed_files,
+        [&]() { return thunk.execute( gg_path, thunk_path ); }
       };
 
       process.set_log_level( log_level );

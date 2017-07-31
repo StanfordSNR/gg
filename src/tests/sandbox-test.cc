@@ -39,12 +39,12 @@ int main( int argc, char * argv[] )
     };
 
     SandboxedProcess sp_1(
+      allowed_files_1,
       []()
       {
         close( open( "/dev/null", O_RDONLY ) );
         return 0;
-      },
-      allowed_files_1
+      }
     );
 
     try {
@@ -60,13 +60,13 @@ int main( int argc, char * argv[] )
     };
 
     SandboxedProcess sp_2(
+      allowed_files_2,
       []()
       {
         close( open( "/dev/null", O_WRONLY ) );
         close( open( "/dev/zero", O_RDONLY ) );
         return 0;
-      },
-      allowed_files_2
+      }
     );
 
     try {
@@ -83,13 +83,13 @@ int main( int argc, char * argv[] )
     };
 
     SandboxedProcess sp_3(
+      allowed_files_3,
       []()
       {
         struct stat buf;
         stat( "/dev/random", &buf );
         return 0;
-      },
-      allowed_files_3
+      }
     );
 
     try {
