@@ -8,6 +8,8 @@
 
 #include "file_descriptor.hh"
 
+std::vector<char> to_mutable( const std::string & str );
+
 class UniqueFile
 {
 private:
