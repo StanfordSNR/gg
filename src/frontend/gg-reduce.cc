@@ -11,30 +11,82 @@
 #include "child_process.hh"
 #include "sandbox.hh"
 #include "path.hh"
+#include "temp_dir.hh"
 
 using namespace std;
 using namespace gg::thunk;
 
-static bool sandboxed = false;
-static LogLevel log_level = LOG_LEVEL_NO_LOG;
+bool sandboxed = false;
+LogLevel log_level = LOG_LEVEL_NO_LOG;
+string temp_root = "/tmp/thunk-execute";
+roost::path gg_path { ".gg" };
 
 void usage( const char * argv0 )
 {
   cerr << argv0 << "[--verbose, -v] [--sandboxed,-s] [--gg-dir, -g=<arg>] THUNK" << endl;
 }
 
-void execute_thunk( const Thunk & thunk )
+inline void CheckExecution( const string & path, bool status )
 {
-  assert( thunk.order() == 0 );
+  if ( not status ) {
+    throw runtime_error( "thunk execution failed: " +  path );
+  }
+}
+
+bool execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
+{
+  assert( thunk.order() == 1 );
 
   /* when executing the thunk, we create a temp directory, and execute the thunk
      in that directory. then we take the outfile, compute the hash, and move it
      to the .gg directory. */
+
+  TempDirectory exec_dir { temp_root };
+
+  if ( not sandboxed ) {
+    ChildProcess process {
+      thunk.outfile(),
+      [thunk, thunk_path, &exec_dir]() {
+        CheckSystemCall( "chdir", chdir( exec_dir.name().c_str() ) );
+        return thunk.execute( gg_path, thunk_path );
+      }
+    };
+
+    while ( not process.terminated() ) {
+      process.wait();
+    }
+
+    return process.exit_status() == 0;
+  }
+  else {
+    auto allowed_files = thunk.get_allowed_files( gg_path, thunk_path );
+
+    SandboxedProcess process {
+      [thunk, thunk_path]() {
+        return thunk.execute( gg_path, thunk_path );
+      }, allowed_files
+    };
+
+    process.set_log_level( log_level );
+    process.execute();
+
+    return ( process.exit_status().initialized() and process.exit_status().get() == 0 );
+  }
 }
 
 void reduce_thunk( const roost::path &, const roost::path & thunk_path )
 {
   Thunk thunk = ThunkReader( thunk_path.string() ).read_thunk();
+
+  if ( thunk.order() == 0 ) {
+    throw runtime_error( "zero-order thunk, something is probably wrong" );
+  }
+  else if ( thunk.order() == 1 ) {
+    CheckExecution( thunk_path.string(), execute_thunk( thunk, thunk_path ) );
+  }
+  else {
+    throw runtime_error( "order > 1, not implemented." );
+  }
 }
 
 int main( int argc, char * argv[] )
@@ -80,7 +132,7 @@ int main( int argc, char * argv[] )
 
     string thunk_filename = argv[ optind ];
 
-    roost::path gg_path = roost::canonical( gg_dir );
+    gg_path = roost::canonical( gg_dir );
     roost::path thunk_path = roost::canonical( thunk_filename );
 
     reduce_thunk( gg_path, thunk_path );
