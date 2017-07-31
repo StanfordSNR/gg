@@ -10,5 +10,6 @@ libggutil_a_SOURCES = exception.hh optional.hh file_descriptor.hh chunk.hh \
                       digest.hh digest.cc \
                       system_runner.hh system_runner.cc \
                       temp_file.hh temp_file.cc \
+                      temp_dir.hh temp_dir.cc \
                       path.hh path.cc \
                       tokenize.hh
