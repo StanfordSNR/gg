@@ -65,7 +65,8 @@ bool execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
       allowed_files,
       [thunk, thunk_path]() {
         return thunk.execute( gg_path, thunk_path );
-      }
+      },
+      [&exec_dir] () { CheckSystemCall( "chdir", chdir( exec_dir.name().c_str() ) ); }
     };
 
     process.set_log_level( log_level );
