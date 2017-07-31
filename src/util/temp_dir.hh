@@ -31,4 +31,16 @@ public:
   UniqueDirectory & operator=( UniqueDirectory && other ) = delete;
 };
 
+/* TempDirectory is deleted when object destroyed */
+class TempDirectory : public UniqueDirectory
+{
+public:
+  using UniqueDirectory::UniqueDirectory;
+
+  /* allow move constructor */
+  TempDirectory( TempDirectory && other ) : UniqueDirectory( std::move( other ) ) {}
+
+  ~TempDirectory();
+};
+
 #endif /* TEMP_DIR_HH */
