@@ -40,6 +40,7 @@ int main( int argc, char * argv[] )
       { "sandboxed", no_argument,       nullptr, 's' },
       { "gg-dir",    required_argument, nullptr, 'g' },
       { "verbose",   no_argument,       nullptr, 'v' },
+      { 0, 0, 0, 0 }
     };
 
     while ( true ) {

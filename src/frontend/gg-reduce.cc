@@ -33,7 +33,7 @@ inline void CheckExecution( const string & path, bool status )
   }
 }
 
-bool execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
+string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 {
   assert( thunk.order() == 1 );
 
@@ -57,7 +57,9 @@ bool execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
       process.wait();
     }
 
-    return process.exit_status() == 0;
+    if ( process.exit_status() != 0 ) {
+      throw runtime_error( "thunk execution failed: " + thunk_path.string() );
+    }
   }
   else {
     auto allowed_files = thunk.get_allowed_files( gg_path, thunk_path );
@@ -75,12 +77,16 @@ bool execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
     process.set_log_level( log_level );
     process.execute();
 
-    return ( process.exit_status().initialized() and process.exit_status().get() == 0 );
+    if ( not process.exit_status().initialized() or process.exit_status().get() != 0 ) {
+      throw runtime_error( "thunk execution failed: " + thunk_path.string() );
+    }
   }
 
   roost::path outfile { exec_dir_path / thunk.outfile() };
   string outfile_hash = InFile::compute_hash( outfile.string() );
   roost::move_file( exec_dir_path / thunk.outfile(), gg_path / outfile_hash );
+
+  return outfile_hash;
 }
 
 void reduce_thunk( const roost::path &, const roost::path & thunk_path )
@@ -91,7 +97,7 @@ void reduce_thunk( const roost::path &, const roost::path & thunk_path )
     throw runtime_error( "zero-order thunk, something is probably wrong" );
   }
   else if ( thunk.order() == 1 ) {
-    CheckExecution( thunk_path.string(), execute_thunk( thunk, thunk_path ) );
+    execute_thunk( thunk, thunk_path );
   }
   else {
     throw runtime_error( "order > 1, not implemented." );
@@ -116,6 +122,7 @@ int main( int argc, char * argv[] )
       { "sandboxed", no_argument,       nullptr, 's' },
       { "gg-dir",    required_argument, nullptr, 'g' },
       { "verbose",   no_argument,       nullptr, 'v' },
+      { 0, 0, 0, 0 }
     };
 
     while ( true ) {
