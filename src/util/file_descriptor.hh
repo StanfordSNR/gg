@@ -29,9 +29,6 @@ protected:
   void register_write( void ) { write_count_++; }
 
 public:
-  // NOTE that the below constructor first seeks file to 0.
-  FileDescriptor( FILE *file ) : fd_( (fseek(file, 0, SEEK_SET), fileno(file)) ),
-                                 read_count_( 0 ), write_count_( 0 ) {}
   FileDescriptor( const int s_fd ) : fd_( s_fd ), read_count_( 0 ), write_count_( 0 ) {}
 
   ~FileDescriptor()
