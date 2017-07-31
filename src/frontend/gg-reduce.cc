@@ -42,12 +42,13 @@ bool execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
      to the .gg directory. */
 
   TempDirectory exec_dir { temp_root };
+  roost::path exec_dir_path { exec_dir.name() };
 
   if ( not sandboxed ) {
     ChildProcess process {
       thunk.outfile(),
-      [thunk, thunk_path, &exec_dir]() {
-        CheckSystemCall( "chdir", chdir( exec_dir.name().c_str() ) );
+      [thunk, thunk_path, exec_dir_path]() {
+        CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
         return thunk.execute( gg_path, thunk_path );
       }
     };
@@ -66,7 +67,9 @@ bool execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
       [thunk, thunk_path]() {
         return thunk.execute( gg_path, thunk_path );
       },
-      [&exec_dir] () { CheckSystemCall( "chdir", chdir( exec_dir.name().c_str() ) ); }
+      [exec_dir_path] () {
+        CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
+      }
     };
 
     process.set_log_level( log_level );

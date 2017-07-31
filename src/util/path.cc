@@ -140,6 +140,12 @@ namespace roost {
     dst_file.write( src_file.read_exactly( src_info.st_size ) );
   }
 
+  void move_file( const path & src, const path & dst )
+  {
+    copy_file( src, dst );
+    remove( src );
+  }
+
   path operator/( const path & prefix, const path & suffix )
   {
     if ( ( not prefix.string().empty() and prefix.string().back() == '/' ) or
