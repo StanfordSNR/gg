@@ -77,6 +77,10 @@ bool execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 
     return ( process.exit_status().initialized() and process.exit_status().get() == 0 );
   }
+
+  roost::path outfile { exec_dir_path / thunk.outfile() };
+  string outfile_hash = InFile::compute_hash( outfile.string() );
+  roost::move_file( exec_dir_path / thunk.outfile(), gg_path / outfile_hash );
 }
 
 void reduce_thunk( const roost::path &, const roost::path & thunk_path )
