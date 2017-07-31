@@ -84,7 +84,14 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 
   roost::path outfile { exec_dir_path / thunk.outfile() };
   string outfile_hash = InFile::compute_hash( outfile.string() );
-  roost::move_file( exec_dir_path / thunk.outfile(), gg_path / outfile_hash );
+  roost::path outfile_gg { gg_path / outfile_hash };
+
+  if ( not roost::exists( outfile_gg ) ) {
+    roost::move_file( outfile, outfile_gg );
+  }
+  else {
+    roost::remove( outfile );
+  }
 
   return outfile_hash;
 }
