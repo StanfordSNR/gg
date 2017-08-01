@@ -46,6 +46,7 @@ namespace roost {
   bool remove_at( const Directory & directory, const path & pathn,
                   const bool is_directory = false );
   void remove_directory( const path & pathn );
+  void symlink( const path & old_name, const path & new_name );
 }
 
 #endif /* PATH_HH */

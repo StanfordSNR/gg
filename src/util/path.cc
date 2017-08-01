@@ -289,4 +289,10 @@ namespace roost {
     empty_directory_relative( directory, "." );
     remove( pathn );
   }
+
+  void symlink( const path & old_name, const path & new_name )
+  {
+    CheckSystemCall( "symlink", ::symlink( old_name.string().c_str(),
+                                           new_name.string().c_str() ) );
+  }
 }
