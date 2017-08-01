@@ -27,6 +27,7 @@ namespace roost {
     std::string path_;
 
   public:
+    path( const char * pathn );
     path( const std::string & pathn );
 
     path lexically_normal() const;
