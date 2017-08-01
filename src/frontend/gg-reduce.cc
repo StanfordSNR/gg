@@ -99,9 +99,8 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
   if ( not roost::exists( outfile_gg ) ) {
     roost::move_file( outfile, outfile_gg );
   }
-  else {
-    roost::remove( outfile );
-  }
+
+  roost::remove( outfile );
 
   return outfile_hash;
 }
@@ -134,8 +133,7 @@ string reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path
   Thunk thunk = thunk_reader.read_thunk();
   const string thunk_hash = InFile::compute_hash( thunk_path.string() );
 
-  cerr << "Reducing thunk[" << thunk_hash << "] from order=" << thunk.order()
-       << "to order=" << thunk.order() - 1 << endl;
+  cerr << "Reducing [" << thunk_hash << "](" << thunk.order() << ")" << endl;
 
   if ( thunk.order() == 0 ) {
     throw runtime_error( "zero-order thunk, something is probably wrong" );
@@ -143,6 +141,10 @@ string reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path
   else if ( thunk.order() == 1 ) {
     const string output_hash = execute_thunk( thunk, thunk_path );
     store_thunk_reduction( thunk_hash, output_hash, 0 );
+
+    cerr << "Reduced [" << thunk_hash << "](" << thunk.order() << ") => "
+         << "[" << output_hash << "](" << 0 << ")" << endl;
+
     return output_hash;
   }
   else { // thunk.order() >= 2
@@ -167,9 +169,15 @@ string reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path
     ThunkWriter::write_thunk( new_thunk, temp_thunk.name() );
     const string new_thunk_hash = InFile::compute_hash( temp_thunk.name() );
     const roost::path new_thunk_path = get_content_path( new_thunk_hash );
-    roost::move_file( temp_thunk.name(), new_thunk_path );
+
+    if ( not roost::exists( new_thunk_path ) ) {
+      roost::move_file( temp_thunk.name(), new_thunk_path );
+    }
 
     store_thunk_reduction( thunk_hash, new_thunk_hash, new_thunk.order() );
+
+    cerr << "Reduced [" << thunk_hash << "](" << thunk.order() << ") => "
+         << "[" << new_thunk_hash << "](" << new_thunk.order() << ")" << endl;
 
     return new_thunk_hash;
   }
@@ -221,9 +229,14 @@ int main( int argc, char * argv[] )
 
     gg_path = roost::canonical( gg_dir );
     gg_reductions_path = gg_path / "reductions";
-    roost::path thunk_path = roost::canonical( thunk_filename );
+    const roost::path thunk_path = roost::canonical( thunk_filename );
 
-    cerr << "Reduced hash: " << reduce_thunk( gg_path, thunk_path ) << endl;
+    string reduced_hash = reduce_thunk( gg_path, thunk_path );
+
+    while ( not reduced_hash.empty() ) {
+      cerr << "Reduced to " << reduced_hash << endl;
+      reduced_hash = reduce_thunk( gg_path, get_content_path( reduced_hash ) );
+    }
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );
