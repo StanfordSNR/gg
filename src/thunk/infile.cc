@@ -46,13 +46,13 @@ InFile::InFile( const string & filename )
 
 InFile::InFile( const string & filename, const string & real_filename )
   : filename_( filename ), real_filename_( real_filename ),
-    hash_( compute_hash( real_filename_ ) ), order_( compute_order( real_filename_ ) ),
+    content_hash_( compute_hash( real_filename_ ) ), order_( compute_order( real_filename_ ) ),
     size_( compute_size( real_filename_ ) )
 {}
 
 InFile::InFile( const string & filename, const string & real_filename,
                 const string & hash, const size_t order, const off_t size )
-  : filename_( filename ), real_filename_( real_filename ), hash_( hash ),
+  : filename_( filename ), real_filename_( real_filename ), content_hash_( hash ),
     order_( order ), size_( size )
 {}
 
@@ -69,7 +69,7 @@ InFile::InFile( const string & filename, const string & real_filename,
 
 InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), real_filename_( filename_ ),
-    hash_( infile_proto.hash() ), order_( infile_proto.order() ),
+    content_hash_( infile_proto.hash() ), order_( infile_proto.order() ),
     size_( infile_proto.size() ),
     type_( type_from_protobuf( infile_proto.type() ) )
 {}
@@ -80,7 +80,7 @@ InFile::InFile( const std::string & filename, const Type type )
   type_ = type;
 
   if ( type == Type::FILE ) {
-    hash_ = compute_hash( real_filename_ );
+    content_hash_ = compute_hash( real_filename_ );
     order_ = compute_order( real_filename_ );
     size_ = compute_size( real_filename_ );
   }
@@ -126,7 +126,7 @@ protobuf::InFile InFile::to_protobuf() const
 
   if ( type_ == Type::FILE ) {
     infile.set_size( size_ );
-    infile.set_hash( hash_ );
+    infile.set_hash( content_hash_ );
     infile.set_order( order_ );
   }
 
@@ -136,7 +136,7 @@ protobuf::InFile InFile::to_protobuf() const
 bool InFile::operator==( const InFile & other ) const
 {
   return ( filename_ == other.filename_ ) and
-         ( hash_ == other.hash_ ) and
+         ( content_hash_ == other.content_hash_ ) and
          ( order_ == other.order_ ) and
          ( size_ == other.size_ ) and
          ( type_ == other.type_ );

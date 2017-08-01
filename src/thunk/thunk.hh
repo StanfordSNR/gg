@@ -31,7 +31,7 @@ namespace gg {
       std::string filename_;
       /* where the actual content is */
       std::string real_filename_;
-      std::string hash_;
+      std::string content_hash_;
       size_t order_;
       off_t size_;
       Type type_ { Type::FILE };
@@ -60,7 +60,7 @@ namespace gg {
 
       const std::string & filename() const { return filename_; }
       const std::string & real_filename() const { return real_filename_; }
-      const std::string & hash() const { return hash_; }
+      const std::string & content_hash() const { return content_hash_; }
       size_t order() const { return order_; }
       off_t size() const { return size_; }
       Type type() const { return type_; }

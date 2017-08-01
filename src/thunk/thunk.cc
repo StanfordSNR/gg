@@ -101,13 +101,13 @@ void put_file( const roost::path & src, const roost::path & dst )
 void Thunk::collect_infiles( const roost::path & gg_dir ) const
 {
   for ( InFile infile : infiles_ ) {
-    if ( infile.hash().length() == 0 ) {
+    if ( infile.content_hash().length() == 0 ) {
       /* this is a directory, not a file. no need to copy anything */
       continue;
     }
 
     roost::path source_path = infile.real_filename();
-    roost::path target_path = gg_dir / infile.hash();
+    roost::path target_path = gg_dir / infile.content_hash();
     put_file( source_path, target_path );
   }
 }
@@ -139,8 +139,8 @@ unordered_map<string, Permissions> Thunk::get_allowed_files( const roost::path &
   unordered_map<string, Permissions> allowed_files;
 
   for ( const InFile & infile : infiles() ) {
-    if ( infile.hash().length() ) {
-      allowed_files[ ( gg_path / infile.hash() ).string() ] = { true, false, false };
+    if ( infile.content_hash().length() ) {
+      allowed_files[ ( gg_path / infile.content_hash() ).string() ] = { true, false, false };
     }
     else {
       allowed_files[ infile.filename() ] = { true, false, false };
