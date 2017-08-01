@@ -119,6 +119,36 @@ void store_thunk_reduction( const string & original_hash,
   }
 }
 
+string check_reduction_cache( const string & thunk_hash, const size_t order )
+{
+  if ( order == 0 ) {
+    throw runtime_error( "not a thunk" );
+  }
+
+  roost::path reduction_root { gg_reductions_path / thunk_hash };
+
+  if ( not roost::exists( reduction_root ) ) {
+    return ""; // no reductions are available
+  }
+
+  for ( size_t i = 0; i < order; i++ ) {
+    roost::path reduction_order_root { reduction_root / to_string( i ) };
+
+    if ( not roost::exists( reduction_order_root ) ) {
+      continue;
+    }
+
+    const vector<string> reductions = roost::get_directory_listing( reduction_order_root );
+
+    if ( reductions.size() > 0 ) {
+      return reductions.front();
+    }
+    else {
+      return "";
+    }
+  }
+}
+
 /* Reduces the order of the input thunk by one and returns hash of the reduction
    result */
 string reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path )
@@ -134,6 +164,14 @@ string reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path
   const string thunk_hash = InFile::compute_hash( thunk_path.string() );
 
   cerr << "Reducing [" << thunk_hash << "](" << thunk.order() << ")" << endl;
+
+  /* first let's see if we actually have a reduced version of this thunk */
+  const string cached_reduction = check_reduction_cache( thunk_hash, thunk.order() );
+
+  if ( not cached_reduction.empty() ) {
+    cerr << "Reduction found: " << cached_reduction << endl;
+    return cached_reduction;
+  }
 
   if ( thunk.order() == 0 ) {
     throw runtime_error( "zero-order thunk, something is probably wrong" );
