@@ -299,4 +299,30 @@ namespace roost {
     CheckSystemCall( "symlink", ::symlink( old_name.string().c_str(),
                                            new_name.string().c_str() ) );
   }
+
+  vector<string> get_directory_listing( const path & pathn )
+  {
+    Directory directory( pathn.string() );
+    shared_ptr<DIR> dir { fdopendir( directory.num() ), closedir };
+
+    if ( dir.get() == NULL ) {
+      throw unix_error( "fdopendir" );
+    }
+
+    vector<string> result;
+
+    struct dirent * entry = NULL;
+    while ( ( errno = 0, entry = readdir( dir.get() ) ) != NULL ) {
+      string name { entry->d_name };
+      if ( name != ".." and name != "." ) {
+        result.push_back( name );
+      }
+    }
+
+    if ( errno ) {
+      throw unix_error( "readdir" );
+    }
+
+    return result;
+  }
 }

@@ -48,6 +48,7 @@ namespace roost {
                   const bool is_directory = false );
   void remove_directory( const path & pathn );
   void symlink( const path & old_name, const path & new_name );
+  std::vector<std::string> get_directory_listing( const path & pathn );
 }
 
 #endif /* PATH_HH */
