@@ -136,8 +136,8 @@ namespace gg {
 
       /* this function will collect all of the infiles in .gg directory, and
          will store two copies for the thunk, both in the working directory
-         and .gg directory. */
-      void store( const roost::path & gg_dir ) const;
+         and .gg directory. It returns the hash. */
+      std::string store( const roost::path & gg_dir ) const;
 
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }

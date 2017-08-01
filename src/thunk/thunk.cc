@@ -112,7 +112,7 @@ void Thunk::collect_infiles( const roost::path & gg_dir ) const
   }
 }
 
-void Thunk::store( const roost::path & gg_dir ) const
+string Thunk::store( const roost::path & gg_dir ) const
 {
   collect_infiles( gg_dir );
 
@@ -123,6 +123,8 @@ void Thunk::store( const roost::path & gg_dir ) const
   if ( not roost::exists( thunk_in_gg_path ) ) {
     roost::copy_file( outfile(), thunk_in_gg_path );
   }
+
+  return thunk_hash;
 }
 
 bool Thunk::operator==( const Thunk & other ) const
