@@ -19,7 +19,9 @@ using namespace gg::thunk;
 bool sandboxed = false;
 LogLevel log_level = LOG_LEVEL_NO_LOG;
 string temp_root = "/tmp/thunk-execute";
+
 roost::path gg_path { ".gg" };
+roost::path gg_reductions_path { gg_path / "reductions" };
 
 void usage( const char * argv0 )
 {
@@ -31,6 +33,11 @@ inline void CheckExecution( const string & path, bool status )
   if ( not status ) {
     throw runtime_error( "thunk execution failed: " +  path );
   }
+}
+
+roost::path get_content_path( const string & content_hash )
+{
+  return gg_path / content_hash;
 }
 
 string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
@@ -84,7 +91,7 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 
   roost::path outfile { exec_dir_path / thunk.outfile() };
   string outfile_hash = InFile::compute_hash( outfile.string() );
-  roost::path outfile_gg { gg_path / outfile_hash };
+  roost::path outfile_gg = get_content_path( outfile_hash );
 
   if ( not roost::exists( outfile_gg ) ) {
     roost::move_file( outfile, outfile_gg );
@@ -99,12 +106,17 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 void reduce_thunk( const roost::path &, const roost::path & thunk_path )
 {
   Thunk thunk = ThunkReader( thunk_path.string() ).read_thunk();
+  string thunk_hash = InFile::compute_hash( thunk_path.string() );
 
   if ( thunk.order() == 0 ) {
     throw runtime_error( "zero-order thunk, something is probably wrong" );
   }
   else if ( thunk.order() == 1 ) {
-    execute_thunk( thunk, thunk_path );
+    string output_hash = execute_thunk( thunk, thunk_path );
+    roost::path output_path = get_content_path( output_hash );
+    roost::path reduction_dir = gg_reductions_path / thunk_hash / string( "0" );
+    roost::create_directories( reduction_dir );
+    roost::symlink( output_path, reduction_dir / output_hash );
   }
   else {
     throw runtime_error( "order > 1, not implemented." );
@@ -156,6 +168,7 @@ int main( int argc, char * argv[] )
     string thunk_filename = argv[ optind ];
 
     gg_path = roost::canonical( gg_dir );
+    gg_reductions_path = gg_path / "reductions";
     roost::path thunk_path = roost::canonical( thunk_filename );
 
     reduce_thunk( gg_path, thunk_path );
