@@ -116,7 +116,7 @@ string Thunk::store( const roost::path & gg_dir ) const
 {
   collect_infiles( gg_dir );
 
-  ThunkWriter::write_thunk( *this );
+  ThunkWriter::write_thunk( *this, outfile() );
   string thunk_hash = InFile::compute_hash( outfile() );
   roost::path thunk_in_gg_path = gg_dir / thunk_hash;
 

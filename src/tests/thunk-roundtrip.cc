@@ -54,7 +54,7 @@ int main( int argc, char * argv[] )
 
     Thunk original_thunk { outfile, function, infiles };
 
-    ThunkWriter::write_thunk( original_thunk );
+    ThunkWriter::write_thunk( original_thunk, outfile );
 
     // Now reading it back
     ThunkReader thunk_reader { outfile };

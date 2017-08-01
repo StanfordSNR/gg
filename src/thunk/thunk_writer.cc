@@ -11,9 +11,9 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
-bool ThunkWriter::write_thunk( Thunk thunk )
+bool ThunkWriter::write_thunk( const Thunk & thunk, const string & filename )
 {
-  ProtobufSerializer serializer { thunk.outfile() };
+  ProtobufSerializer serializer { filename };
   serializer.write_string( MAGIC_NUMBER );
   serializer.write_protobuf<protobuf::Thunk>( thunk.to_protobuf() );
 
