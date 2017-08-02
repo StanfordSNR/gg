@@ -178,7 +178,7 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
   return { output, gcc_function( args, envars ), infiles };
 }
 
-enum class GCCArg
+enum class GCCOption
 {
   x = 1000,
   o,
@@ -203,7 +203,7 @@ int main( int argc, char * argv[] )
   vector<InputFile> input_files;
   vector<string> args;
   vector<string> envars;
-  map<GCCArg, string> arg_map;
+  map<GCCOption, string> arg_map;
 
   for ( int i = 1; i < argc; i++ ) {
     args.push_back( argv[ i ] );
@@ -215,14 +215,14 @@ int main( int argc, char * argv[] )
   string last_stage_output_filename {};
 
   const option gcc_options[] = {
-    { "x", required_argument, NULL, to_underlying( GCCArg::x ) },
-    { "M", no_argument, NULL, to_underlying( GCCArg::M ) },
-    { "MD", no_argument, NULL, to_underlying( GCCArg::MD ) },
-    { "MP", no_argument, NULL, to_underlying( GCCArg::MP ) },
-    { "MT", required_argument, NULL, to_underlying( GCCArg::MT ) },
-    { "MF", required_argument, NULL, to_underlying( GCCArg::MF ) },
+    { "x", required_argument, NULL, to_underlying( GCCOption::x ) },
+    { "M", no_argument, NULL, to_underlying( GCCOption::M ) },
+    { "MD", no_argument, NULL, to_underlying( GCCOption::MD ) },
+    { "MP", no_argument, NULL, to_underlying( GCCOption::MP ) },
+    { "MT", required_argument, NULL, to_underlying( GCCOption::MT ) },
+    { "MF", required_argument, NULL, to_underlying( GCCOption::MF ) },
 
-    { "pie", required_argument, NULL, to_underlying( GCCArg::pie ) },
+    { "pie", required_argument, NULL, to_underlying( GCCOption::pie ) },
 
     { 0, 0, 0, 0 },
   };
@@ -275,7 +275,7 @@ int main( int argc, char * argv[] )
 
     case 'o':
       last_stage_output_filename = optarg;
-      arg_map[ GCCArg::o ] = last_stage_output_filename;
+      arg_map[ GCCOption::o ] = last_stage_output_filename;
       break;
 
     case 'g':
@@ -292,30 +292,30 @@ int main( int argc, char * argv[] )
     }
 
     if ( not flag_processed ) {
-      GCCArg opt_gccarg = static_cast<GCCArg>( opt );
+      GCCOption gccopt = static_cast<GCCOption>( opt );
 
-      switch ( opt_gccarg ) {
-      case GCCArg::x:
+      switch ( gccopt ) {
+      case GCCOption::x:
         current_language = name_to_language( optarg );
         break;
 
-      case GCCArg::M:
-      case GCCArg::MD:
-      case GCCArg::MP:
+      case GCCOption::M:
+      case GCCOption::MD:
+      case GCCOption::MP:
         dep_gen_args.push_back( argv[ optind - 1 ] );
-        arg_map[ opt_gccarg ] = {};
+        arg_map[ gccopt ] = {};
         break;
 
-      case GCCArg::MT:
-      case GCCArg::MF:
+      case GCCOption::MT:
+      case GCCOption::MF:
         dep_gen_args.push_back( argv[ optind - 2 ] );
         dep_gen_args.push_back( optarg );
 
-        arg_map[ opt_gccarg ] = optarg;
+        arg_map[ gccopt ] = optarg;
 
         break;
 
-      case GCCArg::pie:
+      case GCCOption::pie:
         break;
 
       default:
