@@ -181,6 +181,7 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
 enum class GCCArg
 {
   x = 1000,
+  o,
   E, S, c,
   M, MD, MP, MT, MF,
   pie,
@@ -202,6 +203,7 @@ int main( int argc, char * argv[] )
   vector<InputFile> input_files;
   vector<string> args;
   vector<string> envars;
+  map<GCCArg, string> arg_map;
 
   for ( int i = 1; i < argc; i++ ) {
     args.push_back( argv[ i ] );
@@ -273,6 +275,7 @@ int main( int argc, char * argv[] )
 
     case 'o':
       last_stage_output_filename = optarg;
+      arg_map[ GCCArg::o ] = last_stage_output_filename;
       break;
 
     case 'g':
@@ -289,7 +292,9 @@ int main( int argc, char * argv[] )
     }
 
     if ( not flag_processed ) {
-      switch ( static_cast<GCCArg>( opt ) ) {
+      GCCArg opt_gccarg = static_cast<GCCArg>( opt );
+
+      switch ( opt_gccarg ) {
       case GCCArg::x:
         current_language = name_to_language( optarg );
         break;
@@ -298,12 +303,16 @@ int main( int argc, char * argv[] )
       case GCCArg::MD:
       case GCCArg::MP:
         dep_gen_args.push_back( argv[ optind - 1 ] );
+        arg_map[ opt_gccarg ] = {};
         break;
 
       case GCCArg::MT:
       case GCCArg::MF:
         dep_gen_args.push_back( argv[ optind - 2 ] );
         dep_gen_args.push_back( optarg );
+
+        arg_map[ opt_gccarg ] = optarg;
+
         break;
 
       case GCCArg::pie:
