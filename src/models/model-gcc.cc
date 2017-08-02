@@ -178,7 +178,7 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
   return { output, gcc_function( args, envars ), infiles };
 }
 
-enum class GCCArgs
+enum class GCCArg
 {
   x = 1000,
   E, S, c,
@@ -213,14 +213,14 @@ int main( int argc, char * argv[] )
   string last_stage_output_filename {};
 
   const option gcc_options[] = {
-    { "x", required_argument, NULL, to_underlying( GCCArgs::x ) },
-    { "M", no_argument, NULL, to_underlying( GCCArgs::M ) },
-    { "MD", no_argument, NULL, to_underlying( GCCArgs::MD ) },
-    { "MP", no_argument, NULL, to_underlying( GCCArgs::MP ) },
-    { "MT", required_argument, NULL, to_underlying( GCCArgs::MT ) },
-    { "MF", required_argument, NULL, to_underlying( GCCArgs::MF ) },
+    { "x", required_argument, NULL, to_underlying( GCCArg::x ) },
+    { "M", no_argument, NULL, to_underlying( GCCArg::M ) },
+    { "MD", no_argument, NULL, to_underlying( GCCArg::MD ) },
+    { "MP", no_argument, NULL, to_underlying( GCCArg::MP ) },
+    { "MT", required_argument, NULL, to_underlying( GCCArg::MT ) },
+    { "MF", required_argument, NULL, to_underlying( GCCArg::MF ) },
 
-    { "pie", required_argument, NULL, to_underlying( GCCArgs::pie ) },
+    { "pie", required_argument, NULL, to_underlying( GCCArg::pie ) },
 
     { 0, 0, 0, 0 },
   };
@@ -289,24 +289,24 @@ int main( int argc, char * argv[] )
     }
 
     if ( not flag_processed ) {
-      switch ( static_cast<GCCArgs>( opt ) ) {
-      case GCCArgs::x:
+      switch ( static_cast<GCCArg>( opt ) ) {
+      case GCCArg::x:
         current_language = name_to_language( optarg );
         break;
 
-      case GCCArgs::M:
-      case GCCArgs::MD:
-      case GCCArgs::MP:
+      case GCCArg::M:
+      case GCCArg::MD:
+      case GCCArg::MP:
         dep_gen_args.push_back( argv[ optind - 1 ] );
         break;
 
-      case GCCArgs::MT:
-      case GCCArgs::MF:
+      case GCCArg::MT:
+      case GCCArg::MF:
         dep_gen_args.push_back( argv[ optind - 2 ] );
         dep_gen_args.push_back( optarg );
         break;
 
-      case GCCArgs::pie:
+      case GCCArg::pie:
         break;
 
       default:
