@@ -13,6 +13,53 @@
 using namespace std;
 using namespace boost;
 
+vector<string> parse_dependencies_file( const string & dep_filename )
+{
+  vector<string> dependencies;
+
+  ifstream depin { dep_filename };
+  string line;
+  bool first_line = true;
+
+  while ( getline( depin, line ) ) {
+    if ( first_line ) {
+      line = line.substr( line.find(':') + 2, line.length() );
+      first_line = false;
+    }
+    else {
+      line = line.substr( 1, line.length() );
+    }
+
+    if ( line[ line.length() - 1 ] == '\\' ) {
+      line = line.substr( 0, line.length() - 2 );
+    }
+
+    if ( line == "\\" ) {
+      continue;
+    }
+
+    tokenizer<escaped_list_separator<char>> tok( line, { "\\", " ", "\"\'" } );
+
+    for ( auto t = tok.begin(); t != tok.end(); t++ ) {
+      dependencies.push_back( *t );
+    }
+  }
+
+  return dependencies;
+}
+
+void geneate_dependencies_file( const vector<string> & dep_gen_args,
+                              const string &,
+                              const string & specsfile )
+{
+  vector<string> args;
+  args.push_back( "gcc-7" );
+  args.push_back( "-specs=" + specsfile );
+  args.insert( args.end(), dep_gen_args.begin(), dep_gen_args.end() );
+
+  run( args[ 0 ], args, {}, true, true );
+}
+
 vector<string> get_preprocess_dependencies( const vector<string> & gcc_args,
                                             const string & specsfile )
 {
@@ -50,35 +97,5 @@ vector<string> get_preprocess_dependencies( const vector<string> & gcc_args,
 
   run( args[ 0 ], args, {}, true, true );
 
-  vector<string> dependencies;
-
-  ifstream depin { dep_out_filename };
-  string line;
-  bool first_line = true;
-
-  while ( getline( depin, line ) ) {
-    if ( first_line ) {
-      line = line.substr( line.find(':') + 2, line.length() );
-      first_line = false;
-    }
-    else {
-      line = line.substr( 1, line.length() );
-    }
-
-    if ( line[ line.length() - 1 ] == '\\' ) {
-      line = line.substr( 0, line.length() - 2 );
-    }
-
-    if ( line == "\\" ) {
-      continue;
-    }
-
-    tokenizer<escaped_list_separator<char>> tok( line, { "\\", " ", "\"\'" } );
-
-    for ( auto t = tok.begin(); t != tok.end(); t++ ) {
-      dependencies.push_back( *t );
-    }
-  }
-
-  return dependencies;
+  return parse_dependencies_file( dep_out_filename );
 }
