@@ -178,6 +178,20 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
   return { output, gcc_function( args, envars ), infiles };
 }
 
+enum class GCCArgs
+{
+  x = 1000,
+  E, S, c,
+  M, MD, MP, MT, MF,
+  pie,
+};
+
+template <typename E>
+constexpr auto to_underlying(E e) noexcept
+{
+    return static_cast<std::underlying_type_t<E>>(e);
+}
+
 int main( int argc, char * argv[] )
 {
   roost::path gg_dir = gg::models::create_gg_dir();
@@ -185,6 +199,7 @@ int main( int argc, char * argv[] )
   Language current_language = Language::NONE; /* -x arugment */
   Optional<GCCStage> last_stage;
 
+  vector<InputFile> input_files;
   vector<string> args;
   vector<string> envars;
 
@@ -192,18 +207,20 @@ int main( int argc, char * argv[] )
     args.push_back( argv[ i ] );
   }
 
+  /* arguments for dependency generation (gcc -M) */
+  vector<string> dep_gen_args;
+
   string last_stage_output_filename {};
 
-  vector<InputFile> input_files;
-
   const option gcc_options[] = {
-    { NULL, required_argument, NULL, 'x' }, /* Explicitly specify the language for the following input files */
+    { "x", required_argument, NULL, to_underlying( GCCArgs::x ) },
+    { "M", no_argument, NULL, to_underlying( GCCArgs::M ) },
+    { "MD", no_argument, NULL, to_underlying( GCCArgs::MD ) },
+    { "MP", no_argument, NULL, to_underlying( GCCArgs::MP ) },
+    { "MT", required_argument, NULL, to_underlying( GCCArgs::MT ) },
+    { "MF", required_argument, NULL, to_underlying( GCCArgs::MF ) },
 
-    { NULL, no_argument,       NULL, 'E' }, /* Stop after the preprocessing stage */
-    { NULL, no_argument,       NULL, 'S' }, /* Stop after the stage of compilation proper */
-    { NULL, no_argument,       NULL, 'c' }, /* Compile or assemble the source files, but do not link */
-
-    { NULL, required_argument, NULL, 'o' }, /*  Output file name */
+    { "pie", required_argument, NULL, to_underlying( GCCArgs::pie ) },
 
     { 0, 0, 0, 0 },
   };
@@ -212,7 +229,7 @@ int main( int argc, char * argv[] )
   opterr = 0; /* turn off error messages */
 
   while ( true ) {
-    const int opt = getopt_long( argc, argv, "-x:ESco:l:W:O:B:", gcc_options, nullptr );
+    const int opt = getopt_long_only( argc, argv, "-l:B:ESco:gO:D:f:", gcc_options, nullptr );
     size_t arg_index = static_cast<size_t>( optind - 2 );
 
     /* detect the end of options */
@@ -234,14 +251,12 @@ int main( int argc, char * argv[] )
       continue;
     }
 
+    bool flag_processed = true;
+
     switch ( opt ) {
     case 'l':
       input_files.push_back( { optarg, Language::SHARED_LIBRARY,
                                Language::SHARED_LIBRARY, arg_index } );
-      break;
-
-    case 'x':
-      current_language = name_to_language( optarg );
       break;
 
     case 'E':
@@ -260,8 +275,43 @@ int main( int argc, char * argv[] )
       last_stage_output_filename = optarg;
       break;
 
+    case 'g':
+    case 'O':
+    case 'D':
+    case 'f':
+      break;
+
     case 'B':
       throw runtime_error( "illegal -B flag" );
+
+    default:
+      flag_processed = false;
+    }
+
+    if ( not flag_processed ) {
+      switch ( static_cast<GCCArgs>( opt ) ) {
+      case GCCArgs::x:
+        current_language = name_to_language( optarg );
+        break;
+
+      case GCCArgs::M:
+      case GCCArgs::MD:
+      case GCCArgs::MP:
+        dep_gen_args.push_back( argv[ optind - 1 ] );
+        break;
+
+      case GCCArgs::MT:
+      case GCCArgs::MF:
+        dep_gen_args.push_back( argv[ optind - 2 ] );
+        dep_gen_args.push_back( optarg );
+        break;
+
+      case GCCArgs::pie:
+        break;
+
+      default:
+        throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );
+      }
     }
   }
 
