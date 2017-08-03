@@ -2,6 +2,7 @@
 
 #include "model-gcc.hh"
 
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -48,14 +49,26 @@ vector<string> parse_dependencies_file( const string & dep_filename )
   return dependencies;
 }
 
-void geneate_dependencies_file( const vector<string> & dep_gen_args,
-                              const string &,
-                              const string & specsfile )
+void generate_dependencies_file( const vector<string> & option_args,
+                                 const string & input_name,
+                                 const string & specsfile )
 {
-  vector<string> args;
-  args.push_back( "gcc-7" );
-  args.push_back( "-specs=" + specsfile );
-  args.insert( args.end(), dep_gen_args.begin(), dep_gen_args.end() );
+  vector<string> args { option_args };
+
+  auto mf_search = find( args.begin(), args.end(), "-MF" );
+  auto md_search = find( args.begin(), args.end(), "-MD" );
+
+  if ( mf_search == end( args ) ) {
+    throw runtime_error( "cannot produce dependencies file without -MF option" );
+  }
+
+  if ( md_search != end( args ) ) {
+    args.erase( md_search );
+  }
+
+  args.insert( args.begin(), "gcc-7" );
+  args.insert( args.begin(), "-specs=" + specsfile );
+  args.push_back( input_name );
 
   run( args[ 0 ], args, {}, true, true );
 }
