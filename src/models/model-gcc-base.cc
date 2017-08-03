@@ -41,6 +41,17 @@ Language name_to_language( const string & name )
   throw runtime_error( "unknown language name" );
 }
 
+string language_to_name( const Language & name )
+{
+  if ( name == Language::NONE ) return "none";
+  if ( name == Language::C ) return "c";
+  if ( name == Language::C_HEADER ) return "c-header";
+  if ( name == Language::CPP_OUTPUT ) return "cpp-output";
+  if ( name == Language::ASSEMBLER ) return "assembler";
+
+  throw runtime_error( "unknown language" );
+}
+
 GCCStage language_to_stage( const Language lang )
 {
   switch ( lang ) {
