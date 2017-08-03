@@ -3,6 +3,8 @@
 #include "model-gcc.hh"
 #include "gcc-args.hh"
 
+#include <iostream>
+
 using namespace std;
 
 GCCArguments::GCCArguments( const int argc, char ** argv )
@@ -19,7 +21,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { "MT", required_argument, NULL, to_underlying( GCCOption::MT ) },
     { "MF", required_argument, NULL, to_underlying( GCCOption::MF ) },
 
-    { "pie", required_argument, NULL, to_underlying( GCCOption::pie ) },
+    { "pie", no_argument, NULL, to_underlying( GCCOption::pie ) },
 
     { 0, 0, 0, 0 },
   };
@@ -106,6 +108,10 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       }
     }
   }
+
+  for ( InputFile & input : input_files_ ) {
+    input.index += args_.size() + ( output_.empty() ? 0 : 2 );
+  }
 }
 
 void GCCArguments::add_option( const GCCOption option, const string & optstr,
@@ -135,4 +141,30 @@ void GCCArguments::add_input( const string & filename, const Language language )
   }
 
   input_files_.push_back( { filename, language, language, input_args_.size() - 1 } );
+}
+
+vector<string> GCCArguments::all_args() const
+{
+  vector<string> result;
+  result.reserve( args_.size() + input_args_.size() + output_.empty() ? 0 : 2 );
+
+  result.insert( result.end(), args_.begin(), args_.end() );
+
+  if ( not output_.empty() ) {
+    result.emplace_back( "-o" );
+    result.push_back( output_ );
+  }
+
+  result.insert( result.end(), input_args_.begin(), input_args_.end() );
+
+  return result;
+}
+
+void GCCArguments::print_args() const
+{
+  for ( const string & arg : all_args() ) {
+    cerr << arg << " ";
+  }
+
+  cerr << endl;
 }

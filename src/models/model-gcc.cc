@@ -44,7 +44,7 @@ void dump_gcc_specs( TempFile & target_file )
   }
 }
 
-Thunk generate_thunk( const GCCStage stage, const vector<string> original_args,
+Thunk generate_thunk( const GCCStage stage, const vector<string> & original_args,
                       const vector<string> & envars, const string & input,
                       const string & output, const string & specsfile )
 {
@@ -183,136 +183,16 @@ int main( int argc, char * argv[] )
 {
   roost::path gg_dir = gg::models::create_gg_dir();
 
-  Language current_language = Language::NONE; /* -x arugment */
-  Optional<GCCStage> last_stage;
-
-  vector<InputFile> input_files;
-  vector<string> args;
   vector<string> envars;
-  map<GCCOption, string> arg_map;
 
-  for ( int i = 1; i < argc; i++ ) {
-    args.push_back( argv[ i ] );
-  }
+  GCCArguments gcc_arguments { argc, argv };
 
-  /* arguments for dependency generation (gcc -M) */
-  vector<string> dep_gen_args;
+  string last_stage_output_filename = gcc_arguments.output_filename();
+  GCCStage last_stage = gcc_arguments.last_stage();
+  vector<string> args = gcc_arguments.all_args();
+  const vector<InputFile> & input_files = gcc_arguments.input_files();
 
-  string last_stage_output_filename {};
-
-  const option gcc_options[] = {
-    { "x", required_argument, NULL, to_underlying( GCCOption::x ) },
-    { "M", no_argument, NULL, to_underlying( GCCOption::M ) },
-    { "MD", no_argument, NULL, to_underlying( GCCOption::MD ) },
-    { "MP", no_argument, NULL, to_underlying( GCCOption::MP ) },
-    { "MT", required_argument, NULL, to_underlying( GCCOption::MT ) },
-    { "MF", required_argument, NULL, to_underlying( GCCOption::MF ) },
-
-    { "pie", required_argument, NULL, to_underlying( GCCOption::pie ) },
-
-    { 0, 0, 0, 0 },
-  };
-
-  optind = 1; /* reset getopt */
-  opterr = 0; /* turn off error messages */
-
-  while ( true ) {
-    const int opt = getopt_long_only( argc, argv, "-l:B:ESco:gO:D:f:", gcc_options, nullptr );
-    size_t arg_index = static_cast<size_t>( optind - 2 );
-
-    /* detect the end of options */
-    if ( opt == -1 ) {
-      break;
-    }
-
-    /* detect non-option argument */
-    if ( opt == 1 ) {
-      string input_file { optarg };
-      Language file_lang = current_language;
-
-      if ( current_language == Language::NONE ) {
-        file_lang = filename_to_language( input_file );
-      }
-
-      input_files.push_back( { input_file, file_lang, file_lang, arg_index } );
-
-      continue;
-    }
-
-    bool flag_processed = true;
-
-    switch ( opt ) {
-    case 'l':
-      input_files.push_back( { optarg, Language::SHARED_LIBRARY,
-                               Language::SHARED_LIBRARY, arg_index } );
-      break;
-
-    case 'E':
-      last_stage = PREPROCESS;
-      break;
-
-    case 'S':
-      last_stage = ( not last_stage.initialized() or *last_stage >= COMPILE ) ? COMPILE : *last_stage;
-      break;
-
-    case 'c':
-      last_stage = ( not last_stage.initialized() or *last_stage >= ASSEMBLE ) ? ASSEMBLE : *last_stage;
-      break;
-
-    case 'o':
-      last_stage_output_filename = optarg;
-      arg_map[ GCCOption::o ] = last_stage_output_filename;
-      break;
-
-    case 'g':
-    case 'O':
-    case 'D':
-    case 'f':
-      break;
-
-    case 'B':
-      throw runtime_error( "illegal -B flag" );
-
-    default:
-      flag_processed = false;
-    }
-
-    if ( not flag_processed ) {
-      GCCOption gccopt = static_cast<GCCOption>( opt );
-
-      switch ( gccopt ) {
-      case GCCOption::x:
-        current_language = name_to_language( optarg );
-        break;
-
-      case GCCOption::M:
-      case GCCOption::MD:
-      case GCCOption::MP:
-        dep_gen_args.push_back( argv[ optind - 1 ] );
-        arg_map[ gccopt ] = {};
-        break;
-
-      case GCCOption::MT:
-      case GCCOption::MF:
-        dep_gen_args.push_back( argv[ optind - 2 ] );
-        dep_gen_args.push_back( optarg );
-
-        arg_map[ gccopt ] = optarg;
-
-        break;
-
-      case GCCOption::pie:
-        break;
-
-      default:
-        throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );
-      }
-    }
-  }
-
-  if ( not last_stage.initialized() ) {
-    last_stage = LINK;
-  }
+  gcc_arguments.print_args();
 
   if ( input_files.size() == 0 ) {
     throw runtime_error( "no input files" );
@@ -340,7 +220,7 @@ int main( int argc, char * argv[] )
     }
 
     GCCStage first_stage = language_to_stage( input.language );
-    GCCStage input_last_stage = ( *last_stage == LINK ) ? ASSEMBLE : *last_stage;
+    GCCStage input_last_stage = ( last_stage == LINK ) ? ASSEMBLE : last_stage;
     string input_hash = digest::SHA256( input.name ).hexdigest();
 
     map<size_t, string> stage_output;
@@ -349,8 +229,8 @@ int main( int argc, char * argv[] )
     for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
       GCCStage stage = static_cast<GCCStage>( stage_num );
 
-      string output_name = ( stage == *last_stage ) ? last_stage_output_filename
-                                                    : stage_output_name( stage, input_hash );
+      string output_name = ( stage == last_stage ) ? last_stage_output_filename
+                                                   : stage_output_name( stage, input_hash );
 
 
       vector<string> args_stage = args;

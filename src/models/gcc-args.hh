@@ -43,6 +43,13 @@ public:
                    const std::string & value = "" );
 
   void add_input( const std::string & filename, const Language language );
+
+  const std::string & output_filename() const { return output_; }
+  const std::vector<InputFile> input_files() const { return input_files_; }
+  GCCStage last_stage() const { return last_stage_.get_or( LINK ); }
+  std::vector<std::string> all_args() const;
+
+  void print_args() const;
 };
 
 #endif /* GCC_ARGS_HH */
