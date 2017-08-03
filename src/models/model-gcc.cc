@@ -46,7 +46,8 @@ void dump_gcc_specs( TempFile & target_file )
 
 Thunk generate_thunk( const GCCStage stage, const vector<string> & original_args,
                       const vector<string> & envars, const string & input,
-                      const string & output, const string & specsfile )
+                      const string & output, const string & makedep_filename,
+                      const string & makedep_target, const string & specsfile )
 {
   vector<string> args { original_args };
 
@@ -92,7 +93,7 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> & original_args
   switch ( stage ) {
   case PREPROCESS:
   {
-    vector<string> dependencies = get_preprocess_dependencies( args, specsfile );
+    vector<string> dependencies = parse_dependencies_file( makedep_filename, makedep_target );
 
     base_infiles.emplace_back( program_infiles.at( CC1 ) );
 
@@ -209,8 +210,13 @@ int main( int argc, char * argv[] )
     throw runtime_error( "multiple inputs are only allowed for linking" );
   }
 
-  /* generate gcc specs file */
-  TempFile specs_tmpfile { "/tmp/gccspecs" };
+  bool generate_makedep_file = find_if( args.begin(), args.end(),
+      [] ( const string & dep ) {
+        return ( dep == "-M" ) or ( dep == "-MM" ) or ( dep == "-MD" );
+      }
+    ) != end( args );
+
+  TempFile specs_tmpfile { "/tmp/gg-gccspecs" };
   dump_gcc_specs( specs_tmpfile );
 
   for ( const InputFile & input : input_files ) {
@@ -232,11 +238,36 @@ int main( int argc, char * argv[] )
       string output_name = ( stage == last_stage ) ? last_stage_output_filename
                                                    : stage_output_name( stage, input_hash );
 
+      TempFile makedep_tempfile { "/tmp/gg-makedep" };
+      string makedep_filename;
+      string makedep_target = stage_output[ stage - 1 ];
+
+      if ( stage == PREPROCESS ) {
+        if ( generate_makedep_file ) {
+          cerr << ">>> generating make dependencies file..." << endl;
+          generate_dependencies_file( gcc_arguments.option_args(),
+                                      stage_output[ stage - 1 ], "",
+                                      specs_tmpfile.name() );
+          makedep_filename = *gcc_arguments.option_argument( GCCOption::MF );
+          Optional<string> mt_arg = gcc_arguments.option_argument( GCCOption::MT );
+          if ( mt_arg.initialized() ) {
+            makedep_target = *mt_arg;
+          }
+        }
+        else {
+          generate_dependencies_file( gcc_arguments.option_args(),
+                                      stage_output[ stage - 1 ], makedep_tempfile.name(),
+                                      specs_tmpfile.name() );
+          makedep_filename = makedep_tempfile.name();
+        }
+      }
 
       vector<string> args_stage = args;
       args_stage[ input.index ] = stage_output[ stage - 1 ];
       Thunk stage_thunk = generate_thunk( stage, args_stage, envars,
-                                          stage_output[ stage - 1 ], output_name,
+                                          stage_output[ stage - 1 ],
+                                          output_name, makedep_filename,
+                                          makedep_target,
                                           specs_tmpfile.name() );
 
       stage_thunk.store( gg_dir );

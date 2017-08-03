@@ -51,6 +51,8 @@ public:
   const std::vector<std::string> & option_args() const { return args_; }
   std::vector<std::string> all_args() const;
 
+  Optional<std::string> option_argument( const GCCOption option ) const;
+
   void print_args() const;
 };
 

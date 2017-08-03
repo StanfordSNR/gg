@@ -83,11 +83,15 @@ Language name_to_language( const std::string & name );
 GCCStage language_to_stage( const Language lang );
 std::string stage_output_name( const GCCStage stage, const std::string basename );
 
-
 std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs,
                                                 const std::vector<std::string> & args );
 
-std::vector<std::string> get_preprocess_dependencies( const std::vector<std::string> & gcc_args,
-                                                      const std::string & specsfile );
+std::vector<std::string> parse_dependencies_file( const std::string & dep_filename,
+                                                  const std::string & target_name );
+
+void generate_dependencies_file( const std::vector<std::string> & option_args,
+                                 const std::string & input_name,
+                                 const std::string & output_name,
+                                 const std::string & specsfile );
 
 #endif /* MODEL_LINKER_HH */

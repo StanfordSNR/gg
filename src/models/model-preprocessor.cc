@@ -14,22 +14,38 @@
 using namespace std;
 using namespace boost;
 
-vector<string> parse_dependencies_file( const string & dep_filename )
+vector<string> parse_dependencies_file( const string & dep_filename,
+                                        const string & target_name )
 {
   vector<string> dependencies;
 
+  string target_str = target_name + ": ";
+
   ifstream depin { dep_filename };
   string line;
-  bool first_line = true;
+  bool found_target = false;
 
   while ( getline( depin, line ) ) {
-    if ( first_line ) {
-      line = line.substr( line.find(':') + 2, line.length() );
-      first_line = false;
+    if ( line.length() < 2 ) {
+      if ( found_target ) { break; }
+      else { continue; }
     }
-    else {
-      line = line.substr( 1, line.length() );
+
+    if ( not found_target and
+         line.compare( 0, target_str.size(), target_str ) == 0 ) {
+      line = line.substr( line.find( ':' ) + 1, line.length() );
+      found_target = true;
     }
+    else if ( found_target and
+              line.find( ":" ) != string::npos ) {
+      break;
+    }
+
+    if ( not found_target ) {
+      continue;
+    }
+
+    line = line.substr( 1, line.length() );
 
     if ( line[ line.length() - 1 ] == '\\' ) {
       line = line.substr( 0, line.length() - 2 );
@@ -51,64 +67,43 @@ vector<string> parse_dependencies_file( const string & dep_filename )
 
 void generate_dependencies_file( const vector<string> & option_args,
                                  const string & input_name,
+                                 const string & output_name,
                                  const string & specsfile )
 {
   vector<string> args { option_args };
 
-  auto mf_search = find( args.begin(), args.end(), "-MF" );
-  auto md_search = find( args.begin(), args.end(), "-MD" );
-
-  if ( mf_search == end( args ) ) {
-    throw runtime_error( "cannot produce dependencies file without -MF option" );
-  }
-
-  if ( md_search != end( args ) ) {
-    args.erase( md_search );
-  }
-
-  args.insert( args.begin(), "gcc-7" );
-  args.insert( args.begin(), "-specs=" + specsfile );
-  args.push_back( input_name );
-
-  run( args[ 0 ], args, {}, true, true );
-}
-
-vector<string> get_preprocess_dependencies( const vector<string> & gcc_args,
-                                            const string & specsfile )
-{
-  vector<string> args;
-  args.reserve( 2 + gcc_args.size() );
-  args.push_back( "gcc-7" );
-  args.push_back( "-specs=" + specsfile );
-  args.insert( args.end(), gcc_args.begin(), gcc_args.end() );
-
-  string dep_out_filename;
-
-  auto has_dependencies_option = find_if(
+  const bool has_dependencies_option = find_if(
     args.begin(), args.end(),
     []( const string & opt )
     {
       return ( opt == "-M" ) or ( opt == "-MF" ) or ( opt == "-MM" ) or
              ( opt == "-MG" ) or ( opt == "-MP" ) or ( opt == "-MQ" ) or
              ( opt == "-MD" ) or ( opt == "-MMD" );
+    } ) != end( args );
+
+  if ( has_dependencies_option ) {
+    auto mf_search = find( args.begin(), args.end(), "-MF" );
+    auto md_search = find( args.begin(), args.end(), "-MD" );
+
+    if ( mf_search == end( args ) ) {
+      throw runtime_error( "cannot produce dependencies file without -MF option" );
     }
-  );
 
-  if ( has_dependencies_option != args.end() ) {
-    throw runtime_error( "find dependencies: command already has -M flag" );
+    if ( md_search != end( args ) ) {
+      args.erase( md_search );
+    }
   }
-
-  {
-    UniqueFile gcc_mf_output { "/tmp/gg-model-gcc-mf" };
-    dep_out_filename = gcc_mf_output.name();
-
-    /* XXX we should probably get rid of -o option */
+  else {
     args.push_back( "-M" );
     args.push_back( "-MF" );
-    args.push_back( dep_out_filename );
+    args.push_back( output_name );
+    args.push_back( "-MT" );
+    args.push_back( input_name );
   }
 
-  run( args[ 0 ], args, {}, true, true );
+  args.insert( args.begin(), "-specs=" + specsfile );
+  args.insert( args.begin(), "gcc-7" );
+  args.push_back( input_name );
 
-  return parse_dependencies_file( dep_out_filename );
+  run( args[ 0 ], args, {}, true, true );
 }

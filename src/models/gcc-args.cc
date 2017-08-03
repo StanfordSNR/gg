@@ -160,6 +160,15 @@ vector<string> GCCArguments::all_args() const
   return result;
 }
 
+Optional<string> GCCArguments::option_argument( const GCCOption option ) const
+{
+  if ( opt_map_.count( option ) ) {
+    return make_optional<string>( true, opt_map_.at( option ).second );
+  }
+
+  return {};
+}
+
 void GCCArguments::print_args() const
 {
   for ( const string & arg : all_args() ) {
