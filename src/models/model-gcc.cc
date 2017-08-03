@@ -21,6 +21,7 @@
 #include "utils.hh"
 
 #include "model-gcc.hh"
+#include "gcc-args.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -177,15 +178,6 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
 
   return { output, gcc_function( args, envars ), infiles };
 }
-
-enum class GCCOption
-{
-  x = 1000,
-  o,
-  E, S, c,
-  M, MD, MP, MT, MF,
-  pie,
-};
 
 template <typename E>
 constexpr auto to_underlying(E e) noexcept
