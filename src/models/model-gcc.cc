@@ -179,12 +179,6 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
   return { output, gcc_function( args, envars ), infiles };
 }
 
-template <typename E>
-constexpr auto to_underlying(E e) noexcept
-{
-    return static_cast<std::underlying_type_t<E>>(e);
-}
-
 int main( int argc, char * argv[] )
 {
   roost::path gg_dir = gg::models::create_gg_dir();
