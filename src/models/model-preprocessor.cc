@@ -82,6 +82,7 @@ void generate_dependencies_file( const vector<string> & option_args,
     } ) != end( args );
 
   if ( has_dependencies_option ) {
+    auto m_search = find( args.begin(), args.end(), "-M" );
     auto mf_search = find( args.begin(), args.end(), "-MF" );
     auto md_search = find( args.begin(), args.end(), "-MD" );
 
@@ -91,6 +92,10 @@ void generate_dependencies_file( const vector<string> & option_args,
 
     if ( md_search != end( args ) ) {
       args.erase( md_search );
+      
+      if ( m_search != end( args ) ) {
+        args.push_back( "-M" );
+      }
     }
   }
   else {

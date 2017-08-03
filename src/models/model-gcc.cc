@@ -193,8 +193,6 @@ int main( int argc, char * argv[] )
   vector<string> args = gcc_arguments.all_args();
   const vector<InputFile> & input_files = gcc_arguments.input_files();
 
-  gcc_arguments.print_args();
-
   if ( input_files.size() == 0 ) {
     throw runtime_error( "no input files" );
   }
