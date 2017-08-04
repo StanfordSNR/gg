@@ -36,6 +36,8 @@ private:
   std::vector<std::string> input_args_ {};
   std::string output_ {};
 
+  std::vector<std::string> include_dirs_{};
+
 public:
   GCCArguments( const int argc, char ** argv );
 
@@ -47,6 +49,7 @@ public:
   const std::string & output_filename() const { return output_; }
   const std::vector<InputFile> input_files() const { return input_files_; }
   GCCStage last_stage() const { return last_stage_.get_or( LINK ); }
+  const std::vector<std::string> & include_dirs() const { return include_dirs_; }
 
   const std::vector<std::string> & option_args() const { return args_; }
   std::vector<std::string> all_args() const;

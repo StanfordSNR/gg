@@ -12,7 +12,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   optind = 1;
   opterr = 0;
 
-  constexpr const char * gcc_optstring = "-l:B:ESco:gO::D:f:";
+  constexpr const char * gcc_optstring = "-l:B:ESco:gO::D:f:I:";
   constexpr option gcc_options[] = {
     { "x", required_argument, NULL, to_underlying( GCCOption::x ) },
     { "M", no_argument, NULL, to_underlying( GCCOption::M ) },
@@ -74,10 +74,16 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       output_ = optarg;
       break;
 
+    case 'I':
+      args_.push_back( string ( "-I" ) + ( optarg ? optarg : "" ) );
+      include_dirs_.emplace_back( optarg );
+      break;
+
     case 'g': args_.push_back( "-g" ); break;
     case 'O': args_.push_back( string ( "-O" ) + ( optarg ? optarg : "" ) ); break;
     case 'D': args_.push_back( string ( "-D" ) + ( optarg ? optarg : "" ) ); break;
     case 'f': args_.push_back( string ( "-f" ) + ( optarg ? optarg : "" ) ); break;
+
 
     case 'B':
       throw runtime_error( "illegal -B flag" );
