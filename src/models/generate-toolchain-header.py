@@ -19,8 +19,13 @@ def sha256_checksum(filename, block_size=65536):
 
     return sha256.hexdigest()
 
-def get_include_path():
-    command = "gcc-7 -E -Wp,-v - < /dev/null >/dev/null"
+def get_include_path(language='c'):
+    lang_switch = ''
+
+    if language == 'c++':
+        lang_switch = '-x c++ '
+
+    command = "gcc-7 -E -Wp,-v {}- < /dev/null >/dev/null".format(lang_switch)
     output = sub.check_output(command, stderr=sub.STDOUT, shell=True)
 
     include_dirs = []
@@ -76,6 +81,7 @@ def get_gcc_envars():
     return res
 
 c_include_path = get_include_path()
+cpp_include_path = get_include_path(language='c++')
 ld_search_path = get_library_path()
 gcc_envars = get_gcc_envars()
 
@@ -99,6 +105,7 @@ print_hh('#define TOOLCHAIN_PATH "{}"'.format(BINDIR))
 print_hh()
 print_hh("const std::string & program_hash( const std::string & name );")
 print_hh("extern const std::vector<std::string> c_include_path;")
+print_hh("extern const std::vector<std::string> cpp_include_path;")
 print_hh("extern const std::vector<std::string> ld_search_path;")
 print_hh("extern const std::vector<std::string> gcc_library_path;")
 print_hh("extern const std::string gcc_install_path;")
@@ -128,6 +135,11 @@ print_cc("}\n")
 
 print_cc("const vector<string> c_include_path = {")
 for path in c_include_path:
+    print_cc('  "{}",'.format(path))
+print_cc("};\n")
+
+print_cc("const vector<string> cpp_include_path = {")
+for path in cpp_include_path:
     print_cc('  "{}",'.format(path))
 print_cc("};\n")
 
