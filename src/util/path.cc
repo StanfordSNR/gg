@@ -155,7 +155,7 @@ namespace roost {
 
   void move_file( const path & src, const path & dst )
   {
-    copy_file( src, dst );
+    copy_then_rename( src, dst );
     remove( src );
   }
 
