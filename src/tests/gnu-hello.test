@@ -1,0 +1,12 @@
+#!/bin/bash -ex
+
+cd ${TEST_TMPDIR}
+
+PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
+
+apt-get source hello
+cd hello-*
+./configure
+make CC="model-gcc" AR="model-ar" RANLIB="model-ranlib"
+gg-reduce -s hello
+./hello

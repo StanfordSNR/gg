@@ -25,6 +25,7 @@ check_PROGRAMS = thunk-roundtrip sandbox-test path-test
 dist_check_SCRIPTS = model-preprocess.test model-preprocess-makedep.test \
                      model-compile.test model-assemble.test model-link.test \
                      model-ar.test model-ranlib.test model-strip.test \
+                     gnu-hello.test \
                      cleanup.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
@@ -33,8 +34,9 @@ path_test_SOURCES = path-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
-cleanup.log: model-preprocess.log model-compile.log model-assemble.log \
-             model-link.log model-ar.log model-ranlib.log model-strip.log
+cleanup.log: model-preprocess.log model-preprocess-makedep.log \
+             model-compile.log model-assemble.log model-link.log model-ar.log \
+             model-ranlib.log model-strip.log gnu-hello.log
 
 clean-local:
 	-rm -rf $(abs_builddir)/test_temp
