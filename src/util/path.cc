@@ -18,6 +18,7 @@
 #include "exception.hh"
 #include "tokenize.hh"
 #include "file_descriptor.hh"
+#include "temp_file.hh"
 
 using namespace std;
 
@@ -156,6 +157,13 @@ namespace roost {
   {
     copy_file( src, dst );
     remove( src );
+  }
+
+  void copy_then_rename( const path & src, const path & dst )
+  {
+    TempFile tmp_file { dst.string() };
+    copy_file( src, tmp_file.name() );
+    rename( tmp_file.name(), dst.string() );
   }
 
   path operator/( const path & prefix, const path & suffix )
@@ -306,6 +314,12 @@ namespace roost {
   {
     CheckSystemCall( "symlink", ::symlink( old_name.string().c_str(),
                                            new_name.string().c_str() ) );
+  }
+
+  void rename( const path & oldpath, const path & newpath )
+  {
+    CheckSystemCall( "rename", ::rename( oldpath.string().c_str(),
+                                         newpath.string().c_str() ) );
   }
 
   vector<string> get_directory_listing( const path & pathn )
