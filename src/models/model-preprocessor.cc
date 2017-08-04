@@ -70,7 +70,15 @@ void generate_dependencies_file( const vector<string> & option_args,
                                  const string & output_name,
                                  const string & specsfile )
 {
-  vector<string> args { option_args };
+  vector<string> args;
+  args.push_back( "gcc-7" );
+  args.push_back( "-specs=" + specsfile );
+  args.insert( args.end(), option_args.begin(), option_args.end() );
+
+  args.push_back( "-nostdinc" );
+  for ( const auto & p : c_include_path ) {
+    args.push_back( "-isystem" + p );
+  }
 
   const bool has_dependencies_option = find_if(
     args.begin(), args.end(),
@@ -92,7 +100,7 @@ void generate_dependencies_file( const vector<string> & option_args,
 
     if ( md_search != end( args ) ) {
       args.erase( md_search );
-      
+
       if ( m_search != end( args ) ) {
         args.push_back( "-M" );
       }
@@ -106,8 +114,6 @@ void generate_dependencies_file( const vector<string> & option_args,
     args.push_back( input_name );
   }
 
-  args.insert( args.begin(), "-specs=" + specsfile );
-  args.insert( args.begin(), "gcc-7" );
   args.push_back( input_name );
 
   run( args[ 0 ], args, {}, true, true );

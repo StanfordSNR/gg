@@ -32,4 +32,4 @@ gg-execute -s ${OUTPUT_FILE}
 
 # check difference
 diff ${OUTPUT_FILE} ${OUTPUT_FILE}.gold
-diff ${MAKEDEP_FILE} ${MAKEDEP_FILE}.gold
+diff -y -W 200 ${MAKEDEP_FILE} ${MAKEDEP_FILE}.gold
