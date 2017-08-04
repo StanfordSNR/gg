@@ -41,6 +41,7 @@ namespace roost {
   void move_file( const path & src, const path & dest );
   path operator/( const path & prefix, const path & suffix );
   path canonical( const path & pathn );
+  path dirname( const path & pathn );
   void create_directories( const path & pathn );
   bool is_directory( const path & pathn );
   bool remove( const path & pathn );

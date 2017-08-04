@@ -125,6 +125,11 @@ namespace roost {
     return string( canonical_file_name );
   }
 
+  path dirname( const path & pathn )
+  {
+    return dirname( pathn.string().c_str() );
+  }
+
   void copy_file( const path & src, const path & dst )
   {
     FileDescriptor src_file { CheckSystemCall( "open (" + src.string() + ")",
