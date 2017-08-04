@@ -292,6 +292,8 @@ int main( int argc, char * argv[] )
 
     roost::copy_file( get_content_path( final_hash ), thunk_path.string() );
     cerr << "done" << endl;
+
+    return EXIT_SUCCESS;
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );
