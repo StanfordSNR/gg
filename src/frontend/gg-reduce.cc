@@ -148,10 +148,9 @@ string check_reduction_cache( const string & thunk_hash, const size_t order )
     if ( reductions.size() > 0 ) {
       return reductions.front();
     }
-    else {
-      return "";
-    }
   }
+
+  return "";
 }
 
 /* Reduces the order of the input thunk by one and returns hash of the reduction
