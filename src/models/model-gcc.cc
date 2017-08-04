@@ -152,7 +152,8 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> & original_args
     }
 
     for ( const string & dir : gcc_arguments.include_dirs() ) {
-      base_infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+      base_infiles.emplace_back( roost::path( dir ).lexically_normal().string(),
+                                 InFile::Type::DUMMY_DIRECTORY );
     }
 
     base_infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
