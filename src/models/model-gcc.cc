@@ -205,7 +205,7 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
   for ( auto const & link_input : link_inputs ) {
     if ( link_input.source_language == Language::OBJECT or
          link_input.source_language == Language::ARCHIVE_LIBRARY ) {
-      infiles.emplace_back( link_input.name );
+      infiles.emplace_back( roost::path( link_input.name ).lexically_normal().string() );
     }
   }
 

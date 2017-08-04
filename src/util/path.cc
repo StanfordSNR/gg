@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
+#include <libgen.h>
 #include <deque>
 #include <climits>
 #include <vector>
@@ -127,7 +128,9 @@ namespace roost {
 
   path dirname( const path & pathn )
   {
-    return dirname( pathn.string().c_str() );
+    char path_cstr[ PATH_MAX ];
+    strcpy( path_cstr, pathn.string().c_str() );
+    return ::dirname( path_cstr );
   }
 
   void copy_file( const path & src, const path & dst )

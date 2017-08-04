@@ -54,11 +54,15 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
   TempDirectory exec_dir { temp_dir_template };
   roost::path exec_dir_path { exec_dir.name() };
 
+  roost::path outfile_dir = roost::dirname( thunk.outfile() );
+  roost::create_directories( outfile_dir );
+
   if ( not sandboxed ) {
     ChildProcess process {
       thunk.outfile(),
-      [thunk, thunk_path, exec_dir_path]() {
+      [thunk, thunk_path, exec_dir_path, &outfile_dir]() {
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
+        roost::create_directories( outfile_dir );
         return thunk.execute( gg_path, thunk_path );
       }
     };
@@ -79,8 +83,9 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
       [thunk, thunk_path]() {
         return thunk.execute( gg_path, thunk_path );
       },
-      [exec_dir_path] () {
+      [exec_dir_path, &outfile_dir] () {
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
+        roost::create_directories( outfile_dir );
       }
     };
 
