@@ -159,10 +159,25 @@ namespace roost {
     remove( src );
   }
 
+  void copy_to_fd( const path & src, FileDescriptor & dst_file )
+  {
+    FileDescriptor src_file { CheckSystemCall( "open (" + src.string() + ")",
+                              open( src.string().c_str(), O_RDONLY | O_CLOEXEC ) ) };
+    struct stat src_info;
+    CheckSystemCall( "fstat", fstat( src_file.fd_num(), &src_info ) );
+
+    if ( not S_ISREG( src_info.st_mode ) ) {
+      throw runtime_error( src.string() + " is not a regular file" );
+    }
+
+    dst_file.write( src_file.read_exactly( src_info.st_size ) );
+    CheckSystemCall( "fchmod", fchmod( dst_file.fd_num(), src_info.st_mode ) );
+  }
+
   void copy_then_rename( const path & src, const path & dst )
   {
     TempFile tmp_file { dst.string() };
-    copy_file( src, tmp_file.name() );
+    copy_to_fd( src, tmp_file.fd() );
     rename( tmp_file.name(), dst.string() );
   }
 

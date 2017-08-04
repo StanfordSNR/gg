@@ -286,11 +286,8 @@ int main( int argc, char * argv[] )
     cerr << "Final hash: " << final_hash << endl;
     cerr << "Putting the outfile... ";
 
-    if ( roost::exists( thunk_path ) ) {
-      roost::remove( thunk_path );
-    }
-
-    roost::copy_file( get_content_path( final_hash ), thunk_path.string() );
+    roost::copy_then_rename( get_content_path( final_hash ), thunk_path.string() );
+    
     cerr << "done" << endl;
 
     return EXIT_SUCCESS;

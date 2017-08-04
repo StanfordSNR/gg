@@ -95,7 +95,7 @@ void put_file( const roost::path & src, const roost::path & dst )
     return;
   }
 
-  roost::copy_file( src, dst );
+  roost::copy_then_rename( src, dst );
 }
 
 void Thunk::collect_infiles( const roost::path & gg_dir ) const
@@ -121,7 +121,7 @@ string Thunk::store( const roost::path & gg_dir ) const
   roost::path thunk_in_gg_path = gg_dir / thunk_hash;
 
   if ( not roost::exists( thunk_in_gg_path ) ) {
-    roost::copy_file( outfile(), thunk_in_gg_path );
+    roost::copy_then_rename( outfile(), thunk_in_gg_path );
   }
 
   return thunk_hash;
