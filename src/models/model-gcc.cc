@@ -152,8 +152,7 @@ Thunk generate_thunk( const GCCStage stage, const vector<string> & original_args
     }
 
     for ( const string & dir : gcc_arguments.include_dirs() ) {
-      base_infiles.emplace_back( roost::path( dir ).lexically_normal().string(),
-                                 InFile::Type::DUMMY_DIRECTORY );
+      base_infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
     }
 
     base_infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
@@ -205,12 +204,12 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
   for ( auto const & link_input : link_inputs ) {
     if ( link_input.source_language == Language::OBJECT or
          link_input.source_language == Language::ARCHIVE_LIBRARY ) {
-      infiles.emplace_back( roost::path( link_input.name ).lexically_normal().string() );
+      infiles.emplace_back( link_input.name );
     }
   }
 
   for ( const string & dep : dependencies ) {
-    infiles.emplace_back( roost::path( dep ).lexically_normal().string() );
+    infiles.emplace_back( dep );
   }
 
   vector<string> args;

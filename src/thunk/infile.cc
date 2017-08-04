@@ -44,16 +44,16 @@ InFile::InFile( const string & filename )
   : InFile( filename, filename )
 {}
 
-InFile::InFile( const string & filename, const string & real_filename )
-  : filename_( filename ), real_filename_( real_filename ),
-    content_hash_( compute_hash( real_filename_ ) ), order_( compute_order( real_filename_ ) ),
-    size_( compute_size( real_filename_ ) )
-{}
-
 InFile::InFile( const string & filename, const string & real_filename,
                 const string & hash, const size_t order, const off_t size )
-  : filename_( filename ), real_filename_( real_filename ), content_hash_( hash ),
-    order_( order ), size_( size )
+  : filename_( roost::path( filename ).lexically_normal().string() ),
+    real_filename_( real_filename ), content_hash_( hash ), order_( order ),
+    size_( size )
+{}
+
+InFile::InFile( const string & filename, const string & real_filename )
+  : InFile( filename, real_filename, compute_hash( real_filename ),
+    compute_order( real_filename ), compute_size( real_filename ) )
 {}
 
 InFile::InFile( const string & filename, const string & real_filename,
