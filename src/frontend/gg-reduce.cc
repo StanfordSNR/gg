@@ -274,12 +274,25 @@ int main( int argc, char * argv[] )
     gg_reductions_path = gg_path / "reductions";
     const roost::path thunk_path = roost::canonical( thunk_filename );
 
+    string final_hash = InFile::compute_hash( thunk_path.string() );
+
     string reduced_hash = reduce_thunk( gg_path, thunk_path );
 
     while ( not reduced_hash.empty() ) {
+      final_hash = reduced_hash;
       cerr << "Reduced to " << reduced_hash << endl;
       reduced_hash = reduce_thunk( gg_path, get_content_path( reduced_hash ) );
     }
+
+    cerr << "Final hash: " << final_hash << endl;
+    cerr << "Putting the outfile... ";
+
+    if ( roost::exists( thunk_path ) ) {
+      roost::remove( thunk_path );
+    }
+
+    roost::copy_file( get_content_path( final_hash ), thunk_path.string() );
+    cerr << "done" << endl;
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );
