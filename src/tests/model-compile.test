@@ -9,7 +9,7 @@ MAGIC="##GGTHUNK##"
 ${TOOLCHAIN_PATH}/gcc -g -O2 -S -frandom-seed=winstein -o remake.s.gold $DATADIR/remake.i
 
 # Create thunk
-GG_DIR=.gg/ model-gcc -g -O2 -S -frandom-seed=winstein -o remake.s $DATADIR/remake.i
+GG_DIR=.gg/ model-gcc gcc -g -O2 -S -frandom-seed=winstein -o remake.s $DATADIR/remake.i
 
 # Assert it's a thunk
 if [ $MAGIC != `head -c 11 remake.s` ]; then

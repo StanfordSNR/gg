@@ -8,6 +8,6 @@ apt-get source hello
 cd hello-*
 export GG_DIR=$(readlink -f __gg__)
 ./configure --prefix=$(readlink -f .)
-make install CC="model-gcc" AR="model-ar" RANLIB="model-ranlib"
+make install CC="model-gcc gcc" AR="model-ar" RANLIB="model-ranlib"
 gg-reduce -s --gg-dir=$GG_DIR bin/hello
 ./bin/hello

@@ -235,8 +235,14 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
 
 void usage( const char * arg0 )
 {
-  cerr << arg0 << " (gcc/g++) [GCC ARGUMETNS]" << endl;
+  cerr << arg0 << " (gcc|g++) [GCC ARGUMETNS]" << endl;
 }
+
+enum class OperationMode
+{
+  GCC,
+  GXX,
+};
 
 int main( int argc, char * argv[] )
 {
@@ -245,10 +251,26 @@ int main( int argc, char * argv[] )
       abort();
     }
 
-    if ( argc < 2 ) {
+    if ( argc < 3 ) {
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
+
+    OperationMode operation_mode __attribute__((unused));
+
+    if ( strcmp( argv[ 1 ], "gcc" ) == 0 ) {
+      operation_mode = OperationMode::GCC;
+    }
+    else if ( strcmp( argv[ 1 ], "g++" ) == 0 ) {
+      operation_mode = OperationMode::GXX;
+      throw runtime_error( "not implemented" );
+    }
+    else {
+      throw runtime_error( "invalid operation mode" );
+    }
+
+    argv++;
+    argc--;
 
     roost::path gg_dir = gg::models::create_gg_dir();
 
