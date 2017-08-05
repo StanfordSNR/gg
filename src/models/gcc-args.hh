@@ -17,6 +17,8 @@ enum class GCCOption
   E, S, c,
   M, MD, MP, MT, MF,
   pie,
+  include,
+  pthread, shared,
 };
 
 template <typename E>
