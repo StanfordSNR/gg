@@ -5,8 +5,48 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <unordered_map>
+#include <iostream>
 
 using namespace std;
+
+const unordered_map<string, Language> ext_to_lang = {
+  { "c",   Language::C },
+  { "h",   Language::C_HEADER },
+  { "i",   Language::CPP_OUTPUT },
+  { "C",   Language::CXX },
+  { "cc",  Language::CXX },
+  { "cxx", Language::CXX },
+  { "cpp", Language::CXX },
+  { "CPP", Language::CXX },
+  { "c++", Language::CXX },
+  { "ii",  Language::CXX_CPP_OUTPUT },
+  { "s",   Language::ASSEMBLER },
+  { "o",   Language::OBJECT },
+  { "a",   Language::ARCHIVE_LIBRARY },
+};
+
+const unordered_map<string, Language> name_to_lang = {
+  { "none",           Language::NONE },
+  { "c",              Language::C },
+  { "c-header",       Language::C_HEADER },
+  { "cpp-output",     Language::CPP_OUTPUT },
+  { "c++",            Language::CXX },
+  { "c++-header",     Language::CXX_HEADER },
+  { "c++-cpp-output", Language::CXX_CPP_OUTPUT },
+  { "assembler",      Language::ASSEMBLER },
+};
+
+const unordered_map<Language, string> lang_to_name = {
+  { Language::NONE,           "none" },
+  { Language::C,              "c" },
+  { Language::C_HEADER,       "c-header" },
+  { Language::CPP_OUTPUT,     "cpp-output" },
+  { Language::CXX,            "c++" },
+  { Language::CXX_HEADER,     "c++-header" },
+  { Language::CXX_CPP_OUTPUT, "c++-cpp-output" },
+  { Language::ASSEMBLER,      "assembler" },
+};
 
 Language filename_to_language( const string & path )
 {
@@ -20,34 +60,27 @@ Language filename_to_language( const string & path )
 
   string extension = filename.substr( pos + 1 );
 
-  if ( extension == "c" ) return Language::C;
-  if ( extension == "h" ) return Language::C_HEADER;
-  if ( extension == "i" ) return Language::CPP_OUTPUT;
-  if ( extension == "s" ) return Language::ASSEMBLER;
-  if ( extension == "o" ) return Language::OBJECT;
-  if ( extension == "a" ) return Language::ARCHIVE_LIBRARY;
+  if ( ext_to_lang.count( extension ) > 0 ) {
+    return ext_to_lang.at( extension );
+  }
 
   throw runtime_error( "unknown file extension" );
 }
 
 Language name_to_language( const string & name )
 {
-  if ( name == "none" ) return Language::NONE;
-  if ( name == "c" ) return Language::C;
-  if ( name == "c-header" ) return Language::C_HEADER;
-  if ( name == "cpp-output" ) return Language::CPP_OUTPUT;
-  if ( name == "assembler" ) return Language::ASSEMBLER;
+  if ( name_to_lang.count( name ) > 0 ) {
+    return name_to_lang.at( name );
+  }
 
   throw runtime_error( "unknown language name" );
 }
 
-string language_to_name( const Language & name )
+string language_to_name( const Language & lang )
 {
-  if ( name == Language::NONE ) return "none";
-  if ( name == Language::C ) return "c";
-  if ( name == Language::C_HEADER ) return "c-header";
-  if ( name == Language::CPP_OUTPUT ) return "cpp-output";
-  if ( name == Language::ASSEMBLER ) return "assembler";
+  if ( lang_to_name.count( lang ) > 0 ) {
+    return lang_to_name.at( lang );
+  }
 
   throw runtime_error( "unknown language" );
 }
@@ -55,11 +88,21 @@ string language_to_name( const Language & name )
 GCCStage language_to_stage( const Language lang )
 {
   switch ( lang ) {
-  case Language::C: return PREPROCESS;
-  case Language::C_HEADER: return PREPROCESS;
-  case Language::CPP_OUTPUT: return COMPILE;
-  case Language::ASSEMBLER: return ASSEMBLE;
-  case Language::OBJECT: return LINK;
+  case Language::C:
+  case Language::CXX:
+  case Language::C_HEADER:
+  case Language::CXX_HEADER:
+    return PREPROCESS;
+
+  case Language::CPP_OUTPUT:
+  case Language::CXX_CPP_OUTPUT:
+    return COMPILE;
+
+  case Language::ASSEMBLER:
+    return ASSEMBLE;
+
+  case Language::OBJECT:
+    return LINK;
 
   default: throw runtime_error( "unknown language" );
   }

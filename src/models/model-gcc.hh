@@ -24,6 +24,9 @@ enum class Language
   C,
   C_HEADER,
   CPP_OUTPUT,
+  CXX,
+  CXX_HEADER,
+  CXX_CPP_OUTPUT,
   ASSEMBLER,
   OBJECT,
   ARCHIVE_LIBRARY,
@@ -39,8 +42,10 @@ struct InputFile
 };
 
 static const std::string GCC = "gcc";
+static const std::string GXX = "g++";
 static const std::string AS  = "as";
 static const std::string CC1 = "cc1";
+static const std::string CC1PLUS = "cc1plus";
 static const std::string COLLECT2 = "collect2";
 static const std::string LD = "ld";
 static const std::string GG_BIN_PREFIX = "/__gg__";
@@ -59,8 +64,16 @@ static const std::unordered_map<std::string, gg::thunk::InFile> program_infiles 
     { GG_BIN_PREFIX + "/" + GCC, ( toolchain_path / GCC ).string(), program_hash( GCC ), 0 }
   },
   {
+    GXX,
+    { GG_BIN_PREFIX + "/" + GXX, ( toolchain_path / GXX ).string(), program_hash( GXX ), 0 }
+  },
+  {
     CC1,
     { GG_BIN_PREFIX + "/" + CC1, ( toolchain_path / CC1 ).string(), program_hash( CC1 ), 0 }
+  },
+  {
+    CC1PLUS,
+    { GG_BIN_PREFIX + "/" + CC1PLUS, ( toolchain_path / CC1PLUS ).string(), program_hash( CC1PLUS ), 0 }
   },
   {
     AS,
