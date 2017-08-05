@@ -233,146 +233,147 @@ Thunk generate_link_thunk( const vector<InputFile> & link_inputs,
   return { output, gcc_function( args, envars ), infiles };
 }
 
+void usage( const char * arg0 )
+{
+  cerr << arg0 << " (gcc/g++) [GCC ARGUMETNS]" << endl;
+}
+
 int main( int argc, char * argv[] )
 {
-  roost::path gg_dir = gg::models::create_gg_dir();
-
-  vector<string> envars;
-
-  GCCArguments gcc_arguments { argc, argv };
-
-  string last_stage_output_filename = gcc_arguments.output_filename();
-  GCCStage last_stage = gcc_arguments.last_stage();
-  vector<string> args = gcc_arguments.all_args();
-  const vector<InputFile> & input_files = gcc_arguments.input_files();
-
-  if ( input_files.size() == 0 ) {
-    throw runtime_error( "no input files" );
-  }
-
-  /* let gcc know where to find the binaries */
-  envars.push_back( "PATH=" + GG_BIN_PREFIX );
-
-  vector<InputFile> link_inputs;
-
-  size_t non_object_inputs = std::count_if( input_files.begin(), input_files.end(), is_non_object_input );
-
-  if ( non_object_inputs > 0 && input_files.size() > 1 ) {
-    throw runtime_error( "multiple inputs are only allowed for linking" );
-  }
-
-  TempFile specs_tmpfile { "/tmp/gg-gccspecs" };
-  dump_gcc_specs( specs_tmpfile );
-
-  for ( const InputFile & input : input_files ) {
-    if ( !is_non_object_input( input ) ) {
-      link_inputs.push_back( input );
-      continue;
+  try {
+    if ( argc <= 0 ) {
+      abort();
     }
 
-    GCCStage first_stage = language_to_stage( input.language );
-    GCCStage input_last_stage = ( last_stage == LINK ) ? ASSEMBLE : last_stage;
-    string input_hash = digest::SHA256( input.name ).hexdigest();
+    if ( argc < 2 ) {
+      usage( argv[ 0 ] );
+      return EXIT_FAILURE;
+    }
 
-    map<size_t, string> stage_output;
-    stage_output[ first_stage - 1 ] = input.name;
+    roost::path gg_dir = gg::models::create_gg_dir();
 
-    for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
-      GCCStage stage = static_cast<GCCStage>( stage_num );
+    vector<string> envars;
 
-      string output_name = ( stage == last_stage ) ? last_stage_output_filename
-                                                   : stage_output_name( stage, input_hash );
+    GCCArguments gcc_arguments { argc, argv };
 
-      vector<string> args_stage { args };
-      args_stage[ input.index ] = stage_output[ stage - 1 ];
-      Thunk stage_thunk = generate_thunk( stage, args_stage, envars,
-                                          stage_output[ stage - 1 ],
-                                          output_name, specs_tmpfile.name(),
-                                          gcc_arguments );
+    string last_stage_output_filename = gcc_arguments.output_filename();
+    GCCStage last_stage = gcc_arguments.last_stage();
+    vector<string> args = gcc_arguments.all_args();
+    const vector<InputFile> & input_files = gcc_arguments.input_files();
 
-      stage_thunk.store( gg_dir );
+    if ( input_files.size() == 0 ) {
+      throw runtime_error( "no input files" );
+    }
 
-      switch ( stage ) {
-      case PREPROCESS:
-        /* generate preprocess thunk */
-        cerr << ">> preprocessing " << stage_output[ stage - 1 ] << endl;
-        break;
+    /* let gcc know where to find the binaries */
+    envars.push_back( "PATH=" + GG_BIN_PREFIX );
 
-      case COMPILE:
-        /* generate compile thunk */
-        cerr << ">> compiling " << stage_output[ stage - 1 ] << endl;
-        break;
+    vector<InputFile> link_inputs;
 
-      case ASSEMBLE:
-      {
-        /* generate assemble thunk */
-        cerr << ">> assembling " << stage_output[ stage - 1 ] << endl;
+    size_t non_object_inputs = std::count_if( input_files.begin(), input_files.end(), is_non_object_input );
 
-        InputFile link_input = input;
-        link_input.name = output_name;
-        link_input.language = Language::OBJECT;
-        link_input.source_language = input.language;
-        link_input.index = input.index;
-        link_inputs.push_back( link_input );
+    if ( non_object_inputs > 0 && input_files.size() > 1 ) {
+      throw runtime_error( "multiple inputs are only allowed for linking" );
+    }
 
-        break;
+    TempFile specs_tmpfile { "/tmp/gg-gccspecs" };
+    dump_gcc_specs( specs_tmpfile );
+
+    for ( const InputFile & input : input_files ) {
+      if ( !is_non_object_input( input ) ) {
+        link_inputs.push_back( input );
+        continue;
       }
 
-      default:
-        throw runtime_error( "unexcepted stage" );
+      GCCStage first_stage = language_to_stage( input.language );
+      GCCStage input_last_stage = ( last_stage == LINK ) ? ASSEMBLE : last_stage;
+      string input_hash = digest::SHA256( input.name ).hexdigest();
+
+      map<size_t, string> stage_output;
+      stage_output[ first_stage - 1 ] = input.name;
+
+      for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
+        GCCStage stage = static_cast<GCCStage>( stage_num );
+
+        string output_name = ( stage == last_stage ) ? last_stage_output_filename
+                                                     : stage_output_name( stage, input_hash );
+
+        vector<string> args_stage { args };
+        args_stage[ input.index ] = stage_output[ stage - 1 ];
+        Thunk stage_thunk = generate_thunk( stage, args_stage, envars,
+                                            stage_output[ stage - 1 ],
+                                            output_name, specs_tmpfile.name(),
+                                            gcc_arguments );
+
+        stage_thunk.store( gg_dir );
+
+        switch ( stage ) {
+        case PREPROCESS:
+          /* generate preprocess thunk */
+          cerr << ">> preprocessing " << stage_output[ stage - 1 ] << endl;
+          break;
+
+        case COMPILE:
+          /* generate compile thunk */
+          cerr << ">> compiling " << stage_output[ stage - 1 ] << endl;
+          break;
+
+        case ASSEMBLE:
+        {
+          /* generate assemble thunk */
+          cerr << ">> assembling " << stage_output[ stage - 1 ] << endl;
+
+          InputFile link_input = input;
+          link_input.name = output_name;
+          link_input.language = Language::OBJECT;
+          link_input.source_language = input.language;
+          link_input.index = input.index;
+          link_inputs.push_back( link_input );
+
+          break;
+        }
+
+        default:
+          throw runtime_error( "unexcepted stage" );
+        }
+
+        stage_output[ stage ] = output_name;
+        cerr << "[output=" << output_name << "]" << endl;
+      }
+    }
+
+    if ( last_stage == LINK ) {
+      if ( last_stage_output_filename.length() == 0 ) {
+        last_stage_output_filename = "a.out";
       }
 
-      stage_output[ stage ] = output_name;
-      cerr << "[output=" << output_name << "]" << endl;
+      vector<string> link_args { args };
+
+      cerr << ">> linking ";
+      for ( auto const & link_input : link_inputs ) {
+        if ( not ( link_input.source_language == Language::OBJECT or
+                   link_input.source_language == Language::ARCHIVE_LIBRARY or
+                   link_input.source_language == Language::SHARED_LIBRARY ) ) {
+          link_args[ link_input.index ] = link_input.name;
+        }
+
+        cerr << link_input.name << " ";
+      }
+      cerr << endl;
+
+      vector<string> dependencies = get_link_dependencies( link_inputs, args );
+
+      link_args.push_back( "-Wl,-rpath-link,/lib/x86_64-linux-gnu" );
+
+      Thunk thunk = generate_link_thunk( link_inputs, link_args, envars,
+                                         dependencies, last_stage_output_filename );
+      thunk.store( gg_dir );
     }
+
+    return EXIT_SUCCESS;
   }
-
-  if ( last_stage == LINK ) {
-    if ( last_stage_output_filename.length() == 0 ) {
-      last_stage_output_filename = "a.out";
-    }
-
-    vector<string> link_args { args };
-
-    cerr << ">> linking ";
-    for ( auto const & link_input : link_inputs ) {
-      if ( not ( link_input.source_language == Language::OBJECT or
-                 link_input.source_language == Language::ARCHIVE_LIBRARY or
-                 link_input.source_language == Language::SHARED_LIBRARY ) ) {
-        link_args[ link_input.index ] = link_input.name;
-      }
-
-      cerr << link_input.name << " ";
-    }
-    cerr << endl;
-
-    vector<string> dependencies = get_link_dependencies( link_inputs, args );
-
-    /* NOTE gg-gcc is NOT a native compiler, it is a cross compiler, so
-       this doesn't work, because GCC looks for this environment variable
-       only when it is configured as a NATIVE compiler. We will use -L
-       flag to pass library search path. *sigh* */
-    /* ostringstream libray_path_envar_ss;
-    libray_path_envar_ss << "LIBRARY_PATH=";
-
-    bool first = true;
-    for ( auto const & path : gcc_library_path ) {
-      if ( not first ) {
-        libray_path_envar_ss << ":";
-      }
-
-      libray_path_envar_ss << path;
-      first = false;
-    }
-
-    envars.push_back( libray_path_envar_ss.str() ); */
-
-    link_args.push_back( "-Wl,-rpath-link,/lib/x86_64-linux-gnu" );
-
-    Thunk thunk = generate_link_thunk( link_inputs, link_args, envars,
-                                       dependencies, last_stage_output_filename );
-    thunk.store( gg_dir );
+  catch ( const exception & e ) {
+    print_exception( argv[ 0 ], e );
+    return EXIT_FAILURE;
   }
-
-  return 0;
 }
