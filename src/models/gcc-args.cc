@@ -44,7 +44,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       Language file_lang = current_language;
 
       if ( file_lang == Language::NONE ) {
-        file_lang = filename_to_language( input_file );
+        file_lang = GCCModelGenerator::filename_to_language( input_file );
       }
 
       add_input( input_file, file_lang );
@@ -103,7 +103,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
         input_args_.emplace_back( "-x" );
         input_args_.emplace_back( optarg );
 
-        current_language = name_to_language( optarg );
+        current_language = GCCModelGenerator::name_to_language( optarg );
         break;
 
       case GCCOption::M:  add_option( gccopt, "-M" ); break;

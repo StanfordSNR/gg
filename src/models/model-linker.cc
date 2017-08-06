@@ -12,8 +12,8 @@
 
 using namespace std;
 
-vector<string> get_link_dependencies( const vector<InputFile> & link_inputs,
-                                      const vector<string> & gcc_args )
+vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile> & link_inputs,
+                                                         const vector<string> & gcc_args )
 {
   unordered_set<string> dependencies;
   vector<string> args { gcc_args };

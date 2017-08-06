@@ -9,6 +9,9 @@
 
 #include "thunk.hh"
 #include "toolchain.hh"
+#include "gcc-args.hh"
+#include "optional.hh"
+#include "temp_file.hh"
 
 enum GCCStage
 {
@@ -41,14 +44,31 @@ struct InputFile
   size_t index;
 };
 
-static const std::string GCC = "gcc";
-static const std::string GXX = "g++";
-static const std::string AS  = "as";
-static const std::string CC1 = "cc1";
-static const std::string CC1PLUS = "cc1plus";
-static const std::string COLLECT2 = "collect2";
-static const std::string LD = "ld";
-static const std::string GG_BIN_PREFIX = "/__gg__";
+enum class OperationMode
+{
+  GCC,
+  GXX,
+};
+
+enum class GCCOption
+{
+  x = 1000,
+  o,
+  E, S, c,
+  M, MD, MP, MT, MF,
+  pie,
+  include,
+  pthread, shared,
+};
+
+static const std::string GCC { "gcc" };
+static const std::string GXX { "g++" };
+static const std::string AS  { "as" };
+static const std::string CC1 { "cc1" };
+static const std::string CC1PLUS { "cc1plus" };
+static const std::string COLLECT2 { "collect2" };
+static const std::string LD { "ld" };
+static const std::string GG_BIN_PREFIX { "/__gg__" };
 static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
 static auto gcc_function =
@@ -89,22 +109,85 @@ static const std::unordered_map<std::string, gg::thunk::InFile> program_infiles 
   },
 };
 
-bool is_non_object_input( const InputFile & input );
+template <typename E>
+constexpr auto to_underlying( E e ) noexcept
+{
+    return static_cast<std::underlying_type_t<E>>( e );
+}
 
-Language filename_to_language( const std::string & path );
-Language name_to_language( const std::string & name );
-GCCStage language_to_stage( const Language lang );
-std::string stage_output_name( const GCCStage stage, const std::string basename );
+class GCCArguments
+{
+private:
+  Optional<GCCStage> last_stage_ {};
+  std::vector<InputFile> input_files_ {};
 
-std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs,
-                                                const std::vector<std::string> & args );
+  std::map<GCCOption, std::pair<size_t, std::string>> opt_map_ {};
+  std::vector<std::string> args_ {};
+  std::vector<std::string> input_args_ {};
+  std::string output_ {};
 
-std::vector<std::string> parse_dependencies_file( const std::string & dep_filename,
-                                                  const std::string & target_name );
+  std::vector<std::string> include_dirs_{};
 
-void generate_dependencies_file( const std::vector<std::string> & option_args,
-                                 const std::string & input_name,
-                                 const std::string & output_name,
-                                 const std::string & specsfile );
+public:
+  GCCArguments( const int argc, char ** argv );
+
+  void add_option( const GCCOption option, const std::string & optstr,
+                   const std::string & value = "" );
+
+  void add_input( const std::string & filename, const Language language );
+
+  const std::string & output_filename() const { return output_; }
+  const std::vector<InputFile> & input_files() const { return input_files_; }
+  GCCStage last_stage() const { return last_stage_.get_or( LINK ); }
+  const std::vector<std::string> & include_dirs() const { return include_dirs_; }
+
+  const std::vector<std::string> & option_args() const { return args_; }
+  std::vector<std::string> all_args() const;
+
+  Optional<std::string> option_argument( const GCCOption option ) const;
+
+  void print_args() const;
+};
+
+class GCCModelGenerator
+{
+private:
+  OperationMode operation_mode_;
+  GCCArguments arguments_;
+  TempFile specs_tempfile_ { "/tmp/gg-gccspecs" };
+
+  std::vector<std::string> envars_ { { "PATH=" + GG_BIN_PREFIX }, };
+
+  std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs,
+                                                  const std::vector<std::string> & args );
+
+  std::vector<std::string> parse_dependencies_file( const std::string & dep_filename,
+                                                    const std::string & target_name );
+
+  void generate_dependencies_file( const std::vector<std::string> & option_args,
+                                   const std::string & input_name,
+                                   const std::string & output_name );
+
+  gg::thunk::Thunk generate_thunk( const GCCStage stage,
+                                   const std::vector<std::string> & original_args,
+                                   const std::string & input,
+                                   const std::string & output );
+
+  gg::thunk::Thunk generate_link_thunk( const std::vector<InputFile> & link_inputs,
+                                        const std::vector<std::string> & link_args,
+                                        const std::vector<std::string> & dependencies,
+                                        const std::string & output );
+
+public:
+  GCCModelGenerator( const OperationMode operation_mode, int argc, char ** argv );
+  void generate();
+
+  /* static functions */
+  static Language    filename_to_language( const std::string & path );
+  static Language    name_to_language( const std::string & name );
+  static GCCStage    language_to_stage( const Language lang );
+  static std::string language_to_name( const Language & lang );
+  static std::string stage_output_name( const GCCStage stage, const std::string basename );
+};
 
 #endif /* MODEL_LINKER_HH */

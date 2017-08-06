@@ -14,8 +14,8 @@
 using namespace std;
 using namespace boost;
 
-vector<string> parse_dependencies_file( const string & dep_filename,
-                                        const string & target_name )
+vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_filename,
+                                                           const string & target_name )
 {
   vector<string> dependencies;
 
@@ -65,14 +65,13 @@ vector<string> parse_dependencies_file( const string & dep_filename,
   return dependencies;
 }
 
-void generate_dependencies_file( const vector<string> & option_args,
-                                 const string & input_name,
-                                 const string & output_name,
-                                 const string & specsfile )
+void GCCModelGenerator::generate_dependencies_file( const vector<string> & option_args,
+                                                    const string & input_name,
+                                                    const string & output_name )
 {
   vector<string> args;
   args.push_back( "gcc-7" );
-  args.push_back( "-specs=" + specsfile );
+  args.push_back( "-specs=" + specs_tempfile_.name() );
   args.insert( args.end(), option_args.begin(), option_args.end() );
 
   args.push_back( "-nostdinc" );

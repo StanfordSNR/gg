@@ -48,7 +48,7 @@ const unordered_map<Language, string> lang_to_name = {
   { Language::ASSEMBLER,      "assembler" },
 };
 
-Language filename_to_language( const string & path )
+Language GCCModelGenerator::filename_to_language( const string & path )
 {
   vector<char> path_cstr( path.c_str(), path.c_str() + path.size() + 1 );
   const string filename { basename( path_cstr.data() ) };
@@ -67,7 +67,7 @@ Language filename_to_language( const string & path )
   throw runtime_error( "unknown file extension" );
 }
 
-Language name_to_language( const string & name )
+Language GCCModelGenerator::name_to_language( const string & name )
 {
   if ( name_to_lang.count( name ) > 0 ) {
     return name_to_lang.at( name );
@@ -76,7 +76,7 @@ Language name_to_language( const string & name )
   throw runtime_error( "unknown language name" );
 }
 
-string language_to_name( const Language & lang )
+string GCCModelGenerator::language_to_name( const Language & lang )
 {
   if ( lang_to_name.count( lang ) > 0 ) {
     return lang_to_name.at( lang );
@@ -85,7 +85,7 @@ string language_to_name( const Language & lang )
   throw runtime_error( "unknown language" );
 }
 
-GCCStage language_to_stage( const Language lang )
+GCCStage GCCModelGenerator::language_to_stage( const Language lang )
 {
   switch ( lang ) {
   case Language::C:
@@ -108,7 +108,7 @@ GCCStage language_to_stage( const Language lang )
   }
 }
 
-string stage_output_name( const GCCStage stage, const string basename )
+string GCCModelGenerator::stage_output_name( const GCCStage stage, const string basename )
 {
   string result = basename;
 
@@ -120,17 +120,5 @@ string stage_output_name( const GCCStage stage, const string basename )
 
   default:
     throw runtime_error( "invalid GCCstage stage" );
-  }
-}
-
-bool is_non_object_input( const InputFile & input )
-{
-  switch( input.language ) {
-  case Language::SHARED_LIBRARY:
-  case Language::ARCHIVE_LIBRARY:
-  case Language::OBJECT:
-    return false;
-
-  default: return true;
   }
 }
