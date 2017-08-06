@@ -101,7 +101,8 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage, const vector<stri
   }
 
   vector<InFile> base_infiles = {
-    input, program_infiles.at( GCC )
+    input,
+    program_infiles.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX )
   };
 
   if ( specs_tempfile_.name().length() ) {
@@ -172,6 +173,11 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage, const vector<stri
     all_args.reserve( c_include_path.size() + args.size() + 2 );
     all_args.push_back( "-specs=/__gg__/gcc-specs" );
     all_args.push_back( "-nostdinc" );
+
+    if ( operation_mode_ == OperationMode::GXX ) {
+      all_args.push_back( "-nostdinc++" );
+    }
+
     for ( const auto & p : c_include_path ) {
       all_args.push_back( "-isystem" + p );
     }
