@@ -11,6 +11,7 @@
 #include <unordered_set>
 
 using namespace std;
+using namespace gg::thunk;
 
 vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile> & link_inputs,
                                                          const vector<string> & gcc_args )
@@ -66,4 +67,47 @@ vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile>
   }
 
   return { dependencies.begin(), dependencies.end() };
+}
+
+
+Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inputs,
+                                              const vector<string> & link_args,
+                                              const vector<string> & dependencies,
+                                              const string & output )
+{
+  vector<InFile> infiles;
+  infiles.emplace_back( program_infiles.at( GCC ) );
+  infiles.emplace_back( program_infiles.at( COLLECT2 ) );
+  infiles.emplace_back( program_infiles.at( LD ) );
+
+  for ( auto const & link_input : link_inputs ) {
+    if ( link_input.source_language == Language::OBJECT or
+         link_input.source_language == Language::ARCHIVE_LIBRARY ) {
+      infiles.emplace_back( link_input.name );
+    }
+  }
+
+  for ( const string & dep : dependencies ) {
+    infiles.emplace_back( dep );
+  }
+
+  vector<string> args;
+  args.reserve( link_args.size() + gcc_library_path.size() );
+
+  for ( const string & dir : gcc_library_path ) {
+    infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+    args.push_back( "-L" + dir );
+  }
+
+  for ( const string & dir : ld_search_path ) {
+    infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+  }
+
+  infiles.emplace_back( gcc_install_path, InFile::Type::DUMMY_DIRECTORY );
+
+  args.insert( args.end(), link_args.begin(), link_args.end() );
+
+  args.push_back( "-B" + gcc_install_path );
+
+  return { output, gcc_function( args, envars_ ), infiles };
 }
