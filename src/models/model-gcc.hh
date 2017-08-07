@@ -82,9 +82,8 @@ static auto gcc_function =
   };
 
 static const std::unordered_map<std::string, gg::thunk::InFile> program_infiles {
-  PROGRAM( GCC ), PROGRAM( GXX ), PROGRAM( CC1 ),
-  PROGRAM( CC1PLUS ), PROGRAM( AS ), PROGRAM( COLLECT2 ),
-  PROGRAM( LD ),
+  PROGRAM( GCC ), PROGRAM( GXX ), PROGRAM( CC1 ), PROGRAM( CC1PLUS ),
+  PROGRAM( AS ), PROGRAM( COLLECT2 ), PROGRAM( LD ),
 };
 
 template <typename E>
@@ -147,8 +146,7 @@ private:
                                    const std::string & output_name );
 
   gg::thunk::Thunk generate_thunk( const GCCStage stage,
-                                   const std::vector<std::string> & original_args,
-                                   const std::string & input,
+                                   const InputFile & input,
                                    const std::string & output );
 
   gg::thunk::Thunk generate_link_thunk( const std::vector<InputFile> & link_inputs,

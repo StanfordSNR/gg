@@ -75,10 +75,11 @@ bool is_non_object_input( const InputFile & input )
   }
 }
 
-Thunk GCCModelGenerator::generate_thunk( const GCCStage stage, const vector<string> & original_args,
-                                         const string & input, const string & output )
+Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
+                                         const InputFile & input,
+                                         const string & output )
 {
-  vector<string> args { original_args };
+  vector<string> args { arguments_.option_args() };
 
   args.erase(
     remove_if(
@@ -87,35 +88,24 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage, const vector<stri
     ), args.end()
   );
 
-  bool found_output_flag = false;
-
-  for ( size_t i = 0; i < args.size(); i++ ) {
-    if ( args[ i ] == "-o" ) {
-      if ( i + 1 == args.size() ) {
-        throw runtime_error( "invalid argument: -o option with no argument" );
-      }
-
-      args[ ++i ] = output;
-      found_output_flag = true;
-    }
-  }
-
+  /* Common infiles */
   vector<InFile> base_infiles = {
-    input,
+    input.name,
     program_infiles.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX )
   };
 
-  if ( specs_tempfile_.name().length() ) {
-    base_infiles.emplace_back( "/__gg__/gcc-specs", specs_tempfile_.name() );
+  base_infiles.emplace_back( "/__gg__/gcc-specs", specs_tempfile_.name() );
 
-    if ( stage != PREPROCESS ) {
-      /* For preprocess stage, we are going to use `args` to get the
-         dependencies, so we can't have this FAKE specs path here. */
-      args.insert( args.begin(), "-specs=/__gg__/gcc-specs" );
-    }
-  }
+  /* Common args */
+  args.push_back( "-x" );
+  args.push_back( language_to_name( input.language ) );
+  args.push_back( input.name );
 
-  if ( not found_output_flag ) {
+  if ( stage != PREPROCESS ) {
+    /* For preprocess stage, we are going to use `args` to get the
+       dependencies, so we can't have this FAKE specs path here.
+       We will add these later.*/
+    args.insert( args.begin(), "-specs=/__gg__/gcc-specs" );
     args.push_back( "-o" );
     args.push_back( output );
   }
@@ -129,13 +119,36 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage, const vector<stri
   switch ( stage ) {
   case PREPROCESS:
   {
+    const vector<string> & include_path =
+      ( input.language == Language::C or input.language == Language::C_HEADER )
+        ? c_include_path
+        : cpp_include_path;
+
+     /* ARGS */
+    args.push_back( "-E" );
+
+    vector<string> all_args;
+    all_args.reserve( c_include_path.size() + args.size() + 2 );
+    all_args.push_back( "-nostdinc" );
+
+    if ( operation_mode_ == OperationMode::GXX ) {
+      all_args.push_back( "-nostdinc++" );
+    }
+
+    for ( const auto & p : include_path ) {
+      all_args.push_back( "-isystem" + p );
+    }
+
+    all_args.insert( all_args.end(), args.begin(), args.end() );
+
+    /* Generate dependency list */
     TempFile makedep_tempfile { "/tmp/gg-makedep" };
     string makedep_filename;
-    string makedep_target = input;
+    string makedep_target = input.name;
 
     if ( generate_makedep_file ) {
       cerr << "[+] generating make dependencies file..." << endl;
-      generate_dependencies_file( arguments_.option_args(), input, "" );
+      generate_dependencies_file( all_args, input.name, "" );
       makedep_filename = *arguments_.option_argument( GCCOption::MF );
       Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
       if ( mt_arg.initialized() ) {
@@ -143,20 +156,24 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage, const vector<stri
       }
     }
     else {
-      generate_dependencies_file( arguments_.option_args(),
-                                  input, makedep_tempfile.name() );
+      generate_dependencies_file( args, input.name, makedep_tempfile.name() );
       makedep_filename = makedep_tempfile.name();
     }
 
     vector<string> dependencies = parse_dependencies_file( makedep_filename, makedep_target );
 
-    base_infiles.emplace_back( program_infiles.at( CC1 ) );
+    all_args.insert( all_args.begin(), "-specs=/__gg__/gcc-specs" );
+    all_args.push_back( "-o" );
+    all_args.push_back( output );
+    all_args = prune_makedep_flags( all_args );
 
+    /* INFILES */
+    base_infiles.emplace_back( program_infiles.at( CC1 ) );
     for ( const string & dep : dependencies ) {
       base_infiles.emplace_back( dep );
     }
 
-    for ( const string & dir : c_include_path ) {
+    for ( const string & dir : include_path ) {
       base_infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
     }
 
@@ -165,24 +182,6 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage, const vector<stri
     }
 
     base_infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
-
-    args.push_back( "-E" );
-    args = prune_makedep_flags( args );
-
-    vector<string> all_args;
-    all_args.reserve( c_include_path.size() + args.size() + 2 );
-    all_args.push_back( "-specs=/__gg__/gcc-specs" );
-    all_args.push_back( "-nostdinc" );
-
-    if ( operation_mode_ == OperationMode::GXX ) {
-      all_args.push_back( "-nostdinc++" );
-    }
-
-    for ( const auto & p : c_include_path ) {
-      all_args.push_back( "-isystem" + p );
-    }
-
-    all_args.insert( all_args.end(), args.begin(), args.end() );
 
     return { output, gcc_function( all_args, envars_ ), base_infiles };
   }
@@ -230,11 +229,12 @@ void GCCModelGenerator::generate()
   string last_stage_output_filename = arguments_.output_filename();
   GCCStage last_stage = arguments_.last_stage();
   vector<string> args = arguments_.all_args();
-  const vector<InputFile> & input_files = arguments_.input_files();
+
+  vector<InputFile> input_files = arguments_.input_files();
 
   vector<InputFile> link_inputs;
 
-  for ( const InputFile & input : input_files ) {
+  for ( InputFile & input : input_files ) {
     if ( !is_non_object_input( input ) ) {
       link_inputs.push_back( input );
       continue;
@@ -253,10 +253,7 @@ void GCCModelGenerator::generate()
       string output_name = ( stage == last_stage ) ? last_stage_output_filename
                                                    : stage_output_name( stage, input_hash );
 
-      vector<string> args_stage { args };
-      args_stage[ input.index ] = stage_output[ stage - 1 ];
-      Thunk stage_thunk = generate_thunk( stage, args_stage, stage_output[ stage - 1 ],
-                                          output_name );
+      Thunk stage_thunk = generate_thunk( stage, input, output_name );
 
       stage_thunk.store( gg_dir );
 
@@ -264,11 +261,28 @@ void GCCModelGenerator::generate()
       case PREPROCESS:
         /* generate preprocess thunk */
         cerr << ">> preprocessing " << stage_output[ stage - 1 ] << endl;
+
+        switch ( input.language ) {
+        case Language::C:
+        case Language::C_HEADER:
+          input.language = Language::CPP_OUTPUT;
+          break;
+
+        case Language::CXX_HEADER:
+        case Language::CXX:
+          input.language = Language::CXX_CPP_OUTPUT;
+          break;
+
+        default:
+          throw runtime_error( "invalid preprocessing language" );
+        }
+
         break;
 
       case COMPILE:
         /* generate compile thunk */
         cerr << ">> compiling " << stage_output[ stage - 1 ] << endl;
+        input.language = Language::ASSEMBLER;
         break;
 
       case ASSEMBLE:
@@ -290,7 +304,7 @@ void GCCModelGenerator::generate()
         throw runtime_error( "unexcepted stage" );
       }
 
-      stage_output[ stage ] = output_name;
+      input.name = output_name;
       cerr << "[output=" << output_name << "]" << endl;
     }
   }
