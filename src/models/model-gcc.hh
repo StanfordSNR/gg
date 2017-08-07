@@ -9,7 +9,6 @@
 
 #include "thunk.hh"
 #include "toolchain.hh"
-#include "gcc-args.hh"
 #include "optional.hh"
 #include "temp_file.hh"
 

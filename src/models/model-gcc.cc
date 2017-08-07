@@ -21,7 +21,6 @@
 #include "utils.hh"
 
 #include "model-gcc.hh"
-#include "gcc-args.hh"
 
 using namespace std;
 using namespace gg::thunk;
