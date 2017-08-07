@@ -131,7 +131,8 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
     all_args.reserve( c_include_path.size() + args.size() + 2 );
     all_args.push_back( "-nostdinc" );
 
-    if ( operation_mode_ == OperationMode::GXX ) {
+    if ( input.language == Language::CXX or
+         input.language == Language::CXX_HEADER ) {
       all_args.push_back( "-nostdinc++" );
     }
 
@@ -168,7 +169,13 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
     all_args = prune_makedep_flags( all_args );
 
     /* INFILES */
-    base_infiles.emplace_back( program_infiles.at( CC1 ) );
+    if ( input.language == Language::C or input.language == Language::C_HEADER ) {
+      base_infiles.emplace_back( program_infiles.at( CC1 ) );
+    }
+    else {
+      base_infiles.emplace_back( program_infiles.at( CC1PLUS ) );
+    }
+
     for ( const string & dep : dependencies ) {
       base_infiles.emplace_back( dep );
     }
@@ -183,21 +190,27 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
 
     base_infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
 
-    return { output, gcc_function( all_args, envars_ ), base_infiles };
+    return { output, gcc_function( operation_mode_, all_args, envars_ ), base_infiles };
   }
 
   case COMPILE:
     args.push_back( "-S" );
     args = prune_makedep_flags( args );
-    base_infiles.push_back( program_infiles.at( CC1 ) );
 
-    return { output, gcc_function( args, envars_ ), base_infiles };
+    if ( input.language == Language::CPP_OUTPUT ) {
+      base_infiles.push_back( program_infiles.at( CC1 ) );
+    }
+    else {
+      base_infiles.push_back( program_infiles.at( CC1PLUS ) );
+    }
+
+    return { output, gcc_function( operation_mode_, args, envars_ ), base_infiles };
 
   case ASSEMBLE:
     args.push_back( "-c" );
     args = prune_makedep_flags( args );
     base_infiles.push_back( program_infiles.at( AS ) );
-    return { output, gcc_function( args, envars_ ), base_infiles };
+    return { output, gcc_function( operation_mode_, args, envars_ ), base_infiles };
 
   default: throw runtime_error( "not implemented" );
   }
@@ -363,7 +376,6 @@ int main( int argc, char * argv[] )
     }
     else if ( strcmp( argv[ 1 ], "g++" ) == 0 ) {
       operation_mode = OperationMode::GXX;
-      throw runtime_error( "not implemented" );
     }
     else {
       throw runtime_error( "invalid operation mode" );

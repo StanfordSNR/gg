@@ -75,10 +75,20 @@ static const std::string GG_BIN_PREFIX { "/__gg__" };
 static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
 static auto gcc_function =
-  []( const std::vector<std::string> & args,
+  []( const OperationMode operation_mode,
+      const std::vector<std::string> & args,
       const std::vector<std::string> & envars ) -> gg::thunk::Function
   {
-    return { GG_BIN_PREFIX + "/" + GCC, args, envars, program_hash( GCC ) };
+    switch ( operation_mode ) {
+    case OperationMode::GCC:
+      return { GG_BIN_PREFIX + "/" + GCC, args, envars, program_hash( GCC ) };
+
+    case OperationMode::GXX:
+      return { GG_BIN_PREFIX + "/" + GXX, args, envars, program_hash( GXX ) };
+
+    default:
+      throw std::runtime_error( "invalid operation mode" );
+    }
   };
 
 static const std::unordered_map<std::string, gg::thunk::InFile> program_infiles {

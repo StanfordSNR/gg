@@ -29,8 +29,13 @@ vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile>
     args.erase( args.begin() + it->index );
     last_index = it->index;
   }
-
-  args.insert( args.begin(), ( toolchain_path / GCC ).string() );
+  if ( operation_mode_ == OperationMode::GCC ) {
+    args.insert( args.begin(), ( toolchain_path / GCC ).string() );
+  }
+  else {
+    args.insert( args.begin(), ( toolchain_path / GXX ).string() );
+  }
+  
   args.push_back( "-Wl,--verbose" );
   args.push_back( "-B" + gcc_install_path );
 
@@ -76,7 +81,13 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
                                               const string & output )
 {
   vector<InFile> infiles;
-  infiles.emplace_back( program_infiles.at( GCC ) );
+  if ( operation_mode_ == OperationMode::GCC ) {
+    infiles.emplace_back( program_infiles.at( GCC ) );
+  }
+  else {
+    infiles.emplace_back( program_infiles.at( GXX ) );
+  }
+
   infiles.emplace_back( program_infiles.at( COLLECT2 ) );
   infiles.emplace_back( program_infiles.at( LD ) );
 
@@ -109,5 +120,5 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
 
   args.push_back( "-B" + gcc_install_path );
 
-  return { output, gcc_function( args, envars_ ), infiles };
+  return { output, gcc_function( operation_mode_, args, envars_ ), infiles };
 }
