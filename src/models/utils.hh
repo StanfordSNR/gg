@@ -8,16 +8,21 @@
 
 namespace gg {
   namespace models {
-    roost::path create_gg_dir()
+    roost::path get_gg_dir( const bool create = true )
     {
       const char * envar = getenv( "GG_DIR" );
-      roost::path gg_path { envar ? std::string( envar ) : std::string( ".gg" ) };
+
+      if ( envar == NULL ) {
+        throw std::runtime_error( "GG_DIR environment variable not set" );
+      }
+
+      roost::path gg_path { std::string( envar ) };
 
       if ( roost::exists( gg_path ) ) {
         if ( not roost::is_directory( gg_path ) ) {
           throw std::runtime_error( gg_path.string() + " is not a directory" );
         }
-      } else { /* does not exist */
+      } else if ( create ) { /* does not exist */
         roost::create_directories( gg_path );
       }
 

@@ -43,6 +43,10 @@ namespace roost {
     catch ( const exception & e ) {}
   }
 
+  path::path()
+    : path_()
+  {}
+
   path::path( const char * pathn )
     : path::path( ::string( pathn ) )
   {}

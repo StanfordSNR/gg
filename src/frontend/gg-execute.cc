@@ -11,6 +11,7 @@
 #include "child_process.hh"
 #include "sandbox.hh"
 #include "path.hh"
+#include "utils.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -33,7 +34,7 @@ int main( int argc, char * argv[] )
     }
 
     bool sandboxed = false;
-    string gg_dir = ".gg/";
+    string gg_dir;
     LogLevel log_level = LOG_LEVEL_NO_LOG;
 
     const option command_line_options[] = {
@@ -66,7 +67,15 @@ int main( int argc, char * argv[] )
 
     string thunk_filename = argv[ optind ];
 
-    roost::path gg_path = roost::canonical( gg_dir );
+    roost::path gg_path;
+
+    if ( gg_dir.empty() ) {
+      gg_path = gg::models::get_gg_dir( false );
+    }
+    else {
+      gg_path = roost::canonical( gg_dir );
+    }
+
     roost::path thunk_path = roost::canonical( thunk_filename );
 
     ThunkReader thunk_reader { thunk_path.string() };

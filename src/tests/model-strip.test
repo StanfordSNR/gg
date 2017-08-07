@@ -11,7 +11,7 @@ cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}.gold
 ${TOOLCHAIN_PATH}/strip ${OUTPUT}.gold
 
 cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
-GG_DIR=.gg/ model-strip ${OUTPUT}
+model-strip ${OUTPUT}
 
 if [ "$MAGIC" != "`head -c 11 ${OUTPUT}`" ]; then
   echo "Failed to create thunk"

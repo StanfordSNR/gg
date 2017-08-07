@@ -27,6 +27,7 @@ namespace roost {
     std::string path_;
 
   public:
+    path();
     path( const char * pathn );
     path( const std::string & pathn );
 

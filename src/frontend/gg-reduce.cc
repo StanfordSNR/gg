@@ -14,6 +14,7 @@
 #include "temp_file.hh"
 #include "temp_dir.hh"
 #include "thunk_writer.hh"
+#include "utils.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -23,7 +24,7 @@ LogLevel log_level = LOG_LEVEL_NO_LOG;
 const string temp_dir_template = "/tmp/thunk-execute";
 const string temp_file_template = "/tmp/thunk-file";
 
-roost::path gg_path { ".gg" };
+roost::path gg_path;
 roost::path gg_reductions_path { gg_path / "reductions" };
 
 void usage( const char * argv0 )
@@ -237,7 +238,7 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    string gg_dir = ".gg/";
+    string gg_dir;
 
     const option command_line_options[] = {
       { "sandboxed", no_argument,       nullptr, 's' },
@@ -269,7 +270,13 @@ int main( int argc, char * argv[] )
 
     string thunk_filename = argv[ optind ];
 
-    gg_path = roost::canonical( gg_dir );
+    if ( gg_dir.empty() ) {
+      gg_path = gg::models::get_gg_dir( false );
+    }
+    else {
+      gg_path = roost::canonical( gg_dir );
+    }
+
     gg_reductions_path = gg_path / "reductions";
     const roost::path thunk_path = roost::canonical( thunk_filename );
 
@@ -287,7 +294,7 @@ int main( int argc, char * argv[] )
     cerr << "Putting the outfile... ";
 
     roost::copy_then_rename( get_content_path( final_hash ), thunk_path.string() );
-    
+
     cerr << "done" << endl;
 
     return EXIT_SUCCESS;

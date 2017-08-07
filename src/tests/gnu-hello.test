@@ -6,8 +6,7 @@ PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
 
 apt-get source hello
 cd hello-*
-export GG_DIR=$(readlink -f __gg__)
 ./configure --prefix=$(readlink -f .)
 make install CC="model-gcc gcc" AR="model-ar" RANLIB="model-ranlib"
-gg-reduce -s --gg-dir=$GG_DIR bin/hello
+gg-reduce -s bin/hello
 ./bin/hello

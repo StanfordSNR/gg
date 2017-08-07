@@ -3,7 +3,6 @@
 cd ${TEST_TMPDIR}
 
 export PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
-export GG_DIR=$(readlink -f __gg_dir__)
 
 git clone https://github.com/mobile-shell/mosh
 cd mosh
@@ -11,5 +10,5 @@ git checkout mosh-1.3.2
 
 ./autogen.sh && ./configure
 make CC="model-gcc gcc" CXX="model-gcc g++" AR="model-ar" RANLIB="model-ranlib"
-gg-reduce --gg-dir=$GG_DIR ./src/frontend/mosh-server
+gg-reduce -s ./src/frontend/mosh-server
 ./src/frontend/mosh-server

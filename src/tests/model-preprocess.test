@@ -16,7 +16,7 @@ INCLUDE_ARGS=$(gcc-7 -E -Wp,-v - < /dev/null 2>&1 | grep "^ " | sed 's/ \(.*\)/-
 gcc-7 -nostdinc ${INCLUDE_ARGS} ${GCC_ARGS} -o ${OUTPUT_FILE}.gold
 
 # Create thunk
-GG_DIR=.gg/ model-gcc gcc ${GCC_ARGS} -o ${OUTPUT_FILE}
+model-gcc gcc ${GCC_ARGS} -o ${OUTPUT_FILE}
 
 # Assert it's a thunk
 if [ $MAGIC != `head -c 11 ${OUTPUT_FILE}` ]; then

@@ -239,7 +239,7 @@ void GCCModelGenerator::generate()
 {
   vector<TempFile> tempfiles;
 
-  roost::path gg_dir = gg::models::create_gg_dir();
+  roost::path gg_dir = gg::models::get_gg_dir();
 
   string last_stage_output_filename = arguments_.output_filename();
   GCCStage last_stage = arguments_.last_stage();

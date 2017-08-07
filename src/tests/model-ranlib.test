@@ -11,7 +11,7 @@ cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}.gold
 ${TOOLCHAIN_PATH}/ranlib ${OUTPUT}.gold
 
 cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
-GG_DIR=.gg/ model-ranlib ${OUTPUT}
+model-ranlib ${OUTPUT}
 
 if [ "$MAGIC" != "`head -c 11 ${OUTPUT}`" ]; then
   echo "Failed to create thunk"

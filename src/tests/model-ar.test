@@ -14,7 +14,7 @@ done
 
 ar crD ${OUTPUT}.gold f1.txt f2.txt f3.txt
 
-GG_DIR=.gg/ model-ar crD ${OUTPUT} f1.txt f2.txt f3.txt
+model-ar crD ${OUTPUT} f1.txt f2.txt f3.txt
 
 if [ $MAGIC != `head -c 11 ${OUTPUT}` ]; then
   echo "Failed to create thunk"

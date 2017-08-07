@@ -16,7 +16,8 @@ AM_TESTS_ENVIRONMENT = \
   export abs_builddir=$(abs_builddir); \
 	export DATADIR=$(abs_srcdir)/test_vectors; \
   export TOOLCHAIN_PATH=$(TOOLCHAIN_PATH); \
-  export TEST_TMPDIR=`mktemp -d $$TMPDIR_ROOT/test.XXXXXX`;
+  export TEST_TMPDIR=`mktemp -d $$TMPDIR_ROOT/test.XXXXXX`; \
+  export GG_DIR=$$TEST_TMPDIR/__gg_data__;
 
 EXTRA_DIST = test_vectors/server.c test_vectors/remake.i test_vectors/remake.s \
              test_vectors/libnet.a test_vectors/curhello.o
