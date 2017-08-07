@@ -237,6 +237,8 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
 
 void GCCModelGenerator::generate()
 {
+  vector<TempFile> tempfiles;
+
   roost::path gg_dir = gg::models::create_gg_dir();
 
   string last_stage_output_filename = arguments_.output_filename();
@@ -262,9 +264,15 @@ void GCCModelGenerator::generate()
 
     for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
       GCCStage stage = static_cast<GCCStage>( stage_num );
+      string output_name;
 
-      string output_name = ( stage == last_stage ) ? last_stage_output_filename
-                                                   : stage_output_name( stage, input_hash );
+      if ( stage == last_stage ) {
+        output_name = last_stage_output_filename;
+      }
+      else {
+        tempfiles.emplace_back( input_hash );
+        output_name = tempfiles.back().name();
+      }
 
       Thunk stage_thunk = generate_thunk( stage, input, output_name );
 
