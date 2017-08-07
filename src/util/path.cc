@@ -366,4 +366,9 @@ namespace roost {
 
     return result;
   }
+
+  void chmod( const path & pathn, mode_t mode )
+  {
+    CheckSystemCall( "chmod", ::chmod( pathn.string().c_str(), mode ) );
+  }
 }
