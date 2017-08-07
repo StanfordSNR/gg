@@ -24,8 +24,10 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { "pie", no_argument, NULL, to_underlying( GCCOption::pie ) },
     { "pthread", no_argument, NULL, to_underlying( GCCOption::pthread ) },
     { "shared", no_argument, NULL, to_underlying( GCCOption::shared ) },
+    { "pipe", no_argument, NULL, to_underlying( GCCOption::pipe ) },
 
     { "include", required_argument, NULL, to_underlying( GCCOption::include ) },
+    { "param", required_argument, NULL, to_underlying( GCCOption::param ) },
 
     { 0, 0, 0, 0 },
   };
@@ -114,9 +116,11 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
 
       case GCCOption::pie: add_option( gccopt, "-pie" ); break;
       case GCCOption::pthread: add_option( gccopt, "-pthread" ); break;
-      case GCCOption::shared: add_option( gccopt, "-pthread" ); break;
+      case GCCOption::shared: add_option( gccopt, "-shared" ); break;
+      case GCCOption::pipe: add_option( gccopt, "-pipe" ); break;
 
       case GCCOption::include: add_option( gccopt, "-include", optarg ); break;
+      case GCCOption::param: add_option( gccopt, "--param", optarg ); break;
 
       default:
         throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );

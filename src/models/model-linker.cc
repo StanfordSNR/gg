@@ -29,19 +29,20 @@ vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile>
     args.erase( args.begin() + it->index );
     last_index = it->index;
   }
+
   if ( operation_mode_ == OperationMode::GCC ) {
     args.insert( args.begin(), ( toolchain_path / GCC ).string() );
   }
   else {
     args.insert( args.begin(), ( toolchain_path / GXX ).string() );
   }
-  
+
   args.push_back( "-Wl,--verbose" );
   args.push_back( "-B" + gcc_install_path );
 
   ostringstream command;
   copy( args.begin(), args.end(), ostream_iterator<string>( command, " " ) );
-  command << "2>&1";
+  command << "2>/dev/null";
 
   std::shared_ptr<FILE> readpipe( popen( command.str().c_str(), "r" ), pclose );
 

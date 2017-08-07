@@ -59,6 +59,7 @@ enum class GCCOption
   pie,
   include,
   pthread, shared,
+  param, pipe
 };
 
 #define PROGRAM(x) \
