@@ -11,6 +11,7 @@
 #include "thunk_reader.hh"
 #include "digest.hh"
 #include "path.hh"
+#include "placeholder.hh"
 
 using namespace std;
 using namespace gg;
@@ -40,9 +41,12 @@ gg::protobuf::InFile_Type type_to_protobuf( const InFile::Type type )
   }
 }
 
+/* The only constructor that supports placeholders */
 InFile::InFile( const string & filename )
-  : InFile( filename, filename )
-{}
+  : InFile( filename, filename, "", 0, 0 )
+{
+  fill_file_info();
+}
 
 InFile::InFile( const string & filename, const string & real_filename,
                 const string & hash, const size_t order, const off_t size )
@@ -78,6 +82,22 @@ InFile::InFile( const std::string & filename, const Type type )
     content_hash_ = compute_hash( real_filename_ );
     order_ = compute_order( real_filename_ );
     size_ = compute_size( real_filename_ );
+  }
+}
+
+void InFile::fill_file_info()
+{
+  Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( real_filename_ );
+
+  if ( not placeholder.initialized() ) {
+    content_hash_ = compute_hash( real_filename_ );
+    order_ = compute_order( real_filename_ );
+    size_ = compute_size( real_filename_ );
+  }
+  else {
+    content_hash_ = placeholder->content_hash();
+    order_ = placeholder->order();
+    size_ = placeholder->size();
   }
 }
 

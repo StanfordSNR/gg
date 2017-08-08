@@ -36,7 +36,11 @@ namespace gg {
       off_t size_;
       Type type_ { Type::FILE };
 
+      /* Checks if the real_filename_ is actually a placeholder */
+      void fill_file_info();
+
     public:
+      /* The only constructor that supports placeholders */
       InFile( const std::string & filename );
 
       /* we use this constructor to create dummy directory entries */

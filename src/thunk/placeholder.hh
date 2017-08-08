@@ -11,19 +11,19 @@
 class ThunkPlaceholder
 {
 private:
-  std::string hash_;
+  std::string content_hash_;
   size_t order_;
   off_t size_;
 
   bool execute_after_force_;
 
 public:
-  ThunkPlaceholder( const std::string & hash,
+  ThunkPlaceholder( const std::string & content_hash,
                     const size_t order,
                     const off_t size,
                     const bool execute_after_force );
 
-  std::string hash() const { return hash_; }
+  std::string content_hash() const { return content_hash_; }
   size_t order() const { return order_; }
   off_t size() const { return size_; }
 
