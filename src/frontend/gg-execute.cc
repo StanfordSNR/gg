@@ -12,6 +12,8 @@
 #include "sandbox.hh"
 #include "path.hh"
 #include "utils.hh"
+#include "placeholder.hh"
+#include "optional.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -76,7 +78,17 @@ int main( int argc, char * argv[] )
       gg_path = roost::canonical( gg_dir );
     }
 
-    roost::path thunk_path = roost::canonical( thunk_filename );
+    roost::path thunk_path;
+
+    /* first check if this file is actually a placeholder */
+    Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( thunk_filename );
+
+    if ( placeholder.initialized() ) {
+      thunk_path = gg_path / placeholder->content_hash();
+    }
+    else {
+      thunk_path = thunk_filename;
+    }
 
     ThunkReader thunk_reader { thunk_path.string() };
     Thunk thunk = thunk_reader.read_thunk();
