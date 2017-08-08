@@ -118,7 +118,7 @@ string Thunk::store( const roost::path & gg_dir ) const
 {
   collect_infiles( gg_dir );
 
-  TempFile temp_thunk { ( gg_dir / "thunk" ).string() };
+  UniqueFile temp_thunk { ( gg_dir / "thunk" ).string() };
 
   ThunkWriter::write_thunk( *this, temp_thunk.name() );
   string thunk_hash = InFile::compute_hash( temp_thunk.name() );
@@ -126,6 +126,9 @@ string Thunk::store( const roost::path & gg_dir ) const
 
   if ( not roost::exists( thunk_in_gg_path ) ) {
     roost::rename( temp_thunk.name(), thunk_in_gg_path );
+  }
+  else {
+    roost::remove( temp_thunk.name() );
   }
 
   // create the placeholder

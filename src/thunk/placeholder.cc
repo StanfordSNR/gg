@@ -29,7 +29,7 @@ void ThunkPlaceholder::write( const string & filename ) const
        << content_hash_ << " " << order_ << " "  << size_
        << endl;
 
-  roost::chmod( filename, 755 );
+  roost::chmod( filename, 0755 );
 }
 
 Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
