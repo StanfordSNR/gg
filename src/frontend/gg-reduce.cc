@@ -15,6 +15,7 @@
 #include "temp_dir.hh"
 #include "thunk_writer.hh"
 #include "utils.hh"
+#include "placeholder.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -268,7 +269,7 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    string thunk_filename = argv[ optind ];
+    string input_filename = argv[ optind ];
 
     if ( gg_dir.empty() ) {
       gg_path = gg::models::get_gg_dir( false );
@@ -278,7 +279,18 @@ int main( int argc, char * argv[] )
     }
 
     gg_reductions_path = gg_path / "reductions";
-    const roost::path thunk_path = roost::canonical( thunk_filename );
+
+    roost::path thunk_path;
+
+    /* first check if this file is actually a placeholder */
+    Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( input_filename );
+
+    if ( placeholder.initialized() ) {
+      thunk_path = gg_path / placeholder->content_hash();
+    }
+    else {
+      thunk_path = input_filename;
+    }
 
     string final_hash = InFile::compute_hash( thunk_path.string() );
 
@@ -293,7 +305,7 @@ int main( int argc, char * argv[] )
     cerr << "Final hash: " << final_hash << endl;
     cerr << "Putting the outfile... ";
 
-    roost::copy_then_rename( get_content_path( final_hash ), thunk_path.string() );
+    roost::copy_then_rename( get_content_path( final_hash ), input_filename );
 
     cerr << "done" << endl;
 

@@ -9,7 +9,6 @@
 using namespace std;
 
 const string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-reduce" };
-const string EXEC_FLAG { " -e" };
 
 ThunkPlaceholder::ThunkPlaceholder( const string & hash,
                                     const size_t order,
@@ -24,9 +23,11 @@ void ThunkPlaceholder::write( const string & filename ) const
 {
   ofstream fout { filename };
   fout << SHEBANG_DIRECTIVE
-       << ( execute_after_force_ ? EXEC_FLAG : string( "" ) )
        << endl
-       << content_hash_ << " " << order_ << " "  << size_
+       << content_hash_ << " "
+       << order_ << " "
+       << size_ << " "
+       << execute_after_force_
        << endl;
 
   roost::chmod( filename, 0755 );
@@ -40,10 +41,7 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
   string line;
   getline( fin, line );
 
-  if ( line == ( SHEBANG_DIRECTIVE + EXEC_FLAG ) ) {
-    execute_after_force = true;
-  }
-  else if ( line != SHEBANG_DIRECTIVE ) {
+  if ( line != SHEBANG_DIRECTIVE ) {
     return {};
   }
 
@@ -51,7 +49,7 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
   size_t order;
   off_t size;
 
-  fin >> hash >> order >> size;
+  fin >> hash >> order >> size >> execute_after_force;
 
   return ThunkPlaceholder( hash, order, size, execute_after_force );
 }
