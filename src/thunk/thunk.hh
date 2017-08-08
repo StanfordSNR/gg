@@ -51,9 +51,6 @@ namespace gg {
               const std::string & hash );
 
       InFile( const std::string & filename, const std::string & real_filename,
-              const std::string & hash, const size_t order );
-
-      InFile( const std::string & filename, const std::string & real_filename,
               const std::string & hash, const size_t order, const off_t size );
 
       InFile( const gg::protobuf::InFile & infile_proto );

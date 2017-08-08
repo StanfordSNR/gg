@@ -57,11 +57,6 @@ InFile::InFile( const string & filename, const string & real_filename )
 {}
 
 InFile::InFile( const string & filename, const string & real_filename,
-                const string & hash, const size_t order )
-  : InFile( filename, real_filename, hash, order, compute_size( real_filename ) )
-{}
-
-InFile::InFile( const string & filename, const string & real_filename,
                 const string & hash )
   : InFile( filename, real_filename, hash, compute_order( real_filename ),
             compute_size( real_filename ) )
