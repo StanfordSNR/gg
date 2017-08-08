@@ -38,7 +38,7 @@ namespace roost {
   };
 
   bool exists( const path & pathn );
-  size_t file_size( const path & pathn );
+  off_t file_size( const path & pathn );
   void copy_file( const path & src, const path & dest );
   void copy_then_rename( const path & src, const path & dest );
   void move_file( const path & src, const path & dest );

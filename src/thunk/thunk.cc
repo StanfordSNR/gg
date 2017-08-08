@@ -9,6 +9,8 @@
 
 #include "system_runner.hh"
 #include "thunk_writer.hh"
+#include "temp_file.hh"
+#include "placeholder.hh"
 
 using namespace std;
 using namespace gg;
@@ -116,13 +118,19 @@ string Thunk::store( const roost::path & gg_dir ) const
 {
   collect_infiles( gg_dir );
 
-  ThunkWriter::write_thunk( *this, outfile() );
-  string thunk_hash = InFile::compute_hash( outfile() );
+  TempFile temp_thunk { ( gg_dir / "thunk" ).string() };
+
+  ThunkWriter::write_thunk( *this, temp_thunk.name() );
+  string thunk_hash = InFile::compute_hash( temp_thunk.name() );
   roost::path thunk_in_gg_path = gg_dir / thunk_hash;
 
   if ( not roost::exists( thunk_in_gg_path ) ) {
-    roost::copy_then_rename( outfile(), thunk_in_gg_path );
+    roost::rename( temp_thunk.name(), thunk_in_gg_path );
   }
+
+  // create the placeholder
+  ThunkPlaceholder placeholder { thunk_hash, order(), roost::file_size( thunk_in_gg_path ), true };
+  placeholder.write( outfile() );
 
   return thunk_hash;
 }

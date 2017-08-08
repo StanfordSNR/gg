@@ -112,7 +112,7 @@ namespace roost {
   /* maybe could have a thunk sanity check at the end, making sure
      all sizes match the objects in the gg directory? */
 
-  size_t file_size( const path & pathn )
+  off_t file_size( const path & pathn )
   {
     struct stat file_info;
     CheckSystemCall( "stat " + pathn.string(),
