@@ -96,42 +96,97 @@ print_hh("""\
 #define TOOLCHAIN_HH
 """)
 
-print_hh("#include <unordered_map>")
-print_hh("#include <string>")
-print_hh("#include <vector>")
+print_hh("""\
+#include <sys/types.h>
+#include <unordered_map>
+#include <string>
+#include <vector>
 
-print_hh()
+#include "thunk.hh"
+#include "path.hh"
+""")
+
 print_hh('#define TOOLCHAIN_PATH "{}"'.format(BINDIR))
 print_hh()
-print_hh("const std::string & program_hash( const std::string & name );")
-print_hh("extern const std::vector<std::string> c_include_path;")
-print_hh("extern const std::vector<std::string> cpp_include_path;")
-print_hh("extern const std::vector<std::string> ld_search_path;")
-print_hh("extern const std::vector<std::string> gcc_library_path;")
-print_hh("extern const std::string gcc_install_path;")
-print_hh();
-print_hh("#endif /* TOOLCHAIN_HH */")
+print_hh("""\
+const std::pair<std::string, off_t> & program_data( const std::string & name );
+extern const std::vector<std::string> c_include_path;
+extern const std::vector<std::string> cpp_include_path;
+extern const std::vector<std::string> ld_search_path;
+extern const std::vector<std::string> gcc_library_path;
+extern const std::string gcc_install_path;
+
+extern const std::string GCC;
+extern const std::string GXX;
+extern const std::string AS ;
+extern const std::string CC1;
+extern const std::string CC1PLUS;
+extern const std::string COLLECT2;
+extern const std::string LD;
+extern const std::string AR;
+extern const std::string RANLIB;
+extern const std::string STRIP;
+extern const std::string GG_BIN_PREFIX;
+extern const roost::path toolchain_path;
+
+extern const std::unordered_map<std::string, gg::thunk::InFile> program_infiles;
+
+#endif /* TOOLCHAIN_HH */""")
 
 hh_file.close()
 
 print_cc('#include "toolchain.hh"')
 print_cc()
 print_cc("using namespace std;")
-print_cc();
+print_cc()
 print_cc("""\
-const string & program_hash( const string & name )
+#define PROGRAM(x) \\
+  { x, \\
+    { \\
+      GG_BIN_PREFIX + "/" + x, \\
+      ( toolchain_path / x ).string(), \\
+      program_data( x ).first, \\
+      0, \\
+      program_data( x ).second \\
+    } \\
+  }""")
+print_cc()
+print_cc("""\
+const pair<string, off_t> & program_data( const string & name )
 {
-  static const unordered_map<string, string> programs = {""")
+  static const unordered_map<string, pair<string, off_t>> programs = {""")
 
 for exe in os.listdir(BINDIR):
     exe_path = os.path.join(BINDIR, exe)
     exe_hash = sha256_checksum(exe_path)
+    exe_size = os.stat(exe_path).st_size
     print_cc(" " * 4, end='')
-    print_cc('{{ "{exe}", "{hash}" }},'.format(exe=exe, hash=exe_hash))
+    print_cc('{{ "{exe}", {{ "{hash}", {size} }} }},'.format(exe=exe, hash=exe_hash, size=exe_size))
 
 print_cc("  };\n")
 print_cc("  return programs.at( name );")
 print_cc("}\n")
+
+print_cc("""\
+const std::string GCC { "gcc" };
+const std::string GXX { "g++" };
+const std::string AS  { "as" };
+const std::string CC1 { "cc1" };
+const std::string CC1PLUS { "cc1plus" };
+const std::string COLLECT2 { "collect2" };
+const std::string LD { "ld" };
+const std::string AR { "ar" };
+const std::string RANLIB { "ranlib" };
+const std::string STRIP { "strip" };
+const std::string GG_BIN_PREFIX { "/__gg__" };
+const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
+
+const std::unordered_map<std::string, gg::thunk::InFile> program_infiles {
+  PROGRAM( GCC ), PROGRAM( GXX ), PROGRAM( CC1 ), PROGRAM( CC1PLUS ),
+  PROGRAM( AS ), PROGRAM( COLLECT2 ), PROGRAM( LD ), PROGRAM( AR ),
+  PROGRAM( RANLIB ), PROGRAM( STRIP )
+};
+""")
 
 print_cc("const vector<string> c_include_path = {")
 for path in c_include_path:

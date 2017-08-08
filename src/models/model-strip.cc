@@ -11,9 +11,6 @@
 using namespace std;
 using namespace gg::thunk;
 
-static const string STRIP = "strip";
-static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
-
 Thunk generate_thunk( int argc, char * argv[] )
 {
   if ( argc < 2 ) {
@@ -38,10 +35,10 @@ Thunk generate_thunk( int argc, char * argv[] )
 
   return {
     stripf,
-    { STRIP, gg::models::args_to_vector( argc, argv ), {}, program_hash( STRIP ) },
+    { STRIP, gg::models::args_to_vector( argc, argv ), {}, program_data( STRIP ).first },
     {
       stripf,
-      { STRIP, ( toolchain_path / STRIP ).string(), program_hash( STRIP ), 0 },
+      program_infiles.at( STRIP )
     }
   };
 }

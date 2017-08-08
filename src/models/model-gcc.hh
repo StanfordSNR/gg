@@ -61,19 +61,6 @@ enum class GCCOption
   param, pipe
 };
 
-#define PROGRAM(x) \
-  { x, { GG_BIN_PREFIX + "/" + x, ( toolchain_path / x ).string(), program_hash( x ), 0 } }
-
-static const std::string GCC { "gcc" };
-static const std::string GXX { "g++" };
-static const std::string AS  { "as" };
-static const std::string CC1 { "cc1" };
-static const std::string CC1PLUS { "cc1plus" };
-static const std::string COLLECT2 { "collect2" };
-static const std::string LD { "ld" };
-static const std::string GG_BIN_PREFIX { "/__gg__" };
-static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
-
 static auto gcc_function =
   []( const OperationMode operation_mode,
       const std::vector<std::string> & args,
@@ -81,20 +68,15 @@ static auto gcc_function =
   {
     switch ( operation_mode ) {
     case OperationMode::GCC:
-      return { GG_BIN_PREFIX + "/" + GCC, args, envars, program_hash( GCC ) };
+      return { GG_BIN_PREFIX + "/" + GCC, args, envars, program_data( GCC ).first };
 
     case OperationMode::GXX:
-      return { GG_BIN_PREFIX + "/" + GXX, args, envars, program_hash( GXX ) };
+      return { GG_BIN_PREFIX + "/" + GXX, args, envars, program_data( GXX ).first };
 
     default:
       throw std::runtime_error( "invalid operation mode" );
     }
   };
-
-static const std::unordered_map<std::string, gg::thunk::InFile> program_infiles {
-  PROGRAM( GCC ), PROGRAM( GXX ), PROGRAM( CC1 ), PROGRAM( CC1PLUS ),
-  PROGRAM( AS ), PROGRAM( COLLECT2 ), PROGRAM( LD ),
-};
 
 template <typename E>
 constexpr auto to_underlying( E e ) noexcept

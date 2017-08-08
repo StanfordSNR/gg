@@ -11,9 +11,6 @@
 using namespace std;
 using namespace gg::thunk;
 
-static const string RANLIB = "ranlib";
-static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
-
 Thunk generate_thunk( int argc, char * argv[] )
 {
   if ( argc < 2 ) {
@@ -33,10 +30,10 @@ Thunk generate_thunk( int argc, char * argv[] )
 
   return {
     archive,
-    { RANLIB, gg::models::args_to_vector( argc, argv ), {}, program_hash( RANLIB ) },
+    { RANLIB, gg::models::args_to_vector( argc, argv ), {}, program_data( RANLIB ).first },
     {
       archive,
-      { RANLIB, ( toolchain_path / RANLIB ).string(), program_hash( RANLIB ), 0 },
+      program_infiles.at( RANLIB )
     }
   };
 }

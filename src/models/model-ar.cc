@@ -13,9 +13,6 @@
 using namespace std;
 using namespace gg::thunk;
 
-static const string AR = "ar";
-static const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
-
 /* this function is based on ar source code */
 Thunk generate_thunk( int argc, char * argv[] )
 {
@@ -105,7 +102,7 @@ Thunk generate_thunk( int argc, char * argv[] )
   string outfile;
   vector<InFile> infiles;
 
-  infiles.emplace_back( AR, ( toolchain_path / AR ).string(), program_hash( AR ), 0 );
+  infiles.push_back( program_infiles.at( AR ) );
 
   int i = optind + ( need_relpos ? 1 : 0 ) + ( need_count ? 1 : 0 );
   outfile = argv[ i++ ];
@@ -117,7 +114,7 @@ Thunk generate_thunk( int argc, char * argv[] )
   }
 
   return { outfile,
-    { AR, original_args, {}, program_hash( AR ) },
+    { AR, original_args, {}, program_data( AR ).first },
     infiles
   };
 }
