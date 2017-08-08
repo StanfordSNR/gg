@@ -12,9 +12,12 @@ const string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-reduce" };
 const string EXEC_FLAG { " -e" };
 
 ThunkPlaceholder::ThunkPlaceholder( const string & hash,
+                                    const size_t order,
+                                    const off_t size,
                                     const bool execute_after_force )
 
-  : hash_( hash ), execute_after_force_( execute_after_force )
+  : hash_( hash ), order_( order ), size_( size ),
+    execute_after_force_( execute_after_force )
 {}
 
 void ThunkPlaceholder::write( const string & filename ) const
@@ -23,7 +26,7 @@ void ThunkPlaceholder::write( const string & filename ) const
   fout << SHEBANG_DIRECTIVE
        << ( execute_after_force_ ? EXEC_FLAG : string( "" ) )
        << endl
-       << hash_
+       << hash_ << " " << order_ << " "  << size_
        << endl;
 
   roost::chmod( filename, 755 );
@@ -31,9 +34,8 @@ void ThunkPlaceholder::write( const string & filename ) const
 
 Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
 {
-  string hash;
   bool execute_after_force = false;
-
+  
   ifstream fin { filename };
   string line;
   getline( fin, line );
@@ -45,6 +47,11 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
     return {};
   }
 
-  getline( fin, hash );
-  return ThunkPlaceholder( line, execute_after_force );
+  string hash;
+  size_t order;
+  off_t size;
+
+  fin >> hash >> order >> size;
+
+  return ThunkPlaceholder( hash, order, size, execute_after_force );
 }
