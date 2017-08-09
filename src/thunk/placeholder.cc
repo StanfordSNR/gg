@@ -8,7 +8,7 @@
 
 using namespace std;
 
-const string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-reduce" };
+const string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-execute" };
 
 ThunkPlaceholder::ThunkPlaceholder( const string & hash,
                                     const size_t order,
