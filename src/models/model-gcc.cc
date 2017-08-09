@@ -341,7 +341,7 @@ void GCCModelGenerator::generate()
 
 void usage( const char * arg0 )
 {
-  cerr << arg0 << " (gcc|g++) [GCC ARGUMETNS]" << endl;
+  cerr << arg0 << " (gcc|g++) [GCC ARGUMENTS]" << endl;
 }
 
 int main( int argc, char * argv[] )
