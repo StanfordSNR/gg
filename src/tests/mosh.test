@@ -10,5 +10,4 @@ git checkout mosh-1.3.2
 
 ./autogen.sh && ./configure
 make CC="model-gcc gcc" CXX="model-gcc g++" AR="model-ar" RANLIB="model-ranlib"
-gg-reduce -s ./src/frontend/mosh-server
 ./src/frontend/mosh-server
