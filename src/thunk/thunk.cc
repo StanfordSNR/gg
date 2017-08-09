@@ -132,7 +132,7 @@ string Thunk::store( const roost::path & gg_dir ) const
   }
 
   // create the placeholder
-  ThunkPlaceholder placeholder { thunk_hash, order(), roost::file_size( thunk_in_gg_path ), true };
+  ThunkPlaceholder placeholder { thunk_hash, order(), roost::file_size( thunk_in_gg_path ) };
   placeholder.write( outfile() );
 
   return thunk_hash;
