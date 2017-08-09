@@ -8,5 +8,5 @@ apt-get source hello
 cd hello-*
 ./configure --prefix=$(readlink -f .)
 make install CC="model-gcc gcc" AR="model-ar" RANLIB="model-ranlib"
-gg-reduce -s bin/hello
+GG_SANDBOXED=1 gg-reduce bin/hello
 ./bin/hello

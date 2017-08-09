@@ -14,7 +14,7 @@ PATH=${TOOLCHAIN_PATH}:$PATH gcc ${GCC_ARGS} -o ${OUTPUT}.gold -pie -L/usr/lib/g
 model-gcc gcc -pie ${GCC_ARGS} -o ${OUTPUT}
 
 # execute thunk
-gg-reduce -s ${OUTPUT}
+GG_SANDBOXED=1 gg-reduce ${OUTPUT}
 
 # check difference
 diff ${OUTPUT} ${OUTPUT}.gold

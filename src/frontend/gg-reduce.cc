@@ -28,11 +28,6 @@ const string temp_file_template = "/tmp/thunk-file";
 roost::path gg_path;
 roost::path gg_reductions_path { gg_path / "reductions" };
 
-void usage( const char * argv0 )
-{
-  cerr << argv0 << "[--verbose, -v] [--sandboxed,-s] [--gg-dir, -g=<arg>] THUNK" << endl;
-}
-
 inline void CheckExecution( const string & path, bool status )
 {
   if ( not status ) {
@@ -227,6 +222,17 @@ string reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path
   }
 }
 
+void usage( const char * argv0 )
+{
+  cerr << argv0 << " THUNK [execution args]" << endl
+       << endl
+       << "Useful environment variables:" << endl
+       << "  GG_DIR       => absolute path to gg directory" << endl
+       << "  GG_SANDBOXED => if set, forces the thunks in a sandbox" << endl
+       << "  GG_EXECUTE   => if set, executes the thunk after it is forced"
+       << endl;
+}
+
 int main( int argc, char * argv[] )
 {
   try {
@@ -239,58 +245,24 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    string gg_dir;
+    string thunk_filename { argv[ 1 ] };
 
-    const option command_line_options[] = {
-      { "sandboxed", no_argument,       nullptr, 's' },
-      { "gg-dir",    required_argument, nullptr, 'g' },
-      { "verbose",   no_argument,       nullptr, 'v' },
-      { 0, 0, 0, 0 }
-    };
+    bool execute_after_force = ( getenv( "GG_EXECUTE" ) != NULL );
 
-    while ( true ) {
-      const int opt = getopt_long( argc, argv, "vsg:", command_line_options, nullptr );
-
-      if ( opt == -1 ) {
-        break;
-      }
-
-      switch ( opt ) {
-      case 's': sandboxed = true; break;
-      case 'g': gg_dir = optarg; break;
-      case 'v': log_level = LOG_LEVEL_DEBUG; break;
-      default:
-        throw runtime_error( "invalid option" );
-      }
-    }
-
-    if ( optind >= argc ) {
-      usage( argv[ 0 ] );
-      return EXIT_FAILURE;
-    }
-
-    string input_filename = argv[ optind ];
-
-    if ( gg_dir.empty() ) {
-      gg_path = gg::models::get_gg_dir( false );
-    }
-    else {
-      gg_path = roost::canonical( gg_dir );
-    }
-
+    sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
+    gg_path = gg::models::get_gg_dir( false );
     gg_reductions_path = gg_path / "reductions";
 
-    const roost::path thunk_path = roost::canonical( input_filename );
+    const roost::path thunk_path = roost::canonical( thunk_filename );
 
     /* first check if this file is actually a placeholder */
-    Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( input_filename );
+    Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( thunk_path.string() );
 
     if ( placeholder.initialized() ) {
-      copy_then_rename( gg_path / placeholder->content_hash(), input_filename );
+      copy_then_rename( gg_path / placeholder->content_hash(), thunk_path );
     }
 
     string final_hash = InFile::compute_hash( thunk_path.string() );
-
     string reduced_hash = reduce_thunk( gg_path, thunk_path );
 
     while ( not reduced_hash.empty() ) {
@@ -302,9 +274,15 @@ int main( int argc, char * argv[] )
     cerr << "Final hash: " << final_hash << endl;
     cerr << "Putting the outfile... ";
 
-    roost::copy_then_rename( get_content_path( final_hash ), input_filename );
+    roost::copy_then_rename( get_content_path( final_hash ), thunk_path );
 
     cerr << "done" << endl;
+
+    if ( execute_after_force ) {
+      argv++;
+      CheckSystemCall( "execv " + thunk_path.string(),
+                        execv( thunk_path.string().c_str(), argv ) );
+    }
 
     return EXIT_SUCCESS;
   }

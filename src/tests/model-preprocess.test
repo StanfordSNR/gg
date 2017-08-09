@@ -18,7 +18,7 @@ gcc-7 -nostdinc ${INCLUDE_ARGS} ${GCC_ARGS} -o ${OUTPUT_FILE}.gold
 model-gcc gcc ${GCC_ARGS} -o ${OUTPUT_FILE}
 
 # execute thunk
-gg-reduce -s ${OUTPUT_FILE}
+GG_SANDBOXED=1 gg-reduce ${OUTPUT_FILE}
 
 # check difference
 diff ${OUTPUT_FILE} ${OUTPUT_FILE}.gold
