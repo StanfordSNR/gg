@@ -240,17 +240,14 @@ void GCCModelGenerator::generate()
 
   roost::path gg_dir = gg::models::get_gg_dir();
 
-  string last_stage_output_filename = arguments_.output_filename();
+  string final_output = arguments_.output_filename();
   GCCStage last_stage = arguments_.last_stage();
   vector<string> args = arguments_.all_args();
 
   vector<InputFile> input_files = arguments_.input_files();
 
-  vector<InputFile> link_inputs;
-
   for ( InputFile & input : input_files ) {
-    if ( !is_non_object_input( input ) ) {
-      link_inputs.push_back( input );
+    if ( not is_non_object_input( input ) ) {
       continue;
     }
 
@@ -266,7 +263,7 @@ void GCCModelGenerator::generate()
       string output_name;
 
       if ( stage == last_stage ) {
-        output_name = last_stage_output_filename;
+        output_name = final_output;
       }
       else {
         tempfiles.emplace_back( input_hash );
@@ -309,14 +306,7 @@ void GCCModelGenerator::generate()
       {
         /* generate assemble thunk */
         cerr << ">> assembling " << stage_output[ stage - 1 ] << endl;
-
-        InputFile link_input = input;
-        link_input.name = output_name;
-        link_input.language = Language::OBJECT;
-        link_input.source_language = input.language;
-        link_input.index = input.index;
-        link_inputs.push_back( link_input );
-
+        input.language = Language::OBJECT;
         break;
       }
 
@@ -330,31 +320,21 @@ void GCCModelGenerator::generate()
   }
 
   if ( last_stage == LINK ) {
-    if ( last_stage_output_filename.length() == 0 ) {
-      last_stage_output_filename = "a.out";
+    if ( final_output.length() == 0 ) {
+      final_output = "a.out";
     }
 
     vector<string> link_args { args };
 
     cerr << ">> linking ";
-    for ( auto const & link_input : link_inputs ) {
-      if ( not ( link_input.source_language == Language::OBJECT or
-                 link_input.source_language == Language::ARCHIVE_LIBRARY or
-                 link_input.source_language == Language::SHARED_LIBRARY ) ) {
-        link_args[ link_input.index ] = link_input.name;
-      }
-
+    for ( auto const & link_input : input_files ) {
       cerr << link_input.name << " ";
     }
     cerr << endl;
 
-    vector<string> dependencies = get_link_dependencies( link_inputs, args );
+    vector<string> dependencies = get_link_dependencies( input_files, args );
 
-    link_args.push_back( "-Wl,-rpath-link,/lib/x86_64-linux-gnu" );
-
-    Thunk thunk = generate_link_thunk( link_inputs, link_args,
-                                       dependencies,
-                                       last_stage_output_filename );
+    Thunk thunk = generate_link_thunk( input_files, dependencies, final_output );
     thunk.store( gg_dir );
   }
 }

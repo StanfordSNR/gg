@@ -3,7 +3,6 @@
 cd ${TEST_TMPDIR}
 
 PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
-MAGIC="##GGTHUNK##"
 OUTPUT=curhello.o
 INPUT=$DATADIR/curhello.o
 
@@ -12,11 +11,6 @@ ${TOOLCHAIN_PATH}/strip ${OUTPUT}.gold
 
 cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
 model-strip ${OUTPUT}
-
-if [ "$MAGIC" != "`head -c 11 ${OUTPUT}`" ]; then
-  echo "Failed to create thunk"
-  exit 1
-fi
 
 gg-execute -s ${OUTPUT}
 

@@ -3,7 +3,6 @@
 cd ${TEST_TMPDIR}
 
 PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
-MAGIC="##GGTHUNK##"
 OUTPUT=archive.a
 
 # create three random files
@@ -15,11 +14,6 @@ done
 ar crD ${OUTPUT}.gold f1.txt f2.txt f3.txt
 
 model-ar crD ${OUTPUT} f1.txt f2.txt f3.txt
-
-if [ $MAGIC != `head -c 11 ${OUTPUT}` ]; then
-  echo "Failed to create thunk"
-  exit 1
-fi
 
 gg-execute -s ${OUTPUT}
 

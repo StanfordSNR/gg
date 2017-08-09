@@ -94,7 +94,10 @@ int main( int argc, char * argv[] )
     Thunk thunk = thunk_reader.read_thunk();
 
     if ( not sandboxed ) {
-      ChildProcess process { thunk.outfile(), [&]() { return thunk.execute( gg_path, thunk_path ); } };
+      ChildProcess process {
+        thunk.outfile(),
+        [&]() { return thunk.execute( gg_path, thunk_path ); }
+      };
 
       while ( not process.terminated() ) {
         process.wait();

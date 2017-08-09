@@ -3,7 +3,6 @@
 cd ${TEST_TMPDIR}
 
 PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
-MAGIC="##GGTHUNK##"
 
 INPUT_FILE=$DATADIR/server.c
 OUTPUT_FILE=server.i
@@ -18,14 +17,8 @@ gcc-7 -nostdinc ${INCLUDE_ARGS} ${GCC_ARGS} -o ${OUTPUT_FILE}.gold
 # Create thunk
 model-gcc gcc ${GCC_ARGS} -o ${OUTPUT_FILE}
 
-# Assert it's a thunk
-if [ $MAGIC != `head -c 11 ${OUTPUT_FILE}` ]; then
-  echo "Failed to create thunk"
-  exit 1
-fi
-
 # execute thunk
-gg-execute -s ${OUTPUT_FILE}
+gg-reduce -s ${OUTPUT_FILE}
 
 # check difference
 diff ${OUTPUT_FILE} ${OUTPUT_FILE}.gold

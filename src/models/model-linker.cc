@@ -77,7 +77,6 @@ vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile>
 
 
 Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inputs,
-                                              const vector<string> & link_args,
                                               const vector<string> & dependencies,
                                               const string & output )
 {
@@ -93,8 +92,8 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
   infiles.emplace_back( program_infiles.at( LD ) );
 
   for ( auto const & link_input : link_inputs ) {
-    if ( link_input.source_language == Language::OBJECT or
-         link_input.source_language == Language::ARCHIVE_LIBRARY ) {
+    if ( link_input.language == Language::OBJECT or
+         link_input.language == Language::ARCHIVE_LIBRARY ) {
       infiles.emplace_back( link_input.name );
     }
   }
@@ -103,23 +102,46 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
     infiles.emplace_back( dep );
   }
 
-  vector<string> args;
-  args.reserve( link_args.size() + gcc_library_path.size() );
+  /* ARGS */
+  vector<string> args { arguments_.option_args() };
+  args.push_back( "-o" );
+  args.push_back( output );
+
+  for ( const InputFile & input : link_inputs ) {
+    switch ( input.language ) {
+    case Language::OBJECT:
+    case Language::ARCHIVE_LIBRARY:
+      args.push_back( input.name );
+      break;
+
+    case Language::SHARED_LIBRARY:
+      args.push_back( "-l" + input.name );
+      break;
+
+    default:
+      throw runtime_error( "invalid input for link stage" );
+    }
+  }
+
+  vector<string> all_args;
+  all_args.reserve( args.size() + gcc_library_path.size() );
 
   for ( const string & dir : gcc_library_path ) {
     infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
-    args.push_back( "-L" + dir );
+    all_args.push_back( "-L" + dir );
   }
 
+  all_args.insert( all_args.end(), args.begin(), args.end() );
+
+  all_args.push_back( "-B" + gcc_install_path );
+  all_args.push_back( "-Wl,-rpath-link,/lib/x86_64-linux-gnu" );
+
+  /* INFILES */
   for ( const string & dir : ld_search_path ) {
     infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
   }
 
   infiles.emplace_back( gcc_install_path, InFile::Type::DUMMY_DIRECTORY );
 
-  args.insert( args.end(), link_args.begin(), link_args.end() );
-
-  args.push_back( "-B" + gcc_install_path );
-
-  return { output, gcc_function( operation_mode_, args, envars_ ), infiles };
+  return { output, gcc_function( operation_mode_, all_args, envars_ ), infiles };
 }

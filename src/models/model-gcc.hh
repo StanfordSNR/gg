@@ -142,7 +142,6 @@ private:
                                    const std::string & output );
 
   gg::thunk::Thunk generate_link_thunk( const std::vector<InputFile> & link_inputs,
-                                        const std::vector<std::string> & link_args,
                                         const std::vector<std::string> & dependencies,
                                         const std::string & output );
 
