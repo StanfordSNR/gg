@@ -11,7 +11,7 @@ ${TOOLCHAIN_PATH}/gcc -g -O2 -S -frandom-seed=winstein -o remake.s.gold $DATADIR
 model-gcc gcc -g -O2 -S -frandom-seed=winstein -o remake.s $DATADIR/remake.i
 
 # execute thunk
-gg-execute -s remake.s
+gg-reduce -s remake.s
 
 # check difference
 diff remake.s remake.s.gold

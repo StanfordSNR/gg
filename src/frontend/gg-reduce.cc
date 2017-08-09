@@ -280,16 +280,13 @@ int main( int argc, char * argv[] )
 
     gg_reductions_path = gg_path / "reductions";
 
-    roost::path thunk_path;
+    const roost::path thunk_path = roost::canonical( input_filename );
 
     /* first check if this file is actually a placeholder */
     Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( input_filename );
 
     if ( placeholder.initialized() ) {
-      thunk_path = gg_path / placeholder->content_hash();
-    }
-    else {
-      thunk_path = input_filename;
+      copy_then_rename( gg_path / placeholder->content_hash(), input_filename );
     }
 
     string final_hash = InFile::compute_hash( thunk_path.string() );

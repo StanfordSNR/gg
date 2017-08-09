@@ -12,6 +12,6 @@ ${TOOLCHAIN_PATH}/strip ${OUTPUT}.gold
 cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
 model-strip ${OUTPUT}
 
-gg-execute -s ${OUTPUT}
+gg-reduce -s ${OUTPUT}
 
 diff ${OUTPUT} ${OUTPUT}.gold

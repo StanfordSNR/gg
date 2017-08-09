@@ -12,6 +12,6 @@ ${TOOLCHAIN_PATH}/ranlib ${OUTPUT}.gold
 cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
 model-ranlib ${OUTPUT}
 
-gg-execute -s ${OUTPUT}
+gg-reduce -s ${OUTPUT}
 
 diff ${OUTPUT} ${OUTPUT}.gold
