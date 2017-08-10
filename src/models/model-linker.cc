@@ -129,7 +129,7 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
   all_args.reserve( args.size() + gcc_library_path.size() );
 
   for ( const string & dir : gcc_library_path ) {
-    infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+    infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
     all_args.push_back( "-L" + dir );
   }
 
@@ -140,10 +140,10 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
 
   /* INFILES */
   for ( const string & dir : ld_search_path ) {
-    infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+    infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
   }
 
-  infiles.emplace_back( gcc_install_path, InFile::Type::DUMMY_DIRECTORY );
+  infiles.emplace_back( gcc_install_path, "", InFile::Type::DUMMY_DIRECTORY );
 
   return { output, gcc_function( operation_mode_, all_args, envars_ ), infiles };
 }

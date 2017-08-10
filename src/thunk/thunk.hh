@@ -41,19 +41,12 @@ namespace gg {
       void fill_file_info();
 
     public:
-      /* The only constructor that supports placeholders */
-      InFile( const std::string & filename );
-
-      /* we use this constructor to create dummy directory entries */
-      InFile( const std::string & filename, const Type type );
-
-      /* we use this constructor when the real file is stored somewhere other
-         than 'filename', but we want that file to be stored as 'filename' in
-         the thunk (e.g. see model-gcc). */
-      InFile( const std::string & filename, const std::string & real_filename );
+      InFile( const std::string & filename, const std::string & real_filename = {},
+              const Type type = Type::FILE );
 
       InFile( const std::string & filename, const std::string & real_filename,
-              const std::string & hash, const size_t order, const off_t size );
+              const std::string & hash, const size_t order, const off_t size,
+              const Type type = Type::FILE );
 
       InFile( const gg::protobuf::InFile & infile_proto );
 

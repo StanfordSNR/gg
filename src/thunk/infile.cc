@@ -22,6 +22,8 @@ InFile::Type type_from_protobuf( const int protobuf_type )
   switch ( protobuf_type ) {
   case gg::protobuf::InFile_Type_FILE:
     return InFile::Type::FILE;
+  case gg::protobuf::InFile_Type_EXECUTABLE:
+    return InFile::Type::EXECUTABLE;
   case gg::protobuf::InFile_Type_DUMMY_DIRECTORY:
     return InFile::Type::DUMMY_DIRECTORY;
   default:
@@ -34,6 +36,8 @@ gg::protobuf::InFile_Type type_to_protobuf( const InFile::Type type )
   switch ( type ) {
   case InFile::Type::FILE:
     return gg::protobuf::InFile_Type_FILE;
+  case InFile::Type::EXECUTABLE:
+    return gg::protobuf::InFile_Type_EXECUTABLE;
   case InFile::Type::DUMMY_DIRECTORY:
     return gg::protobuf::InFile_Type_DUMMY_DIRECTORY;
   default:
@@ -41,23 +45,24 @@ gg::protobuf::InFile_Type type_to_protobuf( const InFile::Type type )
   }
 }
 
-/* The only constructor that supports placeholders */
-InFile::InFile( const string & filename )
-  : InFile( filename, filename, "", 0, 0 )
+InFile::InFile( const string & filename, const string & real_filename,
+                const Type type )
+  : InFile( filename, ( real_filename.empty() ? filename : real_filename ),
+            "", 0, 0, type )
 {
-  fill_file_info();
+  type_ = type;
+
+  if ( type_ != Type::DUMMY_DIRECTORY ) {
+    fill_file_info();
+  }
 }
 
 InFile::InFile( const string & filename, const string & real_filename,
-                const string & hash, const size_t order, const off_t size )
+                const string & hash, const size_t order, const off_t size,
+                const Type type )
   : filename_( roost::path( filename ).lexically_normal().string() ),
     real_filename_( real_filename ), content_hash_( hash ), order_( order ),
-    size_( size )
-{}
-
-InFile::InFile( const string & filename, const string & real_filename )
-  : InFile( filename, real_filename, compute_hash( real_filename ),
-    compute_order( real_filename ), compute_size( real_filename ) )
+    size_( size ), type_( type )
 {}
 
 InFile::InFile( const protobuf::InFile & infile_proto )
@@ -66,18 +71,6 @@ InFile::InFile( const protobuf::InFile & infile_proto )
     size_( infile_proto.size() ),
     type_( type_from_protobuf( infile_proto.type() ) )
 {}
-
-InFile::InFile( const std::string & filename, const Type type )
-  : InFile( filename, filename, "", 0, 0 )
-{
-  type_ = type;
-
-  if ( type == Type::FILE ) {
-    content_hash_ = compute_hash( real_filename_ );
-    order_ = compute_order( real_filename_ );
-    size_ = compute_size( real_filename_ );
-  }
-}
 
 void InFile::fill_file_info()
 {
@@ -133,7 +126,7 @@ protobuf::InFile InFile::to_protobuf() const
   infile.set_filename( filename_ );
   infile.set_type( type_to_protobuf( type_ ) );
 
-  if ( type_ == Type::FILE ) {
+  if ( type_ != Type::DUMMY_DIRECTORY ) {
     infile.set_size( size_ );
     infile.set_hash( content_hash_ );
     infile.set_order( order_ );

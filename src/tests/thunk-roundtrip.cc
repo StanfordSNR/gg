@@ -47,8 +47,8 @@ int main( int argc, char * argv[] )
     InFile infile1( "thunk.hh", "thunk.hh", "XXX", 0, 120 );
     InFile infile2( "infile_desc.hh", "infile_desc.hh", "YYY", 0, 24000 );
     InFile infile3( "thunk_func.hh", "infile_desc.hh", "ZZZ", 0, 59200 );
-    InFile indir1( "/home/sadjad/", InFile::Type::DUMMY_DIRECTORY );
-    InFile indir2( "/etc/gg/", InFile::Type::DUMMY_DIRECTORY );
+    InFile indir1( "/home/sadjad/", "", InFile::Type::DUMMY_DIRECTORY );
+    InFile indir2( "/etc/gg/", "", InFile::Type::DUMMY_DIRECTORY );
 
     vector<InFile> infiles = { infile1, infile2, infile3, indir1, indir2 };
 

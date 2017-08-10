@@ -153,7 +153,12 @@ unordered_map<string, Permissions> Thunk::get_allowed_files( const roost::path &
 
   for ( const InFile & infile : infiles() ) {
     if ( infile.content_hash().length() ) {
-      allowed_files[ ( gg_path / infile.content_hash() ).string() ] = { true, false, false };
+      if ( infile.type() == InFile::Type::FILE ) {
+        allowed_files[ ( gg_path / infile.content_hash() ).string() ] = { true, false, false };
+      }
+      else if ( infile.type() == InFile::Type::EXECUTABLE ) {
+        allowed_files[ ( gg_path / infile.content_hash() ).string() ] = { true, false, true };
+      }
     }
     else {
       allowed_files[ infile.filename() ] = { true, false, false };

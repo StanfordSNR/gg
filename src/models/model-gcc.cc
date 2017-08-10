@@ -180,14 +180,14 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
     }
 
     for ( const string & dir : include_path ) {
-      base_infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+      base_infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
     }
 
     for ( const string & dir : arguments_.include_dirs() ) {
-      base_infiles.emplace_back( dir, InFile::Type::DUMMY_DIRECTORY );
+      base_infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
     }
 
-    base_infiles.emplace_back( ".", InFile::Type::DUMMY_DIRECTORY );
+    base_infiles.emplace_back( ".", "", InFile::Type::DUMMY_DIRECTORY );
 
     return { output, gcc_function( operation_mode_, all_args, envars_ ), base_infiles };
   }

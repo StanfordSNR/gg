@@ -147,7 +147,8 @@ print_cc("""\
       ( toolchain_path / x ).string(), \\
       program_data( x ).first, \\
       0, \\
-      program_data( x ).second \\
+      program_data( x ).second, \\
+      gg::thunk::InFile::Type::EXECUTABLE \\
     } \\
   }""")
 print_cc()
