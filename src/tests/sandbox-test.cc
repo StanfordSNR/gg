@@ -30,7 +30,7 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    const size_t total_tests = 3;
+    const size_t total_tests = 5;
     size_t successful_tests = 0;
 
     /* test 1 */
@@ -94,6 +94,48 @@ int main( int argc, char * argv[] )
 
     try {
       sp_3.execute();
+    }
+    catch (...) {
+      successful_tests++;
+    }
+
+    /* test 4 */
+    unordered_map<string, Permissions> allowed_files_4 {
+      { "/bin/ls", { true, false, true } },
+    };
+
+    SandboxedProcess sp_4(
+      allowed_files_4,
+      []()
+      {
+        execl( "/bin/ls", "/bin/ls" );
+        return 0;
+      }
+    );
+
+    try {
+      sp_4.execute();
+      successful_tests++;
+    }
+    catch (...) {
+    }
+
+    /* test 5 */
+    unordered_map<string, Permissions> allowed_files_5 {
+      { "/bin/ls", { true, false, false } },
+    };
+
+    SandboxedProcess sp_5(
+      allowed_files_5,
+      []()
+      {
+        execl( "/bin/ls", "/bin/ls" );
+        return 0;
+      }
+    );
+
+    try {
+      sp_5.execute();
     }
     catch (...) {
       successful_tests++;
