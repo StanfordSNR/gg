@@ -17,7 +17,8 @@ message InFile {
 
   enum Type {
     FILE = 0;
-    DUMMY_DIRECTORY = 1;
+    EXECUTABLE = 1;
+    DUMMY_DIRECTORY = 2;
   }
 
   Type type = 5;

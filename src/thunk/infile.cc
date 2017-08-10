@@ -60,12 +60,6 @@ InFile::InFile( const string & filename, const string & real_filename )
     compute_order( real_filename ), compute_size( real_filename ) )
 {}
 
-InFile::InFile( const string & filename, const string & real_filename,
-                const string & hash )
-  : InFile( filename, real_filename, hash, compute_order( real_filename ),
-            compute_size( real_filename ) )
-{}
-
 InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), real_filename_( filename_ ),
     content_hash_( infile_proto.hash() ), order_( infile_proto.order() ),

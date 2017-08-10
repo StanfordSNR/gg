@@ -121,7 +121,13 @@ void store_thunk_reduction( const string & original_hash,
   }
 }
 
-string check_reduction_cache( const string & thunk_hash, const size_t order )
+struct ReductionResult
+{
+  string hash;
+  size_t order;
+};
+
+Optional<ReductionResult> check_reduction_cache( const string & thunk_hash, const size_t order )
 {
   if ( order == 0 ) {
     throw runtime_error( "not a thunk" );
@@ -130,7 +136,7 @@ string check_reduction_cache( const string & thunk_hash, const size_t order )
   roost::path reduction_root { gg_reductions_path / thunk_hash };
 
   if ( not roost::exists( reduction_root ) ) {
-    return ""; // no reductions are available
+    return {}; // no reductions are available
   }
 
   for ( size_t i = 0; i < order; i++ ) {
@@ -143,35 +149,32 @@ string check_reduction_cache( const string & thunk_hash, const size_t order )
     const vector<string> reductions = roost::get_directory_listing( reduction_order_root );
 
     if ( reductions.size() > 0 ) {
-      return reductions.front();
+      return ReductionResult { reductions.front(), i };
     }
   }
 
-  return "";
+  return {};
 }
 
 /* Reduces the order of the input thunk by one and returns hash of the reduction
    result */
-string reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path )
+ReductionResult reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path )
 {
   ThunkReader thunk_reader { thunk_path.string() };
 
   if ( not thunk_reader.is_thunk() ) {
     /* already reduced. gg's work is done here. */
-    return "";
+    return { "", 0 };
   }
 
   Thunk thunk = thunk_reader.read_thunk();
   const string thunk_hash = InFile::compute_hash( thunk_path.string() );
 
-  cerr << "Reducing [" << thunk_hash << "](" << thunk.order() << ")" << endl;
-
   /* first let's see if we actually have a reduced version of this thunk */
-  const string cached_reduction = check_reduction_cache( thunk_hash, thunk.order() );
+  const auto cached_reduction = check_reduction_cache( thunk_hash, thunk.order() );
 
-  if ( not cached_reduction.empty() ) {
-    cerr << "Reduction found: " << cached_reduction << endl;
-    return cached_reduction;
+  if ( cached_reduction.initialized() ) {
+    return *cached_reduction;
   }
 
   if ( thunk.order() == 0 ) {
@@ -181,21 +184,19 @@ string reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path
     const string output_hash = execute_thunk( thunk, thunk_path );
     store_thunk_reduction( thunk_hash, output_hash, 0 );
 
-    cerr << "Reduced [" << thunk_hash << "](" << thunk.order() << ") => "
-         << "[" << output_hash << "](" << 0 << ")" << endl;
-
-    return output_hash;
+    return { output_hash, 0 };
   }
   else { // thunk.order() >= 2
     vector<InFile> new_infiles;
 
     for ( const InFile & infile : thunk.infiles() ) {
       if ( infile.order() == thunk.order() - 1 )  {
-        const string reduced_hash = reduce_thunk( gg_path, gg_path / infile.content_hash() );
-        const roost::path reduced_path = get_content_path( reduced_hash );
+        const ReductionResult reduction = reduce_thunk( gg_path, gg_path / infile.content_hash() );
+        const roost::path reduction_path = get_content_path( reduction.hash );
+        const off_t reduction_size = roost::file_size( reduction_path );
 
-        new_infiles.emplace_back( infile.filename(), reduced_path.string(),
-                                  reduced_hash );
+        new_infiles.emplace_back( infile.filename(), reduction_path.string(),
+                                  reduction.hash, reduction.order, reduction_size );
       }
       else {
         new_infiles.push_back( infile );
@@ -215,10 +216,7 @@ string reduce_thunk( const roost::path & gg_path, const roost::path & thunk_path
 
     store_thunk_reduction( thunk_hash, new_thunk_hash, new_thunk.order() );
 
-    cerr << "Reduced [" << thunk_hash << "](" << thunk.order() << ") => "
-         << "[" << new_thunk_hash << "](" << new_thunk.order() << ")" << endl;
-
-    return new_thunk_hash;
+    return { new_thunk_hash, new_thunk.order() };
   }
 }
 
@@ -263,20 +261,14 @@ int main( int argc, char * argv[] )
     }
 
     string final_hash = InFile::compute_hash( thunk_path.string() );
-    string reduced_hash = reduce_thunk( gg_path, thunk_path );
+    string reduced_hash = reduce_thunk( gg_path, thunk_path ).hash;
 
     while ( not reduced_hash.empty() ) {
       final_hash = reduced_hash;
-      cerr << "Reduced to " << reduced_hash << endl;
-      reduced_hash = reduce_thunk( gg_path, get_content_path( reduced_hash ) );
+      reduced_hash = reduce_thunk( gg_path, get_content_path( reduced_hash ) ).hash;
     }
 
-    cerr << "Final hash: " << final_hash << endl;
-    cerr << "Putting the outfile... ";
-
     roost::copy_then_rename( get_content_path( final_hash ), thunk_path );
-
-    cerr << "done" << endl;
 
     if ( execute_after_force ) {
       argv++;

@@ -22,7 +22,8 @@ namespace gg {
     public:
       enum class Type
       {
-        FILE = 1,
+        FILE = 0,
+        EXECUTABLE = 1,
         DUMMY_DIRECTORY = 2,
       };
 
@@ -50,9 +51,6 @@ namespace gg {
          than 'filename', but we want that file to be stored as 'filename' in
          the thunk (e.g. see model-gcc). */
       InFile( const std::string & filename, const std::string & real_filename );
-
-      InFile( const std::string & filename, const std::string & real_filename,
-              const std::string & hash );
 
       InFile( const std::string & filename, const std::string & real_filename,
               const std::string & hash, const size_t order, const off_t size );
