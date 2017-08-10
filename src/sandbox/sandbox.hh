@@ -36,6 +36,7 @@ private:
   bool open_entry( const SystemCallInvocation & syscall );
   bool open_exit( const SystemCallInvocation & syscall );
   bool rename_entry( const SystemCallInvocation & syscall );
+  bool execve_entry( const SystemCallInvocation & syscall );
 
 public:
   SandboxedProcess( const std::unordered_map<std::string, Permissions> & allowed_files,

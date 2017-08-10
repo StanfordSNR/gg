@@ -64,6 +64,20 @@ bool SandboxedProcess::open_entry( const SystemCallInvocation & syscall )
   return true;
 }
 
+bool SandboxedProcess::execve_entry( const SystemCallInvocation & syscall )
+{
+  assert( syscall.arguments().initialized() );
+
+  const string pathname = syscall.arguments()->at( 0 ).value<string>();
+
+  if ( not allowed_files_.count( pathname ) ) {
+    return false;
+  }
+
+  Permissions file_flags = allowed_files_.at( pathname );
+  return file_flags.execute;
+}
+
 bool SandboxedProcess::open_exit( const SystemCallInvocation & syscall )
 {
   assert( syscall.arguments().initialized() );
@@ -144,6 +158,7 @@ void SandboxedProcess::execute()
         switch ( syscall.syscall_no() ) {
         case SYS_open:   Check( tcb, open_entry( syscall ) ); break;
         case SYS_rename: Check( tcb, rename_entry( syscall ) ); break;
+        case SYS_execve: Check( tcb, execve_entry( syscall ) ); break;
 
         /* general check for file-related syscalls */
         default: Check( tcb, file_syscall_entry( syscall ) );
