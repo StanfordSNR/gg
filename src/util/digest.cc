@@ -10,40 +10,62 @@ using namespace std;
 using namespace digest;
 
 template<const EVP_MD * evp_func(void)>
-unsigned int Digest<evp_func>::compute_hash( std::istream & input )
+void Digest<evp_func>::update( istream & input )
 {
-  EVP_MD_CTX context;
-  EVP_DigestInit( &context, evp_func() );
+  if ( finalized_) {
+    throw runtime_error( "cannot update a finalized digest" );
+  }
 
   char buf[ 1024 * 16 ];
   while ( input.good() ) {
     input.read( buf, sizeof( buf ) );
-    EVP_DigestUpdate( &context, buf, input.gcount() );
+    EVP_DigestUpdate( &context_, buf, input.gcount() );
   }
-
-  unsigned int len;
-  EVP_DigestFinal( &context, hash_, &len );
-
-  return len;
 }
 
 template<const EVP_MD * evp_func(void)>
-Digest<evp_func>::Digest( const std::string & filename )
+Digest<evp_func>::Digest()
+  : context_()
 {
-  ifstream fin( filename, ios::binary );
-  compute_hash( fin );
+  EVP_DigestInit( &context_, evp_func() );
 }
 
 template<const EVP_MD * evp_func(void)>
 Digest<evp_func>::Digest( istream & input )
+  : Digest()
 {
-  compute_hash( input );
+  update( input );
 }
 
 template<const EVP_MD * evp_func(void)>
-string Digest<evp_func>::hexdigest() const
+void Digest<evp_func>::update( const string & input )
 {
-  // TODO : Consider using a different object than string
+  if ( finalized_) {
+    throw runtime_error( "cannot update a finalized digest" );
+  }
+
+  EVP_DigestUpdate( &context_, input.data(), input.length() );
+}
+
+template<const EVP_MD * evp_func(void)>
+void Digest<evp_func>::finalize()
+{
+  if ( finalized_ ) {
+    return;
+  }
+
+  unsigned int len;
+  EVP_DigestFinal( &context_, hash_, &len );
+  finalized_ = true;
+}
+
+template<const EVP_MD * evp_func(void)>
+string Digest<evp_func>::hexdigest()
+{
+  if ( not finalized_ ) {
+    finalize();
+  }
+
   stringstream result;
 
   result << hex << nouppercase << setfill('0');

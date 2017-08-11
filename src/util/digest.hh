@@ -14,13 +14,22 @@ namespace digest
   class Digest
   {
   private:
+    bool finalized_ { false };
+
     unsigned char hash_[ EVP_MAX_MD_SIZE ];
+    EVP_MD_CTX context_;
     unsigned int compute_hash( std::istream & input );
 
   public:
-    Digest( const std::string & filename );
+    Digest();
     Digest( std::istream & input );
-    std::string hexdigest() const;
+
+    void update( const std::string & input );
+    void update( std::istream & input );
+
+    void finalize();
+
+    std::string hexdigest();
   };
 
   template class Digest<EVP_sha256>;

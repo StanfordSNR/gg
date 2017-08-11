@@ -20,7 +20,7 @@ const size_t PATH_MAX_LEN = 128;
 Function::Function( const string & exe, const vector<string> & args,
                     const vector<string> & envars )
   : exe_( exe ), args_( args ),
-    exe_hash_( digest::SHA256( exe_ ).hexdigest() ), envars_( envars )
+    exe_hash_( InFile::compute_hash( exe ) ), envars_( envars )
 {}
 
 Function::Function( const string & exe, const vector<string> & args,

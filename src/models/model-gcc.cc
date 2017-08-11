@@ -253,7 +253,7 @@ void GCCModelGenerator::generate()
 
     GCCStage first_stage = language_to_stage( input.language );
     GCCStage input_last_stage = ( last_stage == LINK ) ? ASSEMBLE : last_stage;
-    string input_hash = digest::SHA256( input.name ).hexdigest();
+    string input_hash = InFile::compute_hash( input.name );
 
     map<size_t, string> stage_output;
     stage_output[ first_stage - 1 ] = input.name;

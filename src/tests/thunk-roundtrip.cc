@@ -42,7 +42,7 @@ int main( int argc, char * argv[] )
       "-MF", ".deps/remake.Tpo", "-c", "-o", "TEST_remake.o", "remake.i" };
     vector<string> envars = { "A=a", "B=b", "C=c" };
 
-    Function function( exe, args, envars );
+    Function function( exe, args, envars, "ABCDEFGHI" );
 
     InFile infile1( "thunk.hh", "thunk.hh", "XXX", 0, 120 );
     InFile infile2( "infile_desc.hh", "infile_desc.hh", "YYY", 0, 24000 );
