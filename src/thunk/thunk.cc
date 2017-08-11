@@ -6,11 +6,13 @@
 #include <cstring>
 #include <iostream>
 #include <unordered_map>
+#include <algorithm>
 
 #include "system_runner.hh"
 #include "thunk_writer.hh"
 #include "temp_file.hh"
 #include "placeholder.hh"
+#include "digest.hh"
 
 using namespace std;
 using namespace gg;
@@ -144,6 +146,27 @@ bool Thunk::operator==( const Thunk & other ) const
          ( function_ == other.function_ ) and
          ( infiles_ == other.infiles_ ) and
          ( order_ == other.order_ );
+}
+
+string Thunk::executable_hash() const
+{
+  vector<string> executable_hashes;
+
+  for ( const InFile & infile : infiles_ ) {
+    if ( infile.type() == InFile::Type::EXECUTABLE ) {
+      executable_hashes.push_back( infile.content_hash() );
+    }
+  }
+
+  sort( executable_hashes.begin(), executable_hashes.end() );
+
+  digest::SHA256 digest;
+
+  for ( const string & hash : executable_hashes ) {
+    digest.update( hash );
+  }
+
+  return digest.hexdigest();
 }
 
 unordered_map<string, Permissions> Thunk::get_allowed_files( const roost::path & gg_path,

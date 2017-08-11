@@ -134,6 +134,8 @@ namespace gg {
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
 
+      std::string executable_hash() const;
+
       /* Returns a list of files that can be accessed while executing this
          thunk. */
       std::unordered_map<std::string, Permissions>
