@@ -227,7 +227,6 @@ void usage( const char * argv0 )
        << "Useful environment variables:" << endl
        << "  GG_DIR       => absolute path to gg directory" << endl
        << "  GG_SANDBOXED => if set, forces the thunks in a sandbox" << endl
-       << "  GG_EXECUTE   => if set, executes the thunk after it is forced"
        << endl;
 }
 
@@ -244,8 +243,6 @@ int main( int argc, char * argv[] )
     }
 
     string thunk_filename { argv[ 1 ] };
-
-    bool execute_after_force = ( getenv( "GG_EXECUTE" ) != NULL );
 
     sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
     gg_path = gg::models::get_gg_dir( false );
@@ -269,12 +266,6 @@ int main( int argc, char * argv[] )
     }
 
     roost::copy_then_rename( get_content_path( final_hash ), thunk_path );
-
-    if ( execute_after_force ) {
-      argv++;
-      CheckSystemCall( "execv " + thunk_path.string(),
-                        execv( thunk_path.string().c_str(), argv ) );
-    }
 
     return EXIT_SUCCESS;
   }

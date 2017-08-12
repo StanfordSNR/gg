@@ -8,6 +8,7 @@
 #include "path.cc"
 #include "placeholder.hh"
 #include "utils.hh"
+#include "system_runner.hh"
 
 using namespace std;
 
@@ -38,8 +39,9 @@ int main( int argc, char * argv[] )
       copy_then_rename( gg_path / placeholder->content_hash(), thunk_path );
     }
 
-    CheckSystemCall( "setenv", setenv( "GG_EXECUTE", "1", true ) );
-    CheckSystemCall( "execvp", execvp( "gg-reduce", argv ) );
+    vector<string> args = { "gg-reduce", thunk_filename };
+    run( "gg-reduce", args, {}, true, true );
+    CheckSystemCall( "execv", execv( thunk_path.string().c_str(), ++argv ) );
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );
