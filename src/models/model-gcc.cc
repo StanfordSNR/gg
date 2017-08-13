@@ -18,7 +18,7 @@
 #include "digest.hh"
 #include "temp_file.hh"
 #include "thunk.hh"
-#include "utils.hh"
+#include "paths.hh"
 
 #include "model-gcc.hh"
 
@@ -238,7 +238,7 @@ void GCCModelGenerator::generate()
 {
   vector<TempFile> tempfiles;
 
-  roost::path gg_dir = gg::models::get_gg_dir();
+  roost::path gg_dir = gg::paths::blobs();
 
   string final_output = arguments_.output_filename();
   GCCStage last_stage = arguments_.last_stage();

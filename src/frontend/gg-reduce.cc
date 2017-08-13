@@ -14,7 +14,7 @@
 #include "temp_file.hh"
 #include "temp_dir.hh"
 #include "thunk_writer.hh"
-#include "utils.hh"
+#include "paths.hh"
 #include "placeholder.hh"
 
 using namespace std;
@@ -245,8 +245,8 @@ int main( int argc, char * argv[] )
     string thunk_filename { argv[ 1 ] };
 
     sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
-    gg_path = gg::models::get_gg_dir( false );
-    gg_reductions_path = gg_path / "reductions";
+    gg_path = gg::paths::blobs();
+    gg_reductions_path = gg::paths::reductions();
 
     const roost::path thunk_path = roost::canonical( thunk_filename );
 

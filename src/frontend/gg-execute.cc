@@ -7,7 +7,7 @@
 #include "exception.hh"
 #include "path.cc"
 #include "placeholder.hh"
-#include "utils.hh"
+#include "paths.hh"
 #include "system_runner.hh"
 
 using namespace std;
@@ -29,7 +29,7 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    const roost::path gg_path = gg::models::get_gg_dir( false );
+    const roost::path gg_path = gg::paths::blobs();
     const string thunk_filename = argv[ 1 ];
     const roost::path thunk_path = roost::canonical( thunk_filename );
 
