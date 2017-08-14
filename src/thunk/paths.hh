@@ -13,6 +13,8 @@ namespace gg {
   namespace paths {
     roost::path blobs();
     roost::path reductions();
+
+    roost::path blob_path( const std::string & hash );
   }
 
   namespace models {

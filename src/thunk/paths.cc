@@ -45,6 +45,11 @@ roost::path gg::paths::reductions()
   return reductions_path;
 }
 
+roost::path gg::paths::blob_path( const std::string & hash )
+{
+  return blobs() / hash;
+}
+
 std::vector<std::string> gg::models::args_to_vector( int argc, char ** argv )
 {
   std::vector<std::string> result;
