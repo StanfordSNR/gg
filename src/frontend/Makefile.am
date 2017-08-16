@@ -11,7 +11,8 @@ BASE_LDADD = ../thunk/libthunk.a \
              ../protobufs/libggprotobufs.a ../util/libggutil.a \
              $(PROTOBUF_LIBS)
 
-bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock
+bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
+               gg-execute
 
 gg_trace_SOURCES = gg-trace.cc
 gg_trace_LDADD = $(BASE_LDADD)
@@ -21,6 +22,9 @@ gg_describe_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_reduce_and_run_SOURCES = gg-reduce-and-run.cc
 gg_reduce_and_run_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+
+gg_execute_SOURCES = gg-execute.cc
+gg_execute_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_reduce_SOURCES = gg-reduce.cc
 gg_reduce_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
