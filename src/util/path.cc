@@ -101,6 +101,12 @@ namespace roost {
     return path_;
   }
 
+  bool lexists( const path & pathn )
+  {
+    struct stat file_info;
+    return lstat( pathn.string().c_str(), &file_info ) == 0;
+  }
+
   bool exists( const path & pathn )
   {
     return not access( pathn.string().c_str(), F_OK );
@@ -375,7 +381,10 @@ namespace roost {
   string readlink( const path & pathn )
   {
     char result[ PATH_MAX ];
-    CheckSystemCall( "readlink", ::readlink( pathn.string().c_str(), result, sizeof( result ) ) );
+    
+    ssize_t len = CheckSystemCall( "readlink", ::readlink( pathn.string().c_str(), result, sizeof( result ) ) );
+    result[ len ] = '\0';
+
     return { result };
   }
 }

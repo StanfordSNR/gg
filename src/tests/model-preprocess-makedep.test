@@ -9,16 +9,19 @@ INPUT_FILE=$DATADIR/$BASENAME.c
 OUTPUT_FILE=$BASENAME.i
 MAKEDEP_FILE=$BASENAME.Tpo
 
-GCC_M_ARGS="-MT ${BASENAME}.o -MD -MP -MF ${MAKEDEP_FILE}"
+GCC_M_ARGS="-MT ${BASENAME}.o -MD -MP -MF"
 GCC_ARGS="-D_FORTIFY_SOURCE=0 -g -O2 -E -frandom-seed=winstein ${INPUT_FILE}"
 
 INCLUDE_ARGS=$(gcc-7 -E -Wp,-v - < /dev/null 2>&1 | grep "^ " | sed 's/ \(.*\)/-isystem\1/' | tr '\n' ' ')
 
 # Run with system GCC
-gcc-7 -nostdinc ${INCLUDE_ARGS} ${GCC_ARGS} ${GCC_M_ARGS}.gold -o ${OUTPUT_FILE}.gold
+mkdir -p $GG_DIR
+cd $GG_DIR
+gcc-7 -nostdinc ${INCLUDE_ARGS} ${GCC_ARGS} ${GCC_M_ARGS} $TEST_TMPDIR/${MAKEDEP_FILE}.gold -o $TEST_TMPDIR/${OUTPUT_FILE}.gold
+cd ..
 
 # Create thunk
-model-gcc gcc ${GCC_ARGS} ${GCC_M_ARGS} -o ${OUTPUT_FILE}
+model-gcc gcc ${GCC_ARGS} ${GCC_M_ARGS} ${MAKEDEP_FILE} -o ${OUTPUT_FILE}
 
 # execute thunk
 GG_SANDBOXED=1 gg-reduce ${OUTPUT_FILE}
