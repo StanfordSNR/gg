@@ -169,6 +169,23 @@ string Thunk::executable_hash() const
   return digest.hexdigest();
 }
 
+void Thunk::update_infile( const string & old_hash, const string & new_hash,
+                           const size_t new_order, const off_t new_size )
+{
+  for ( InFile & infile : infiles_ ) {
+    if ( infile.content_hash() == old_hash ) {
+      InFile new_infile { infile.filename(), infile.real_filename(),
+                          new_hash, new_order, new_size, infile.type() };
+
+      swap( infile, new_infile );
+      compute_order();
+      return;
+    }
+  }
+
+  throw runtime_error( "infile doesn't exist: " + old_hash );
+}
+
 unordered_map<string, Permissions> Thunk::get_allowed_files( const roost::path & gg_path,
                                                              const roost::path & thunk_path ) const
 {

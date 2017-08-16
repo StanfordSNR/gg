@@ -136,6 +136,11 @@ namespace gg {
 
       std::string executable_hash() const;
 
+      void update_infile( const std::string & old_hash,
+                          const std::string & new_hash,
+                          const size_t new_order,
+                          const off_t new_size );
+
       /* Returns a list of files that can be accessed while executing this
          thunk. */
       std::unordered_map<std::string, Permissions>
