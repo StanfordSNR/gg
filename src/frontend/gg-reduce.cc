@@ -35,11 +35,6 @@ inline void CheckExecution( const string & path, bool status )
   }
 }
 
-roost::path get_content_path( const string & content_hash )
-{
-  return gg_path / content_hash;
-}
-
 string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 {
   assert( thunk.order() == 1 );
@@ -96,7 +91,7 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 
   roost::path outfile { exec_dir_path / thunk.outfile() };
   string outfile_hash = InFile::compute_hash( outfile.string() );
-  roost::path outfile_gg = get_content_path( outfile_hash );
+  roost::path outfile_gg = gg::paths::blob_path( outfile_hash );
 
   if ( not roost::exists( outfile_gg ) ) {
     roost::move_file( outfile, outfile_gg );
@@ -176,7 +171,7 @@ ReductionResult reduce_thunk( const roost::path & gg_path, const roost::path & t
     for ( const InFile & infile : thunk.infiles() ) {
       if ( infile.order() == thunk.order() - 1 )  {
         const ReductionResult reduction = reduce_thunk( gg_path, gg_path / infile.content_hash() );
-        const roost::path reduction_path = get_content_path( reduction.hash );
+        const roost::path reduction_path = gg::paths::blob_path( reduction.hash );
         const off_t reduction_size = roost::file_size( reduction_path );
 
         new_infiles.emplace_back( infile.filename(), reduction_path.string(),
@@ -192,7 +187,7 @@ ReductionResult reduce_thunk( const roost::path & gg_path, const roost::path & t
     TempFile temp_thunk { temp_file_template };
     ThunkWriter::write_thunk( new_thunk, temp_thunk.name() );
     const string new_thunk_hash = InFile::compute_hash( temp_thunk.name() );
-    const roost::path new_thunk_path = get_content_path( new_thunk_hash );
+    const roost::path new_thunk_path = gg::paths::blob_path( new_thunk_hash );
 
     if ( not roost::exists( new_thunk_path ) ) {
       roost::move_file( temp_thunk.name(), new_thunk_path );
@@ -248,10 +243,10 @@ int main( int argc, char * argv[] )
 
     while ( not reduced_hash.empty() ) {
       final_hash = reduced_hash;
-      reduced_hash = reduce_thunk( gg_path, get_content_path( reduced_hash ) ).hash;
+      reduced_hash = reduce_thunk( gg_path, gg::paths::blob_path( reduced_hash ) ).hash;
     }
 
-    roost::copy_then_rename( get_content_path( final_hash ), thunk_path );
+    roost::copy_then_rename( gg::paths::blob_path( final_hash ), thunk_path );
 
     return EXIT_SUCCESS;
   }
