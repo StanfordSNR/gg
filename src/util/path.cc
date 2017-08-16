@@ -371,4 +371,11 @@ namespace roost {
   {
     CheckSystemCall( "chmod", ::chmod( pathn.string().c_str(), mode ) );
   }
+
+  string readlink( const path & pathn )
+  {
+    char result[ PATH_MAX ];
+    CheckSystemCall( "readlink", ::readlink( pathn.string().c_str(), result, sizeof( result ) ) );
+    return { result };
+  }
 }

@@ -54,6 +54,7 @@ namespace roost {
   void symlink( const path & old_name, const path & new_name );
   void rename( const path & oldpath, const path & newpath );
   void chmod( const path & pathn, mode_t mode );
+  std::string readlink( const path & pathn );
   std::vector<std::string> get_directory_listing( const path & pathn );
 }
 

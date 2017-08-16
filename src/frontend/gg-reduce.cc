@@ -111,14 +111,12 @@ void store_thunk_reduction( const string & original_hash,
                             const string & new_hash,
                             const size_t & new_order )
 {
-  const roost::path new_path = get_content_path( new_hash );
-  const roost::path reduction_dir = gg_reductions_path / original_hash / to_string( new_order );
-  const roost::path symlink_target = reduction_dir / new_hash;
+  assert( new_order == 0 );
 
-  if ( not roost::exists( symlink_target ) ) {
-    roost::create_directories( reduction_dir );
-    roost::symlink( new_path, reduction_dir / new_hash );
-  }
+  const roost::path new_path = gg_reductions_path / original_hash;
+  const roost::path symlink_target = new_hash;
+
+  roost::symlink( new_hash, new_path );
 }
 
 struct ReductionResult
@@ -133,27 +131,13 @@ Optional<ReductionResult> check_reduction_cache( const string & thunk_hash, cons
     throw runtime_error( "not a thunk" );
   }
 
-  roost::path reduction_root { gg_reductions_path / thunk_hash };
+  roost::path reduction { gg_reductions_path / thunk_hash };
 
-  if ( not roost::exists( reduction_root ) ) {
+  if ( not roost::exists( reduction ) ) {
     return {}; // no reductions are available
   }
 
-  for ( size_t i = 0; i < order; i++ ) {
-    roost::path reduction_order_root { reduction_root / to_string( i ) };
-
-    if ( not roost::exists( reduction_order_root ) ) {
-      continue;
-    }
-
-    const vector<string> reductions = roost::get_directory_listing( reduction_order_root );
-
-    if ( reductions.size() > 0 ) {
-      return ReductionResult { reductions.front(), i };
-    }
-  }
-
-  return {};
+  return ReductionResult { roost::readlink( reduction ), 0 };
 }
 
 /* Reduces the order of the input thunk by one and returns hash of the reduction
@@ -214,7 +198,9 @@ ReductionResult reduce_thunk( const roost::path & gg_path, const roost::path & t
       roost::move_file( temp_thunk.name(), new_thunk_path );
     }
 
-    store_thunk_reduction( thunk_hash, new_thunk_hash, new_thunk.order() );
+    if ( new_thunk.order() == 0 ) {
+      store_thunk_reduction( thunk_hash, new_thunk_hash, new_thunk.order() );
+    }
 
     return { new_thunk_hash, new_thunk.order() };
   }

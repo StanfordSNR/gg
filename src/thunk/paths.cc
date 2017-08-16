@@ -30,7 +30,17 @@ roost::path get_blobs_path()
 
 roost::path get_reductions_path()
 {
-  return get_gg_dir() / "reductions";
+  roost::path reductions_dir = get_gg_dir() / "reductions";
+
+  if ( roost::exists( reductions_dir ) ) {
+    if ( not roost::is_directory( reductions_dir ) ) {
+      throw std::runtime_error( reductions_dir.string() + " is not a directory" );
+    }
+  } else {
+    roost::create_directories( reductions_dir );
+  }
+
+  return reductions_dir;
 }
 
 roost::path gg::paths::blobs()
