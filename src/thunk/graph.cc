@@ -51,3 +51,26 @@ size_t DependencyGraph::insert_thunk_hash( const string & hash )
   id_to_hash_.insert( { auto_increment_id, hash } );
   return auto_increment_id++;
 }
+
+
+void DependencyGraph::force_thunk( const size_t & old_thunk_id,
+                                   const string & new_hash )
+{
+  const Thunk & old_thunk = thunks_.at( old_thunk_id );
+  const string & old_hash = id_to_hash_.at( old_thunk_id );
+
+  if ( old_thunk.order() != 1 ) {
+    throw runtime_error( "can't force thunks with order != 1" );
+  }
+
+  if ( referenced_thunks_.count( old_thunk_id ) == 0 ) {
+    // no other thunk actually referenced this thunk
+    // XXX is this the right thing to do?
+    return;
+  }
+
+  for ( const size_t tid : referenced_thunks_.at( old_thunk_id ) ) {
+    Thunk & ref_thunk = thunks_.at( tid );
+    ref_thunk.update_infile( old_hash, new_hash, 0, 0 );
+  }
+}

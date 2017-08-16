@@ -30,6 +30,7 @@ public:
   DependencyGraph();
 
   size_t add_thunk( const std::string & hash );
+  void force_thunk( const size_t & old_thunk_id, const std::string & new_hash );
 };
 
 #endif /* GRAPH_HH */
