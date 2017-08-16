@@ -1,6 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "paths.hh"
+#include "ggpaths.hh"
 
 roost::path get_gg_dir()
 {

@@ -14,7 +14,7 @@
 #include "temp_file.hh"
 #include "temp_dir.hh"
 #include "thunk_writer.hh"
-#include "paths.hh"
+#include "ggpaths.hh"
 #include "placeholder.hh"
 
 using namespace std;

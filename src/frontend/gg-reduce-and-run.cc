@@ -7,7 +7,7 @@
 #include "exception.hh"
 #include "path.cc"
 #include "placeholder.hh"
-#include "paths.hh"
+#include "ggpaths.hh"
 #include "system_runner.hh"
 
 using namespace std;

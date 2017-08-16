@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-#include "paths.hh"
+#include "ggpaths.hh"
 #include "thunk_reader.hh"
 
 using namespace std;

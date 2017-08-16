@@ -18,7 +18,7 @@
 #include "digest.hh"
 #include "temp_file.hh"
 #include "thunk.hh"
-#include "paths.hh"
+#include "ggpaths.hh"
 
 #include "model-gcc.hh"
 

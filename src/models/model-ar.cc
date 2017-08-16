@@ -5,7 +5,7 @@
 #include <getopt.h>
 
 #include "thunk.hh"
-#include "paths.hh"
+#include "ggpaths.hh"
 #include "path.hh"
 
 #include "toolchain.hh"
