@@ -38,7 +38,6 @@ size_t DependencyGraph::add_thunk( const string & hash )
   }
 
   thunks_.emplace( make_pair( thunk_id, move( thunk ) ) );
-
   return thunk_id;
 }
 
@@ -53,9 +52,11 @@ size_t DependencyGraph::insert_thunk_hash( const string & hash )
 }
 
 
-void DependencyGraph::force_thunk( const size_t & old_thunk_id,
-                                   const string & new_hash )
+set<size_t> DependencyGraph::force_thunk( const size_t & old_thunk_id,
+                                          const string & new_hash )
 {
+  std::set<size_t> order_one_thunks;
+
   const Thunk & old_thunk = thunks_.at( old_thunk_id );
   const string & old_hash = id_to_hash_.at( old_thunk_id );
 
@@ -66,11 +67,17 @@ void DependencyGraph::force_thunk( const size_t & old_thunk_id,
   if ( referenced_thunks_.count( old_thunk_id ) == 0 ) {
     // no other thunk actually referenced this thunk
     // XXX is this the right thing to do?
-    return;
+    return order_one_thunks;
   }
 
   for ( const size_t tid : referenced_thunks_.at( old_thunk_id ) ) {
     Thunk & ref_thunk = thunks_.at( tid );
     ref_thunk.update_infile( old_hash, new_hash, 0, 0 );
+
+    if ( ref_thunk.order() == 1 ) {
+      order_one_thunks.insert( tid );
+    }
   }
+
+  return order_one_thunks;
 }
