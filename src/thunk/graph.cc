@@ -33,10 +33,10 @@ void DependencyGraph::add_thunk( const string & hash )
 }
 
 
-set<string> DependencyGraph::force_thunk( const string & old_hash,
-                                          const string & new_hash )
+unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
+                                                    const string & new_hash )
 {
-  set<string> order_one_thunks;
+  unordered_set<string> order_one_thunks;
 
   const Thunk & old_thunk = thunks_.at( old_hash );
 
@@ -60,4 +60,27 @@ set<string> DependencyGraph::force_thunk( const string & old_hash,
   }
 
   return order_one_thunks;
+}
+
+unordered_set<string>
+DependencyGraph::order_one_dependencies( const string & thunk_hash )
+{
+  unordered_set<string> result;
+  const Thunk & thunk = get_thunk( thunk_hash );
+
+  if ( thunk.order() == 1 ) {
+    result.insert( thunk_hash );
+  }
+
+  for ( const InFile & infile : thunk.infiles() ) {
+    if ( infile.order() == 1 ) {
+      result.insert( infile.content_hash() );
+    }
+    else if ( infile.order() > 1 ) {
+      unordered_set<string> subresult = order_one_dependencies( infile.content_hash() );
+      result.insert( subresult.begin(), subresult.end() );
+    }
+  }
+
+  return result;
 }
