@@ -13,6 +13,7 @@ libggutil_a_SOURCES = exception.hh optional.hh chunk.hh \
                       temp_file.hh temp_file.cc \
                       temp_dir.hh temp_dir.cc \
                       path.hh path.cc \
+                      socketpair.hh socketpair.cc \
                       poller.hh poller.cc \
                       signalfd.hh signalfd.cc \
                       event_loop.hh event_loop.cc \
