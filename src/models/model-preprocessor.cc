@@ -2,6 +2,7 @@
 
 #include "model-gcc.hh"
 
+#include <iostream>
 #include <algorithm>
 #include <vector>
 #include <string>

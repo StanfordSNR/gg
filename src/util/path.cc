@@ -1,6 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <stdexcept>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -381,7 +382,7 @@ namespace roost {
   string readlink( const path & pathn )
   {
     char result[ PATH_MAX ];
-    
+
     ssize_t len = CheckSystemCall( "readlink", ::readlink( pathn.string().c_str(), result, sizeof( result ) ) );
     result[ len ] = '\0';
 

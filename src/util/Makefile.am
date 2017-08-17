@@ -3,7 +3,8 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
 noinst_LIBRARIES = libggutil.a
 
-libggutil_a_SOURCES = exception.hh optional.hh file_descriptor.hh chunk.hh \
+libggutil_a_SOURCES = exception.hh optional.hh chunk.hh \
+                      file_descriptor.hh file_descriptor.cc  \
                       serialization.hh serialization.cc \
                       child_process.hh child_process.cc \
                       signalmask.hh signalmask.cc \

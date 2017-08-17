@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include <string>
 
+#include "exception.hh"
+
 using namespace std;
 
 ProtobufSerializer::ProtobufSerializer( const string & filename )
