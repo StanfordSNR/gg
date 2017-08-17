@@ -75,7 +75,7 @@ string execute_thunk( const string & thunk_hash )
 
 /* Reduces the order of the input thunk by one and returns hash of the reduction
    result */
-ReductionResult reduce_thunk( const string & thunk_hash )
+ReductionResult recursive_reduce( const string & thunk_hash )
 {
   ThunkReader thunk_reader { gg::paths::blob_path( thunk_hash ).string() };
 
@@ -105,7 +105,7 @@ ReductionResult reduce_thunk( const string & thunk_hash )
 
     for ( const InFile & infile : thunk.infiles() ) {
       if ( infile.order() == thunk.order() - 1 )  {
-        const ReductionResult reduction = reduce_thunk( infile.content_hash() );
+        const ReductionResult reduction = recursive_reduce( infile.content_hash() );
         const roost::path reduction_path = gg::paths::blob_path( reduction.hash );
         const off_t reduction_size = roost::file_size( reduction_path );
 
@@ -165,11 +165,11 @@ int main( int argc, char * argv[] )
     }
 
     string final_hash = InFile::compute_hash( thunk_path.string() );
-    string reduced_hash = reduce_thunk( final_hash ).hash;
+    string reduced_hash = recursive_reduce( final_hash ).hash;
 
     while ( not reduced_hash.empty() ) {
       final_hash = reduced_hash;
-      reduced_hash = reduce_thunk( reduced_hash ).hash;
+      reduced_hash = recursive_reduce( reduced_hash ).hash;
     }
 
     roost::copy_then_rename( gg::paths::blob_path( final_hash ), thunk_path );

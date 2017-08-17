@@ -18,20 +18,18 @@ class DependencyGraph
 private:
   std::mutex unique_id_mutex_ {};
 
-  std::unordered_map<std::string, size_t> hash_to_id_ {};
-  std::map<size_t, std::string> id_to_hash_ {};
-
-  std::map<size_t, gg::thunk::Thunk> thunks_ {};
-  std::map<size_t, std::set<size_t>> referenced_thunks_ {};
-
-  size_t insert_thunk_hash( const std::string & hash );
+  std::unordered_map<std::string, gg::thunk::Thunk> thunks_ {};
+  std::unordered_map<std::string, std::set<std::string>> referenced_thunks_ {};
 
 public:
   DependencyGraph();
 
-  size_t add_thunk( const std::string & hash );
-  std::set<size_t> force_thunk( const size_t & old_thunk_id, const std::string & new_hash );
-  const gg::thunk::Thunk & thunk( const size_t id ) const { return thunks_.at( id ); }
+  void add_thunk( const std::string & hash );
+  std::set<std::string> force_thunk( const std::string & old_hash,
+                                     const std::string & new_hash );
+
+  const gg::thunk::Thunk &
+  thunk( const std::string & hash ) const { return thunks_.at( hash ); }
 };
 
 #endif /* GRAPH_HH */
