@@ -14,4 +14,6 @@ libggutil_a_SOURCES = exception.hh optional.hh chunk.hh \
                       temp_dir.hh temp_dir.cc \
                       path.hh path.cc \
                       poller.hh poller.cc \
+                      signalfd.hh signalfd.cc \
+                      event_loop.hh event_loop.cc \
                       tokenize.hh
