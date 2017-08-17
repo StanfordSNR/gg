@@ -16,10 +16,11 @@
 class DependencyGraph
 {
 private:
-  std::mutex unique_id_mutex_ {};
-
   std::unordered_map<std::string, gg::thunk::Thunk> thunks_ {};
   std::unordered_map<std::string, std::set<std::string>> referenced_thunks_ {};
+
+  void update_thunk_hash( const std::string & old_hash,
+                          const std::string & new_hash );
 
 public:
   DependencyGraph();

@@ -33,6 +33,23 @@ void DependencyGraph::add_thunk( const string & hash )
   thunks_.emplace( make_pair( hash, move( thunk ) ) );
 }
 
+void DependencyGraph::update_thunk_hash( const string & old_hash,
+                                         const string & new_hash )
+{
+  assert( thunks_.at( old_hash ).order() == 1 );
+
+  thunks_.emplace( make_pair( new_hash, move( thunks_.at( old_hash ) ) ) );
+  referenced_thunks_.emplace( make_pair( new_hash, move( referenced_thunks_.at( old_hash ) ) ) );
+  thunks_.erase( old_hash );
+  referenced_thunks_.erase( old_hash );
+
+  for ( const string & thash : referenced_thunks_.at( new_hash ) ) {
+    Thunk & ref_thunk = thunks_.at( thash );
+    ref_thunk.update_infile( old_hash, new_hash, ref_thunk.order(),
+                             roost::file_size( gg::paths::blob_path( new_hash ) ) );
+  }
+}
+
 unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
                                                     const string & new_hash )
 {
@@ -57,6 +74,7 @@ unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
 
     if ( ref_thunk.order() == 1 ) {
       const string ref_thunk_hash = ThunkWriter::write_thunk( ref_thunk );
+      update_thunk_hash( old_hash, new_hash );
       order_one_thunks.insert( ref_thunk_hash );
     }
   }
