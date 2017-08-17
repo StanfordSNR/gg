@@ -6,6 +6,7 @@
 
 #include "ggpaths.hh"
 #include "thunk_reader.hh"
+#include "thunk_writer.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -32,7 +33,6 @@ void DependencyGraph::add_thunk( const string & hash )
   thunks_.emplace( make_pair( hash, move( thunk ) ) );
 }
 
-
 unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
                                                     const string & new_hash )
 {
@@ -52,10 +52,12 @@ unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
 
   for ( const string & thash : referenced_thunks_.at( old_hash ) ) {
     Thunk & ref_thunk = thunks_.at( thash );
-    ref_thunk.update_infile( old_hash, new_hash, 0, 0 );
+    ref_thunk.update_infile( old_hash, new_hash, 0,
+                             roost::file_size( gg::paths::blob_path( new_hash ) ) );
 
     if ( ref_thunk.order() == 1 ) {
-      order_one_thunks.insert( thash );
+      const string ref_thunk_hash = ThunkWriter::write_thunk( ref_thunk );
+      order_one_thunks.insert( ref_thunk_hash );
     }
   }
 
