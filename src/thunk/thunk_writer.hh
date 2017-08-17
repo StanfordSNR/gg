@@ -14,6 +14,7 @@ private:
   ThunkWriter();
 
 public:
-  static bool write_thunk( const gg::thunk::Thunk & thunk,
+  static std::string write_thunk( const gg::thunk::Thunk & thunk );
+  static void write_thunk( const gg::thunk::Thunk & thunk,
                            const std::string & filename );
 };

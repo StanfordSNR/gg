@@ -13,6 +13,7 @@
 #include "temp_file.hh"
 #include "placeholder.hh"
 #include "digest.hh"
+#include "ggpaths.hh"
 
 using namespace std;
 using namespace gg;
@@ -120,21 +121,11 @@ string Thunk::store( const roost::path & gg_dir ) const
 {
   collect_infiles( gg_dir );
 
-  UniqueFile temp_thunk { ( gg_dir / "thunk" ).string() };
-
-  ThunkWriter::write_thunk( *this, temp_thunk.name() );
-  string thunk_hash = InFile::compute_hash( temp_thunk.name() );
-  roost::path thunk_in_gg_path = gg_dir / thunk_hash;
-
-  if ( not roost::exists( thunk_in_gg_path ) ) {
-    roost::rename( temp_thunk.name(), thunk_in_gg_path );
-  }
-  else {
-    roost::remove( temp_thunk.name() );
-  }
+  const string thunk_hash = ThunkWriter::write_thunk( *this );
 
   // create the placeholder
-  ThunkPlaceholder placeholder { thunk_hash, order(), roost::file_size( thunk_in_gg_path ) };
+  ThunkPlaceholder placeholder { thunk_hash, order(),
+                                 roost::file_size( paths::blob_path( thunk_hash ) ) };
   placeholder.write( outfile() );
 
   return thunk_hash;

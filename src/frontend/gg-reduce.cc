@@ -118,17 +118,7 @@ ReductionResult recursive_reduce( const string & thunk_hash )
     }
 
     Thunk new_thunk { thunk.outfile(), thunk.function(), new_infiles };
-
-    TempFile temp_thunk { temp_file_template };
-    ThunkWriter::write_thunk( new_thunk, temp_thunk.name() );
-    const string new_thunk_hash = InFile::compute_hash( temp_thunk.name() );
-    const roost::path new_thunk_path = gg::paths::blob_path( new_thunk_hash );
-
-    if ( not roost::exists( new_thunk_path ) ) {
-      roost::move_file( temp_thunk.name(), new_thunk_path );
-    }
-
-    return { new_thunk_hash, new_thunk.order() };
+    return { ThunkWriter::write_thunk( new_thunk ), new_thunk.order() };
   }
 }
 

@@ -26,7 +26,7 @@ public:
 
   void add_thunk( const std::string & hash );
   std::unordered_set<std::string> force_thunk( const std::string & old_hash,
-                                     const std::string & new_hash );
+                                               const std::string & new_hash );
 
   std::unordered_set<std::string>
   order_one_dependencies( const std::string & thunk_hash );
