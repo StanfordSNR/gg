@@ -39,14 +39,26 @@ void DependencyGraph::update_thunk_hash( const string & old_hash,
   assert( thunks_.at( old_hash ).order() == 1 );
 
   thunks_.emplace( make_pair( new_hash, move( thunks_.at( old_hash ) ) ) );
-  referenced_thunks_.emplace( make_pair( new_hash, move( referenced_thunks_.at( old_hash ) ) ) );
   thunks_.erase( old_hash );
-  referenced_thunks_.erase( old_hash );
 
-  for ( const string & thash : referenced_thunks_.at( new_hash ) ) {
-    Thunk & ref_thunk = thunks_.at( thash );
-    ref_thunk.update_infile( old_hash, new_hash, ref_thunk.order(),
-                             roost::file_size( gg::paths::blob_path( new_hash ) ) );
+  if ( original_hashes_.count( old_hash ) == 0 ) {
+    updated_hashes_.insert( { old_hash, new_hash } );
+    original_hashes_.insert( { new_hash, old_hash } );
+  }
+  else {
+    updated_hashes_[ original_hashes_[ old_hash ] ] = new_hash;
+    original_hashes_.erase( old_hash );
+  }
+
+  if ( referenced_thunks_.count( old_hash ) ) {
+    referenced_thunks_.emplace( make_pair( new_hash, move( referenced_thunks_.at( old_hash ) ) ) );
+    referenced_thunks_.erase( old_hash );
+
+    for ( const string & thash : referenced_thunks_.at( new_hash ) ) {
+      Thunk & ref_thunk = thunks_.at( thash );
+      ref_thunk.update_infile( old_hash, new_hash, ref_thunk.order(),
+                               roost::file_size( gg::paths::blob_path( new_hash ) ) );
+    }
   }
 }
 
@@ -74,7 +86,7 @@ unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
 
     if ( ref_thunk.order() == 1 ) {
       const string ref_thunk_hash = ThunkWriter::write_thunk( ref_thunk );
-      update_thunk_hash( old_hash, new_hash );
+      update_thunk_hash( thash, ref_thunk_hash );
       order_one_thunks.insert( ref_thunk_hash );
     }
   }
@@ -103,4 +115,14 @@ DependencyGraph::order_one_dependencies( const string & thunk_hash )
   }
 
   return result;
+}
+
+std::string DependencyGraph::updated_hash( const std::string & original_hash ) const
+{
+  if ( updated_hashes_.count( original_hash ) ) {
+    return updated_hashes_.at( original_hash );
+  }
+  else {
+    return original_hash;
+  }
 }

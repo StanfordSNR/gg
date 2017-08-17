@@ -4,6 +4,7 @@
 #include <cstring>
 #include <getopt.h>
 #include <iostream>
+#include <unordered_set>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -17,6 +18,7 @@
 #include "ggpaths.hh"
 #include "placeholder.hh"
 #include "system_runner.hh"
+#include "graph.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -73,53 +75,31 @@ string execute_thunk( const string & thunk_hash )
 
 }
 
-/* Reduces the order of the input thunk by one and returns hash of the reduction
-   result */
-ReductionResult recursive_reduce( const string & thunk_hash )
+ReductionResult reduce_thunk( const string & thunk_hash )
 {
-  ThunkReader thunk_reader { gg::paths::blob_path( thunk_hash ).string() };
+  DependencyGraph dep_graph;
+  dep_graph.add_thunk( thunk_hash );
 
-  if ( not thunk_reader.is_thunk() ) {
-    /* already reduced. gg's work is done here. */
-    return { "", 0 };
-  }
+  unordered_set<string> order_one_deps = dep_graph.order_one_dependencies( thunk_hash );
 
-  Thunk thunk = thunk_reader.read_thunk();
+  while ( not order_one_deps.empty() ) {
+    string dep_hash = *order_one_deps.begin();
+    string output_hash;
+    Optional<ReductionResult> cached = check_reduction_cache( dep_hash );
 
-  /* first let's see if we actually have a reduced version of this thunk */
-  const auto cached_reduction = check_reduction_cache( thunk_hash );
-
-  if ( cached_reduction.initialized() ) {
-    return *cached_reduction;
-  }
-
-  if ( thunk.order() == 0 ) {
-    throw runtime_error( "zero-order thunk, something is probably wrong" );
-  }
-  else if ( thunk.order() == 1 ) {
-    const string output_hash = execute_thunk( thunk_hash );
-    return { output_hash, 0 };
-  }
-  else { // thunk.order() >= 2
-    vector<InFile> new_infiles;
-
-    for ( const InFile & infile : thunk.infiles() ) {
-      if ( infile.order() == thunk.order() - 1 )  {
-        const ReductionResult reduction = recursive_reduce( infile.content_hash() );
-        const roost::path reduction_path = gg::paths::blob_path( reduction.hash );
-        const off_t reduction_size = roost::file_size( reduction_path );
-
-        new_infiles.emplace_back( infile.filename(), reduction_path.string(),
-                                  reduction.hash, reduction.order, reduction_size );
-      }
-      else {
-        new_infiles.push_back( infile );
-      }
+    if ( not cached.initialized() ) {
+      output_hash = execute_thunk( dep_hash );
+    }
+    else {
+      output_hash = cached->hash;
     }
 
-    Thunk new_thunk { thunk.outfile(), thunk.function(), new_infiles };
-    return { ThunkWriter::write_thunk( new_thunk ), new_thunk.order() };
+    unordered_set<string> new_o1s = dep_graph.force_thunk( dep_hash, output_hash );
+    order_one_deps.insert( new_o1s.begin(), new_o1s.end() );
+    order_one_deps.erase( dep_hash );
   }
+
+  return *check_reduction_cache( dep_graph.updated_hash( thunk_hash ) );
 }
 
 void usage( const char * argv0 )
@@ -154,15 +134,10 @@ int main( int argc, char * argv[] )
       copy_then_rename( gg_path / placeholder->content_hash(), thunk_path );
     }
 
-    string final_hash = InFile::compute_hash( thunk_path.string() );
-    string reduced_hash = recursive_reduce( final_hash ).hash;
+    string thunk_hash = InFile::compute_hash( thunk_path.string() );
+    string reduced_hash = reduce_thunk( thunk_hash ).hash;
 
-    while ( not reduced_hash.empty() ) {
-      final_hash = reduced_hash;
-      reduced_hash = recursive_reduce( reduced_hash ).hash;
-    }
-
-    roost::copy_then_rename( gg::paths::blob_path( final_hash ), thunk_path );
+    roost::copy_then_rename( gg::paths::blob_path( reduced_hash ), thunk_path );
 
     return EXIT_SUCCESS;
   }

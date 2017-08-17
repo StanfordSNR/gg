@@ -163,13 +163,13 @@ string Thunk::executable_hash() const
 void Thunk::update_infile( const string & old_hash, const string & new_hash,
                            const size_t new_order, const off_t new_size )
 {
-  for ( InFile & infile : infiles_ ) {
-    if ( infile.content_hash() == old_hash ) {
-      InFile new_infile { infile.filename(), infile.real_filename(),
-                          new_hash, new_order, new_size, infile.type() };
+  for ( size_t i = 0; i < infiles_.size(); i++ ) {
+    if ( infiles_[ i ].content_hash() == old_hash ) {
+      InFile new_infile { infiles_[ i ].filename(), infiles_[ i ].real_filename(),
+                          new_hash, new_order, new_size, infiles_[ i ].type() };
 
-      swap( infile, new_infile );
-      compute_order();
+      infiles_[ i ] = new_infile;
+      order_ = compute_order();
       return;
     }
   }

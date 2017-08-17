@@ -19,6 +19,9 @@ private:
   std::unordered_map<std::string, gg::thunk::Thunk> thunks_ {};
   std::unordered_map<std::string, std::set<std::string>> referenced_thunks_ {};
 
+  std::unordered_map<std::string, std::string> updated_hashes_{};
+  std::unordered_map<std::string, std::string> original_hashes_{};
+
   void update_thunk_hash( const std::string & old_hash,
                           const std::string & new_hash );
 
@@ -26,6 +29,7 @@ public:
   DependencyGraph();
 
   void add_thunk( const std::string & hash );
+
   std::unordered_set<std::string> force_thunk( const std::string & old_hash,
                                                const std::string & new_hash );
 
@@ -34,6 +38,8 @@ public:
 
   const gg::thunk::Thunk &
   get_thunk( const std::string & hash ) const { return thunks_.at( hash ); }
+
+  std::string updated_hash( const std::string & original_hash ) const;
 };
 
 #endif /* GRAPH_HH */
