@@ -13,7 +13,7 @@
 
 #include "child_process.hh"
 #include "exception.hh"
-#include "signalmask.hh"
+#include "signalfd.hh"
 
 using namespace std;
 

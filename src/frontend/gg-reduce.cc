@@ -5,6 +5,10 @@
 #include <getopt.h>
 #include <iostream>
 #include <unordered_set>
+#include <algorithm>
+#include <deque>
+#include <list>
+#include <vector>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -19,11 +23,13 @@
 #include "placeholder.hh"
 #include "system_runner.hh"
 #include "graph.hh"
+#include "event_loop.hh"
+#include "socketpair.hh"
+#include "util.hh"
 
 using namespace std;
 using namespace gg::thunk;
-
-const LogLevel log_level = LOG_LEVEL_NO_LOG;
+using namespace PollerShortNames;
 
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const string temp_dir_template = "/tmp/thunk-execute";
@@ -49,57 +55,138 @@ Optional<ReductionResult> check_reduction_cache( const string & thunk_hash )
   return ReductionResult { roost::readlink( reduction ), 0 };
 }
 
-string execute_thunk( const string & thunk_hash )
+class Reductor
 {
-  ChildProcess execute_process { thunk_hash,
-    [thunk_hash]()
-    {
-      vector<string> command { "gg-execute", thunk_hash };
-      return ezexec( command[ 0 ], command, {}, true, true );
-    }
-  };
+private:
+  const string thunk_hash_;
+  size_t max_jobs_;
 
-  while ( not execute_process.terminated() ) { execute_process.wait(); }
+  SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT };
+  Poller poller_ {};
+  list<ChildProcess> child_processes_ {};
+  deque<string> dep_queue_ {};
+  DependencyGraph dep_graph_ {};
 
-  if ( execute_process.exit_status() != 0 ) {
-    throw runtime_error( "thunk execution failed: " + thunk_hash );
-  }
+  Result handle_signal( const signalfd_siginfo & sig );
 
-  Optional<ReductionResult> result = check_reduction_cache( thunk_hash );
+public:
+  Reductor( const string & thunk_hash, const size_t max_jobs = 8 );
 
-  if ( not result.initialized() or result->order != 0 ) {
-    throw runtime_error( "could not find the reduction entry" );
-  }
+  string reduce();
+};
 
-  return result->hash;
+Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
+  : thunk_hash_( thunk_hash ), max_jobs_( max_jobs )
+{
+  signals_.set_as_mask();
 
+  dep_graph_.add_thunk( thunk_hash_ );
+  unordered_set<string> o1_deps = dep_graph_.order_one_dependencies( thunk_hash_ );
+  dep_queue_.insert( dep_queue_.end(), o1_deps.begin(), o1_deps.end() );
 }
 
-ReductionResult reduce_thunk( const string & thunk_hash )
+Result Reductor::handle_signal( const signalfd_siginfo & sig )
 {
-  DependencyGraph dep_graph;
-  dep_graph.add_thunk( thunk_hash );
-
-  unordered_set<string> order_one_deps = dep_graph.order_one_dependencies( thunk_hash );
-
-  while ( not order_one_deps.empty() ) {
-    string dep_hash = *order_one_deps.begin();
-    string output_hash;
-    Optional<ReductionResult> cached = check_reduction_cache( dep_hash );
-
-    if ( not cached.initialized() ) {
-      output_hash = execute_thunk( dep_hash );
+  switch ( sig.ssi_signo ) {
+  case SIGCONT:
+    for ( auto & child : child_processes_ ) {
+      child.resume();
     }
-    else {
-      output_hash = cached->hash;
+    break;
+
+  case SIGCHLD:
+    if ( child_processes_.empty() ) {
+      throw runtime_error( "received SIGCHLD without any managed children" );
     }
 
-    unordered_set<string> new_o1s = dep_graph.force_thunk( dep_hash, output_hash );
-    order_one_deps.insert( new_o1s.begin(), new_o1s.end() );
-    order_one_deps.erase( dep_hash );
+    for ( auto it = child_processes_.begin(); it != child_processes_.end(); it++ ) {
+      ChildProcess & child = *it;
+
+      if ( child.terminated() or ( not child.waitable() ) ) {
+        continue;
+      }
+
+      child.wait( true );
+
+      if ( child.terminated() ) {
+        if ( child.exit_status() != 0 ) {
+          child.throw_exception();
+        }
+
+        /* Update the dependecy graph now that we know this process ended
+        with exit code 0. */
+        const string & thunk_hash = child.name();
+        Optional<ReductionResult> result = check_reduction_cache( thunk_hash );
+
+        if ( not result.initialized() or result->order != 0 ) {
+          throw runtime_error( "could not find the reduction entry" );
+        }
+
+        unordered_set<string> new_o1s = dep_graph_.force_thunk( thunk_hash, result->hash );
+        dep_queue_.insert( dep_queue_.end(), new_o1s.begin(), new_o1s.end() );
+
+        it = child_processes_.erase( it );
+        it--;
+
+        if ( child_processes_.size() == 0 and dep_queue_.size() == 0 ) {
+          return ResultType::Exit;
+        }
+      }
+      else if ( not child.running() ) {
+        /* suspend parent too */
+        CheckSystemCall( "raise", raise( SIGSTOP ) );
+      }
+    }
+
+    break;
+
+  case SIGHUP:
+  case SIGTERM:
+  case SIGQUIT:
+  case SIGINT:
+    return ResultType::Exit;
+
+  default:
+    throw runtime_error( "unknown signal" );
   }
 
-  return *check_reduction_cache( dep_graph.updated_hash( thunk_hash ) );
+  return ResultType::Continue;
+}
+
+string Reductor::reduce()
+{
+  SignalFD signal_fd( signals_ );
+
+  poller_.add_action(
+    Poller::Action(
+      signal_fd.fd(), Direction::In,
+      [&]() { return handle_signal( signal_fd.read_signal() ); }
+    )
+  );
+
+  while ( true ) {
+    while ( not dep_queue_.empty() and child_processes_.size() < max_jobs_ ) {
+      const string & dependency_hash = dep_queue_.front();
+
+      child_processes_.emplace_back(
+        dependency_hash,
+        [dependency_hash]()
+        {
+          vector<string> command { "gg-execute", dependency_hash };
+          return ezexec( command[ 0 ], command, {}, true, true );
+        }
+      );
+
+      dep_queue_.pop_front();
+    }
+
+    const auto poll_result = poller_.poll( -1 );
+
+    if ( poll_result.result == Poller::Result::Type::Exit ) {
+      const string final_hash = dep_graph_.updated_hash( thunk_hash_ );
+      return check_reduction_cache( final_hash )->hash;
+    }
+  }
 }
 
 void usage( const char * argv0 )
@@ -109,6 +196,7 @@ void usage( const char * argv0 )
        << "Useful environment variables:" << endl
        << "  GG_DIR       => absolute path to gg directory" << endl
        << "  GG_SANDBOXED => if set, forces the thunks in a sandbox" << endl
+       << "  GG_MAXJOBS   => maximum number of jobs to run in parallel" << endl
        << endl;
 }
 
@@ -124,19 +212,25 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
+    size_t max_jobs = sysconf( _SC_NPROCESSORS_ONLN );
     string thunk_filename { argv[ 1 ] };
     const roost::path thunk_path = roost::canonical( thunk_filename );
+
+    if ( getenv( "GG_MAXJOBS" ) != nullptr ) {
+      max_jobs = stoul( safe_getenv( "GG_MAXJOBS" ) );
+    }
 
     /* first check if this file is actually a placeholder */
     Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( thunk_path.string() );
 
     if ( placeholder.initialized() ) {
-      copy_then_rename( gg_path / placeholder->content_hash(), thunk_path );
+      copy_then_rename( gg::paths::blob_path( placeholder->content_hash() ), thunk_path );
     }
 
     string thunk_hash = InFile::compute_hash( thunk_path.string() );
-    string reduced_hash = reduce_thunk( thunk_hash ).hash;
 
+    Reductor reductor { thunk_hash, max_jobs };
+    string reduced_hash = reductor.reduce();
     roost::copy_then_rename( gg::paths::blob_path( reduced_hash ), thunk_path );
 
     return EXIT_SUCCESS;

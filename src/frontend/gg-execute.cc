@@ -28,6 +28,17 @@ void store_thunk_reduction( const string & original_hash,
   roost::symlink( new_hash, gg_reductions_path / original_hash );
 }
 
+Optional<string> check_reduction_cache( const string & thunk_hash )
+{
+  roost::path reduction { gg_reductions_path / thunk_hash };
+
+  if ( not roost::lexists( reduction ) ) {
+    return {}; // no reductions are available
+  }
+
+  return roost::readlink( reduction );
+}
+
 string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 {
   assert( thunk.order() == 1 );
@@ -115,6 +126,12 @@ int main( int argc, char * argv[] )
     }
 
     string thunk_hash { argv[ 1 ] };
+
+    if ( check_reduction_cache( thunk_hash ).initialized() ) {
+      /* already reduced */
+      return EXIT_SUCCESS;
+    }
+
     roost::path thunk_path = gg::paths::blob_path( thunk_hash );
     ThunkReader thunk_reader { thunk_path.string() };
     Thunk thunk = thunk_reader.read_thunk();
