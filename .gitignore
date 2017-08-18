@@ -36,4 +36,5 @@ CMakeLists.txt
 cmake-build-debug
 .DS_Store
 ._.DS_Store
-*.pyc
+*.py[cod]
+__pycache__/
