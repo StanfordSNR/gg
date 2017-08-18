@@ -75,8 +75,9 @@ AC_CONFIG_FILES([Makefile
                  src/thunk/Makefile
                  src/trace/Makefile
                  src/sandbox/Makefile
-                 src/frontend/Makefile
                  src/models/Makefile
+                 src/remote/Makefile
+                 src/frontend/Makefile
                  src/tests/Makefile])
 
 AC_OUTPUT
