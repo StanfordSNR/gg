@@ -28,6 +28,7 @@ before_script:
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 99
   - curl https://bootstrap.pypa.io/get-pip.py | python3.6
   - sudo pip3.6 install protobuf
+  - sudo pip3.6 install boto3
 
 script:
   - ./fetch-toolchain.sh
