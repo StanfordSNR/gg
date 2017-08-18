@@ -25,6 +25,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { "pthread", no_argument, NULL, to_underlying( GCCOption::pthread ) },
     { "shared", no_argument, NULL, to_underlying( GCCOption::shared ) },
     { "pipe", no_argument, NULL, to_underlying( GCCOption::pipe ) },
+    { "pedantic", no_argument, NULL, to_underlying( GCCOption::pedantic ) },
 
     { "include", required_argument, NULL, to_underlying( GCCOption::include ) },
     { "param", required_argument, NULL, to_underlying( GCCOption::param ) },
@@ -118,6 +119,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       case GCCOption::pthread: add_option( gccopt, "-pthread" ); break;
       case GCCOption::shared: add_option( gccopt, "-shared" ); break;
       case GCCOption::pipe: add_option( gccopt, "-pipe" ); break;
+      case GCCOption::pedantic: add_option( gccopt, "-pedantic" ); break;
 
       case GCCOption::include: add_option( gccopt, "-include", optarg ); break;
       case GCCOption::param: add_option( gccopt, "--param", optarg ); break;
