@@ -144,7 +144,7 @@ Result Reductor::handle_signal( const signalfd_siginfo & sig )
   case SIGTERM:
   case SIGQUIT:
   case SIGINT:
-    return ResultType::Exit;
+    throw runtime_error( "interrupted by signal" );
 
   default:
     throw runtime_error( "unknown signal" );
@@ -184,7 +184,11 @@ string Reductor::reduce()
 
     if ( poll_result.result == Poller::Result::Type::Exit ) {
       const string final_hash = dep_graph_.updated_hash( thunk_hash_ );
-      return check_reduction_cache( final_hash )->hash;
+      const Optional<ReductionResult> answer = check_reduction_cache( final_hash );
+      if ( not answer.initialized() ) {
+        throw runtime_error( "internal error: final answer not found" );
+      }
+      return answer->hash;
     }
   }
 }
