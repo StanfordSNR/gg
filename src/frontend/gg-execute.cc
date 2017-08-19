@@ -41,7 +41,9 @@ Optional<string> check_reduction_cache( const string & thunk_hash )
 
 string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 {
-  assert( thunk.order() == 1 );
+  if ( thunk.order() != 1 ) {
+    throw runtime_error( "thunk is not executable (order != 1)" );
+  }
 
   /* when executing the thunk, we create a temp directory, and execute the thunk
      in that directory. then we take the outfile, compute the hash, and move it
