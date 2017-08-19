@@ -13,7 +13,7 @@ addons:
     packages:
     - gcc-7
     - g++-7
-    - libssl-dev
+    - libcrypto++-dev
     - libcap-dev
     - libkeyutils-dev
     - libncurses5-dev
