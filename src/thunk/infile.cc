@@ -1,10 +1,8 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include <iostream>
-#include <cctype>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "optional.hh"
 #include "thunk.hh"
@@ -12,6 +10,7 @@
 #include "digest.hh"
 #include "path.hh"
 #include "placeholder.hh"
+#include "exception.hh"
 
 using namespace std;
 using namespace gg;
@@ -104,14 +103,15 @@ size_t InFile::compute_order( const string & filename )
 
 string InFile::compute_hash( const string & filename )
 {
-  // TODO : Check if file exists!
-  ifstream file( filename, ifstream::binary );
+  FileDescriptor file { CheckSystemCall( "open (" + filename + ")",
+                                         open( filename.c_str(), O_RDONLY ) ) };
 
-  if( file.fail() ){
-    throw runtime_error( "File " + filename + " does not exist." );
+  string contents;
+  while ( not file.eof() ) {
+    contents += file.read();
   }
 
-  return digest::SHA256( file ).hexdigest();
+  return digest::sha256( contents );
 }
 
 off_t InFile::compute_size( const string & filename )
