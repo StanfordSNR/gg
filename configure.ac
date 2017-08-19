@@ -28,7 +28,7 @@ AC_ARG_ENABLE([sanitize],
 AC_SUBST(EXTRA_CXXFLAGS)
 
 # Checks for libraries.
-PKG_CHECK_MODULES([CRYPTO],[libcrypto])
+PKG_CHECK_MODULES([CRYPTO],[libcrypto++])
 PKG_CHECK_MODULES([PROTOBUF], [protobuf])
 
 AX_BOOST_BASE([1.54.0])

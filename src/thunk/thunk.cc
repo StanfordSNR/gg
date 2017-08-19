@@ -7,6 +7,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
+#include <numeric>
 
 #include "system_runner.hh"
 #include "thunk_writer.hh"
@@ -151,13 +152,11 @@ string Thunk::executable_hash() const
 
   sort( executable_hashes.begin(), executable_hashes.end() );
 
-  digest::SHA256 digest;
+  const string combined_hashes = accumulate( executable_hashes.begin(),
+                                             executable_hashes.end(),
+                                             string {} );
 
-  for ( const string & hash : executable_hashes ) {
-    digest.update( hash );
-  }
-
-  return digest.hexdigest();
+  return digest::sha256( combined_hashes );
 }
 
 void Thunk::update_infile( const string & old_hash, const string & new_hash,
