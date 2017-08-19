@@ -20,7 +20,12 @@ protected:
   bool moved_away_;
 
 public:
+  /* use mkstemp to get a unique filename on disk */
   UniqueFile( const std::string & filename_template );
+
+  /* allow caller to specify filename, but enforce prior nonexistence */
+  UniqueFile( const std::string & filename_prefix, const std::string & filename_suffix );
+
   virtual ~UniqueFile() {}
 
   std::string name( void ) const;

@@ -266,7 +266,7 @@ void GCCModelGenerator::generate()
         output_name = final_output;
       }
       else {
-        tempfiles.emplace_back( input_hash );
+        tempfiles.emplace_back( input_hash, to_string( stage_num ) );
         output_name = tempfiles.back().name();
       }
 
