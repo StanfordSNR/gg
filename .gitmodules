@@ -1,3 +1,6 @@
 [submodule "toolchain"]
 	path = toolchain
 	url = https://github.com/stanfordsnr/gg-toolchain
+[submodule "test_vectors"]
+	path = test_vectors
+	url = https://github.com/stanfordsnr/gg-test-vectors
