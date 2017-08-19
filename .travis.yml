@@ -19,6 +19,8 @@ addons:
     - libncurses5-dev
     - libboost-dev
     - autopoint
+    - help2man
+    - texinfo
 
 before_script:
   - sudo add-apt-repository -y ppa:sfouladi/protobuf-backports
