@@ -4,9 +4,8 @@ cd ${TEST_TMPDIR}
 
 export PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
 
-git clone https://github.com/mobile-shell/mosh
+cp -R $DATADIR/mosh .
 cd mosh
-git checkout mosh-1.3.2
 
 ./autogen.sh && ./configure
 make CC="model-gcc gcc" CXX="model-gcc g++" AR="model-ar" RANLIB="model-ranlib"
