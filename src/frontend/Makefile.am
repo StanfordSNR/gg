@@ -33,7 +33,7 @@ gg_execute_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 gg_execute_static_SOURCES = gg-execute.cc
 gg_execute_static_CXXFLAGS = $(PICKY_CXXFLAGS) -static
 gg_execute_static_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) -ldl -lz
-gg_execute_static_LDFLAGS = -static
+gg_execute_static_LDFLAGS = -static -s
 
 gg_reduce_SOURCES = gg-reduce.cc
 gg_reduce_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
