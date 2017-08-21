@@ -1,1 +1,1 @@
-SUBDIRS = protobufs util thunk trace sandbox models remote frontend tests
+SUBDIRS = protobufs util thunk trace sandbox models frontend remote tests
