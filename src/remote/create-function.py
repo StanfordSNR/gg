@@ -45,9 +45,8 @@ def create_lambda_package(toolchain_path, output):
             exe_hash = sha256_checksum(exe_path)
             funczip.write(exe_path, os.path.join(PACKAGE_GG_DIR, exe_hash))
 
-def install_lambda_package(package_file, exec_hash, function_name, role,
-                           s3_bucket):
-    with open(package_file, 'r') as pfin:
+def install_lambda_package(package_file, function_name, role, s3_bucket):
+    with open(package_file, 'rb') as pfin:
         package_data = pfin.read()
 
     client = boto3.client('lambda')
@@ -59,7 +58,7 @@ def install_lambda_package(package_file, exec_hash, function_name, role,
         Code={
             'ZipFile': package_data,
             'S3Bucket': s3_bucket,
-            'S3Key': exec_hash
+            'S3Key': function_name
         },
         Timeout=300,
         MemorySize=1536
@@ -68,11 +67,20 @@ def install_lambda_package(package_file, exec_hash, function_name, role,
 def main():
     parser = argparse.ArgumentParser(description="Generate and install Lambda function.")
     parser.add_argument('--install', dest='install', action='store_true', default=False)
-    parser.add_argument('--output', dest='output', action='store', default="ggfunction.zip")
-    parser.add_argument('--toolchain-path', dest='toolchain_path', action='store', required=True)
+    parser.add_argument('--function-file', dest='function_file', action='store', default="ggfunction.zip")
+    parser.add_argument('--toolchain-path', dest='toolchain_path', action='store')
+    parser.add_argument('--function-name', dest='function_name', action='store', default="ggfunction")
+    parser.add_argument('--role', dest='role', action='store')
+    parser.add_argument('--s3-bucket', dest='s3_bucket', action='store')
 
     args = parser.parse_args()
-    create_lambda_package(args.toolchain_path, args.output)
+    if not args.install:
+        create_lambda_package(args.toolchain_path, args.function_file)
+    else:
+        if not args.function_name or not args.role or not args.s3_bucket:
+            raise Exception("Please provide function name, role and S3 bucket.")
+
+        install_lambda_package(args.function_file, args.function_name, args.role, args.s3_bucket)
 
 if __name__ == '__main__':
     main()
