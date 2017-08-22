@@ -98,6 +98,10 @@ def make_executable(path):
     st = os.stat(path)
     os.chmod(path, st.st_mode | stat.S_IEXEC)
 
+def is_executable(path):
+    st = os.stat(path)
+    return ( st.st_mode & stat.S_IEXEC ) != 0
+
 def run_command(command):
     res_code = sub.call(command)
 
@@ -132,5 +136,6 @@ def handler(event, context):
 
     return {
         'thunk_hash': GGInfo.thunk_hash,
-        'output_hash': result
+        'output_hash': result,
+        'executable_output': is_executable(blob_hash(result))
     }
