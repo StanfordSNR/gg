@@ -9,7 +9,7 @@ import argparse
 import hashlib
 import boto3
 
-BASE_FILE = "lambda/lambda_function_packages.zip"
+BASE_FILE = "lambda/packages.zip"
 PACKAGE_GG_DIR = "_gg"
 GG_EXECUTE_STATIC = shutil.which("gg-execute-static")
 
@@ -18,10 +18,7 @@ if not GG_EXECUTE_STATIC:
 
 PACKAGE_FILES = {
     "gg-execute-static": GG_EXECUTE_STATIC,
-    "infile.js": "lambda/infile.js",
-    "function.js": "lambda/function.js",
-    "thunk.js": "lambda/thunk.js",
-    "lambda_function.js": "lambda/lambda_function.js"
+    "function.py": "lambda/function.py"
 }
 
 def sha256_checksum(filename, block_size=65536):
@@ -49,7 +46,7 @@ def install_lambda_package(package_file, function_name, role, region):
         FunctionName=function_name,
         Runtime='python3.6',
         Role=role,
-        Handler='lambda_function.handler',
+        Handler='function.handler',
         Code={
             'ZipFile': package_data
         },
@@ -60,7 +57,7 @@ def install_lambda_package(package_file, function_name, role, region):
         }
     )
 
-    print(response)
+    print(response['FunctionArn'])
 
 def main():
     parser = argparse.ArgumentParser(description="Generate and install Lambda function.")

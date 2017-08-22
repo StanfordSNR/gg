@@ -23,8 +23,8 @@ AC_LANG_PUSH(C++)
 AC_ARG_ENABLE([sanitize],
   [AS_HELP_STRING([--enable-sanitize],
      [build with address and undefined-behavior santizers])],
-     [EXTRA_CXXFLAGS="-fsanitize=address -fsanitize=undefined -fuse-ld=gold"],
-     [sanitize=false])
+  [EXTRA_CXXFLAGS="-fsanitize=address -fsanitize=undefined -fuse-ld=gold"],
+  [sanitize=false])
 
 AM_CONDITIONAL([BUILD_STATIC_BINS], [test x$sanitize = xfalse])
 
@@ -79,8 +79,8 @@ AC_CONFIG_FILES([Makefile
                  src/trace/Makefile
                  src/sandbox/Makefile
                  src/models/Makefile
-                 src/remote/Makefile
                  src/frontend/Makefile
+                 src/remote/Makefile
                  src/tests/Makefile])
 
 AC_OUTPUT
