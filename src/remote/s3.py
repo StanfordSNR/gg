@@ -41,21 +41,24 @@ class S3AuthGeneator:
 
         string_to_sign += canonical_uri
 
+        headers['Content-Type'] = 'application/octet-stream'
         headers['Date'] = timestamp
         headers['Authorization'] = "AWS {}:{}".format(self.aws_access_key.decode('ascii'),
             sign(self.aws_secret_access_key, string_to_sign))
 
+def get_object_url(bucket_name, object_name):
+    return 'https://{}.s3.amazonaws.com/{}'.format(bucket_name, object_name)
+
 if __name__ == '__main__':
-    data = b'YEAH, IT WORKS!'
+    data = b'random data'
     creds = boto3.Session().get_credentials()
     auth_gen = S3AuthGeneator(creds.access_key, creds.secret_key)
 
     bucket_name = 'gg-us-west-2'
     object_name = 'test'
-    url = 'https://{}.s3.amazonaws.com/{}'.format(bucket_name, object_name)
+    url = get_object_url(bucket_name, object_name)
 
     headers = {
-        'Content-Type': 'application/octet-stream',
         'x-amz-acl': 'public-read',
         'x-amz-tagging': 'gg=file'
     }

@@ -6,7 +6,8 @@ BUILT_SOURCES += ggfunction.zip
 CLEANFILES += ggfunction.zip
 endif
 
-DIST_EXTRA = gg.py s3.py create-function.py lambda/packages.zip lambda/function.py
+DIST_EXTRA = gg.py s3.py create-function.py lambda/packages.zip lambda/function.py \
+             gg-lambda-execute.py
 
 gg_pb2.py: $(srcdir)/../protobufs/gg.proto
 	$(AM_V_GEN)$(PROTOC) --python_out=. -I$(srcdir)/../protobufs $(srcdir)/../protobufs/gg.proto

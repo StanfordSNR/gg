@@ -21,6 +21,12 @@ class Path:
     def blob_path(cls, blob_hash):
         return os.path.join(cls.blobs, blob_hash)
 
+def blob_path(blob_hash):
+    return os.path.join(GG_DIR, blob_hash)
+
+def reduction_path(blob_hash):
+    return os.path.join(GG_DIR, "reductions", blob_hash)
+
 def read_thunk(thunk_hash):
     with open(Path.blob_path(thunk_hash), "rb") as fin:
         magic = fin.read(len(MAGIC_CODE))
