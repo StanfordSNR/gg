@@ -9,7 +9,7 @@ import argparse
 import hashlib
 import boto3
 
-BASE_FILE = "lambda/packages.zip"
+BASE_FILE = "lambda_function/packages.zip"
 PACKAGE_GG_DIR = "_gg"
 GG_EXECUTE_STATIC = shutil.which("gg-execute-static")
 
@@ -18,7 +18,7 @@ if not GG_EXECUTE_STATIC:
 
 PACKAGE_FILES = {
     "gg-execute-static": GG_EXECUTE_STATIC,
-    "function.py": "lambda/function.py"
+    "function.py": "lambda_function/function.py"
 }
 
 def sha256_checksum(filename, block_size=65536):
