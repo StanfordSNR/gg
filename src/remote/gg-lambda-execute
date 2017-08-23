@@ -21,12 +21,9 @@ logger.setLevel(logging.DEBUG)
 
 CHUNK_SIZE = 32 * 1024 # 32 KB
 
-s3_bucket = 'gg-us-west-2'
-s3_client = boto3.client('s3')
-lambda_client = boto3.client('lambda')
-
-aws_credentials = boto3.Session().get_credentials()
-aws_auth_generator = s3.S3AuthGeneator(aws_credentials.access_key, aws_credentials.secret_key)
+s3_bucket = os.environ.get('GG_S3_BUCKET')
+awscreds = boto3.Session().get_credentials()
+aws_auth_generator = s3.S3AuthGeneator(awscreds.access_key, awscreds.secret_key)
 
 @aiohttp.streamer
 def file_sender(writer, file_name=None):
@@ -86,7 +83,7 @@ def main():
 
     infiles += [{'hash': thunk_hash, 'executable': False}]
 
-    payload = {
+    request_payload = {
         'thunk_hash': thunk_hash,
         's3_bucket': s3_bucket,
         'infiles': infiles
@@ -94,18 +91,40 @@ def main():
 
     push_infiles(infiles)
 
-    response = lambda_client.invoke(
+    response = boto3.client('lambda').invoke(
         FunctionName='ggfunction',
         InvocationType='RequestResponse',
-        Payload=json.dumps(payload)
+        Payload=json.dumps(request_payload)
     )
 
-    response = json.loads(response['Payload'].read())
-    output_hash = response['output_hash']
-    s3_client.download_file(s3_bucket, response['output_hash'], gg.blob_path(output_hash))
+    if response.get('StatusCode', 0) / 100 != 2 or 'FunctionError' in response:
+        raise Exception('Lambda exceution failed.')
 
-    if response['executable_output']:
+    response_payload = json.loads(response['Payload'].read())
+    output_hash = response_payload['output_hash']
+
+    boto3.client('s3').download_file(s3_bucket, output_hash, gg.blob_path(output_hash))
+
+    if response_payload['executable_output']:
         make_executable(gg.blob_path(output_hash))
 
+    print('\u03bb({:.12}...) => {:.12}...'.format(thunk_hash, output_hash))
+
+def usage(argv0):
+    print("usage: {} THUNK-HASH".format(argv0))
+
+def init():
+    if not s3_bucket:
+        raise Exception("GG_S3_BUCKET environment variable not set")
+
+    if len(sys.argv) != 2:
+        usage(sys.argv[0])
+        sys.exit(1)
+
 if __name__ == '__main__':
-    main()
+    try:
+        init()
+        main()
+    except Exception as ex:
+        print(ex)
+        sys.exit(1)
