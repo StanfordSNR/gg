@@ -52,8 +52,7 @@ def coroutine(func):
 def chunk_writer(target_file):
     while True:
         chunk = yield
-        if not chunk:
-            target_file.close()
+        assert chunk
         target_file.write(chunk)
 
 async def download_file(session: aiohttp.ClientSession, url: str, sink):
@@ -62,34 +61,34 @@ async def download_file(session: aiohttp.ClientSession, url: str, sink):
 
         while True:
             chunk = await response.content.read(CHUNK_SIZE)
-            sink.send(chunk)
             if not chunk:
                 break
+            sink.send(chunk)
 
 @asyncio.coroutine
-def download_multiple(session: aiohttp.ClientSession, download_data):
-    download_futures = [download_file(session, d['url'], chunk_writer(d['file'])
-                        for d in download_data]
+def download_multiple(download_data):
+    with aiohttp.ClientSession() as session:
+        download_futures = [download_file(session, d['url'], chunk_writer(d['file']))
+                            for d in download_data]
 
-    for download_future in asyncio.as_completed(download_futures):
-        result = yield from download_future
+        for download_future in asyncio.as_completed(download_futures):
+            result = yield from download_future
 
-def fetch_dependencies(dep_hashes):
+def fetch_dependencies(infiles):
     try:
         download_data = []
 
-        for dep_hash in dep_hashes:
-            if os.path.exists(blob_path(dep_hash)):
-                pass
+        for infile in infiles:
+            if os.path.exists(blob_path(infile['hash'])):
+                continue
 
             download_data += [{
-                'url': blob_url(dep_hash),
-                'file': open(blob_path(dep_hash), "wb")
+                'url': blob_url(infile['hash']),
+                'file': open(blob_path(infile['hash']), "wb")
             }]
 
-        with closing(asyncio.get_event_loop()) as loop:
-           with aiohttp.ClientSession() as session:
-               loop.run_until_complete(download_multiple(session, download_data))
+        with closing(asyncio.new_event_loop()) as loop:
+           loop.run_until_complete(download_multiple(download_data))
     finally:
         for d in download_data:
             d['file'].close()
@@ -103,7 +102,7 @@ def is_executable(path):
     return ( st.st_mode & stat.S_IEXEC ) != 0
 
 def run_command(command):
-    res_code = sub.call(command)
+    res_code = sub.run(command).returncode
 
     if res_code:
         raise Exception("command failed: {}".format(" ".join(command)))
@@ -113,13 +112,10 @@ def handler(event, context):
     GGInfo.s3_bucket = event['s3_bucket']
     GGInfo.infiles = event['infiles']
 
-    os.mkdirs(path=GGInfo.root)
+    os.makedirs(GGInfo.root, exist_ok=True)
     os.environ['GG_DIR'] = GGInfo.root
 
-    download_list = [{'hash': GGInfo.thunk_hash, 'executable': false}]
-    download_list += [i['hash'] for i in GGInfo.infiles]
-
-    fetch_dependencies(download_list)
+    fetch_dependencies(GGInfo.infiles)
 
     for infile in GGInfo.infiles:
         if infile['executable']:
@@ -137,5 +133,5 @@ def handler(event, context):
     return {
         'thunk_hash': GGInfo.thunk_hash,
         'output_hash': result,
-        'executable_output': is_executable(blob_hash(result))
+        'executable_output': is_executable(blob_path(result))
     }
