@@ -26,7 +26,7 @@ s3_client = boto3.client('s3')
 lambda_client = boto3.client('lambda')
 
 aws_credentials = boto3.Session().get_credentials()
-auth_generator = s3.S3AuthGeneator(aws_credentials.access_key, aws_credentials.secret_key)
+aws_auth_generator = s3.S3AuthGeneator(aws_credentials.access_key, aws_credentials.secret_key)
 
 @aiohttp.streamer
 def file_sender(writer, file_name=None):
@@ -41,7 +41,7 @@ async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
 
     object_url = s3.get_object_url(s3_bucket, dep_hash)
     headers = {}
-    auth_generator('HEAD', s3_bucket, dep_hash, headers)
+    aws_auth_generator('HEAD', s3_bucket, dep_hash, headers)
 
     async with session.head(object_url, headers=headers) as r:
         if r.status == 200:
@@ -54,9 +54,9 @@ async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
         'Content-Length': '%d' % os.path.getsize(filename)
     }
 
-    auth_generator('PUT', s3_bucket, dep_hash, headers)
+    aws_auth_generator('PUT', s3_bucket, dep_hash, headers)
 
-    async with session.request('PUT',object_url, headers=headers, data=file_sender(filename)) as r:
+    async with session.request('PUT', object_url, headers=headers, data=file_sender(filename)) as r:
         assert r.status == 200
         logger.info('Upload done: ' + dep_hash)
 
@@ -71,6 +71,10 @@ def upload_all_dependencies(dependecies):
 def push_infiles(infiles):
     with closing(asyncio.get_event_loop()) as loop:
        loop.run_until_complete(upload_all_dependencies(infiles))
+
+def make_executable(path):
+    st = os.stat(path)
+    os.chmod(path, st.st_mode | stat.S_IEXEC)
 
 def main():
     thunk_hash = sys.argv[1]
@@ -100,11 +104,8 @@ def main():
     output_hash = response['output_hash']
     s3_client.download_file(s3_bucket, response['output_hash'], gg.blob_path(output_hash))
 
-    print(output_hash)
+    if response['executable_output']:
+        make_executable(gg.blob_path(output_hash))
 
 if __name__ == '__main__':
     main()
-
-# with closing(asyncio.get_event_loop()) as loop:
-#    with aiohttp.ClientSession() as session:
-#        loop.run_until_complete(download_multiple(session, []))
