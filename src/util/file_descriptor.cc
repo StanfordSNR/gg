@@ -16,10 +16,6 @@ FileDescriptor::FileDescriptor( const int fd )
    read_count_( 0 ),
    write_count_( 0 )
 {
-  if ( fd_ <= 2 ) { /* make sure not overwriting stdout/stderr */
-    throw unix_error( "FileDescriptor: fd <= 2" );
-  }
-
   /* set close-on-exec flag so our file descriptors
     aren't passed on to unrelated children (like a shell) */
   CheckSystemCall( "fcntl FD_CLOEXEC", fcntl( fd_, F_SETFD, FD_CLOEXEC ) );
