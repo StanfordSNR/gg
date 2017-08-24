@@ -139,5 +139,6 @@ def handler(event, context):
     return {
         'thunk_hash': GGInfo.thunk_hash,
         'output_hash': result,
+        'output_size': os.path.getsize(blob_path(result)),
         'executable_output': is_executable(blob_path(result))
     }
