@@ -1,5 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include <fstream>
+
 #include "ggpaths.hh"
 
 using namespace std;
@@ -75,16 +77,24 @@ namespace gg {
     {
       roost::path reduction { gg::paths::reduction_path( thunk_hash ) };
 
-      if ( not roost::lexists( reduction ) ) {
+      if ( not roost::exists( reduction ) ) {
         return {}; // no reductions are available
       }
 
-      return ReductionResult { roost::readlink( reduction ), 0 };
+      ifstream fin { reduction.string() };
+
+      string output_hash;
+      fin >> output_hash;
+
+      return ReductionResult { output_hash, 0 };
     }
 
     void insert( const string & old_hash, const string & new_hash )
     {
-      roost::symlink( new_hash, gg::paths::reduction_path( old_hash ) );
+      ofstream fout { gg::paths::reduction_path( old_hash ).string(),
+                      ios::out | ios::trunc };
+
+      fout << new_hash;
     }
   }
 
