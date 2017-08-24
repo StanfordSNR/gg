@@ -54,7 +54,6 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
   roost::path exec_dir_path { exec_dir.name() };
 
   roost::path outfile_dir = roost::dirname( thunk.outfile() );
-  roost::create_directories( outfile_dir );
 
   // EXECUTING THE THUNK
   if ( not sandboxed ) {
