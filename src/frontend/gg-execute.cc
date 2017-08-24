@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace gg::thunk;
+using ReductionResult = gg::cache::ReductionResult;
 
 const roost::path gg_path = gg::paths::blobs();
 const roost::path gg_reductions_path = gg::paths::reductions();
@@ -21,23 +22,6 @@ const roost::path gg_reductions_path = gg::paths::reductions();
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const string temp_dir_template = "/tmp/thunk-execute";
 const string temp_file_template = "/tmp/thunk-file";
-
-void store_thunk_reduction( const string & original_hash,
-                            const string & new_hash )
-{
-  roost::symlink( new_hash, gg_reductions_path / original_hash );
-}
-
-Optional<string> check_reduction_cache( const string & thunk_hash )
-{
-  roost::path reduction { gg_reductions_path / thunk_hash };
-
-  if ( not roost::lexists( reduction ) ) {
-    return {}; // no reductions are available
-  }
-
-  return roost::readlink( reduction );
-}
 
 string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
 {
@@ -128,7 +112,7 @@ int main( int argc, char * argv[] )
 
     string thunk_hash { argv[ 1 ] };
 
-    if ( check_reduction_cache( thunk_hash ).initialized() ) {
+    if ( gg::cache::check( thunk_hash ).initialized() ) {
       /* already reduced */
       return EXIT_SUCCESS;
     }
@@ -137,7 +121,7 @@ int main( int argc, char * argv[] )
     ThunkReader thunk_reader { thunk_path.string() };
     Thunk thunk = thunk_reader.read_thunk();
     string output_hash = execute_thunk( thunk, thunk_path );
-    store_thunk_reduction( thunk_hash, output_hash );
+    gg::cache::insert( thunk_hash, output_hash );
 
     return EXIT_SUCCESS;
   }

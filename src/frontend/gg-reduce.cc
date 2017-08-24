@@ -31,29 +31,14 @@ using namespace std;
 using namespace gg::thunk;
 using namespace PollerShortNames;
 
+using ReductionResult = gg::cache::ReductionResult;
+
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const string temp_dir_template = "/tmp/thunk-execute";
 const string temp_file_template = "/tmp/thunk-file";
 
 const roost::path gg_path = gg::paths::blobs();
 const roost::path gg_reductions_path = gg::paths::reductions();
-
-struct ReductionResult
-{
-  string hash;
-  size_t order;
-};
-
-Optional<ReductionResult> check_reduction_cache( const string & thunk_hash )
-{
-  roost::path reduction { gg_reductions_path / thunk_hash };
-
-  if ( not roost::lexists( reduction ) ) {
-    return {}; // no reductions are available
-  }
-
-  return ReductionResult { roost::readlink( reduction ), 0 };
-}
 
 class Reductor
 {
@@ -116,7 +101,7 @@ Result Reductor::handle_signal( const signalfd_siginfo & sig )
         /* Update the dependecy graph now that we know this process ended
         with exit code 0. */
         const string & thunk_hash = child.name();
-        Optional<ReductionResult> result = check_reduction_cache( thunk_hash );
+        Optional<ReductionResult> result = gg::cache::check( thunk_hash );
 
         if ( not result.initialized() or result->order != 0 ) {
           throw runtime_error( "could not find the reduction entry" );
@@ -184,7 +169,7 @@ string Reductor::reduce()
 
     if ( poll_result.result == Poller::Result::Type::Exit ) {
       const string final_hash = dep_graph_.updated_hash( thunk_hash_ );
-      const Optional<ReductionResult> answer = check_reduction_cache( final_hash );
+      const Optional<ReductionResult> answer = gg::cache::check( final_hash );
       if ( not answer.initialized() ) {
         throw runtime_error( "internal error: final answer not found" );
       }

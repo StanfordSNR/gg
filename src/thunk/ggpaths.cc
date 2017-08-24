@@ -2,72 +2,103 @@
 
 #include "ggpaths.hh"
 
-roost::path get_gg_dir()
-{
-  const char * envar = getenv( "GG_DIR" );
+using namespace std;
 
-  if ( envar == NULL ) {
-    throw std::runtime_error( "GG_DIR environment variable not set" );
-  }
+namespace gg {
+  namespace paths {
+    roost::path get_gg_dir()
+    {
+      const char * envar = getenv( "GG_DIR" );
 
-  roost::path gg_path { std::string( envar ) };
+      if ( envar == NULL ) {
+        throw runtime_error( "GG_DIR environment variable not set" );
+      }
 
-  if ( roost::exists( gg_path ) ) {
-    if ( not roost::is_directory( gg_path ) ) {
-      throw std::runtime_error( gg_path.string() + " is not a directory" );
+      roost::path gg_path { string( envar ) };
+
+      if ( roost::exists( gg_path ) ) {
+        if ( not roost::is_directory( gg_path ) ) {
+          throw runtime_error( gg_path.string() + " is not a directory" );
+        }
+      } else {
+        roost::create_directories( gg_path );
+      }
+
+      return roost::canonical( gg_path );
     }
-  } else {
-    roost::create_directories( gg_path );
-  }
 
-  return roost::canonical( gg_path );
-}
-
-roost::path get_blobs_path()
-{
-  return get_gg_dir();
-}
-
-roost::path get_reductions_path()
-{
-  roost::path reductions_dir = get_gg_dir() / "reductions";
-
-  if ( roost::exists( reductions_dir ) ) {
-    if ( not roost::is_directory( reductions_dir ) ) {
-      throw std::runtime_error( reductions_dir.string() + " is not a directory" );
+    roost::path get_blobs_path()
+    {
+      return get_gg_dir();
     }
-  } else {
-    roost::create_directories( reductions_dir );
+
+    roost::path get_reductions_path()
+    {
+      roost::path reductions_dir = get_gg_dir() / "reductions";
+
+      if ( roost::exists( reductions_dir ) ) {
+        if ( not roost::is_directory( reductions_dir ) ) {
+          throw runtime_error( reductions_dir.string() + " is not a directory" );
+        }
+      } else {
+        roost::create_directories( reductions_dir );
+      }
+
+      return reductions_dir;
+    }
+
+    roost::path blobs()
+    {
+      const static roost::path blobs_path = get_blobs_path();
+      return blobs_path;
+    }
+
+    roost::path reductions()
+    {
+      const static roost::path reductions_path = get_reductions_path();
+      return reductions_path;
+    }
+
+    roost::path blob_path( const string & hash )
+    {
+      return blobs() / hash;
+    }
+
+    roost::path reduction_path( const string & hash )
+    {
+      return reductions() / hash;
+    }
   }
 
-  return reductions_dir;
-}
+  namespace cache {
+    Optional<ReductionResult> check( const string & thunk_hash )
+    {
+      roost::path reduction { gg::paths::reduction_path( thunk_hash ) };
 
-roost::path gg::paths::blobs()
-{
-  const static roost::path blobs_path = get_blobs_path();
-  return blobs_path;
-}
+      if ( not roost::lexists( reduction ) ) {
+        return {}; // no reductions are available
+      }
 
-roost::path gg::paths::reductions()
-{
-  const static roost::path reductions_path = get_reductions_path();
-  return reductions_path;
-}
+      return ReductionResult { roost::readlink( reduction ), 0 };
+    }
 
-roost::path gg::paths::blob_path( const std::string & hash )
-{
-  return blobs() / hash;
-}
-
-std::vector<std::string> gg::models::args_to_vector( int argc, char ** argv )
-{
-  std::vector<std::string> result;
-
-  /* ignores argv[ 0 ] */
-  for ( int i = 1; i < argc; i++ ) {
-    result.push_back( argv[ i ] );
+    void insert( const string & old_hash, const string & new_hash )
+    {
+      roost::symlink( new_hash, gg::paths::reduction_path( old_hash ) );
+    }
   }
 
-  return result;
+  namespace models {
+    vector<string> args_to_vector( int argc, char ** argv )
+    {
+      vector<string> result;
+
+      /* ignores argv[ 0 ] */
+      for ( int i = 1; i < argc; i++ ) {
+        result.push_back( argv[ i ] );
+      }
+
+      return result;
+    }
+  }
 }
