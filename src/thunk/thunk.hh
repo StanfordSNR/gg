@@ -114,8 +114,7 @@ namespace gg {
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
-      int execute( const roost::path & root_dir,
-                   const roost::path & thunk_path ) const;
+      int execute( const std::string & thunk_hash ) const;
 
       const std::string & outfile() const { return outfile_; }
       const Function & function() const { return function_; }
@@ -124,12 +123,12 @@ namespace gg {
 
       gg::protobuf::Thunk to_protobuf() const;
 
-      void collect_infiles( const roost::path & gg_dir ) const;
+      void collect_infiles() const;
 
       /* this function will collect all of the infiles in .gg directory, and
          will store two copies for the thunk, both in the working directory
          and .gg directory. It returns the hash. */
-      std::string store( const roost::path & gg_dir ) const;
+      std::string store() const;
 
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
@@ -144,8 +143,7 @@ namespace gg {
       /* Returns a list of files that can be accessed while executing this
          thunk. */
       std::unordered_map<std::string, Permissions>
-      get_allowed_files( const roost::path & gg_path,
-                         const roost::path & thunk_path ) const;
+      get_allowed_files( const std::string & thunk_hash ) const;
     };
   }
 }

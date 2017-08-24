@@ -40,10 +40,8 @@ Thunk generate_thunk( int argc, char * argv[] )
 
 int main( int argc, char * argv[] )
 {
-  roost::path gg_dir = gg::paths::blobs();
-
   Thunk thunk = generate_thunk( argc, argv );
-  thunk.store( gg_dir );
+  thunk.store();
 
   return 0;
 }

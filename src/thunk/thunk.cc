@@ -37,7 +37,7 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   order_ = compute_order();
 }
 
-int Thunk::execute( const roost::path & root_dir, const roost::path & thunk_path ) const
+int Thunk::execute( const string & thunk_hash ) const
 {
   if ( order_ != 1 ) {
     throw runtime_error( "cannot execute thunk with order != 1" );
@@ -47,11 +47,13 @@ int Thunk::execute( const roost::path & root_dir, const roost::path & thunk_path
   vector<string> args = function_.args();
   args.insert( args.begin(), function_.exe() );
 
+  const roost::path thunk_path = gg::paths::blob_path( thunk_hash );
+
   // preparing envp
   const vector<string> & f_envars = function_.envars();
   vector<string> envars = {
     "__GG_THUNK_PATH__=" + thunk_path.string(),
-    "__GG_DIR__=" + root_dir.string(),
+    "__GG_DIR__=" + gg::paths::blobs().string(),
     "__GG_ENABLED__=1",
     // "__GG_VERBOSE__=1"
   };
@@ -62,7 +64,7 @@ int Thunk::execute( const roost::path & root_dir, const roost::path & thunk_path
 
   cerr << "+ " << command_str( args, envars ) << endl;
 
-  if ( ( retval = ezexec( ( root_dir / function_.hash() ).string(), args, envars ) ) < 0 ) {
+  if ( ( retval = ezexec( gg::paths::blob_path( function_.hash() ).string(), args, envars ) ) < 0 ) {
     throw runtime_error( "execvpe failed" );
   }
 
@@ -104,7 +106,7 @@ void put_file( const roost::path & src, const roost::path & dst )
   roost::copy_then_rename( src, dst );
 }
 
-void Thunk::collect_infiles( const roost::path & gg_dir ) const
+void Thunk::collect_infiles() const
 {
   for ( InFile infile : infiles_ ) {
     if ( infile.content_hash().length() == 0 ) {
@@ -113,14 +115,14 @@ void Thunk::collect_infiles( const roost::path & gg_dir ) const
     }
 
     roost::path source_path = infile.real_filename();
-    roost::path target_path = gg_dir / infile.content_hash();
+    roost::path target_path = gg::paths::blob_path( infile.content_hash() );
     put_file( source_path, target_path );
   }
 }
 
-string Thunk::store( const roost::path & gg_dir ) const
+string Thunk::store() const
 {
-  collect_infiles( gg_dir );
+  collect_infiles();
 
   const string thunk_hash = ThunkWriter::write_thunk( *this );
 
@@ -176,18 +178,18 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
   throw runtime_error( "infile doesn't exist: " + old_hash );
 }
 
-unordered_map<string, Permissions> Thunk::get_allowed_files( const roost::path & gg_path,
-                                                             const roost::path & thunk_path ) const
+unordered_map<string, Permissions>
+Thunk::get_allowed_files( const std::string & thunk_hash ) const
 {
   unordered_map<string, Permissions> allowed_files;
 
   for ( const InFile & infile : infiles() ) {
     if ( infile.content_hash().length() ) {
       if ( infile.type() == InFile::Type::FILE ) {
-        allowed_files[ ( gg_path / infile.content_hash() ).string() ] = { true, false, false };
+        allowed_files[ gg::paths::blob_path( infile.content_hash() ).string() ] = { true, false, false };
       }
       else if ( infile.type() == InFile::Type::EXECUTABLE ) {
-        allowed_files[ ( gg_path / infile.content_hash() ).string() ] = { true, false, true };
+        allowed_files[ gg::paths::blob_path( infile.content_hash() ).string() ] = { true, false, true };
       }
     }
     else {
@@ -195,8 +197,8 @@ unordered_map<string, Permissions> Thunk::get_allowed_files( const roost::path &
     }
   }
 
-  allowed_files[ gg_path.string() ] = { true, false, false };
-  allowed_files[ thunk_path.string() ] = { true, false, false };
+  allowed_files[ gg::paths::blobs().string() ] = { true, false, false };
+  allowed_files[ gg::paths::blob_path( thunk_hash ).string() ] = { true, false, false };
   allowed_files[ outfile() ] = { true, true, false };
 
   return allowed_files;

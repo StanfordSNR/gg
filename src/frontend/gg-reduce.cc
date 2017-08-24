@@ -37,9 +37,6 @@ const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const string temp_dir_template = "/tmp/thunk-execute";
 const string temp_file_template = "/tmp/thunk-file";
 
-const roost::path gg_path = gg::paths::blobs();
-const roost::path gg_reductions_path = gg::paths::reductions();
-
 class Reductor
 {
 private:

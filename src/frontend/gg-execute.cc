@@ -16,14 +16,11 @@ using namespace std;
 using namespace gg::thunk;
 using ReductionResult = gg::cache::ReductionResult;
 
-const roost::path gg_path = gg::paths::blobs();
-const roost::path gg_reductions_path = gg::paths::reductions();
-
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const string temp_dir_template = "/tmp/thunk-execute";
 const string temp_file_template = "/tmp/thunk-file";
 
-string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
+string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
 {
   if ( thunk.order() != 1 ) {
     throw runtime_error( "thunk is not executable (order != 1)" );
@@ -43,10 +40,10 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
   if ( not sandboxed ) {
     ChildProcess process {
       thunk.outfile(),
-      [thunk, thunk_path, exec_dir_path, &outfile_dir]() {
+      [thunk, thunk_hash, exec_dir_path, &outfile_dir]() {
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
         roost::create_directories( outfile_dir );
-        return thunk.execute( gg_path, thunk_path );
+        return thunk.execute( thunk_hash );
       }
     };
 
@@ -55,16 +52,16 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
     }
 
     if ( process.exit_status() != 0 ) {
-      throw runtime_error( "thunk execution failed: " + thunk_path.string() );
+      throw runtime_error( "thunk execution failed: " + thunk_hash );
     }
   }
   else {
-    auto allowed_files = thunk.get_allowed_files( gg_path, thunk_path );
+    auto allowed_files = thunk.get_allowed_files( thunk_hash );
 
     SandboxedProcess process {
       allowed_files,
-      [thunk, thunk_path]() {
-        return thunk.execute( gg_path, thunk_path );
+      [thunk, thunk_hash]() {
+        return thunk.execute( thunk_hash );
       },
       [exec_dir_path, &outfile_dir] () {
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
@@ -75,7 +72,7 @@ string execute_thunk( const Thunk & thunk, const roost::path & thunk_path )
     process.execute();
 
     if ( not process.exit_status().initialized() or process.exit_status().get() != 0 ) {
-      throw runtime_error( "thunk execution failed: " + thunk_path.string() );
+      throw runtime_error( "thunk execution failed: " + thunk_hash );
     }
   }
 
@@ -117,10 +114,9 @@ int main( int argc, char * argv[] )
       return EXIT_SUCCESS;
     }
 
-    roost::path thunk_path = gg::paths::blob_path( thunk_hash );
-    ThunkReader thunk_reader { thunk_path.string() };
+    ThunkReader thunk_reader { gg::paths::blob_path( thunk_hash ).string() };
     Thunk thunk = thunk_reader.read_thunk();
-    string output_hash = execute_thunk( thunk, thunk_path );
+    string output_hash = execute_thunk( thunk, thunk_hash );
     gg::cache::insert( thunk_hash, output_hash );
 
     return EXIT_SUCCESS;

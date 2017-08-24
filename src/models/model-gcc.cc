@@ -238,8 +238,6 @@ void GCCModelGenerator::generate()
 {
   vector<TempFile> tempfiles;
 
-  roost::path gg_dir = gg::paths::blobs();
-
   string final_output = arguments_.output_filename();
   GCCStage last_stage = arguments_.last_stage();
   vector<string> args = arguments_.all_args();
@@ -272,7 +270,7 @@ void GCCModelGenerator::generate()
 
       Thunk stage_thunk = generate_thunk( stage, input, output_name );
 
-      stage_thunk.store( gg_dir );
+      stage_thunk.store();
 
       switch ( stage ) {
       case PREPROCESS:
@@ -335,7 +333,7 @@ void GCCModelGenerator::generate()
     vector<string> dependencies = get_link_dependencies( input_files, args );
 
     Thunk thunk = generate_link_thunk( input_files, dependencies, final_output );
-    thunk.store( gg_dir );
+    thunk.store();
   }
 }
 
