@@ -5,6 +5,7 @@ import sys
 import fcntl
 import logging
 import json
+import stat
 import errno
 import pprint
 import boto3
@@ -16,11 +17,7 @@ import gg
 import gg_pb2
 
 from contextlib import closing
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.handlers = []
-logger.addHandler(logging.StreamHandler())
+from base64 import b64decode
 
 CHUNK_SIZE = 32 * 1024 # 32 KB
 
@@ -56,7 +53,6 @@ async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
 
         async with session.head(object_url, headers=headers) as r:
             if r.status == 200:
-                logger.info('Blob already exists: {:.12}...'.format(dep_hash))
                 return
 
         headers = {
@@ -69,7 +65,6 @@ async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
 
         async with session.request('PUT', object_url, headers=headers, data=file_sender(filename)) as r:
             assert r.status == 200
-            logger.info('Upload done: {:.12}...'.format(dep_hash))
 
 @asyncio.coroutine
 def upload_all_dependencies(dependecies):
@@ -89,9 +84,16 @@ def make_executable(path):
 
 def main():
     thunk_hash = sys.argv[1]
+
+    if gg.check_reduction_cache(thunk_hash):
+        # already reduced
+        return os.EX_OK
+
     thunk = gg.read_thunk(thunk_hash)
 
-    infiles = [{'hash': i.hash, 'executable': i.type == gg_pb2.InFile.Type.Value('EXECUTABLE')}
+    infiles = [{'hash': i.hash,
+                'executable': i.type == gg_pb2.InFile.Type.Value('EXECUTABLE'),
+                'size': i.size}
                for i in thunk.infiles
                if i.type != gg_pb2.InFile.Type.Value('DUMMY_DIRECTORY')]
 
@@ -103,15 +105,19 @@ def main():
         'infiles': infiles
     }
 
+    print('uploading dependecies ({}) for {:.12}. '.format(len(infiles), thunk_hash),
+          file=sys.stderr)
     push_infiles(infiles)
 
     response = boto3.client('lambda').invoke(
         FunctionName='ggfunction',
         InvocationType='RequestResponse',
-        Payload=json.dumps(request_payload)
+        Payload=json.dumps(request_payload),
+        LogType='Tail',
     )
 
     if response.get('StatusCode', 0) / 100 != 2 or 'FunctionError' in response:
+        print(b64decode(response.get('LogResult')).decode('utf-8'), file=sys.stderr)
         raise Exception('Lambda exceution failed.')
 
     response_payload = json.loads(response['Payload'].read())
@@ -122,10 +128,13 @@ def main():
     if response_payload['executable_output']:
         make_executable(gg.blob_path(output_hash))
 
-    print('\u03bb({:.12}...) => {:.12}...'.format(thunk_hash, output_hash), file=sys.stderr)
+    gg.store_thunk_reduction(thunk_hash, output_hash)
+    print('\u03bb({:.12}) => {:.12}'.format(thunk_hash, output_hash), file=sys.stderr)
+
+    return os.EX_OK
 
 def usage(argv0):
-    print("usage: {} THUNK-HASH".format(argv0))
+    print("usage: {} THUNK-HASH".format(argv0), file=sys.stderr)
 
 def init():
     if not s3_bucket:
@@ -138,7 +147,7 @@ def init():
 if __name__ == '__main__':
     try:
         init()
-        main()
+        sys.exit(main())
     except Exception as ex:
-        print(ex)
+        print(ex, file=sys.stderr)
         sys.exit(1)

@@ -9,6 +9,7 @@ os.environ['PATH'] = "{}:{}".format(curdir, os.environ.get('PATH', ''))
 
 import stat
 import subprocess as sub
+import shutil
 import asyncio
 import aiohttp
 import boto3
@@ -57,7 +58,8 @@ def chunk_writer(target_file):
 
 async def download_file(session: aiohttp.ClientSession, url: str, sink):
     async with session.get(url) as response:
-        assert response.status == 200
+        if response.status != 200:
+            raise Exception("Download failed: {}".format(url))
 
         while True:
             chunk = await response.content.read(CHUNK_SIZE)
@@ -79,12 +81,13 @@ def fetch_dependencies(infiles):
         download_data = []
 
         for infile in infiles:
-            if os.path.exists(blob_path(infile['hash'])):
+            bpath = blob_path(infile['hash'])
+            if os.path.exists(bpath) and os.path.getsize(bpath) == infile['size']:
                 continue
 
             download_data += [{
                 'url': blob_url(infile['hash']),
-                'file': open(blob_path(infile['hash']), "wb")
+                'file': open(bpath, "wb")
             }]
 
         with closing(asyncio.new_event_loop()) as loop:
@@ -112,6 +115,7 @@ def handler(event, context):
     GGInfo.s3_bucket = event['s3_bucket']
     GGInfo.infiles = event['infiles']
 
+    #shutil.rmtree(GGInfo.root, ignore_errors=True)
     os.makedirs(GGInfo.root, exist_ok=True)
     os.environ['GG_DIR'] = GGInfo.root
 
@@ -129,6 +133,8 @@ def handler(event, context):
         raise Exception("thunk reduction failed")
 
     s3_client.upload_file(blob_path(result), GGInfo.s3_bucket, result)
+    s3_client.put_object_acl(ACL='public-read', Bucket=GGInfo.s3_bucket, Key=result)
+
 
     return {
         'thunk_hash': GGInfo.thunk_hash,

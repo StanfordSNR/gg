@@ -48,6 +48,17 @@ def executable_hash(thunk):
     hashes.sort()
     return hashlib.sha256("".join(hashes).encode('ascii')).hexdigest()
 
+def check_reduction_cache(blob_hash):
+    rpath = reduction_path(blob_hash)
+
+    if not os.path.islink(rpath):
+        return None
+
+    return os.readlink(rpath)
+
+def store_thunk_reduction(thunk_hash, output_hash):
+    os.symlink(output_hash, reduction_path(thunk_hash))
+
 if __name__ == '__main__':
     thunk = read_thunk("e1c4371ef825d5e7414b1b09cca2b991727ed585c107b8d4ed49419cb04888f1")
     print(executable_hash(thunk))
