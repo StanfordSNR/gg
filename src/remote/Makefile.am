@@ -12,7 +12,7 @@ DIST_EXTRA = gg.py s3.py create-function.py lambda_function/packages.zip \
 gg_pb2.py: $(srcdir)/../protobufs/gg.proto
 	$(AM_V_GEN)$(PROTOC) --python_out=. -I$(srcdir)/../protobufs $(srcdir)/../protobufs/gg.proto
 
-ggfunction.zip: $(srcdir)/create-function.py $(srcdir)/lambda_function/function.py \
+ggfunction.zip: $(srcdir)/*.py $(srcdir)/lambda_function/*.py \
                 $(srcdir)/lambda_function/packages.zip \
                 $(builddir)/../frontend/gg-execute-static
 	$(AM_V_GEN)$(srcdir)/create-function.py --function-file=ggfunction.zip

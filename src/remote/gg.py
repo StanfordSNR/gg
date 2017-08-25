@@ -6,29 +6,12 @@ import hashlib
 
 import gg_pb2
 
+from ggpaths import GGPaths
+
 MAGIC_CODE = b'##GGTHUNK##'
 
-if 'GG_DIR' not in os.environ:
-    raise Exception("GG_DIR not set.")
-
-GG_DIR = os.path.abspath(os.environ['GG_DIR'])
-
-class Path:
-    blobs = GG_DIR
-    reductions = os.path.join(GG_DIR, "reductions")
-
-    @classmethod
-    def blob_path(cls, blob_hash):
-        return os.path.join(cls.blobs, blob_hash)
-
-def blob_path(blob_hash):
-    return os.path.join(GG_DIR, blob_hash)
-
-def reduction_path(blob_hash):
-    return os.path.join(GG_DIR, "reductions", blob_hash)
-
 def read_thunk(thunk_hash):
-    with open(Path.blob_path(thunk_hash), "rb") as fin:
+    with open(GGPaths.blob_path(thunk_hash), "rb") as fin:
         magic = fin.read(len(MAGIC_CODE))
 
         if magic != MAGIC_CODE:
@@ -47,18 +30,3 @@ def executable_hash(thunk):
 
     hashes.sort()
     return hashlib.sha256("".join(hashes).encode('ascii')).hexdigest()
-
-def check_reduction_cache(blob_hash):
-    rpath = reduction_path(blob_hash)
-
-    if not os.path.islink(rpath):
-        return None
-
-    return os.readlink(rpath)
-
-def store_thunk_reduction(thunk_hash, output_hash):
-    os.symlink(output_hash, reduction_path(thunk_hash))
-
-if __name__ == '__main__':
-    thunk = read_thunk("e1c4371ef825d5e7414b1b09cca2b991727ed585c107b8d4ed49419cb04888f1")
-    print(executable_hash(thunk))

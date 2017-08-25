@@ -18,6 +18,7 @@ import gg_pb2
 
 from contextlib import closing
 from base64 import b64decode
+from ggpaths import GGPaths, GGCache
 
 CHUNK_SIZE = 32 * 1024 # 32 KB
 
@@ -34,7 +35,7 @@ def file_sender(writer, file_name=None):
             chunk = f.read(CHUNK_SIZE)
 
 async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
-    filename = gg.blob_path(dep_hash)
+    filename = GGPaths.blob_path(dep_hash)
 
     with open(filename, "a") as _f:
         try:
@@ -85,7 +86,7 @@ def make_executable(path):
 def main():
     thunk_hash = sys.argv[1]
 
-    if gg.check_reduction_cache(thunk_hash):
+    if GGCache.check(thunk_hash):
         # already reduced
         return os.EX_OK
 
@@ -97,7 +98,10 @@ def main():
                for i in thunk.infiles
                if i.type != gg_pb2.InFile.Type.Value('DUMMY_DIRECTORY')]
 
-    infiles += [{'hash': thunk_hash, 'executable': False}]
+    infiles += [{
+        'hash': thunk_hash, 'executable': False,
+        'size': os.path.getsize(GGPaths.blob_path(thunk_hash))
+    }]
 
     request_payload = {
         'thunk_hash': thunk_hash,
@@ -123,12 +127,12 @@ def main():
     response_payload = json.loads(response['Payload'].read())
     output_hash = response_payload['output_hash']
 
-    boto3.client('s3').download_file(s3_bucket, output_hash, gg.blob_path(output_hash))
+    boto3.client('s3').download_file(s3_bucket, output_hash, GGPaths.blob_path(output_hash))
 
     if response_payload['executable_output']:
-        make_executable(gg.blob_path(output_hash))
+        make_executable(GGPaths.blob_path(output_hash))
 
-    gg.store_thunk_reduction(thunk_hash, output_hash)
+    GGCache.insert(thunk_hash, output_hash)
     print('\u03bb({:.12}) => {:.12}'.format(thunk_hash, output_hash), file=sys.stderr)
 
     return os.EX_OK
@@ -142,7 +146,7 @@ def init():
 
     if len(sys.argv) != 2:
         usage(sys.argv[0])
-        sys.exit(1)
+        sys.exit(os.EX_USAGE)
 
 if __name__ == '__main__':
     try:

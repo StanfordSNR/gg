@@ -7,6 +7,11 @@ curdir = os.path.dirname(__file__)
 sys.path.append(os.path.join(curdir, 'packages'))
 os.environ['PATH'] = "{}:{}".format(curdir, os.environ.get('PATH', ''))
 
+if not os.environ.get('GG_DIR'):
+    os.environ['GG_DIR'] = "/tmp/_gg"
+
+GG_DIR = os.environ['GG_DIR']
+
 import stat
 import subprocess as sub
 import shutil
@@ -16,31 +21,15 @@ import boto3
 
 from contextlib import closing
 
+from ggpaths import GGPaths, GGCache
+
 CHUNK_SIZE = 32 * 1024 # 32 KB
 s3_client = boto3.client('s3')
 
 class GGInfo:
-    root = "/tmp/_gg"
     s3_bucket = None
     thunk_hash = None
     infiles = []
-
-def blob_path(blob_hash):
-    return os.path.join(GGInfo.root, blob_hash)
-
-def reduction_path(blob_hash):
-    return os.path.join(GGInfo.root, "reductions", blob_hash)
-
-def check_reduction_cache(blob_hash):
-    rpath = reduction_path(blob_hash)
-
-    if not os.path.islink(rpath):
-        return None
-
-    return os.readlink(rpath)
-
-def blob_url(blob_hash):
-    return "https://{bucket}.s3.amazonaws.com/{hash}".format(bucket=GGInfo.s3_bucket, hash=blob_hash)
 
 def coroutine(func):
     def start(*args, **kwargs):
@@ -81,12 +70,12 @@ def fetch_dependencies(infiles):
         download_data = []
 
         for infile in infiles:
-            bpath = blob_path(infile['hash'])
+            bpath = GGPaths.blob_path(infile['hash'])
             if os.path.exists(bpath) and os.path.getsize(bpath) == infile['size']:
                 continue
 
             download_data += [{
-                'url': blob_url(infile['hash']),
+                'url': GGPaths.object_url(GGInfo.s3_bucket, infile['hash']),
                 'file': open(bpath, "wb")
             }]
 
@@ -115,30 +104,25 @@ def handler(event, context):
     GGInfo.s3_bucket = event['s3_bucket']
     GGInfo.infiles = event['infiles']
 
-    #shutil.rmtree(GGInfo.root, ignore_errors=True)
-    os.makedirs(GGInfo.root, exist_ok=True)
-    os.environ['GG_DIR'] = GGInfo.root
-
     fetch_dependencies(GGInfo.infiles)
 
     for infile in GGInfo.infiles:
         if infile['executable']:
-            make_executable(blob_path(infile['hash']))
+            make_executable(GGPaths.blob_path(infile['hash']))
 
     run_command(["gg-execute-static", GGInfo.thunk_hash])
 
-    result = check_reduction_cache(GGInfo.thunk_hash)
+    result = GGCache.check(GGInfo.thunk_hash)
 
     if not result:
         raise Exception("thunk reduction failed")
 
-    s3_client.upload_file(blob_path(result), GGInfo.s3_bucket, result)
+    s3_client.upload_file(GGPaths.blob_path(result), GGInfo.s3_bucket, result)
     s3_client.put_object_acl(ACL='public-read', Bucket=GGInfo.s3_bucket, Key=result)
-
 
     return {
         'thunk_hash': GGInfo.thunk_hash,
         'output_hash': result,
-        'output_size': os.path.getsize(blob_path(result)),
-        'executable_output': is_executable(blob_path(result))
+        'output_size': os.path.getsize(GGPaths.blob_path(result)),
+        'executable_output': is_executable(GGPaths.blob_path(result))
     }
