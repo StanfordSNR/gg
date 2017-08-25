@@ -18,6 +18,10 @@ namespace gg {
 
       roost::path gg_path { string( envar ) };
 
+      if ( not roost::is_absolute( gg_path ) ) {
+        throw runtime_error( "GG_DIR must be an absolute path" );
+      }
+
       if ( roost::exists( gg_path ) ) {
         if ( not roost::is_directory( gg_path ) ) {
           throw runtime_error( gg_path.string() + " is not a directory" );
