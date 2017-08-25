@@ -388,4 +388,13 @@ namespace roost {
 
     return { result };
   }
+
+  bool is_absolute( const path & pathn )
+  {
+    if ( pathn.string().length() == 0 ) {
+      return false;
+    }
+
+    return ( pathn.string().at( 0 ) == '/' );
+  }
 }

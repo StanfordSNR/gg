@@ -57,6 +57,7 @@ namespace roost {
   void chmod( const path & pathn, mode_t mode );
   std::string readlink( const path & pathn );
   std::vector<std::string> get_directory_listing( const path & pathn );
+  bool is_absolute( const path & pathn );
 }
 
 #endif /* PATH_HH */
