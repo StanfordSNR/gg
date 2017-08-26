@@ -1,0 +1,77 @@
+#!/usr/bin/env python3.6
+
+import os
+import sys
+import subprocess as sub
+import boto3
+
+import gg
+import gg_pb2
+import downloader
+
+from ggpaths import GGPaths, GGCache
+from common import make_executable, run_command
+
+s3_bucket = os.environ.get('GG_S3_BUCKET')
+
+def fetch_dependencies(infiles):
+    download_list = []
+
+    for infile in infiles:
+        ipath = GGPaths.blob_path(infile.hash)
+
+        if os.path.exists(ipath):
+            continue
+
+        download_list += [{
+            'url': GGPaths.object_url(s3_bucket, key=infile.hash),
+            'filename': ipath
+        }]
+
+    downloader.download_files(download_list)
+
+def main():
+    thunk_hash = sys.argv[ 1 ]
+
+    # XXX only checks the local hash
+    if GGCache.check(thunk_hash):
+        return os.EX_OK
+
+    try:
+        thunk = gg.read_thunk(thunk_hash, s3_bucket=s3_bucket)
+    except gg.NotAThunkException:
+        # already a reduced thunk, our work is done here
+        return os.EX_OK
+
+    fetch_dependencies(thunk.infiles)
+
+    for infile in thunk.infiles:
+        if infile.type == gg_pb2.InFile.Type.Value('EXECUTABLE'):
+            make_executable(GGPaths.blob_path(infile.hash))
+
+    run_command(["gg-execute", thunk_hash])
+
+    return os.EX_OK
+
+def usage(argv0):
+    print("usage: {} THUNK-HASH".format(argv0), file=sys.stderr)
+
+def init():
+    if not s3_bucket:
+        raise Exception("GG_S3_BUCKET environment variable not set")
+
+    if len(sys.argv) != 2:
+        usage(sys.argv[0])
+        sys.exit(os.EX_USAGE)
+
+if __name__ == '__main__':
+    try:
+        init()
+        sys.exit(main())
+    except Exception as ex:
+        print(ex, file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()
