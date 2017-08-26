@@ -20,7 +20,8 @@ PACKAGE_FILES = {
     "gg-execute-static": GG_EXECUTE_STATIC,
     "function.py": "lambda_function/function.py",
     "ggpaths.py": "ggpaths.py",
-    "downloader.py": "downloader.py"
+    "downloader.py": "downloader.py",
+    "common.py": "common.py"
 }
 
 def sha256_checksum(filename, block_size=65536):
@@ -39,11 +40,18 @@ def create_lambda_package(output):
         for fn, fp in PACKAGE_FILES.items():
             funczip.write(fp, fn)
 
-def install_lambda_package(package_file, function_name, role, region):
+def install_lambda_package(package_file, function_name, role, region, delete=False):
     with open(package_file, 'rb') as pfin:
         package_data = pfin.read()
 
     client = boto3.client('lambda', region_name=region)
+
+    if delete:
+        try:
+            client.delete_function(FunctionName=function_name)
+        except:
+            pass
+
     response = client.create_function(
         FunctionName=function_name,
         Runtime='python3.6',
@@ -64,6 +72,7 @@ def install_lambda_package(package_file, function_name, role, region):
 def main():
     parser = argparse.ArgumentParser(description="Generate and install Lambda function.")
     parser.add_argument('--install', dest='install', action='store_true', default=False)
+    parser.add_argument('--delete', dest='delete', action='store_true', default=False)
     parser.add_argument('--function-file', dest='function_file', action='store', default="ggfunction.zip")
     parser.add_argument('--function-name', dest='function_name', action='store', default="ggfunction")
     parser.add_argument('--role', dest='role', action='store')
@@ -76,7 +85,7 @@ def main():
         if not args.function_name or not args.role:
             raise Exception("Please provide function name, role.")
 
-        install_lambda_package(args.function_file, args.function_name, args.role, args.region)
+        install_lambda_package(args.function_file, args.function_name, args.role, args.region, delete=args.delete)
 
 if __name__ == '__main__':
     main()
