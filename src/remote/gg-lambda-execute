@@ -26,6 +26,10 @@ s3_bucket = os.environ.get('GG_S3_BUCKET')
 awscreds = boto3.Session().get_credentials()
 aws_auth_generator = s3.S3AuthGeneator(awscreds.access_key, awscreds.secret_key)
 
+def is_executable(path):
+    st = os.stat(path)
+    return ( st.st_mode & stat.S_IEXEC ) != 0
+
 @aiohttp.streamer
 def file_sender(writer, file_name=None):
     with open(file_name, 'rb') as f:
@@ -36,6 +40,7 @@ def file_sender(writer, file_name=None):
 
 async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
     filename = GGPaths.blob_path(dep_hash)
+    executable = is_executable(filename)
 
     with open(filename, "a") as _f:
         try:
@@ -58,7 +63,7 @@ async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
 
         headers = {
             'x-amz-acl': 'public-read',
-            'x-amz-tagging': 'gg=file',
+            'x-amz-tagging': 'gg:executable={}'.format('true' if executable else 'false'),
             'Content-Length': '%d' % os.path.getsize(filename)
         }
 
