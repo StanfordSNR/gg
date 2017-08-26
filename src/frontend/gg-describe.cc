@@ -10,6 +10,7 @@
 #include "syscall.hh"
 #include "thunk.hh"
 #include "thunk_reader.hh"
+#include "ggpaths.hh"
 
 using namespace std;
 using namespace google::protobuf::util;
@@ -17,7 +18,7 @@ using namespace gg::thunk;
 
 void usage( const char * argv0 )
 {
-  cerr << argv0 << " [--executable-hash, -e] THUNK" << endl;
+  cerr << argv0 << " [--executable-hash, -e] THUNK-HASH" << endl;
 }
 
 int main( int argc, char * argv[] )
@@ -56,7 +57,7 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    ThunkReader thunk_reader { argv[ optind ] };
+    ThunkReader thunk_reader { gg::paths::blob_path( argv[ optind ] ).string() };
     Thunk thunk = thunk_reader.read_thunk();
 
     if ( print_executable_hash ) {
