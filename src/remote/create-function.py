@@ -19,7 +19,8 @@ if not GG_EXECUTE_STATIC:
 PACKAGE_FILES = {
     "gg-execute-static": GG_EXECUTE_STATIC,
     "function.py": "lambda_function/function.py",
-    "ggpaths.py": "ggpaths.py"
+    "ggpaths.py": "ggpaths.py",
+    "downloader.py": "downloader.py"
 }
 
 def sha256_checksum(filename, block_size=65536):

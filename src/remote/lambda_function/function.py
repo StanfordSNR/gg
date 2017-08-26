@@ -19,11 +19,9 @@ import asyncio
 import aiohttp
 import boto3
 
-from contextlib import closing
-
 from ggpaths import GGPaths, GGCache
+from downloader import download_files
 
-CHUNK_SIZE = 32 * 1024 # 32 KB
 s3_client = boto3.client('s3')
 
 class GGInfo:
@@ -31,59 +29,20 @@ class GGInfo:
     thunk_hash = None
     infiles = []
 
-def coroutine(func):
-    def start(*args, **kwargs):
-        cr = func(*args, **kwargs)
-        next(cr)
-        return cr
-    return start
-
-@coroutine
-def chunk_writer(target_file):
-    while True:
-        chunk = yield
-        assert chunk
-        target_file.write(chunk)
-
-async def download_file(session: aiohttp.ClientSession, url: str, sink):
-    async with session.get(url) as response:
-        if response.status != 200:
-            raise Exception("Download failed: {}".format(url))
-
-        while True:
-            chunk = await response.content.read(CHUNK_SIZE)
-            if not chunk:
-                break
-            sink.send(chunk)
-
-@asyncio.coroutine
-def download_multiple(download_data):
-    with aiohttp.ClientSession() as session:
-        download_futures = [download_file(session, d['url'], chunk_writer(d['file']))
-                            for d in download_data]
-
-        for download_future in asyncio.as_completed(download_futures):
-            result = yield from download_future
-
 def fetch_dependencies(infiles):
-    try:
-        download_data = []
+    download_list = []
 
-        for infile in infiles:
-            bpath = GGPaths.blob_path(infile['hash'])
-            if os.path.exists(bpath) and os.path.getsize(bpath) == infile['size']:
-                continue
+    for infile in infiles:
+        bpath = GGPaths.blob_path(infile['hash'])
+        if os.path.exists(bpath) and os.path.getsize(bpath) == infile['size']:
+            continue
 
-            download_data += [{
-                'url': GGPaths.object_url(GGInfo.s3_bucket, infile['hash']),
-                'file': open(bpath, "wb")
-            }]
+        download_list += [{
+            'url': GGPaths.object_url(GGInfo.s3_bucket, infile['hash']),
+            'filename': bpath,
+        }]
 
-        with closing(asyncio.new_event_loop()) as loop:
-           loop.run_until_complete(download_multiple(download_data))
-    finally:
-        for d in download_data:
-            d['file'].close()
+    download_files(download_list)
 
 def make_executable(path):
     st = os.stat(path)
