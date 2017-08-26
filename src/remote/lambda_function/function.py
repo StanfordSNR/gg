@@ -76,12 +76,31 @@ def handler(event, context):
     if not result:
         raise Exception("thunk reduction failed")
 
+    executable = is_executable(GGPaths.blob_path(result))
+
     s3_client.upload_file(GGPaths.blob_path(result), GGInfo.s3_bucket, result)
-    s3_client.put_object_acl(ACL='public-read', Bucket=GGInfo.s3_bucket, Key=result)
+
+    s3_client.put_object_acl(
+        ACL='public-read',
+        Bucket=GGInfo.s3_bucket,
+        Key=result
+    )
+
+    s3_client.put_object_tagging(
+        Bucket=GGInfo.s3_bucket,
+        Key=result,
+        Tagging={
+            'TagSet': [
+                'gg:reduced_from': thunk_hash,
+                'gg:executable': 'true' if executable else 'false',
+            ]
+        }
+    )
+
 
     return {
         'thunk_hash': GGInfo.thunk_hash,
         'output_hash': result,
         'output_size': os.path.getsize(GGPaths.blob_path(result)),
-        'executable_output': is_executable(GGPaths.blob_path(result))
+        'executable_output': executable
     }
