@@ -21,6 +21,7 @@ import boto3
 
 from ggpaths import GGPaths, GGCache
 from downloader import download_files
+from common import is_executable, make_executable, run_command
 
 s3_client = boto3.client('s3')
 
@@ -43,20 +44,6 @@ def fetch_dependencies(infiles):
         }]
 
     download_files(download_list)
-
-def make_executable(path):
-    st = os.stat(path)
-    os.chmod(path, st.st_mode | stat.S_IEXEC)
-
-def is_executable(path):
-    st = os.stat(path)
-    return ( st.st_mode & stat.S_IEXEC ) != 0
-
-def run_command(command):
-    res_code = sub.run(command).returncode
-
-    if res_code:
-        raise Exception("command failed: {}".format(" ".join(command)))
 
 def handler(event, context):
     GGInfo.thunk_hash = event['thunk_hash']
@@ -91,8 +78,8 @@ def handler(event, context):
         Key=result,
         Tagging={
             'TagSet': [
-                'gg:reduced_from': thunk_hash,
-                'gg:executable': 'true' if executable else 'false',
+                { 'Key': 'gg:reduced_from', 'Value': GGInfo.thunk_hash },
+                { 'Key': 'gg:executable', 'Value': 'true' if executable else 'false' }
             ]
         }
     )
