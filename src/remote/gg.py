@@ -21,7 +21,7 @@ def read_thunk(thunk_hash, s3_bucket=None):
 
     if not os.path.exists(tpath) and not s3_bucket:
         raise Exception("thunk is not locally available")
-    elif s3_bucket:
+    elif not os.path.exists(tpath):
         try:
             s3_client.download_file(Bucket=s3_bucket, Key=thunk_hash, Filename=tpath)
             tags = s3_client.get_object_tagging(Bucket=s3_bucket, Key=thunk_hash)
@@ -32,7 +32,7 @@ def read_thunk(thunk_hash, s3_bucket=None):
                     make_executable(tpath)
                     break
         except:
-            raise Exception("thunk is not available")
+            Exception("thunk is not available: {}".format(thunk_hash))
 
     with open(tpath, "rb") as fin:
         magic = fin.read(len(MAGIC_CODE))
