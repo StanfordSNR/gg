@@ -6,6 +6,7 @@ import re
 import os
 import sys
 import hashlib
+import base64
 import subprocess as sub
 
 BINDIR = sys.argv[1]
@@ -17,7 +18,7 @@ def sha256_checksum(filename, block_size=65536):
         for block in iter(lambda: f.read(block_size), b''):
             sha256.update(block)
 
-    return sha256.hexdigest()
+    return base64.urlsafe_b64encode(sha256.digest())
 
 def get_include_path(language='c'):
     lang_switch = ''

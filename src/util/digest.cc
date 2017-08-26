@@ -2,7 +2,7 @@
 
 #include <crypto++/sha.h>
 #include <crypto++/hex.h>
-
+#include <crypto++/base64.h>
 #include "digest.hh"
 
 using namespace CryptoPP;
@@ -18,7 +18,7 @@ std::string digest::sha256( const string & input )
 
   StringSource s( input, true,
                   new HashFilter( hash_function,
-                                  new HexEncoder( new StringSink( ret ), false ) ) );
+                                  new Base64URLEncoder( new StringSink( ret ), false ) ) );
 
   return ret;
 }

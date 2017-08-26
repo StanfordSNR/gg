@@ -3,6 +3,7 @@
 import os
 import sys
 import hashlib
+import base64
 import boto3
 
 import gg_pb2
@@ -52,4 +53,4 @@ def executable_hash(thunk):
             hashes += [infile.hash]
 
     hashes.sort()
-    return hashlib.sha256("".join(hashes).encode('ascii')).hexdigest()
+    return base64.urlsafe_b64encode(hashlib.sha256("".join(hashes).encode('ascii')).digest())

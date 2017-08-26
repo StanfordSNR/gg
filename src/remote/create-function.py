@@ -7,6 +7,7 @@ import tempfile
 import shutil
 import argparse
 import hashlib
+import base64
 import boto3
 
 BASE_FILE = "lambda_function/packages.zip"
@@ -31,7 +32,7 @@ def sha256_checksum(filename, block_size=65536):
         for block in iter(lambda: f.read(block_size), b''):
             sha256.update(block)
 
-    return sha256.hexdigest()
+    return base64.urlsafe_b64encode(sha256.digest())
 
 def create_lambda_package(output):
     shutil.copy(BASE_FILE, output)
