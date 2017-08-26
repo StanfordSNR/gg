@@ -19,16 +19,13 @@ import gg_pb2
 from contextlib import closing
 from base64 import b64decode
 from ggpaths import GGPaths, GGCache
+from common import make_executable, is_executable
 
 CHUNK_SIZE = 32 * 1024 # 32 KB
 
 s3_bucket = os.environ.get('GG_S3_BUCKET')
 awscreds = boto3.Session().get_credentials()
 aws_auth_generator = s3.S3AuthGeneator(awscreds.access_key, awscreds.secret_key)
-
-def is_executable(path):
-    st = os.stat(path)
-    return ( st.st_mode & stat.S_IEXEC ) != 0
 
 @aiohttp.streamer
 def file_sender(writer, file_name=None):
@@ -83,10 +80,6 @@ def upload_all_dependencies(dependecies):
 def push_infiles(infiles):
     with closing(asyncio.get_event_loop()) as loop:
        loop.run_until_complete(upload_all_dependencies(infiles))
-
-def make_executable(path):
-    st = os.stat(path)
-    os.chmod(path, st.st_mode | stat.S_IEXEC)
 
 def main():
     thunk_hash = sys.argv[1]
