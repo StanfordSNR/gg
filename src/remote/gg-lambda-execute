@@ -19,7 +19,7 @@ import gg_pb2
 from contextlib import closing
 from base64 import b64decode
 from ggpaths import GGPaths, GGCache
-from common import make_executable, is_executable
+from common import make_executable, is_executable, sizeof_fmt
 
 CHUNK_SIZE = 32 * 1024 # 32 KB
 
@@ -107,7 +107,8 @@ def main():
         'infiles': infiles
     }
 
-    print('uploading dependecies ({}) for {:.12}. '.format(len(infiles), thunk_hash),
+    print('uploading dependecies ({}, {}) for {:.12} '.format(
+        len(infiles), sizeof_fmt(sum([x['size'] for x in infiles])), thunk_hash),
           file=sys.stderr)
     push_infiles(infiles)
 
