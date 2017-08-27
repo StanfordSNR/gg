@@ -34,6 +34,7 @@ using namespace PollerShortNames;
 using ReductionResult = gg::cache::ReductionResult;
 
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
+const bool remote_execution = ( getenv( "GG_REMOTE" ) != NULL );
 const string temp_dir_template = "/tmp/thunk-execute";
 const string temp_file_template = "/tmp/thunk-file";
 
@@ -146,15 +147,19 @@ string Reductor::reduce()
     )
   );
 
+  const bool remote_exec = remote_execution;
+
   while ( true ) {
     while ( not dep_queue_.empty() and child_processes_.size() < max_jobs_ ) {
       const string & dependency_hash = dep_queue_.front();
 
       child_processes_.emplace_back(
         dependency_hash,
-        [dependency_hash]()
+        [dependency_hash, remote_exec]()
         {
-          vector<string> command { "gg-execute", dependency_hash };
+          string exec_bin = remote_exec ? "gg-lambda-execute" : "gg-execute";
+
+          vector<string> command { exec_bin, dependency_hash };
           return ezexec( command[ 0 ], command, {}, true, true );
         }
       );
@@ -183,6 +188,7 @@ void usage( const char * argv0 )
        << "  GG_DIR       => absolute path to gg directory" << endl
        << "  GG_SANDBOXED => if set, forces the thunks in a sandbox" << endl
        << "  GG_MAXJOBS   => maximum number of jobs to run in parallel" << endl
+       << "  GG_REMOTE    => execute the thunks on AWS Lambda" << endl
        << endl;
 }
 
@@ -217,6 +223,12 @@ int main( int argc, char * argv[] )
 
     Reductor reductor { thunk_hash, max_jobs };
     string reduced_hash = reductor.reduce();
+
+    if ( remote_execution ) {
+      /* Running this will fetch the file if it's not locally available */
+      run( "gg-local-execute", { "gg-local-execute", reduced_hash }, {}, true, true);
+    }
+
     roost::copy_then_rename( gg::paths::blob_path( reduced_hash ), thunk_path );
 
     return EXIT_SUCCESS;
