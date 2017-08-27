@@ -13,12 +13,14 @@ BINDIR = sys.argv[1]
 
 def sha256_checksum(filename, block_size=65536):
     sha256 = hashlib.sha256()
+    size = 0
 
     with open(filename, 'rb') as f:
         for block in iter(lambda: f.read(block_size), b''):
+            size += len(block)
             sha256.update(block)
 
-    return base64.urlsafe_b64encode(sha256.digest())
+    return "{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).replace('=',''), size)
 
 def get_include_path(language='c'):
     lang_switch = ''

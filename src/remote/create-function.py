@@ -25,15 +25,6 @@ PACKAGE_FILES = {
     "common.py": "common.py"
 }
 
-def sha256_checksum(filename, block_size=65536):
-    sha256 = hashlib.sha256()
-
-    with open(filename, 'rb') as f:
-        for block in iter(lambda: f.read(block_size), b''):
-            sha256.update(block)
-
-    return base64.urlsafe_b64encode(sha256.digest())
-
 def create_lambda_package(output):
     shutil.copy(BASE_FILE, output)
 

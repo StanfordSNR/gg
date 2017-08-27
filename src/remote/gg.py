@@ -2,7 +2,6 @@
 
 import os
 import sys
-import hashlib
 import base64
 import boto3
 
@@ -45,12 +44,3 @@ def read_thunk(thunk_hash, s3_bucket=None):
         thunk.ParseFromString(fin.read())
 
         return thunk
-
-def executable_hash(thunk):
-    hashes = []
-    for infile in thunk.infiles:
-        if infile.type == gg_pb2.InFile.Type.Value('EXECUTABLE'):
-            hashes += [infile.hash]
-
-    hashes.sort()
-    return base64.urlsafe_b64encode(hashlib.sha256("".join(hashes).encode('ascii')).digest())
