@@ -11,6 +11,7 @@ import pprint
 import boto3
 import aiohttp
 import asyncio
+import filelock
 
 import s3
 import gg
@@ -26,6 +27,7 @@ CHUNK_SIZE = 32 * 1024 # 32 KB
 s3_bucket = os.environ.get('GG_S3_BUCKET')
 awscreds = boto3.Session().get_credentials()
 aws_auth_generator = s3.S3AuthGeneator(awscreds.access_key, awscreds.secret_key)
+lock_directory = "/tmp"
 
 @aiohttp.streamer
 def file_sender(writer, file_name=None):
@@ -36,38 +38,42 @@ def file_sender(writer, file_name=None):
             chunk = f.read(CHUNK_SIZE)
 
 async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
-    filename = GGPaths.blob_path(dep_hash)
-    executable = is_executable(filename)
+    upload_lock_filename = os.path.join(lock_directory, "upload-s3_{}".format(dep_hash))
+    upload_lock = filelock.FileLock(upload_lock_filename, timeout=0)
 
-    with open(filename, "a") as _f:
+    while True:
         try:
-            fcntl.lockf(_f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except OSError as e:
-            if e.errno in [errno.EACCES, errno.EAGAIN]:
-                await asyncio.sleep(1)
-            else:
-                raise
-        except:
-            raise
+            with upload_lock:
+                object_url = s3.get_object_url(s3_bucket, dep_hash)
+                headers = {}
+                aws_auth_generator('HEAD', s3_bucket, dep_hash, headers)
 
-        object_url = s3.get_object_url(s3_bucket, dep_hash)
-        headers = {}
-        aws_auth_generator('HEAD', s3_bucket, dep_hash, headers)
+                async with session.head(object_url, headers=headers) as r:
+                    if r.status == 200:
+                        return
 
-        async with session.head(object_url, headers=headers) as r:
-            if r.status == 200:
+                filename = GGPaths.blob_path(dep_hash)
+                executable = is_executable(filename)
+
+                headers = {
+                    'x-amz-acl': 'public-read',
+                    'x-amz-tagging': 'gg:executable={}'.format('true' if executable else 'false'),
+                    'Content-Length': '%d' % os.path.getsize(filename)
+                }
+
+                aws_auth_generator('PUT', s3_bucket, dep_hash, headers)
+
+                async with session.request('PUT', object_url, headers=headers, data=file_sender(filename)) as r:
+                    assert r.status == 200
+
                 return
-
-        headers = {
-            'x-amz-acl': 'public-read',
-            'x-amz-tagging': 'gg:executable={}'.format('true' if executable else 'false'),
-            'Content-Length': '%d' % os.path.getsize(filename)
-        }
-
-        aws_auth_generator('PUT', s3_bucket, dep_hash, headers)
-
-        async with session.request('PUT', object_url, headers=headers, data=file_sender(filename)) as r:
-            assert r.status == 200
+        except filelock.Timeout:
+            await asyncio.sleep(1)
+        finally:
+            try:
+                os.remove(upload_lock_filename)
+            except:
+                pass
 
 @asyncio.coroutine
 def upload_all_dependencies(dependecies):
@@ -125,11 +131,6 @@ def main():
 
     response_payload = json.loads(response['Payload'].read())
     output_hash = response_payload['output_hash']
-
-    boto3.client('s3').download_file(s3_bucket, output_hash, GGPaths.blob_path(output_hash))
-
-    if response_payload['executable_output']:
-        make_executable(GGPaths.blob_path(output_hash))
 
     GGCache.insert(thunk_hash, output_hash)
     print('\u03bb({:.12}) => {:.12}'.format(thunk_hash, output_hash), file=sys.stderr)
