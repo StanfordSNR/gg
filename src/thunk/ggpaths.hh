@@ -32,6 +32,10 @@ namespace gg {
     void insert( const std::string & old_hash, const std::string & new_hash );
   }
 
+  namespace hash {
+    uint32_t extract_size( const std::string & hash );
+  }
+
   namespace models {
     std::vector<std::string> args_to_vector( int argc, char ** argv );
   }

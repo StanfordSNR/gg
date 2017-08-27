@@ -102,6 +102,14 @@ namespace gg {
     }
   }
 
+  namespace hash {
+    uint32_t extract_size( const string & hash )
+    {
+      assert( hash.length() >= 8 );
+      return stoul( hash.substr( hash.length() - 8 ), nullptr, 16 );
+    }
+  }
+
   namespace models {
     vector<string> args_to_vector( int argc, char ** argv )
     {
