@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #include <crypto++/sha.h>
 #include <crypto++/hex.h>
 #include <crypto++/base64.h>
@@ -24,6 +25,7 @@ std::string digest::sha256( const string & input )
                   new HashFilter( hash_function,
                                   new Base64URLEncoder( new StringSink( ret ), false ) ) );
 
+  replace( ret.begin(), ret.end(), '-', '.' );
   output_sstr << ret << setfill( '0' ) << setw( 8 ) << hex << input.length();
 
   return output_sstr.str();

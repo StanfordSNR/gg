@@ -20,7 +20,7 @@ def sha256_checksum(filename, block_size=65536):
             size += len(block)
             sha256.update(block)
 
-    return "{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).replace('=',''), size)
+    return "{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).replace('=','').replace('-', '.'), size)
 
 def get_include_path(language='c'):
     lang_switch = ''
