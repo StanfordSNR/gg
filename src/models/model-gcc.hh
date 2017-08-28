@@ -99,6 +99,8 @@ private:
   std::vector<std::string> include_dirs_ {};
   std::vector<std::string> library_dirs_ {};
 
+  std::vector<std::string> extra_infiles_ {};
+
   bool no_stdlib_ { false };
 
 public:
@@ -109,11 +111,14 @@ public:
 
   void add_input( const std::string & filename, const Language language );
 
+  void process_W_option( const std::string & optarg );
+
   const std::string & output_filename() const { return output_; }
   const std::vector<InputFile> & input_files() const { return input_files_; }
   GCCStage last_stage() const { return last_stage_.get_or( LINK ); }
   const std::vector<std::string> & include_dirs() const { return include_dirs_; }
   const std::vector<std::string> & library_dirs() const { return library_dirs_; }
+  const std::vector<std::string> & extra_infiles() const { return extra_infiles_; }
   bool no_stdlib() const { return no_stdlib_; }
 
   const std::vector<std::string> & option_args() const { return args_; }

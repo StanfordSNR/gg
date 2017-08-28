@@ -84,7 +84,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       break;
 
     case 'I':
-      args_.push_back( string( "-I" ) + ( optarg ? optarg : "" ) );
+      args_.push_back( string( "-I" ) + optarg );
       include_dirs_.emplace_back( optarg );
       break;
 
@@ -97,7 +97,11 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     case 'O': args_.push_back( string ( "-O" ) + ( optarg ? optarg : "" ) ); break;
     case 'D': args_.push_back( string ( "-D" ) + ( optarg ? optarg : "" ) ); break;
     case 'f': args_.push_back( string ( "-f" ) + ( optarg ? optarg : "" ) ); break;
-    case 'W': args_.push_back( string ( "-W" ) + ( optarg ? optarg : "" ) ); break;
+
+    case 'W':
+      args_.push_back( string ( "-W" ) + ( optarg ? optarg : "" ) );
+      process_W_option( optarg );
+      break;
 
 
     case 'B':
@@ -144,6 +148,15 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
 
   for ( InputFile & input : input_files_ ) {
     input.index += args_.size() + ( output_.empty() ? 0 : 2 );
+  }
+}
+
+void GCCArguments::process_W_option( const string & optarg )
+{
+  static const string version_script = "l,--version-script=";
+
+  if ( optarg.compare( 0, version_script.size(), version_script ) == 0 ) {
+    extra_infiles_.emplace_back( optarg.substr( version_script.size() ) );
   }
 }
 
