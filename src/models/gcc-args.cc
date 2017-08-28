@@ -30,6 +30,8 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { "include", required_argument, NULL, to_underlying( GCCOption::include ) },
     { "param", required_argument, NULL, to_underlying( GCCOption::param ) },
 
+    { "nostdlib", required_argument, NULL, to_underlying( GCCOption::nostdlib ) },
+
     { 0, 0, 0, 0 },
   };
 
@@ -120,6 +122,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       case GCCOption::shared: add_option( gccopt, "-shared" ); break;
       case GCCOption::pipe: add_option( gccopt, "-pipe" ); break;
       case GCCOption::pedantic: add_option( gccopt, "-pedantic" ); break;
+      case GCCOption::nostdlib: add_option( gccopt, "-nostdlib" ); break;
 
       case GCCOption::include: add_option( gccopt, "-include", optarg ); break;
       case GCCOption::param: add_option( gccopt, "--param", optarg ); break;

@@ -58,7 +58,8 @@ enum class GCCOption
   pie,
   include,
   pthread, shared,
-  param, pipe, pedantic
+  param, pipe, pedantic,
+  nostdlib,
 };
 
 static auto gcc_function =
