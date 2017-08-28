@@ -23,6 +23,7 @@ const unordered_map<string, Language> ext_to_lang = {
   { "ii",  Language::CXX_CPP_OUTPUT },
   { "s",   Language::ASSEMBLER },
   { "o",   Language::OBJECT },
+  { "so",   Language::OBJECT },
   { "a",   Language::ARCHIVE_LIBRARY },
 };
 
