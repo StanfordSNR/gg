@@ -128,7 +128,14 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
   vector<string> all_args;
   all_args.reserve( args.size() + gcc_library_path.size() );
 
-  for ( const string & dir : gcc_library_path ) {
+  if ( not arguments_.no_stdlib() ) {
+    for ( const string & dir : gcc_library_path ) {
+      infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
+      all_args.push_back( "-L" + dir );
+    }
+  }
+
+  for ( const string & dir : arguments_.library_dirs() ) {
     infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
     all_args.push_back( "-L" + dir );
   }

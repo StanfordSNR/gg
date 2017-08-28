@@ -12,7 +12,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   optind = 1;
   opterr = 0;
 
-  constexpr const char * gcc_optstring = "-l:B:ESco:gO::D:f:I:W:";
+  constexpr const char * gcc_optstring = "-l:B:ESco:gO::D:f:I:W:L:";
   constexpr option gcc_options[] = {
     { "x", required_argument, NULL, to_underlying( GCCOption::x ) },
     { "M", no_argument, NULL, to_underlying( GCCOption::M ) },
@@ -84,8 +84,13 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       break;
 
     case 'I':
-      args_.push_back( string ( "-I" ) + ( optarg ? optarg : "" ) );
+      args_.push_back( string( "-I" ) + ( optarg ? optarg : "" ) );
       include_dirs_.emplace_back( optarg );
+      break;
+
+    case 'L':
+      args_.push_back( string( "-L" ) + optarg );
+      library_dirs_.emplace_back( optarg );
       break;
 
     case 'g': args_.push_back( "-g" ); break;
@@ -122,7 +127,11 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       case GCCOption::shared: add_option( gccopt, "-shared" ); break;
       case GCCOption::pipe: add_option( gccopt, "-pipe" ); break;
       case GCCOption::pedantic: add_option( gccopt, "-pedantic" ); break;
-      case GCCOption::nostdlib: add_option( gccopt, "-nostdlib" ); break;
+
+      case GCCOption::nostdlib:
+        add_option( gccopt, "-nostdlib" );
+        no_stdlib_ = true;
+        break;
 
       case GCCOption::include: add_option( gccopt, "-include", optarg ); break;
       case GCCOption::param: add_option( gccopt, "--param", optarg ); break;
