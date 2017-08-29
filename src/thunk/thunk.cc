@@ -148,16 +148,17 @@ void Thunk::collect_infiles() const
   }
 }
 
-string Thunk::store() const
+string Thunk::store( const bool create_placeholder ) const
 {
   collect_infiles();
 
   const string thunk_hash = ThunkWriter::write_thunk( *this );
 
-  // create the placeholder
-  ThunkPlaceholder placeholder { thunk_hash, order(),
-                                 roost::file_size( paths::blob_path( thunk_hash ) ) };
-  placeholder.write( outfile() );
+  if ( create_placeholder ) {
+    ThunkPlaceholder placeholder { thunk_hash, order(),
+                                   roost::file_size( paths::blob_path( thunk_hash ) ) };
+    placeholder.write( outfile() );
+  }
 
   return thunk_hash;
 }
