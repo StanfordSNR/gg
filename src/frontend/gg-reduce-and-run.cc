@@ -32,12 +32,6 @@ int main( int argc, char * argv[] )
     const string thunk_filename = argv[ 1 ];
     const roost::path thunk_path = roost::canonical( thunk_filename );
 
-    Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( thunk_path.string() );
-
-    if ( placeholder.initialized() ) {
-      copy_then_rename( gg::paths::blob_path( placeholder->content_hash() ), thunk_path );
-    }
-
     vector<string> args = { "gg-reduce", thunk_filename };
     run( "gg-reduce", args, {}, true, true );
     CheckSystemCall( "execv", execv( thunk_path.string().c_str(), ++argv ) );

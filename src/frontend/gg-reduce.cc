@@ -212,21 +212,25 @@ int main( int argc, char * argv[] )
       max_jobs = stoul( safe_getenv( "GG_MAXJOBS" ) );
     }
 
+    string thunk_hash;
+
     /* first check if this file is actually a placeholder */
     Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( thunk_path.string() );
 
-    if ( placeholder.initialized() ) {
-      copy_then_rename( gg::paths::blob_path( placeholder->content_hash() ), thunk_path );
-    }
-
-    {
+    if ( not placeholder.initialized() ) {
       ThunkReader thunk_reader { thunk_path.string() };
+
       if( not thunk_reader.is_thunk() ) {
+        /* not a placeholder and not a thunk. Our work is done here. */
         return EXIT_SUCCESS;
       }
+      else {
+        thunk_hash = InFile::compute_hash( thunk_path.string() );
+      }
     }
-
-    string thunk_hash = InFile::compute_hash( thunk_path.string() );
+    else {
+      thunk_hash = placeholder->content_hash();
+    }
 
     Reductor reductor { thunk_hash, max_jobs };
     string reduced_hash = reductor.reduce();
