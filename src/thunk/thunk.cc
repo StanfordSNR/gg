@@ -209,8 +209,9 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
 
 string Thunk::filename_to_hash( const string & filename ) const
 {
+  const string normalized_filename = roost::path( filename ).lexically_normal().string();
   for ( const InFile & infile : infiles_ ) {
-    if ( infile.filename() == filename ) {
+    if ( infile.filename() == normalized_filename ) {
       return infile.content_hash();
     }
   }
