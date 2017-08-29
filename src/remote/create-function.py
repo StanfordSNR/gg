@@ -12,20 +12,16 @@ import boto3
 
 BASE_FILE = "lambda_function/packages.zip"
 PACKAGE_GG_DIR = "_gg"
-GG_EXECUTE_STATIC = shutil.which("gg-execute-static")
 
-if not GG_EXECUTE_STATIC:
-    raise Exception("Cannot find gg-execute-static")
+def create_lambda_package(output, gg_execute_static):
+    PACKAGE_FILES = {
+        "gg-execute-static": gg_execute_static,
+        "function.py": "lambda_function/function.py",
+        "ggpaths.py": "ggpaths.py",
+        "downloader.py": "downloader.py",
+        "common.py": "common.py"
+    }
 
-PACKAGE_FILES = {
-    "gg-execute-static": GG_EXECUTE_STATIC,
-    "function.py": "lambda_function/function.py",
-    "ggpaths.py": "ggpaths.py",
-    "downloader.py": "downloader.py",
-    "common.py": "common.py"
-}
-
-def create_lambda_package(output):
     shutil.copy(BASE_FILE, output)
 
     with ZipFile(output, 'a') as funczip:
@@ -69,10 +65,16 @@ def main():
     parser.add_argument('--function-name', dest='function_name', action='store', default="ggfunction")
     parser.add_argument('--role', dest='role', action='store')
     parser.add_argument('--region', dest='region', default='us-west-2', action='store')
+    parser.add_argument('--gg-execute-static', dest='gg_execute_static',
+                        default=shutil.which("gg-execute-static"))
 
     args = parser.parse_args()
+
+    if not args.gg_execute_static:
+        raise Exception("Cannot find gg-execute-static")
+
     if not args.install:
-        create_lambda_package(args.function_file)
+        create_lambda_package(args.function_file, args.gg_execute_static)
     else:
         if not args.function_name or not args.role:
             raise Exception("Please provide function name, role.")
