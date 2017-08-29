@@ -45,6 +45,31 @@ int Thunk::execute( const string & thunk_hash ) const
 
   // preparing argv
   vector<string> args = function_.args();
+
+  /* do we need to replace a filename with its hash? */
+  for ( string & arg : args ) {
+    const size_t replace_begin = arg.find( BEGIN_REPLACE );
+    if ( replace_begin == string::npos ) {
+      continue;
+    }
+
+    const size_t filename_begin = replace_begin + BEGIN_REPLACE.length();
+
+    const size_t replace_end = arg.find( END_REPLACE, filename_begin );
+    if ( replace_end == string::npos ) {
+      throw runtime_error( "invalid GG argument replacement: " + arg );
+    }
+
+    const string filename = arg.substr( filename_begin,
+                                        replace_end - filename_begin );
+
+    const string replacement = filename_to_hash( filename );
+
+    arg.replace( replace_begin,
+                 BEGIN_REPLACE.length() + filename.length() + END_REPLACE.length(),
+                 replacement );
+  }
+
   args.insert( args.begin(), function_.exe() );
 
   const roost::path thunk_path = gg::paths::blob_path( thunk_hash );
@@ -179,6 +204,17 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
   }
 
   throw runtime_error( "infile doesn't exist: " + old_hash );
+}
+
+string Thunk::filename_to_hash( const string & filename ) const
+{
+  for ( const InFile & infile : infiles_ ) {
+    if ( infile.filename() == filename ) {
+      return infile.content_hash();
+    }
+  }
+
+  throw runtime_error( "filename " + filename + " not found in thunk" );
 }
 
 unordered_map<string, Permissions>

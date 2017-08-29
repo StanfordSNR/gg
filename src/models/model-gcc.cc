@@ -126,6 +126,12 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
      /* ARGS */
     args.push_back( "-E" );
 
+    args.push_back( "-frandom-seed=" + BEGIN_REPLACE
+                    + input.name
+                    + END_REPLACE );
+
+    args.push_back( "-Werror=date-time" );
+
     vector<string> all_args;
     all_args.reserve( c_include_path.size() + args.size() + 2 );
     all_args.push_back( "-nostdinc" );
@@ -194,6 +200,11 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
 
   case COMPILE:
     args.push_back( "-S" );
+
+    args.push_back( "-frandom-seed=__GG_BEGIN_REPLACE__"
+                    + input.name
+                    + "__GG_END_REPLACE__" );
+
     args = prune_makedep_flags( args );
 
     if ( input.language == Language::CPP_OUTPUT ) {

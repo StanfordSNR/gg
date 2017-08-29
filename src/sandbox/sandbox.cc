@@ -143,6 +143,11 @@ void SandboxedProcess::execute()
 #endif
       case SYS_fanotify_mark:
       case SYS_renameat2:
+      case SYS_getpid:
+      case SYS_gettimeofday:
+      case SYS_time:
+      case SYS_clock_gettime:
+      case SYS_getcpu:
         throw SandboxViolation( "Forbidden syscall", tcb.to_string() );
       }
 

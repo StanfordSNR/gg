@@ -17,6 +17,9 @@ namespace gg {
 
     static const std::string MAGIC_NUMBER = "##GGTHUNK##";
 
+    static const std::string BEGIN_REPLACE = "__GG_BEGIN_REPLACE__";
+    static const std::string END_REPLACE = "__GG_END_REPLACE__";
+
     class InFile
     {
     public:
@@ -107,6 +110,7 @@ namespace gg {
       size_t order_;
 
       size_t compute_order() const;
+      std::string filename_to_hash( const std::string & filename ) const;
 
     public:
       Thunk( const std::string & outfile, const Function & function,
