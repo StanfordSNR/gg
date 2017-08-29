@@ -19,6 +19,8 @@ void run( const std::string & filename,
           const bool use_environ = false,
           const bool path_search = false );
 
+std::string check_output( const std::string & command );
+
 std::string command_str( const std::vector<std::string> & command,
                          const std::vector<std::string> & environment );
 

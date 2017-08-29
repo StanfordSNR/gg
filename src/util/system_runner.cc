@@ -1,10 +1,13 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include <cassert>
 #include <unistd.h>
+#include <cstdio>
+#include <cassert>
 #include <thread>
 #include <exception>
 #include <sstream>
+#include <memory>
+#include <array>
 
 #include "system_runner.hh"
 #include "child_process.hh"
@@ -95,6 +98,21 @@ void run( const string & filename, const vector<string> & args,
   if ( command_process.exit_status() != 0 ) {
     command_process.throw_exception();
   }
+}
+
+string check_output( const string & command )
+{
+  string output;
+
+  unique_ptr<FILE, decltype(&pclose)> readpipe( popen( command.c_str(), "r" ), pclose );
+  array<char, 4096> buffer;
+
+  while ( !feof( readpipe.get() ) ) {
+    fread( buffer.data(), sizeof buffer[ 0 ], buffer.size(), readpipe.get() );
+    output += buffer.data();
+  }
+
+  return output;
 }
 
 string command_str( const vector<string> & command,
