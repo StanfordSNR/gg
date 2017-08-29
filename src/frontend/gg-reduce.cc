@@ -219,6 +219,13 @@ int main( int argc, char * argv[] )
       copy_then_rename( gg::paths::blob_path( placeholder->content_hash() ), thunk_path );
     }
 
+    {
+      ThunkReader thunk_reader { thunk_path.string() };
+      if( not thunk_reader.is_thunk() ) {
+        return EXIT_SUCCESS;
+      }
+    }
+
     string thunk_hash = InFile::compute_hash( thunk_path.string() );
 
     Reductor reductor { thunk_hash, max_jobs };
