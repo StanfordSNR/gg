@@ -118,7 +118,8 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
                     + input.name
                     + END_REPLACE );
 
-    args.push_back( "-Werror=date-time" );
+    args.push_back( "-D__DATE__=\"REDACTED\"" );
+    args.push_back( "-D__TIME__=\"REDACTED\"" );
 
     vector<string> all_args;
     all_args.reserve( c_include_path.size() + args.size() + 2 );
