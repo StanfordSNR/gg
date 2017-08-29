@@ -108,8 +108,8 @@ string check_output( const string & command )
   array<char, 4096> buffer;
 
   while ( !feof( readpipe.get() ) ) {
-    fread( buffer.data(), sizeof buffer[ 0 ], buffer.size(), readpipe.get() );
-    output += buffer.data();
+    size_t len = fread( buffer.data(), sizeof buffer[ 0 ], buffer.size(), readpipe.get() );
+    output.append( buffer.data(), len );
   }
 
   return output;
