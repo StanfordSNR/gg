@@ -31,7 +31,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { "param", required_argument, NULL, to_underlying( GCCOption::param ) },
     { "std", optional_argument, NULL, to_underlying( GCCOption::std ) },
 
-    { "nostdlib", required_argument, NULL, to_underlying( GCCOption::nostdlib ) },
+    { "nostdlib", no_argument, NULL, to_underlying( GCCOption::nostdlib ) },
 
     { 0, 0, 0, 0 },
   };
