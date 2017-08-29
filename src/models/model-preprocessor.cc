@@ -67,7 +67,6 @@ vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_fi
 }
 
 void GCCModelGenerator::generate_dependencies_file( const vector<string> & option_args,
-                                                    const string & input_name,
                                                     const string & output_name )
 {
   vector<string> args;
@@ -114,7 +113,7 @@ void GCCModelGenerator::generate_dependencies_file( const vector<string> & optio
     args.push_back( "-MF" );
     args.push_back( output_name );
     args.push_back( "-MT" );
-    args.push_back( input_name );
+    args.push_back( DEFAULT_MAKE_TARGET );
   }
 
   cerr << command_str( args, {} ) << endl;

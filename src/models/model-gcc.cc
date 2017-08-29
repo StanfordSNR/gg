@@ -138,11 +138,11 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
     /* Generate dependency list */
     TempFile makedep_tempfile { "/tmp/gg-makedep" };
     string makedep_filename;
-    string makedep_target = input.name;
+    string makedep_target = DEFAULT_MAKE_TARGET;
 
     if ( generate_makedep_file ) {
       cerr << "[+] generating make dependencies file..." << endl;
-      generate_dependencies_file( all_args, input.name, "" );
+      generate_dependencies_file( all_args, {} );
       makedep_filename = *arguments_.option_argument( GCCOption::MF );
       Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
       if ( mt_arg.initialized() ) {
@@ -150,7 +150,7 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
       }
     }
     else {
-      generate_dependencies_file( args, input.name, makedep_tempfile.name() );
+      generate_dependencies_file( args, makedep_tempfile.name() );
       makedep_filename = makedep_tempfile.name();
     }
 

@@ -81,6 +81,8 @@ static auto gcc_function =
     }
   };
 
+static const std::string DEFAULT_MAKE_TARGET = "__GG_MAKE_TARGET__";
+
 template <typename E>
 constexpr auto to_underlying( E e ) noexcept
 {
@@ -147,7 +149,6 @@ private:
                                                     const std::string & target_name );
 
   void generate_dependencies_file( const std::vector<std::string> & option_args,
-                                   const std::string & input_name,
                                    const std::string & output_name );
 
   gg::thunk::Thunk generate_thunk( const GCCStage stage,
