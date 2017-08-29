@@ -41,6 +41,7 @@ struct InputFile
   Language language;
   Language source_language;
   size_t index;
+  gg::thunk::InFile infile;
 };
 
 enum class OperationMode

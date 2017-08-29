@@ -89,7 +89,7 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
 
   /* Common infiles */
   vector<InFile> base_infiles = {
-    input.name,
+    input.infile,
     program_infiles.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX )
   };
 
@@ -279,6 +279,7 @@ void GCCModelGenerator::generate()
         output_name = tempfiles.back().name();
       }
 
+      input.infile = input.name;
       Thunk stage_thunk = generate_thunk( stage, input, output_name );
 
       stage_thunk.store();
