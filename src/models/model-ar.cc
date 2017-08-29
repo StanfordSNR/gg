@@ -113,6 +113,13 @@ Thunk generate_thunk( int argc, char * argv[] )
     }
   }
 
+  /* XXX revisit this */
+  if ( roost::exists( outfile ) ) {
+    /* this means that the ar command might want change an existing library, so
+    we have to list that as an infile */
+    infiles.push_back( outfile );
+  }
+
   return { outfile,
     { AR, original_args, {}, program_data( AR ).first },
     infiles
