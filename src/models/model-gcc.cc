@@ -118,6 +118,9 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
                     + input.name
                     + END_REPLACE );
 
+
+    args.push_back( "-Wno-builtin-macro-redefined" );
+    args.push_back( "-D__TIMESTAMP__=\"REDACTED\"" );
     args.push_back( "-D__DATE__=\"REDACTED\"" );
     args.push_back( "-D__TIME__=\"REDACTED\"" );
 
