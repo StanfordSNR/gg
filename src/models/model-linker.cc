@@ -143,10 +143,9 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
   all_args.insert( all_args.end(), args.begin(), args.end() );
 
   all_args.push_back( "-B" + gcc_install_path );
-  all_args.push_back( "-Wl,-rpath-link,/lib/x86_64-linux-gnu" );
 
-  /* INFILES */
   for ( const string & dir : ld_search_path ) {
+    all_args.push_back( "-Wl,-rpath-link," + dir );
     infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
   }
 
