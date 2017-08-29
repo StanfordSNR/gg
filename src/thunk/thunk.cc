@@ -55,8 +55,11 @@ int Thunk::execute( const string & thunk_hash ) const
     "__GG_THUNK_PATH__=" + thunk_path.string(),
     "__GG_DIR__=" + gg::paths::blobs().string(),
     "__GG_ENABLED__=1",
-    // "__GG_VERBOSE__=1"
   };
+
+  if ( getenv( "__GG_VERBOSE__" ) ) {
+    envars.emplace_back( "__GG_VERBOSE__=1" );
+  }
 
   envars.insert( envars.end(), f_envars.begin(), f_envars.end() );
 
