@@ -247,8 +247,6 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
 
 void GCCModelGenerator::generate()
 {
-  vector<TempFile> tempfiles;
-
   string final_output = arguments_.output_filename();
   GCCStage last_stage = arguments_.last_stage();
   vector<string> args = arguments_.all_args();
@@ -262,10 +260,10 @@ void GCCModelGenerator::generate()
 
     GCCStage first_stage = language_to_stage( input.language );
     GCCStage input_last_stage = ( last_stage == LINK ) ? ASSEMBLE : last_stage;
-    string input_hash = InFile::compute_hash( input.name );
 
     map<size_t, string> stage_output;
     stage_output[ first_stage - 1 ] = input.name;
+    input.infile = input.name;
 
     for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
       GCCStage stage = static_cast<GCCStage>( stage_num );
@@ -275,14 +273,12 @@ void GCCModelGenerator::generate()
         output_name = final_output;
       }
       else {
-        tempfiles.emplace_back( input_hash, to_string( stage_num ) );
-        output_name = tempfiles.back().name();
+        output_name = "output_" + to_string( stage_num );
       }
 
-      input.infile = input.name;
       Thunk stage_thunk = generate_thunk( stage, input, output_name );
 
-      stage_thunk.store();
+      const string last_stage_hash = stage_thunk.store( stage == last_stage );
 
       switch ( stage ) {
       case PREPROCESS:
@@ -325,6 +321,9 @@ void GCCModelGenerator::generate()
       }
 
       input.name = output_name;
+      input.infile = InFile( input.name, "nonexistent",
+                             last_stage_hash, stage_thunk.order(),
+                             0 );
       cerr << "[output=" << output_name << "]" << endl;
     }
   }

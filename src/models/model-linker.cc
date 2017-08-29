@@ -96,7 +96,9 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
   for ( auto const & link_input : link_inputs ) {
     if ( link_input.language == Language::OBJECT or
          link_input.language == Language::ARCHIVE_LIBRARY ) {
-      infiles.emplace_back( link_input.name );
+      infiles.push_back( link_input.infile.content_hash().empty()
+                         ? link_input.name
+                         : link_input.infile );
     }
   }
 
