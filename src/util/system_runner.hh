@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <sstream>
 
 int ezexec( const std::string & filename,
             const std::vector<std::string> & args,

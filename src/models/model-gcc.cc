@@ -19,6 +19,7 @@
 #include "temp_file.hh"
 #include "thunk.hh"
 #include "ggpaths.hh"
+#include "system_runner.hh"
 
 #include "model-gcc.hh"
 
@@ -27,20 +28,7 @@ using namespace gg::thunk;
 
 void dump_gcc_specs( TempFile & target_file )
 {
-  array<char, 4096> buffer;
-
-  std::shared_ptr<FILE> readpipe( popen( "gcc-7 -dumpspecs", "r" ), pclose );
-
-  if ( !readpipe ) {
-    throw runtime_error( "could not execute `gcc-7 -dumpspecs`." );
-  }
-
-  while ( !feof( readpipe.get() ) ) {
-    if ( fgets( buffer.data(), 4096, readpipe.get() ) != nullptr ) {
-      string result = buffer.data();
-      target_file.write( result );
-    }
-  }
+  target_file.write( check_output( "gcc-7 -dumpspecs" ) );
 }
 
 vector<string> prune_makedep_flags( const vector<string> & args )

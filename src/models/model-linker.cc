@@ -10,6 +10,8 @@
 #include <regex>
 #include <unordered_set>
 
+#include "system_runner.hh"
+
 using namespace std;
 using namespace gg::thunk;
 
@@ -46,31 +48,28 @@ vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile>
   copy( args.begin(), args.end(), ostream_iterator<string>( command, " " ) );
   command << "2>/dev/null";
 
-  std::shared_ptr<FILE> readpipe( popen( command.str().c_str(), "r" ), pclose );
+  istringstream output { check_output( command.str() ) };
 
-  array<char, 4096> buffer;
   size_t seperator_line_count = 0;
 
   regex path_regex( "^(?:attempt to open|opened script file|found [^\\s]+ at) "
-                    "([^\\s]+)\\s?(?:succeeded|)\n$" );
+                    "([^\\s]+)\\s?(?:succeeded|)$" );
   smatch match;
+  string line;
 
-  while ( !feof( readpipe.get() ) ) {
-    if ( fgets( buffer.data(), 4096, readpipe.get() ) != nullptr ) {
-      string line = buffer.data();
+  while ( getline( output, line ) ) {
+    if ( seperator_line_count < 2 and line[ 0 ] == '=' ) {
+      seperator_line_count++;
+      continue;
+    }
+    else if ( seperator_line_count < 2 ) {
+      continue;
+    }
 
-      if ( seperator_line_count < 2 and line[ 0 ] == '=' ) {
-        seperator_line_count++;
-        continue;
-      }
-      else if ( seperator_line_count < 2 ) {
-        continue;
-      }
+    regex_match( line, match, path_regex );
 
-      regex_match( line, match, path_regex );
-      if ( match.size() == 2 ) {
-        dependencies.insert( match[ 1 ].str() );
-      }
+    if ( match.size() == 2 ) {
+      dependencies.insert( match[ 1 ].str() );
     }
   }
 
