@@ -29,6 +29,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
 
     { "include", required_argument, NULL, to_underlying( GCCOption::include ) },
     { "param", required_argument, NULL, to_underlying( GCCOption::param ) },
+    { "std", optional_argument, NULL, to_underlying( GCCOption::std ) },
 
     { "nostdlib", required_argument, NULL, to_underlying( GCCOption::nostdlib ) },
 
@@ -139,6 +140,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
 
       case GCCOption::include: add_option( gccopt, "-include", optarg ); break;
       case GCCOption::param: add_option( gccopt, "--param", optarg ); break;
+      case GCCOption::std: add_option( gccopt, string( "--std=" ) + optarg ); break;
 
       default:
         throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );

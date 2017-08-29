@@ -59,7 +59,7 @@ enum class GCCOption
   include,
   pthread, shared,
   param, pipe, pedantic,
-  nostdlib,
+  nostdlib, std
 };
 
 static auto gcc_function =
