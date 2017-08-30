@@ -97,7 +97,8 @@ string run( const string & filename, const vector<string> & args,
       }
 
       if ( suppress_errors ) {
-        FileDescriptor devnull { open( "/dev/null", O_RDONLY ) };
+        FileDescriptor devnull { CheckSystemCall( "open /dev/null",
+                                                  open( "/dev/null", O_RDONLY ) ) };
         CheckSystemCall( "dup2", dup2( devnull.fd_num(), STDERR_FILENO ) );
       }
 
