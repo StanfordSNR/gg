@@ -23,6 +23,8 @@ from ggpaths import GGPaths, GGCache
 from common import make_executable, is_executable, sizeof_fmt
 
 CHUNK_SIZE = 32 * 1024 # 32 KB
+TIMEOUT = 5
+MAX_RETRIES = 3
 
 s3_bucket = os.environ.get('GG_S3_BUCKET')
 awscreds = boto3.Session().get_credentials()
@@ -41,6 +43,8 @@ async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
     upload_lock_filename = os.path.join(lock_directory, "upload-s3_{}".format(dep_hash))
     upload_lock = filelock.FileLock(upload_lock_filename, timeout=0)
 
+    retries = 0
+
     while True:
         try:
             with upload_lock:
@@ -48,7 +52,7 @@ async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
                 headers = {}
                 aws_auth_generator('HEAD', s3_bucket, dep_hash, headers)
 
-                async with session.head(object_url, headers=headers) as r:
+                async with session.head(object_url, headers=headers, timeout=TIMEOUT) as r:
                     if r.status == 200:
                         return
 
@@ -63,11 +67,16 @@ async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
 
                 aws_auth_generator('PUT', s3_bucket, dep_hash, headers)
 
-                async with session.request('PUT', object_url, headers=headers, data=file_sender(filename)) as r:
+                async with session.request('PUT', object_url, headers=headers, data=file_sender(filename), timeout=TIMEOUT) as r:
                     assert r.status == 200
 
                 return
         except filelock.Timeout:
+            await asyncio.sleep(1)
+        except:
+            retries += 1
+            if retries > MAX_RETRIES:
+                raise
             await asyncio.sleep(1)
         finally:
             try:
