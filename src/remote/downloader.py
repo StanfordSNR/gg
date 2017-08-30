@@ -7,6 +7,9 @@ from contextlib import closing
 
 CHUNK_SIZE = 16 * 1024 # 16 KB
 
+class NotFoundException(Exception):
+    pass
+
 def coroutine(func):
     def start(*args, **kwargs):
         cr = func(*args, **kwargs)
@@ -23,7 +26,9 @@ def chunk_writer(target_file):
 
 async def download_file(session: aiohttp.ClientSession, url: str, sink):
     async with session.get(url) as response:
-        if response.status != 200:
+        if response.status // 100 == 4:
+            raise NotFoundException("File not found: {}".format(url))
+        elif response.status // 100 != 2:
             raise Exception("Download failed: {}".format(url))
 
         while True:
