@@ -44,11 +44,7 @@ vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile>
   args.push_back( "-Wl,--verbose" );
   args.push_back( "-B" + gcc_install_path );
 
-  ostringstream command;
-  copy( args.begin(), args.end(), ostream_iterator<string>( command, " " ) );
-  command << "2>/dev/null";
-
-  istringstream output { check_output( command.str() ) };
+  istringstream output { run( args.front(), args, {}, true, true, true, true ) };
 
   size_t seperator_line_count = 0;
 

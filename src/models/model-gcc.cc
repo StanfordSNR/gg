@@ -7,7 +7,6 @@
 #include <map>
 #include <array>
 #include <memory>
-#include <cstdio>
 #include <fstream>
 #include <sstream>
 #include <getopt.h>
@@ -28,7 +27,8 @@ using namespace gg::thunk;
 
 void dump_gcc_specs( TempFile & target_file )
 {
-  target_file.write( check_output( "gcc-7 -dumpspecs" ) );
+  target_file.write( run( "gcc-7", { "gcc-7", "-dumpspecs" },
+                          {}, true, true, true ) );
 }
 
 vector<string> prune_makedep_flags( const vector<string> & args )

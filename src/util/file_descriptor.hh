@@ -29,7 +29,10 @@ public:
   /* move constructor */
   FileDescriptor( FileDescriptor && other );
 
-  /* destructor */
+  /* close method throws exception on failure */
+  void close();
+
+  /* destructor tries to close, but catches exception */
   virtual ~FileDescriptor();
 
   /* accessors */

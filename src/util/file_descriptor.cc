@@ -32,17 +32,25 @@ FileDescriptor::FileDescriptor( FileDescriptor && other )
   other.fd_ = -1;
 }
 
-/* destructor */
-FileDescriptor::~FileDescriptor()
+/* close method throws exception on failure */
+void FileDescriptor::close()
 {
-  if ( fd_ < 0 ) { /* has already been moved away */
+  if ( fd_ < 0 ) { /* has already been moved away or closed */
     return;
   }
 
+  CheckSystemCall( "close", ::close( fd_ ) );
+
+  fd_ = -1;
+}
+
+/* destructor tries to close, but catches exception */
+FileDescriptor::~FileDescriptor()
+{
   try {
-    CheckSystemCall( "close", close( fd_ ) );
+    close();
   } catch ( const exception & e ) { /* don't throw from destructor */
-    print_exception( "close", e );
+    print_exception( "FileDescriptor", e );
   }
 }
 

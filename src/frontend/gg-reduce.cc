@@ -24,7 +24,6 @@
 #include "system_runner.hh"
 #include "graph.hh"
 #include "event_loop.hh"
-#include "socketpair.hh"
 #include "util.hh"
 
 using namespace std;

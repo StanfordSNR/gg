@@ -1,18 +1,18 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <unistd.h>
-#include <cstdio>
-#include <cassert>
-#include <thread>
-#include <exception>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <sstream>
-#include <memory>
 #include <array>
 
 #include "system_runner.hh"
 #include "child_process.hh"
 #include "exception.hh"
 #include "file_descriptor.hh"
+#include "pipe.hh"
+#include "optional.hh"
 
 using namespace std;
 
@@ -80,36 +80,44 @@ int ezexec( const string & filename, const vector<string> & args,
                                              use_environ ? environ : &envp[ 0 ] );
 }
 
-void run( const string & filename, const vector<string> & args,
-          const vector<string> & env, const bool use_environ,
-          const bool path_search )
+string run( const string & filename, const vector<string> & args,
+            const vector<string> & env, const bool use_environ,
+            const bool path_search, const bool read_stdout_until_eof,
+            const bool suppress_errors )
 {
+  string output;
+
+  Optional<pair<FileDescriptor, FileDescriptor>> pipe { read_stdout_until_eof, make_pipe() };
+
   ChildProcess command_process( args[ 0 ],
     [&]()
     {
+      if ( read_stdout_until_eof ) {
+        CheckSystemCall( "dup2", dup2( pipe->second.fd_num(), STDOUT_FILENO ) );
+      }
+
+      if ( suppress_errors ) {
+        FileDescriptor devnull { open( "/dev/null", O_RDONLY ) };
+        CheckSystemCall( "dup2", dup2( devnull.fd_num(), STDERR_FILENO ) );
+      }
+
       return ezexec( filename, args, env, use_environ, path_search );
     }
   );
+
+  if ( read_stdout_until_eof ) {
+    pipe->second.close();
+    while ( not pipe->first.eof() ) {
+      output.append( pipe->first.read() );
+    }
+  }
 
   while ( !command_process.terminated() ) {
     command_process.wait();
   }
 
-  if ( command_process.exit_status() != 0 ) {
+  if ( (not suppress_errors) and (command_process.exit_status() != 0) ) {
     command_process.throw_exception();
-  }
-}
-
-string check_output( const string & command )
-{
-  string output;
-
-  unique_ptr<FILE, decltype(&pclose)> readpipe( popen( command.c_str(), "r" ), pclose );
-  array<char, 4096> buffer;
-
-  while ( !feof( readpipe.get() ) ) {
-    size_t len = fread( buffer.data(), sizeof buffer[ 0 ], buffer.size(), readpipe.get() );
-    output.append( buffer.data(), len );
   }
 
   return output;
