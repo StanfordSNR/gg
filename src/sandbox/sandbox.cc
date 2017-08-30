@@ -148,6 +148,7 @@ void SandboxedProcess::execute()
       case SYS_time:
       case SYS_clock_gettime:
       case SYS_getcpu:
+      case SYS_mkdir:
         throw SandboxViolation( "Forbidden syscall", tcb.to_string() );
       }
 
