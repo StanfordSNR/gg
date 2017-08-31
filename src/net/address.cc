@@ -4,6 +4,7 @@
 #include <cstring>
 #include <memory>
 #include <cassert>
+#include <functional>
 
 #include <netdb.h>
 
