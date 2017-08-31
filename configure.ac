@@ -74,6 +74,7 @@ AC_SUBST([ARCH])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/util/Makefile
+                 src/net/Makefile
                  src/protobufs/Makefile
                  src/thunk/Makefile
                  src/trace/Makefile
