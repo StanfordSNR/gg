@@ -17,6 +17,7 @@ addons:
     - libkeyutils-dev
     - libncurses5-dev
     - libboost-dev
+    - libssl-dev
     - autopoint
     - help2man
     - texinfo

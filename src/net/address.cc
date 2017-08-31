@@ -10,6 +10,7 @@
 #include "address.hh"
 #include "util.hh"
 #include "exception.hh"
+#include "strict_conversions.hh"
 
 using namespace std;
 
@@ -130,7 +131,7 @@ pair<string, uint16_t> Address::ip_port( void ) const
         throw tagged_error( gai_error_category(), "getnameinfo", gni_ret );
     }
 
-    return make_pair( ip, stoi( port ) );
+    return make_pair( ip, strict_atoi( port ) );
 }
 
 string Address::str( const string port_separator ) const
