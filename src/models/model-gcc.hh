@@ -59,7 +59,7 @@ enum class GCCOption
   pie,
   include,
   pthread, shared,
-  param, pipe, pedantic, dashstatic,
+  param, pipe, pedantic, dashstatic, s,
   nostdlib, std,
   Xlinker
 };

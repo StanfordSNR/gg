@@ -12,7 +12,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   optind = 1;
   opterr = 0;
 
-  constexpr const char * gcc_optstring = "-l:B:ESco:gO::D:f:I:W:L:";
+  constexpr const char * gcc_optstring = "-l:B:EScso:gO::D:f:I:W:L:";
   constexpr option gcc_options[] = {
     { "x", required_argument, NULL, to_underlying( GCCOption::x ) },
     { "M", no_argument, NULL, to_underlying( GCCOption::M ) },
@@ -85,6 +85,10 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
 
     case 'o':
       output_ = optarg;
+      break;
+
+    case 's':
+      add_option( GCCOption::s, "-s" );
       break;
 
     case 'I':
