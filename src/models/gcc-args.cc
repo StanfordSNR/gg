@@ -34,6 +34,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { "Xlinker", required_argument, NULL, to_underlying( GCCOption::Xlinker ) },
 
     { "nostdlib", no_argument, NULL, to_underlying( GCCOption::nostdlib ) },
+    { "static", no_argument, NULL, to_underlying( GCCOption::dashstatic ) },
 
     { 0, 0, 0, 0 },
   };
@@ -134,6 +135,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       case GCCOption::shared: add_option( gccopt, "-shared" ); break;
       case GCCOption::pipe: add_option( gccopt, "-pipe" ); break;
       case GCCOption::pedantic: add_option( gccopt, "-pedantic" ); break;
+      case GCCOption::dashstatic: add_option( gccopt, "-static" ); break;
 
       case GCCOption::nostdlib:
         add_option( gccopt, "-nostdlib" );
