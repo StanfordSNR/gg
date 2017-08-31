@@ -12,7 +12,7 @@ BASE_LDADD = ../thunk/libthunk.a \
              $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
-               gg-execute gg-run
+               gg-execute gg-run gg-thunkgraph
 
 if BUILD_STATIC_BINS
   bin_PROGRAMS += gg-execute-static
@@ -23,6 +23,9 @@ gg_trace_LDADD = $(BASE_LDADD)
 
 gg_describe_SOURCES = gg-describe.cc
 gg_describe_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+
+gg_thunkgraph_SOURCES = gg-thunkgraph.cc
+gg_thunkgraph_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_reduce_and_run_SOURCES = gg-reduce-and-run.cc
 gg_reduce_and_run_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)

@@ -145,6 +145,13 @@ namespace roost {
     return ::dirname( path_cstr );
   }
 
+  path rbasename( const path & pathn )
+  {
+    char path_cstr[ PATH_MAX ];
+    strcpy( path_cstr, pathn.string().c_str() );
+    return ::basename( path_cstr );
+  }
+
   void copy_file( const path & src, const path & dst )
   {
     FileDescriptor src_file { CheckSystemCall( "open (" + src.string() + ")",
