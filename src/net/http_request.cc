@@ -11,11 +11,11 @@ using namespace std;
 void HTTPRequest::calculate_expected_body_size()
 {
     assert( state_ == BODY_PENDING );
-
     if ( first_line_.substr( 0, 4 ) == "GET "
          or first_line_.substr( 0, 5 ) == "HEAD " ) {
         set_expected_body_size( true, 0 );
-    } else if ( first_line_.substr( 0, 5 ) == "POST " ) {
+    } else if ( first_line_.substr( 0, 5 ) == "POST "
+                or first_line_.substr( 0, 4 ) == "PUT " ) {
         if ( !has_header( "Content-Length" ) ) {
             throw runtime_error( "HTTPRequest: does not support chunked requests" );
         }

@@ -9,9 +9,6 @@
 
 using namespace std;
 
-// These are the ciphers we're willing to use. This is a pretty restrictive list.
-static const char SSL_CIPHERS_[] = "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:HIGH:!aNULL:!eNULL:!EXP:!LOW:!MEDIUM:!MD5:!RC4:!DES:!3DES";
-
 /* error category for OpenSSL */
 class ssl_error_category : public error_category
 {
@@ -56,32 +53,9 @@ public:
 SSL_CTX * initialize_new_context()
 {
     OpenSSL::global_context();
-
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    SSL_CTX * ret = SSL_CTX_new(TLSv1_2_client_method());
-#else
-    SSL_CTX * ret = SSL_CTX_new(TLS_client_method());
-#endif
+    SSL_CTX * ret = SSL_CTX_new( SSLv23_client_method() );
     if ( not ret ) {
         throw ssl_error( "SSL_CTL_new" );
-    }
-
-    // set some pretty conservative options
-    // XXX: whatever happened to SSL_OP_NO_COMPRESSION ???
-    SSL_CTX_set_options(ret, SSL_OP_SINGLE_DH_USE);
-    SSL_CTX_set_options(ret, SSL_OP_NO_SSLv2);
-    SSL_CTX_set_options(ret, SSL_OP_NO_SSLv3);
-    SSL_CTX_set_options(ret, SSL_OP_NO_TLSv1);
-    SSL_CTX_set_options(ret, SSL_OP_NO_TLSv1_1);
-    SSL_CTX_clear_options(ret, SSL_OP_NO_TLSv1_2);
-    if (SSL_CTX_set_cipher_list(ret, (const char *)SSL_CIPHERS_) != 1) {
-        throw ssl_error( "SSL_CTX_set_cipher_list" );
-    }
-    // XXX: add a verification callback here
-    SSL_CTX_set_verify(ret, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
-    SSL_CTX_set_verify_depth(ret, 9);
-    if (SSL_CTX_set_default_verify_paths(ret) != 1) {
-        throw ssl_error( "SSL_CTX_set_default_verify_paths" );
     }
 
     return ret;

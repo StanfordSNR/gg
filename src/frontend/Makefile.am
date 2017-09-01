@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util \
+AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util -I$(srcdir)/../net \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox -I$(srcdir)/../models \
               $(CXX14_FLAGS) $(PROTOBUF_CFLAGS) $(SSL_CFLAGS) $(CRYPTO_CFLAGS)
@@ -8,11 +8,11 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 BASE_LDADD = ../thunk/libthunk.a \
              ../sandbox/libggsandbox.a \
              ../trace/libggtrace.a ../trace/libggsyscalltable.a \
-             ../protobufs/libggprotobufs.a ../util/libggutil.a \
+             ../protobufs/libggprotobufs.a ../net/libggnet.a ../util/libggutil.a \
              $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
-               gg-execute gg-run gg-thunkgraph gg-thunksummary
+               gg-execute gg-run gg-thunkgraph gg-thunksummary gg-s3-upload
 
 if BUILD_STATIC_BINS
   bin_PROGRAMS += gg-execute-static
@@ -49,3 +49,6 @@ gg_mock_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_run_SOURCES = gg-run.cc
 gg_run_LDADD = $(BASE_LDADD)
+
+gg_s3_upload_SOURCES = gg-s3-upload.cc
+gg_s3_upload_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
