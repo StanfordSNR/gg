@@ -94,36 +94,51 @@ int main()
     }
 
     SSLContext ssl_context;
-    SecureSocket s3 = ssl_context.new_secure_socket( tcp_connection( endpoint, "https" ) );
-
-    cerr << "Starting TLS session... ";
-    s3.connect();
-    cerr << "done.\n";
 
     HTTPResponseParser responses;
 
-    FileDescriptor devurandom { CheckSystemCall( "open", open( "/dev/urandom", O_RDONLY ) ) };
-    const string bigrandom = devurandom.read_exactly( 1048576 );    
-    
-    for ( unsigned int i = 0; i < 100; i++ ) {
-        cerr << "Sending request " << i << "... ";
-        S3PutRequest request( akid_cstr, secret_cstr, "ggfunbucket", "payload" + to_string( i ), bigrandom );
-        HTTPRequest outgoing_request = request.to_http_request();
-        responses.new_request_arrived( outgoing_request );
-        s3.write( outgoing_request.str() );
-        cerr << "done.\n";
+    vector<string> filenames;
+    string filename;
+    while ( cin >> filename ) {
+        filenames.push_back( filename );
     }
 
-    while ( not s3.eof() ) {
-        responses.parse( s3.read() );
-        while ( not responses.empty() ) {
-            cerr << "Response received: " << responses.front().first_line() << " (pending=" << responses.pending_requests() << ")\n";
-            responses.pop();
+    for ( size_t batch_start = 0; batch_start < filenames.size(); batch_start += 90 ) {
+        SecureSocket s3 = ssl_context.new_secure_socket( tcp_connection( endpoint, "https" ) );
+
+        cerr << "Starting TLS session... ";
+        s3.connect();
+        cerr << "done.\n";
+
+        for ( size_t file_id = batch_start; file_id < min( batch_start + 90, filenames.size() ); file_id++ ) {
+            string filename = filenames.at( file_id );
+            cerr << "Reading " << filename << "... ";
+
+            string contents;
+            FileDescriptor file { CheckSystemCall( "open " + filename, open( filename.c_str(), O_RDONLY ) ) };
+            while ( not file.eof() ) { contents.append( file.read() ); }
+            file.close();
+
+            cerr << "constructing request... ";
+            S3PutRequest request( akid_cstr, secret_cstr, "ggfunbucket", filename, contents );
+            HTTPRequest outgoing_request = request.to_http_request();
+            responses.new_request_arrived( outgoing_request );
+
+            cerr << "uploading... ";
+            s3.write( outgoing_request.str() );
+            cerr << "done.\n";
         }
 
-        if ( responses.pending_requests() == 0 ) {
-            break;
+        while ( responses.pending_requests() ) {
+            /* drain responses */
+            responses.parse( s3.read() );
+            if ( not responses.empty() ) {
+                cerr << "Response received: " << responses.front().first_line() << " (pending=" << responses.pending_requests() << ")\n";
+                responses.pop();
+            }
         }
+
+        s3.close();
     }
 
     return EXIT_SUCCESS;
