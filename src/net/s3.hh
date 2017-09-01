@@ -5,9 +5,12 @@
 
 #include <ctime>
 #include <string>
+#include <vector>
 #include <unordered_map>
 
+#include "aws.hh"
 #include "http_request.hh"
+#include "path.hh"
 
 class S3PutRequest
 {
@@ -31,6 +34,20 @@ public:
   S3PutRequest( const std::string & akid, const std::string & secret,
                 const std::string & region, const std::string & bucket,
                 const std::string & object, const std::string & contents );
+};
+
+class S3Client
+{
+private:
+  AWSCredentials credentials_;
+  std::string region_;
+
+public:
+  S3Client( const std::string & region );
+
+  /* `files` is a vector of pairs<path_to_file, object_key> */
+  void upload_files( const std::string & bucket,
+                     const std::vector<std::pair<roost::path, std::string>> & files );
 };
 
 #endif /* S3_HH */
