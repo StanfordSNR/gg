@@ -21,7 +21,8 @@ using namespace std;
 
 const string region = "us-west-1";
 const string endpoint = "s3-" + region + ".amazonaws.com";
-const unsigned int batch_size = 32;
+const size_t thread_count = 32;
+const size_t maximum_batch_size = 32;
 
 TCPSocket tcp_connection( const Address & address )
 {
@@ -101,46 +102,57 @@ int main()
     const Address s3_address { endpoint, "https" };
     
     vector<thread> threads;
-    for ( size_t batch_start = 0; batch_start < filenames.size(); batch_start += batch_size ) {
-        threads.emplace_back( [&] ( const unsigned int starting_index, const unsigned int ending_index ) {
-                SSLContext ssl_context;
-                HTTPResponseParser responses;
-                SecureSocket s3 = ssl_context.new_secure_socket( tcp_connection( s3_address ) );
+    for ( size_t thread_index = 0; thread_index < thread_count; thread_index++ ) {
+        if ( thread_index < filenames.size() ) {
+            threads.emplace_back( [&] ( const size_t index ) {
+                    unsigned int connections = 0, files = 0;
+                    //                    cerr << "thread " << index << " started.\n";
+                    for ( size_t first_file_in_batch = index; first_file_in_batch < filenames.size(); first_file_in_batch += thread_count * maximum_batch_size ) {
+                        //                        cerr << "thread " << index << " starting batch " << first_file_in_batch << "\n";
+                        SSLContext ssl_context;
+                        HTTPResponseParser responses;
+                        SecureSocket s3 = ssl_context.new_secure_socket( tcp_connection( s3_address ) );
 
-                s3.connect();
+                        s3.connect();
 
-                for ( size_t file_id = starting_index; file_id < ending_index; file_id++ ) {
-                    string filename = filenames.at( file_id );
+                        connections++;
 
-                    string contents;
-                    FileDescriptor file { CheckSystemCall( "open " + filename, open( filename.c_str(), O_RDONLY ) ) };
-                    while ( not file.eof() ) { contents.append( file.read() ); }
-                    file.close();
+                        for ( size_t file_id = first_file_in_batch; file_id < min( filenames.size(), first_file_in_batch + thread_count * maximum_batch_size ); file_id += thread_count ) {
+                            //                            cerr << "thread " << index << " uploading file " << file_id << "\n";
+                            string filename = filenames.at( file_id );
 
-                    S3PutRequest request( akid_cstr, secret_cstr, "ggfunbucket", filename, contents );
-                    HTTPRequest outgoing_request = request.to_http_request();
-                    responses.new_request_arrived( outgoing_request );
+                            string contents;
+                            FileDescriptor file { CheckSystemCall( "open " + filename, open( filename.c_str(), O_RDONLY ) ) };
+                            while ( not file.eof() ) { contents.append( file.read() ); }
+                            file.close();
 
-                    s3.write( outgoing_request.str() );
-                }
+                            S3PutRequest request( akid_cstr, secret_cstr, "ggfunbucket", filename, contents );
+                            HTTPRequest outgoing_request = request.to_http_request();
+                            responses.new_request_arrived( outgoing_request );
 
-                cerr << "+";
-                
-                while ( responses.pending_requests() ) {
-                    /* drain responses */
-                    responses.parse( s3.read() );
-                    if ( not responses.empty() ) {
-                        if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
-                            cerr << "HTTP failure: " << responses.front().first_line() << "\n";
-                            throw runtime_error( "HTTP failure" );
+                            s3.write( outgoing_request.str() );
+                            files++;
                         }
 
-                        responses.pop();
-                    }
-                }
+                        //                        cerr << "+";
+                
+                        while ( responses.pending_requests() ) {
+                            /* drain responses */
+                            responses.parse( s3.read() );
+                            if ( not responses.empty() ) {
+                                if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
+                                    cerr << "HTTP failure: " << responses.front().first_line() << "\n";
+                                    throw runtime_error( "HTTP failure" );
+                                }
 
-                cerr << "\b \b";
-            }, batch_start, min( batch_start + batch_size, filenames.size() ) );
+                                responses.pop();
+                            }
+                        }
+                        cerr << "thread " << index << " made " << connections << " connections and uploaded " << files << " files.\n";
+                        //                        cerr << "\b \b";
+                    }
+                }, thread_index );
+        }
     }
 
     for ( auto & thread : threads ) {
