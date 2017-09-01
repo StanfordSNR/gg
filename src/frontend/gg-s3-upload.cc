@@ -8,6 +8,7 @@
 #include <map>
 #include <sys/types.h>
 #include <sys/fcntl.h>
+#include <thread>
 
 #include "socket.hh"
 #include "secure_socket.hh"
@@ -20,14 +21,12 @@ using namespace std;
 
 const string region = "us-west-1";
 const string endpoint = "s3-" + region + ".amazonaws.com";
-const string message = "Hello, world.\n";
+const unsigned int batch_size = 32;
 
-TCPSocket tcp_connection( const string & hostname, const string & service )
+TCPSocket tcp_connection( const Address & address )
 {
     TCPSocket sock;
-    cerr << "Connecting to " << hostname << "... ";
-    sock.connect( { hostname, service } );
-    cerr << "done.\n";
+    sock.connect( address );
     return sock;
 }
 
@@ -93,50 +92,55 @@ int main()
         return EXIT_FAILURE;
     }
 
-    SSLContext ssl_context;
-
-    HTTPResponseParser responses;
-
     vector<string> filenames;
     string filename;
     while ( cin >> filename ) {
         filenames.push_back( filename );
     }
 
-    for ( size_t batch_start = 0; batch_start < filenames.size(); batch_start += 90 ) {
-        SecureSocket s3 = ssl_context.new_secure_socket( tcp_connection( endpoint, "https" ) );
+    const Address s3_address { endpoint, "https" };
+    
+    vector<thread> threads;
+    for ( size_t batch_start = 0; batch_start < filenames.size(); batch_start += batch_size ) {
+        threads.emplace_back( [&] ( const unsigned int starting_index, const unsigned int ending_index ) {
+                SSLContext ssl_context;
+                HTTPResponseParser responses;
+                SecureSocket s3 = ssl_context.new_secure_socket( tcp_connection( s3_address ) );
 
-        cerr << "Starting TLS session... ";
-        s3.connect();
-        cerr << "done.\n";
+                s3.connect();
 
-        for ( size_t file_id = batch_start; file_id < min( batch_start + 90, filenames.size() ); file_id++ ) {
-            string filename = filenames.at( file_id );
-            cerr << "Reading " << filename << "... ";
+                for ( size_t file_id = starting_index; file_id < ending_index; file_id++ ) {
+                    string filename = filenames.at( file_id );
 
-            string contents;
-            FileDescriptor file { CheckSystemCall( "open " + filename, open( filename.c_str(), O_RDONLY ) ) };
-            while ( not file.eof() ) { contents.append( file.read() ); }
-            file.close();
+                    string contents;
+                    FileDescriptor file { CheckSystemCall( "open " + filename, open( filename.c_str(), O_RDONLY ) ) };
+                    while ( not file.eof() ) { contents.append( file.read() ); }
+                    file.close();
 
-            cerr << "constructing request... ";
-            S3PutRequest request( akid_cstr, secret_cstr, "ggfunbucket", filename, contents );
-            HTTPRequest outgoing_request = request.to_http_request();
-            responses.new_request_arrived( outgoing_request );
+                    S3PutRequest request( akid_cstr, secret_cstr, "ggfunbucket", filename, contents );
+                    HTTPRequest outgoing_request = request.to_http_request();
+                    responses.new_request_arrived( outgoing_request );
 
-            cerr << "uploading... ";
-            s3.write( outgoing_request.str() );
-            cerr << "done.\n";
-        }
+                    s3.write( outgoing_request.str() );
+                }
+                
+                while ( responses.pending_requests() ) {
+                    /* drain responses */
+                    responses.parse( s3.read() );
+                    if ( not responses.empty() ) {
+                        if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
+                            cerr << "HTTP failure: " << responses.front().first_line() << "\n";
+                            throw runtime_error( "HTTP failure" );
+                        }
 
-        while ( responses.pending_requests() ) {
-            /* drain responses */
-            responses.parse( s3.read() );
-            if ( not responses.empty() ) {
-                cerr << "Response received: " << responses.front().first_line() << " (pending=" << responses.pending_requests() << ")\n";
-                responses.pop();
-            }
-        }
+                        responses.pop();
+                    }
+                }
+            }, batch_start, min( batch_start + batch_size, filenames.size() ) );
+    }
+
+    for ( auto & thread : threads ) {
+        thread.join();
     }
 
     return EXIT_SUCCESS;
