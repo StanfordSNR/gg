@@ -2,6 +2,8 @@
 
 #include <cassert>
 #include <vector>
+#include <thread>
+#include <mutex>
 #include <openssl/err.h>
 
 #include "secure_socket.hh"
@@ -31,8 +33,26 @@ public:
 
 class OpenSSL
 {
+private:
+    vector<mutex> locks_;
+
+    static void locking_function( int mode, int n, const char *, int )
+    {
+        if ( mode & CRYPTO_LOCK ) {
+            OpenSSL::global_context().locks_.at( n ).lock();
+        } else {
+            OpenSSL::global_context().locks_.at( n ).unlock();
+        }
+    }
+
+    static unsigned long id_function( void )
+    {
+        return pthread_self();
+    }
+
 public:
     OpenSSL()
+        : locks_( CRYPTO_num_locks() )
     {
         /* SSL initialization: Needs to be done exactly once */
         /* load algorithms/ciphers */
@@ -41,6 +61,10 @@ public:
 
         /* load error messages */
         SSL_load_error_strings();
+
+        /* set thread-safe callbacks */
+        CRYPTO_set_locking_callback( locking_function );
+        CRYPTO_set_id_callback( id_function );
     }
 
     static OpenSSL & global_context( void )
@@ -57,12 +81,12 @@ SSL_CTX * initialize_new_context()
     if ( not ret ) {
         throw ssl_error( "SSL_CTL_new" );
     }
-
     return ret;
 }
 
 SSLContext::SSLContext()
-    : ctx_( initialize_new_context() ) {}
+    : ctx_( initialize_new_context() )
+{}
 
 SecureSocket::SecureSocket( TCPSocket && sock, SSL * ssl )
     : TCPSocket( move( sock ) ),
@@ -88,7 +112,7 @@ SecureSocket SSLContext::new_secure_socket( TCPSocket && sock )
 
 void SecureSocket::connect( void )
 {
-    if ( SSL_connect( ssl_.get() ) != 1 ) {
+    if ( not SSL_connect( ssl_.get() ) ) {
         throw ssl_error( "SSL_connect" );
     }
 }
@@ -147,15 +171,4 @@ void SecureSocket::write(const string & message )
     }
 
     register_write();
-}
-
-void SecureSocket::close(void) {
-    // XXX shouldn't ignore this return value
-    SSL_shutdown( ssl_.get() );
-    TCPSocket::close();
-}
-
-void SecureSocket::set_hostname(const string &hostname) {
-    // XXX shouldn't ignore this return value
-    SSL_set_tlsext_host_name(ssl_.get(), (char *)hostname.c_str());
 }

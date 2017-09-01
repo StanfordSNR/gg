@@ -22,8 +22,6 @@ private:
 public:
     void connect( void );
     void accept( void );
-    void close( void );
-    void set_hostname(const std::string &hostname); 
 
     std::string read( void );
     void write( const std::string & message );

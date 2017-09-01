@@ -137,8 +137,6 @@ int main()
                 responses.pop();
             }
         }
-
-        s3.close();
     }
 
     return EXIT_SUCCESS;
