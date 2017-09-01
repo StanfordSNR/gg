@@ -62,11 +62,11 @@ AWSv4Sig::sign_request(const std::string &first_line,
 		       const std::string &service,
 		       const std::string &request_date,
 		       const std::string &payload __attribute((unused)),
-		       std::map<std::string, std::string> &headers) {
+		       std::unordered_map<std::string, std::string> &headers) {
     // begin building canonical request
     stringstream req;
     req << first_line << '\n' << '\n';
-    
+
     // build up signed_headers list and canonical headers
     string signed_headers;
     {
@@ -90,7 +90,7 @@ AWSv4Sig::sign_request(const std::string &first_line,
     }
     // add in signed headers and payload hash
     const string payload_hash = sha256_( payload );
- 
+
     req << '\n'
         << signed_headers << '\n'
 	<< payload_hash;
@@ -110,7 +110,7 @@ AWSv4Sig::sign_request(const std::string &first_line,
         << cred_scope << '\n'
         << canon_req_hash;
     string string_to_sign = req.str();
-    
+
     // derive key and create signature
     unsigned char buf[SHA256_DIGEST_LENGTH];
     vector<uint8_t> skey = derive_signing_key_(secret,
@@ -132,4 +132,3 @@ AWSv4Sig::sign_request(const std::string &first_line,
     headers["authorization"] = req.str();
     headers["x-amz-content-sha256"] = payload_hash;
 }
-
