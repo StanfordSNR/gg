@@ -17,6 +17,7 @@ private:
 
 public:
     void new_request_arrived( const HTTPRequest & request );
+    unsigned int pending_requests() const { return requests_.size(); }
 };
 
 #endif /* HTTP_RESPONSE_PARSER_HH */

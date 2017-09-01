@@ -6,11 +6,15 @@
 #include <cassert>
 #include <ctime>
 #include <map>
+#include <sys/types.h>
+#include <sys/fcntl.h>
 
 #include "socket.hh"
 #include "secure_socket.hh"
 #include "http_request.hh"
 #include "awsv4_sig.hh"
+#include "http_response_parser.hh"
+#include "exception.hh"
 
 using namespace std;
 
@@ -96,12 +100,30 @@ int main()
     s3.connect();
     cerr << "done.\n";
 
-    S3PutRequest request( akid_cstr, secret_cstr, "ggfunbucket", "kjwobj", "Hello, world.\n" );
+    HTTPResponseParser responses;
 
-    s3.write( request.to_http_request().str() );
+    FileDescriptor devurandom { CheckSystemCall( "open", open( "/dev/urandom", O_RDONLY ) ) };
+    const string bigrandom = devurandom.read_exactly( 1048576 );    
+    
+    for ( unsigned int i = 0; i < 100; i++ ) {
+        cerr << "Sending request " << i << "... ";
+        S3PutRequest request( akid_cstr, secret_cstr, "ggfunbucket", "payload" + to_string( i ), bigrandom );
+        HTTPRequest outgoing_request = request.to_http_request();
+        responses.new_request_arrived( outgoing_request );
+        s3.write( outgoing_request.str() );
+        cerr << "done.\n";
+    }
 
     while ( not s3.eof() ) {
-        cout << s3.read();
+        responses.parse( s3.read() );
+        while ( not responses.empty() ) {
+            cerr << "Response received: " << responses.front().first_line() << " (pending=" << responses.pending_requests() << ")\n";
+            responses.pop();
+        }
+
+        if ( responses.pending_requests() == 0 ) {
+            break;
+        }
     }
 
     return EXIT_SUCCESS;
