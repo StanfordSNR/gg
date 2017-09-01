@@ -16,6 +16,7 @@
 #include "awsv4_sig.hh"
 #include "http_response_parser.hh"
 #include "exception.hh"
+#include "s3.hh"
 
 using namespace std;
 
@@ -30,58 +31,6 @@ TCPSocket tcp_connection( const Address & address )
   sock.connect( address );
   return sock;
 }
-
-class S3PutRequest
-{
-private:
-  static std::string x_amz_date_( const std::time_t & t )
-  {
-    char sbuf[ 17 ];
-    strftime( sbuf, 17, "%Y%m%dT%H%M%SZ", gmtime( &t ) );
-    return string( sbuf, 16 );
-  }
-
-  std::string request_date_;
-  std::string akid_, secret_, bucket_, object_, contents_;
-  std::string first_line_;
-  std::map<std::string, std::string> headers_ {};
-  void add_authorization();
-
-public:
-  HTTPRequest to_http_request() const
-  {
-    HTTPRequest req;
-    req.set_first_line( first_line_ );
-    for ( const auto & header : headers_ ) {
-      req.add_header( HTTPHeader { header.first, header.second } );
-    }
-    req.done_with_headers();
-
-    req.read_in_body( contents_ );
-    assert( req.state() == COMPLETE );
-
-    return req;
-  }
-
-  S3PutRequest( const std::string & akid,
-                const std::string & secret,
-                const std::string & bucket,
-                const std::string & object,
-                const std::string & contents )
-    : request_date_( x_amz_date_( time( 0 ) ) ),
-      akid_( akid ), secret_( secret ),
-      bucket_( bucket ), object_( object ),
-      contents_( contents ),
-      first_line_( "PUT /" + object + " HTTP/1.1" )
-  {
-    headers_[ "x-amz-date" ] = request_date_;
-    headers_[ "host" ] = bucket + ".s3.amazonaws.com";
-    headers_[ "content-length" ] = to_string( contents.length() );
-    AWSv4Sig::sign_request( "PUT\n/" + object,
-                            secret_, akid_, region, "s3", request_date_, contents,
-                            headers_ );
-  }
-};
 
 int main()
 {
@@ -128,7 +77,8 @@ int main()
               while ( not file.eof() ) { contents.append( file.read() ); }
               file.close();
 
-              S3PutRequest request( akid_cstr, secret_cstr, "ggfunbucket", filename, contents );
+              S3PutRequest request( akid_cstr, secret_cstr, region,
+                                    "ggfunbucket", filename, contents );
               HTTPRequest outgoing_request = request.to_http_request();
               responses.new_request_arrived( outgoing_request );
 
