@@ -123,6 +123,8 @@ int main()
 
                     s3.write( outgoing_request.str() );
                 }
+
+                cerr << "+";
                 
                 while ( responses.pending_requests() ) {
                     /* drain responses */
@@ -136,6 +138,8 @@ int main()
                         responses.pop();
                     }
                 }
+
+                cerr << "\b \b";
             }, batch_start, min( batch_start + batch_size, filenames.size() ) );
     }
 
