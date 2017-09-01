@@ -6,7 +6,7 @@
 #include <ctime>
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <map>
 
 #include "aws.hh"
 #include "http_request.hh"
@@ -25,7 +25,7 @@ private:
   std::string object_;
   std::string contents_;
   std::string first_line_;
-  std::unordered_map<std::string, std::string> headers_ {};
+  std::map<std::string, std::string> headers_ {};
   void add_authorization();
 
 public:
@@ -36,14 +36,21 @@ public:
                 const std::string & object, const std::string & contents );
 };
 
+struct S3ClientConfig
+{
+  std::string region { "us-west-1" };
+  size_t max_threads { 32 };
+  size_t max_batch_size { 32 };
+};
+
 class S3Client
 {
 private:
   AWSCredentials credentials_;
-  std::string region_;
+  S3ClientConfig config_;
 
 public:
-  S3Client( const std::string & region );
+  S3Client( const S3ClientConfig & config = {} );
 
   /* `files` is a vector of pairs<path_to_file, object_key> */
   void upload_files( const std::string & bucket,

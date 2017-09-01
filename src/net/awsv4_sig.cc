@@ -62,7 +62,7 @@ AWSv4Sig::sign_request(const std::string &first_line,
 		       const std::string &service,
 		       const std::string &request_date,
 		       const std::string &payload __attribute((unused)),
-		       std::unordered_map<std::string, std::string> &headers) {
+		       std::map<std::string, std::string> &headers) {
     // begin building canonical request
     stringstream req;
     req << first_line << '\n' << '\n';
