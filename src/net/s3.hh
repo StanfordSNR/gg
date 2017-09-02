@@ -11,6 +11,18 @@
 #include "aws.hh"
 #include "http_request.hh"
 #include "path.hh"
+#include "optional.hh"
+
+class S3
+{
+public:
+  struct UploadRequest
+  {
+    roost::path filename;
+    std::string object_key;
+    Optional<std::string> content_hash;
+  };
+};
 
 class S3PutRequest
 {
@@ -33,7 +45,8 @@ public:
 
   S3PutRequest( const std::string & akid, const std::string & secret,
                 const std::string & region, const std::string & bucket,
-                const std::string & object, const std::string & contents );
+                const std::string & object, const std::string & contents,
+                const std::string & content_hash = {} );
 };
 
 struct S3ClientConfig
@@ -54,7 +67,7 @@ public:
 
   /* `files` is a vector of pairs<path_to_file, object_key> */
   void upload_files( const std::string & bucket,
-                     const std::vector<std::pair<roost::path, std::string>> & files );
+                     const std::vector<S3::UploadRequest> & upload_requests );
 };
 
 #endif /* S3_HH */

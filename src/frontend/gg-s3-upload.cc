@@ -11,11 +11,11 @@ using namespace std;
 
 int main()
 {
-  vector<pair<roost::path, string>> files;
+  vector<S3::UploadRequest> files;
 
   string filename;
   while ( cin >> filename ) {
-    files.push_back( { filename, roost::rbasename( filename ).string() } );
+    files.push_back( { filename, roost::rbasename( filename ).string(), "" } );
   }
 
   S3Client s3_client;

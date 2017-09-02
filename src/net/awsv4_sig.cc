@@ -55,14 +55,15 @@ AWSv4Sig::derive_signing_key_(const string &secret,
 }
 
 void
-AWSv4Sig::sign_request(const std::string &first_line,
-		       const std::string &secret,
-		       const std::string &akid,
-		       const std::string &region,
-		       const std::string &service,
-		       const std::string &request_date,
-		       const std::string &payload __attribute((unused)),
-		       std::map<std::string, std::string> &headers) {
+AWSv4Sig::sign_request(const std::string & first_line,
+                       const std::string & secret,
+                       const std::string & akid,
+                       const std::string & region,
+                       const std::string & service,
+                       const std::string & request_date,
+                       const std::string & payload __attribute((unused)),
+                       std::map<std::string, std::string> & headers,
+                       const std::string & payload_hash) {
     // begin building canonical request
     stringstream req;
     req << first_line << '\n' << '\n';
@@ -89,11 +90,19 @@ AWSv4Sig::sign_request(const std::string &first_line,
         signed_headers = shead.str();
     }
     // add in signed headers and payload hash
-    const string payload_hash = sha256_( payload );
+    string hash_val;
+
+    if ( payload_hash.length() == 0 ) {
+      hash_val = sha256_( payload );
+    }
+    else {
+      hash_val = payload_hash;
+    }
+
 
     req << '\n'
         << signed_headers << '\n'
-	<< payload_hash;
+        << hash_val;
 
     // hash canonical request
     string canon_req_hash = sha256_(req.str());
@@ -130,5 +139,5 @@ AWSv4Sig::sign_request(const std::string &first_line,
         << ", Signature=" << signature;
 
     headers["authorization"] = req.str();
-    headers["x-amz-content-sha256"] = payload_hash;
+    headers["x-amz-content-sha256"] = hash_val;
 }

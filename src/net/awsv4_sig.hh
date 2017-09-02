@@ -21,5 +21,6 @@ class AWSv4Sig {
                              const std::string &service,
                              const std::string &request_date,
                              const std::string &payload,
-                             std::map<std::string, std::string> &headers);
+                             std::map<std::string, std::string> &headers,
+                             const std::string & payload_hash = {});
 };
