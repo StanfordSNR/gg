@@ -196,6 +196,7 @@ void Reductor::upload_dependencies() const
   }
 
   if ( upload_requests.size() == 0 ) {
+    cerr << "No files to upload." << endl;
     return;
   }
 
@@ -267,6 +268,11 @@ int main( int argc, char * argv[] )
     }
 
     Reductor reductor { thunk_hash, max_jobs };
+    
+    if ( remote_execution ) {
+      reductor.upload_dependencies();
+    }
+
     string reduced_hash = reductor.reduce();
 
     if ( remote_execution ) {

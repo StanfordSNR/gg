@@ -19,6 +19,8 @@ import asyncio
 import aiohttp
 import boto3
 
+from base64 import b64decode
+
 from ggpaths import GGPaths, GGCache
 from downloader import download_files
 from common import is_executable, make_executable, run_command
@@ -49,6 +51,11 @@ def handler(event, context):
     GGInfo.thunk_hash = event['thunk_hash']
     GGInfo.s3_bucket = event['s3_bucket']
     GGInfo.infiles = event['infiles']
+
+    thunk_data = b64decode(event['thunk_data'])
+
+    with open(GGPaths.blob_path(GGInfo.thunk_hash), "wb") as fout:
+        fout.write(thunk_data)
 
     fetch_dependencies(GGInfo.infiles)
 

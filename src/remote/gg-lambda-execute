@@ -9,101 +9,27 @@ import stat
 import errno
 import pprint
 import boto3
-import aiohttp
-import asyncio
-import filelock
 
-import s3
 import gg
 import gg_pb2
 
-from contextlib import closing
-from base64 import b64decode
+from base64 import b64decode, b64encode
 from ggpaths import GGPaths, GGCache
 from common import make_executable, is_executable, sizeof_fmt
 
-CHUNK_SIZE = 32 * 1024 # 32 KB
-TIMEOUT = 5
-MAX_RETRIES = 3
-
 s3_bucket = os.environ.get('GG_S3_BUCKET')
-awscreds = boto3.Session().get_credentials()
-aws_auth_generator = s3.S3AuthGeneator(awscreds.access_key, awscreds.secret_key)
-lock_directory = "/tmp"
-
-@aiohttp.streamer
-def file_sender(writer, file_name=None):
-    with open(file_name, 'rb') as f:
-        chunk = f.read(CHUNK_SIZE)
-        while chunk:
-            yield from writer.write(chunk)
-            chunk = f.read(CHUNK_SIZE)
-
-async def upload_dependency(session: aiohttp.ClientSession, dep_hash: str):
-    upload_lock_filename = os.path.join(lock_directory, "upload-s3_{}".format(dep_hash))
-    upload_lock = filelock.FileLock(upload_lock_filename, timeout=0)
-
-    retries = 0
-
-    while True:
-        try:
-            with upload_lock:
-                object_url = s3.get_object_url(s3_bucket, dep_hash)
-                headers = {}
-                aws_auth_generator('HEAD', s3_bucket, dep_hash, headers)
-
-                async with session.head(object_url, headers=headers, timeout=TIMEOUT) as r:
-                    if r.status == 200:
-                        return
-
-                filename = GGPaths.blob_path(dep_hash)
-                executable = is_executable(filename)
-
-                headers = {
-                    'x-amz-acl': 'public-read',
-                    'x-amz-tagging': 'gg:executable={}'.format('true' if executable else 'false'),
-                    'Content-Length': '%d' % os.path.getsize(filename)
-                }
-
-                aws_auth_generator('PUT', s3_bucket, dep_hash, headers)
-
-                async with session.request('PUT', object_url, headers=headers, data=file_sender(filename), timeout=TIMEOUT) as r:
-                    assert r.status == 200
-
-                return
-        except filelock.Timeout:
-            await asyncio.sleep(1)
-        except:
-            retries += 1
-            if retries > MAX_RETRIES:
-                raise
-            await asyncio.sleep(1)
-        finally:
-            try:
-                os.remove(upload_lock_filename)
-            except:
-                pass
-
-@asyncio.coroutine
-def upload_all_dependencies(dependecies):
-    with aiohttp.ClientSession() as session:
-        upload_futures = [upload_dependency(session, d['hash']) for d in dependecies]
-
-        for upload_future in asyncio.as_completed(upload_futures):
-            result = yield from upload_future
-
-def push_infiles(infiles):
-    with closing(asyncio.get_event_loop()) as loop:
-       loop.run_until_complete(upload_all_dependencies(infiles))
+s3_region = os.environ.get('GG_S3_REGION', 'us-west-1')
 
 def main():
     thunk_hash = sys.argv[1]
 
     if GGCache.check(thunk_hash):
-        # already reduced
         return os.EX_OK
 
     thunk = gg.read_thunk(thunk_hash)
+
+    with open(GGPaths.blob_path(thunk_hash), "rb") as fin:
+        thunk_data = fin.read()
 
     infiles = [{'hash': i.hash,
                 'executable': i.type == gg_pb2.InFile.Type.Value('EXECUTABLE'),
@@ -111,23 +37,14 @@ def main():
                for i in thunk.infiles
                if i.type != gg_pb2.InFile.Type.Value('DUMMY_DIRECTORY')]
 
-    infiles += [{
-        'hash': thunk_hash, 'executable': False,
-        'size': os.path.getsize(GGPaths.blob_path(thunk_hash))
-    }]
-
     request_payload = {
         'thunk_hash': thunk_hash,
         's3_bucket': s3_bucket,
-        'infiles': infiles
+        'infiles': infiles,
+        'thunk_data': b64encode(thunk_data).decode('ascii')
     }
 
-    print('uploading dependecies ({}, {}) for {:.12} '.format(
-        len(infiles), sizeof_fmt(sum([x['size'] for x in infiles])), thunk_hash),
-          file=sys.stderr)
-    push_infiles(infiles)
-
-    response = boto3.client('lambda').invoke(
+    response = boto3.client('lambda', region_name=s3_region).invoke(
         FunctionName='ggfunction',
         InvocationType='RequestResponse',
         Payload=json.dumps(request_payload),
@@ -163,4 +80,5 @@ if __name__ == '__main__':
         sys.exit(main())
     except Exception as ex:
         print(ex, file=sys.stderr)
+        import traceback; traceback.print_exc()
         sys.exit(1)
