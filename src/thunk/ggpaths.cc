@@ -53,6 +53,21 @@ namespace gg {
       return reductions_dir;
     }
 
+    roost::path get_remote_index()
+    {
+      roost::path index_dir = get_gg_dir() / "remote";
+
+      if ( roost::exists( index_dir ) ) {
+        if ( not roost::is_directory( index_dir ) ) {
+          throw runtime_error( index_dir.string() + " is not a directory" );
+        }
+      } else {
+        roost::create_directories( index_dir );
+      }
+
+      return index_dir;
+    }
+
     roost::path blobs()
     {
       const static roost::path blobs_path = get_blobs_path();
@@ -65,6 +80,12 @@ namespace gg {
       return reductions_path;
     }
 
+    roost::path remote_index()
+    {
+      const static roost::path index_path = get_remote_index();
+      return index_path;
+    }
+
     roost::path blob_path( const string & hash )
     {
       return blobs() / hash;
@@ -73,6 +94,18 @@ namespace gg {
     roost::path reduction_path( const string & hash )
     {
       return reductions() / hash;
+    }
+  }
+
+  namespace remote {
+    bool is_available( const std::string & hash )
+    {
+      return roost::exists( gg::paths::remote_index() / hash );
+    }
+
+    void set_available( const std::string & hash )
+    {
+      ofstream fout { ( gg::paths::remote_index() / hash ).string() };
     }
   }
 

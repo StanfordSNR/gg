@@ -15,9 +15,15 @@ namespace gg {
   namespace paths {
     roost::path blobs();
     roost::path reductions();
+    roost::path remote_index();
 
     roost::path blob_path( const std::string & hash );
     roost::path reduction_path( const std::string & hash );
+  }
+
+  namespace remote {
+    bool is_available( const std::string & hash );
+    void set_available( const std::string & hash );
   }
 
   namespace cache {
