@@ -19,7 +19,12 @@ int main()
   }
 
   S3Client s3_client;
-  s3_client.upload_files( "ggfunbucket", files );
+  s3_client.upload_files( "ggfunbucket", files,
+    [] ( const S3::UploadRequest & request )
+    {
+      cout << "Upload done: " + request.filename.string() + "\n";
+    }
+  );
 
   return EXIT_SUCCESS;
 }
