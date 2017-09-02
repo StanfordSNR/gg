@@ -28,6 +28,9 @@ void DependencyGraph::add_thunk( const string & hash )
       add_thunk( infile.content_hash() );
       referenced_thunks_[ infile.content_hash() ].insert( hash );
     }
+    else {
+      order_zero_dependencies_.insert( infile.content_hash() );
+    }
   }
 
   thunks_.emplace( make_pair( hash, move( thunk ) ) );
@@ -97,7 +100,7 @@ unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
 }
 
 unordered_set<string>
-DependencyGraph::order_one_dependencies( const string & thunk_hash )
+DependencyGraph::order_one_dependencies( const string & thunk_hash ) const
 {
   unordered_set<string> result;
   const Thunk & thunk = get_thunk( thunk_hash );

@@ -22,6 +22,8 @@ private:
   std::unordered_map<std::string, std::string> updated_hashes_{};
   std::unordered_map<std::string, std::string> original_hashes_{};
 
+  std::unordered_set<std::string> order_zero_dependencies_ {};
+
   void update_thunk_hash( const std::string & old_hash,
                           const std::string & new_hash );
 
@@ -33,8 +35,11 @@ public:
   std::unordered_set<std::string> force_thunk( const std::string & old_hash,
                                                const std::string & new_hash );
 
+  const std::unordered_set<std::string> &
+  order_zero_dependencies() const { return order_zero_dependencies_; }
+
   std::unordered_set<std::string>
-  order_one_dependencies( const std::string & thunk_hash );
+  order_one_dependencies( const std::string & thunk_hash ) const;
 
   const gg::thunk::Thunk &
   get_thunk( const std::string & hash ) const { return thunks_.at( hash ); }
