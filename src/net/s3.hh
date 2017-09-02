@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <functional>
 
 #include "aws.hh"
 #include "http_request.hh"
@@ -67,7 +68,9 @@ public:
 
   /* `files` is a vector of pairs<path_to_file, object_key> */
   void upload_files( const std::string & bucket,
-                     const std::vector<S3::UploadRequest> & upload_requests );
+                     const std::vector<S3::UploadRequest> & upload_requests,
+                     std::function<void( const S3::UploadRequest & )> && success_callback
+                       = [](const S3::UploadRequest &){} );
 };
 
 #endif /* S3_HH */

@@ -74,7 +74,8 @@ S3Client::S3Client( const S3ClientConfig & config )
 {}
 
 void S3Client::upload_files( const string & bucket,
-                             const vector<S3::UploadRequest> & upload_requests )
+                             const vector<S3::UploadRequest> & upload_requests,
+                             function<void( const S3::UploadRequest & )> && success_callback )
 {
   const string endpoint = "s3-" + config_.region + ".amazonaws.com";
   const Address s3_address { endpoint, "https" };
@@ -119,6 +120,8 @@ void S3Client::upload_files( const string & bucket,
               s3.write( outgoing_request.str() );
             }
 
+            size_t response_count = 0;
+
             while ( responses.pending_requests() ) {
               /* drain responses */
               responses.parse( s3.read() );
@@ -126,8 +129,13 @@ void S3Client::upload_files( const string & bucket,
                 if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
                   throw runtime_error( "HTTP failure" );
                 }
+                else {
+                  const size_t response_index = first_file_idx + response_count * thread_count;
+                  success_callback( upload_requests[ response_index ] );
+                }
 
                 responses.pop();
+                response_count++;
               }
             }
           }
