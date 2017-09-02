@@ -12,7 +12,7 @@
 using namespace CryptoPP;
 using namespace std;
 
-std::string digest::sha256( const string & input )
+string digest::sha256( const string & input )
 {
   SHA256 hash_function;
   string ret;
@@ -29,4 +29,23 @@ std::string digest::sha256( const string & input )
   output_sstr << ret << setfill( '0' ) << setw( 8 ) << hex << input.length();
 
   return output_sstr.str();
+}
+
+string digest::gghash_to_hex( const string & input )
+{
+  string output;
+
+  string hash = input.substr( 0, input.length() - 8 );
+  replace( hash.begin(), hash.end(), '.', '-' );
+  hash += '=';
+
+  StringSource s( hash, true,
+                  new Base64URLDecoder( new HexEncoder( new StringSink( output ), false ) ) );
+
+  if ( output.length() == 64 ) {
+    return output;
+  }
+  else {
+    throw runtime_error( "invalid gghash: " + input );
+  }
 }
