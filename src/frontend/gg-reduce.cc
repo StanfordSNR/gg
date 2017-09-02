@@ -25,6 +25,8 @@
 #include "graph.hh"
 #include "event_loop.hh"
 #include "util.hh"
+#include "s3.hh"
+#include "digest.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -55,6 +57,7 @@ public:
   Reductor( const string & thunk_hash, const size_t max_jobs = 8 );
 
   string reduce();
+  void upload_dependencies() const;
 };
 
 Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
@@ -95,7 +98,7 @@ Result Reductor::handle_signal( const signalfd_siginfo & sig )
           child.throw_exception();
         }
 
-        /* Update the dependecy graph now that we know this process ended
+        /* Update the dependency graph now that we know this process ended
         with exit code 0. */
         const string & thunk_hash = child.name();
         Optional<ReductionResult> result = gg::cache::check( thunk_hash );
@@ -177,6 +180,38 @@ string Reductor::reduce()
       return answer->hash;
     }
   }
+}
+
+void Reductor::upload_dependencies() const
+{
+  vector<S3::UploadRequest> upload_requests;
+
+  for ( const string & dep : dep_graph_.order_zero_dependencies() ) {
+    if ( gg::remote::is_available( dep ) ) {
+      continue;
+    }
+
+    upload_requests.push_back( { gg::paths::blob_path( dep ), dep,
+                                 digest::gghash_to_hex( dep ) } );
+  }
+
+  if ( upload_requests.size() == 0 ) {
+    return;
+  }
+
+  const string plural = upload_requests.size() == 1 ? "" : "s";
+  cerr << "Uploading " << upload_requests.size() << " file" << plural << "..."
+       << endl;
+
+  S3ClientConfig s3_config;
+  s3_config.region = gg::remote::s3_region();
+
+  S3Client s3_client;
+  s3_client.upload_files(
+    gg::remote::s3_bucket(), upload_requests,
+    [] ( const S3::UploadRequest & upload_request )
+    { gg::remote::set_available( upload_request.object_key ); }
+  );
 }
 
 void usage( const char * argv0 )

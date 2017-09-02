@@ -1,7 +1,7 @@
 AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util -I$(srcdir)/../net \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox -I$(srcdir)/../models \
-              $(CXX14_FLAGS) $(PROTOBUF_CFLAGS) $(SSL_CFLAGS) $(CRYPTO_CFLAGS)
+              $(CXX14_FLAGS) $(PROTOBUF_CFLAGS) $(SSL_CFLAGS) $(SSL_CFLAGS)
 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
@@ -42,7 +42,7 @@ gg_execute_static_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) -ldl -lz
 gg_execute_static_LDFLAGS = -static -s
 
 gg_reduce_SOURCES = gg-reduce.cc
-gg_reduce_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+gg_reduce_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 gg_mock_SOURCES = gg-mock.cc
 gg_mock_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
