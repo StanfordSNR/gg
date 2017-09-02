@@ -24,6 +24,9 @@ namespace gg {
   namespace remote {
     bool is_available( const std::string & hash );
     void set_available( const std::string & hash );
+
+    std::string s3_bucket();
+    std::string s3_region();
   }
 
   namespace cache {

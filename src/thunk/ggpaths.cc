@@ -1,8 +1,10 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include "ggpaths.hh"
+
 #include <fstream>
 
-#include "ggpaths.hh"
+#include "util.hh"
 
 using namespace std;
 
@@ -106,6 +108,24 @@ namespace gg {
     void set_available( const std::string & hash )
     {
       ofstream fout { ( gg::paths::remote_index() / hash ).string() };
+    }
+
+    std::string s3_bucket()
+    {
+      const static string bucket = safe_getenv( "GG_S3_BUCKET" );
+      if ( bucket.length() == 0 ) {
+        throw runtime_error( "GG_S3_BUCKET environment variable not set" );
+      }
+      return bucket;
+    }
+
+    std::string s3_region()
+    {
+      const static string bucket = safe_getenv( "GG_S3_REGION" );
+      if ( bucket.length() == 0 ) {
+        throw runtime_error( "GG_S3_REGION environment variable not set" );
+      }
+      return bucket;
     }
   }
 
