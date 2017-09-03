@@ -27,6 +27,7 @@ def main():
         return os.EX_OK
 
     thunk = gg.read_thunk(thunk_hash)
+    function_name = "gg-{}".format(gg.thunk_executable_hash(thunk))
 
     with open(GGPaths.blob_path(thunk_hash), "rb") as fin:
         thunk_data = fin.read()
@@ -45,7 +46,7 @@ def main():
     }
 
     response = boto3.client('lambda', region_name=s3_region).invoke(
-        FunctionName='ggfunction',
+        FunctionName=function_name,
         InvocationType='RequestResponse',
         Payload=json.dumps(request_payload),
         LogType='Tail',

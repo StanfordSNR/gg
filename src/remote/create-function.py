@@ -10,10 +10,39 @@ import hashlib
 import base64
 import boto3
 
+from common import executable_hash
+
 BASE_FILE = "lambda_function/packages.zip"
 PACKAGE_GG_DIR = "_gg"
 
-def create_lambda_package(output, gg_execute_static):
+functions = [
+    ["gcc", "cc1"],
+    ["gcc", "as"],
+    ["gcc", "collect2", "ld"],
+
+    ["g++", "cc1plus"],
+    ["g++", "as"],
+    ["g++", "collect2", "ld"],
+
+    ["ranlib"],
+    ["ar"],
+    ["strip"],
+]
+
+hash_cache = {}
+
+def gghash(filename, block_size=65536):
+    sha256 = hashlib.sha256()
+    size = 0
+
+    with open(filename, 'rb') as f:
+        for block in iter(lambda: f.read(block_size), b''):
+            size += len(block)
+            sha256.update(block)
+
+    return "{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).decode('ascii').replace('=','').replace('-', '.'), size)
+
+def create_lambda_package(output, function_execs, gg_execute_static):
     PACKAGE_FILES = {
         "gg-execute-static": gg_execute_static,
         "function.py": "lambda_function/function.py",
@@ -21,6 +50,9 @@ def create_lambda_package(output, gg_execute_static):
         "downloader.py": "downloader.py",
         "common.py": "common.py"
     }
+
+    for exe in function_execs:
+        PACKAGE_FILES["executables/{}".format(exe[0])] = exe[1]
 
     shutil.copy(BASE_FILE, output)
 
@@ -58,28 +90,39 @@ def install_lambda_package(package_file, function_name, role, region, delete=Fal
     print(response['FunctionArn'])
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate and install Lambda function.")
-    parser.add_argument('--install', dest='install', action='store_true', default=False)
+    parser = argparse.ArgumentParser(description="Generate and install Lambda functions.")
     parser.add_argument('--delete', dest='delete', action='store_true', default=False)
-    parser.add_argument('--function-file', dest='function_file', action='store', default="ggfunction.zip")
-    parser.add_argument('--function-name', dest='function_name', action='store', default="ggfunction")
-    parser.add_argument('--role', dest='role', action='store')
-    parser.add_argument('--region', dest='region', default='us-west-2', action='store')
+    parser.add_argument('--role', dest='role', action='store',
+                        default=os.environ.get('GG_LAMBDA_ROLE'))
+    parser.add_argument('--region', dest='region', default='us-west-1', action='store')
     parser.add_argument('--gg-execute-static', dest='gg_execute_static',
                         default=shutil.which("gg-execute-static"))
+    parser.add_argument('--toolchain-path', dest='toolchain_path', required=True)
 
     args = parser.parse_args()
 
     if not args.gg_execute_static:
         raise Exception("Cannot find gg-execute-static")
 
-    if not args.install:
-        create_lambda_package(args.function_file, args.gg_execute_static)
-    else:
-        if not args.function_name or not args.role:
-            raise Exception("Please provide function name, role.")
+    if not args.role:
+        raise Exception("Please provide function role (or set GG_LAMBDA_ROLE).")
 
-        install_lambda_package(args.function_file, args.function_name, args.role, args.region, delete=args.delete)
+    for func in functions:
+        function_execs = [(f, os.path.join(args.toolchain_path, f)) for f in func]
+        function_execs = [(gghash(f[1]), f[1]) for f in function_execs]
+        hashes = [f[0] for f in function_execs]
+
+        function_name = "{prefix}{exechash}".format(
+            prefix="gg-", exechash=executable_hash(hashes)
+        )
+
+        function_file = "{}.zip".format(function_name)
+        create_lambda_package(function_file, function_execs, args.gg_execute_static)
+        print("Installing lambda function {}... ".format(function_name), end='')
+        install_lambda_package(function_file, function_name, args.role, args.region,
+                               delete=args.delete)
+        print("done.")
+        os.remove(function_file)
 
 if __name__ == '__main__':
     main()

@@ -8,7 +8,7 @@ import boto3
 import gg_pb2
 
 from ggpaths import GGPaths
-from common import make_executable
+from common import make_executable, executable_hash
 
 MAGIC_CODE = b'##GGTHUNK##'
 s3_client = boto3.client('s3')
@@ -44,11 +44,6 @@ def read_thunk(thunk_hash, s3_bucket=None):
         thunk.ParseFromString(fin.read())
 
         return thunk
-
-def executable_hash(hashes):
-    hashes.sort()
-    str_to_hash = "".join(hashes)
-    return "{}".format(base64.urlsafe_b64encode(hashlib.sha256(str_to_hash).digest()).replace('=',''))
 
 def thunk_executable_hash(thunk):
     hashes = []

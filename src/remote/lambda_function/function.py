@@ -47,6 +47,8 @@ def fetch_dependencies(infiles):
 
     download_files(download_list)
 
+EXECUTABLES_DIR = os.path.join(curdir, 'executables')
+
 def handler(event, context):
     GGInfo.thunk_hash = event['thunk_hash']
     GGInfo.s3_bucket = event['s3_bucket']
@@ -56,6 +58,15 @@ def handler(event, context):
 
     with open(GGPaths.blob_path(GGInfo.thunk_hash), "wb") as fout:
         fout.write(thunk_data)
+
+    if os.path.exists(EXECUTABLES_DIR):
+        for exe in os.listdir(EXECUTABLES_DIR):
+            blob_path = GGPaths.blob_path(exe)
+            exe_path = os.path.join(EXECUTABLES_DIR, exe)
+
+            if not os.path.exists(blob_path):
+                shutil.copy(exe_path, blob_path)
+                make_executable(blob_path)
 
     fetch_dependencies(GGInfo.infiles)
 
