@@ -22,8 +22,8 @@ using namespace gg::thunk;
 
 Thunk::Thunk( const string & outfile, const Function & function,
               const vector<InFile> & infiles )
-  : outfile_( outfile ), function_( function ), infiles_( infiles ),
-    order_( compute_order() )
+  : outfile_( roost::path( outfile ).lexically_normal().string() ),
+    function_( function ), infiles_( infiles ), order_( compute_order() )
 {}
 
 Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
