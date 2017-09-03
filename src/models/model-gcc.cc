@@ -265,7 +265,7 @@ void GCCModelGenerator::generate()
         output_name = final_output;
       }
       else {
-        output_name = stage_output_name( static_cast<GCCStage>( stage_num ), input.name );
+        output_name = "output_" + to_string( stage_num );
       }
 
       Thunk stage_thunk = generate_thunk( stage, input, output_name );
