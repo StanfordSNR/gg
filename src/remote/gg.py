@@ -44,3 +44,16 @@ def read_thunk(thunk_hash, s3_bucket=None):
         thunk.ParseFromString(fin.read())
 
         return thunk
+
+def executable_hash(hashes):
+    hashes.sort()
+    str_to_hash = "".join(hashes)
+    return "{}".format(base64.urlsafe_b64encode(hashlib.sha256(str_to_hash).digest()).replace('=',''))
+
+def thunk_executable_hash(thunk):
+    hashes = []
+    for infile in thunk.infiles:
+        if infile.type == gg_pb2.InFile.Type.Value('EXECUTABLE'):
+            hashes += [infile.hash]
+
+    return executable_hash(hashes)

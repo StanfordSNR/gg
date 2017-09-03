@@ -187,7 +187,7 @@ string Thunk::executable_hash() const
                                              executable_hashes.end(),
                                              string {} );
 
-  return digest::sha256( combined_hashes );
+  return digest::sha256( combined_hashes, true );
 }
 
 void Thunk::update_infile( const string & old_hash, const string & new_hash,

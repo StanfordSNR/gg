@@ -12,7 +12,7 @@
 using namespace CryptoPP;
 using namespace std;
 
-string digest::sha256( const string & input )
+string digest::sha256( const string & input, const bool exec_hash )
 {
   SHA256 hash_function;
   string ret;
@@ -25,10 +25,14 @@ string digest::sha256( const string & input )
                   new HashFilter( hash_function,
                                   new Base64URLEncoder( new StringSink( ret ), false ) ) );
 
-  replace( ret.begin(), ret.end(), '-', '.' );
-  output_sstr << ret << setfill( '0' ) << setw( 8 ) << hex << input.length();
-
-  return output_sstr.str();
+  if ( not exec_hash ) {
+    replace( ret.begin(), ret.end(), '-', '.' );
+    output_sstr << ret << setfill( '0' ) << setw( 8 ) << hex << input.length();
+    return output_sstr.str();
+  }
+  else {
+    return ret;
+  }
 }
 
 string digest::gghash_to_hex( const string & input )

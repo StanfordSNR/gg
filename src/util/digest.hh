@@ -7,7 +7,7 @@
 
 namespace digest
 {
-  std::string sha256( const std::string & input );
+  std::string sha256( const std::string & input, const bool exec_hash = false );
   std::string gghash_to_hex( const std::string & input );
 }
 
