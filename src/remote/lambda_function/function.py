@@ -63,7 +63,10 @@ def handler(event, context):
         if infile['executable']:
             make_executable(GGPaths.blob_path(infile['hash']))
 
-    run_command(["gg-execute-static", GGInfo.thunk_hash])
+    return_code, output = run_command(["gg-execute-static", GGInfo.thunk_hash])
+
+    if return_code:
+        raise Exception("gg-execute failed: {}".format(output))
 
     result = GGCache.check(GGInfo.thunk_hash)
 
@@ -90,7 +93,6 @@ def handler(event, context):
             ]
         }
     )
-
 
     return {
         'thunk_hash': GGInfo.thunk_hash,

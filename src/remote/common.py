@@ -18,7 +18,8 @@ def make_executable(path):
     os.chmod(path, st.st_mode | stat.S_IEXEC)
 
 def run_command(command):
-    res_code = sub.run(command).returncode
-
-    if res_code:
-        raise Exception("command failed: {}".format(" ".join(command)))
+    try:
+        output = sub.check_output(command, stderr=sub.STDOUT)
+        return 0, output.decode('utf-8')
+    except sub.CalledProcessError as exc:
+        return exc.returncode, exc.output.decode('utf-8')

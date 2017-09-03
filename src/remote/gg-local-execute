@@ -49,7 +49,10 @@ def main():
         if infile.type == gg_pb2.InFile.Type.Value('EXECUTABLE'):
             make_executable(GGPaths.blob_path(infile.hash))
 
-    run_command(["gg-execute", thunk_hash])
+    return_code, output = run_command(["gg-execute", thunk_hash])
+
+    if return_code:
+        raise Exception("command failed: {}".format(output))
 
     return os.EX_OK
 
