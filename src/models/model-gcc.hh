@@ -61,7 +61,7 @@ enum class GCCOption
   pthread, shared,
   param, pipe, pedantic, dashstatic, s,
   nostdlib, nostdinc, std,
-  Xlinker, mcmodel, mfentry,
+  Xlinker, mcmodel, mfentry, gdwarf_4, pg
 };
 
 static auto gcc_function =
