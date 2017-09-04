@@ -37,6 +37,8 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { "nostdinc", no_argument, NULL, to_underlying( GCCOption::nostdinc ) },
     { "static", no_argument, NULL, to_underlying( GCCOption::dashstatic ) },
 
+    { "mcmodel", required_argument, NULL, to_underlying( GCCOption::mcmodel ) },
+
     { 0, 0, 0, 0 },
   };
 
@@ -156,6 +158,8 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       case GCCOption::include: add_option( gccopt, "-include", optarg ); break;
       case GCCOption::param: add_option( gccopt, "--param", optarg ); break;
       case GCCOption::std: add_option( gccopt, string( "--std=" ) + optarg ); break;
+
+      case GCCOption::mcmodel: add_option( gccopt, string( "--mcmodel=" ) + optarg ); break;
 
       default:
         throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );
