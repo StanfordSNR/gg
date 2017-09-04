@@ -34,6 +34,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { "Xlinker", required_argument, NULL, to_underlying( GCCOption::Xlinker ) },
 
     { "nostdlib", no_argument, NULL, to_underlying( GCCOption::nostdlib ) },
+    { "nostdinc", no_argument, NULL, to_underlying( GCCOption::nostdinc ) },
     { "static", no_argument, NULL, to_underlying( GCCOption::dashstatic ) },
 
     { 0, 0, 0, 0 },
@@ -143,6 +144,11 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       case GCCOption::nostdlib:
         add_option( gccopt, "-nostdlib" );
         no_stdlib_ = true;
+        break;
+
+      case GCCOption::nostdinc:
+        add_option( gccopt, "-nostdinc" );
+        no_stdinc_ = true;
         break;
 
       case GCCOption::Xlinker: add_option( gccopt, "-Xlinker", optarg ); break;

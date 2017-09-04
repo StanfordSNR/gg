@@ -126,15 +126,18 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
 
     vector<string> all_args;
     all_args.reserve( c_include_path.size() + args.size() + 2 );
-    all_args.push_back( "-nostdinc" );
 
-    if ( input.language == Language::CXX or
-         input.language == Language::CXX_HEADER ) {
-      all_args.push_back( "-nostdinc++" );
-    }
+    if ( not arguments_.no_stdinc() ) {
+      all_args.push_back( "-nostdinc" );
 
-    for ( const auto & p : include_path ) {
-      all_args.push_back( "-isystem" + p );
+      for ( const auto & p : include_path ) {
+        all_args.push_back( "-isystem" + p );
+      }
+
+      if ( input.language == Language::CXX or
+           input.language == Language::CXX_HEADER ) {
+        all_args.push_back( "-nostdinc++" );
+      }
     }
 
     all_args.insert( all_args.end(), args.begin(), args.end() );
