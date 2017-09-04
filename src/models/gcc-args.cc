@@ -107,7 +107,6 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     case 'f': args_.push_back( string ( "-f" ) + ( optarg ? optarg : "" ) ); break;
 
     case 'W':
-      args_.push_back( string ( "-W" ) + ( optarg ? optarg : "" ) );
       process_W_option( optarg );
       break;
 
@@ -163,12 +162,53 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   }
 }
 
+bool startswith( const string & str, const string & prefix ) {
+  return str.compare( 0, prefix.size(), prefix ) == 0;
+}
+
 void GCCArguments::process_W_option( const string & optarg )
 {
-  static const string version_script = "l,--version-script=";
+  bool accepted = true;
 
-  if ( optarg.compare( 0, version_script.size(), version_script ) == 0 ) {
-    extra_infiles_.emplace_back( optarg.substr( version_script.size() ) );
+  static const string VERSION_SCRIPT = "--version-script=";
+
+  if ( optarg.length() >= 2 and optarg[ 1 ] == ',' ) {
+    accepted = false;
+
+    const string suboptarg = optarg.substr( 2 );
+
+    switch ( optarg[ 0 ] ) {
+    case 'p':
+      if ( startswith( suboptarg, "-MD" ) ) {
+        string::size_type comma = suboptarg.find( ',' );
+
+        if ( comma != string::npos ) {
+          args_.push_back( "-MD" );
+          args_.push_back( "-MF" );
+          args_.push_back( suboptarg.substr( comma + 1 ) );
+          return; /* don't need to add the original argument */
+        }
+      }
+
+      break;
+
+    case 'l':
+      /* XXX we're accepting all of -Wl,XYZ options... */
+      accepted = true;
+
+      if ( startswith( suboptarg, VERSION_SCRIPT ) ) {
+        extra_infiles_.emplace_back( suboptarg.substr( VERSION_SCRIPT.size() ) );
+      }
+
+      break;
+    }
+  }
+
+  if ( accepted ) {
+    args_.push_back( "-W" + optarg );
+  }
+  else {
+    throw runtime_error( "not implemented: -W" + optarg );
   }
 }
 
