@@ -38,6 +38,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { "static", no_argument, NULL, to_underlying( GCCOption::dashstatic ) },
 
     { "mcmodel", required_argument, NULL, to_underlying( GCCOption::mcmodel ) },
+    { "mfentry", no_argument, NULL, to_underlying( GCCOption::mfentry ) },
 
     { 0, 0, 0, 0 },
   };
@@ -160,6 +161,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       case GCCOption::std: add_option( gccopt, string( "--std=" ) + optarg ); break;
 
       case GCCOption::mcmodel: add_option( gccopt, string( "--mcmodel=" ) + optarg ); break;
+      case GCCOption::mfentry: add_option( gccopt, "-mfentry" ); break;
 
       default:
         throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );
