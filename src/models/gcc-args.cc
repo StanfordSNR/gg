@@ -211,6 +211,11 @@ void GCCArguments::process_W_option( const string & optarg )
       }
 
       break;
+
+    case 'a':
+      /* XXX allow all */
+      accepted = true;
+      break;
     }
   }
 
