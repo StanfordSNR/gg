@@ -42,7 +42,8 @@ def main():
         'thunk_hash': thunk_hash,
         's3_bucket': s3_bucket,
         'infiles': infiles,
-        'thunk_data': b64encode(thunk_data).decode('ascii')
+        'thunk_data': b64encode(thunk_data).decode('ascii'),
+        'timelog': True,
     }
 
     response = boto3.client('lambda', region_name=s3_region).invoke(

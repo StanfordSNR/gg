@@ -18,6 +18,7 @@ import shutil
 import asyncio
 import aiohttp
 import boto3
+import time
 
 from base64 import b64decode
 
@@ -49,15 +50,34 @@ def fetch_dependencies(infiles):
 
 EXECUTABLES_DIR = os.path.join(curdir, 'executables')
 
+class TimeLog:
+    def __init__(self, enabled=True):
+        self.enabled = enabled
+        self.start = time.time()
+        self.points = []
+
+    def add_point(self, title):
+        if not self.enabled:
+            return
+
+        now = time.time()
+        self.points += [(title, now - self.start)]
+        self.start = now
+
 def handler(event, context):
     GGInfo.thunk_hash = event['thunk_hash']
     GGInfo.s3_bucket = event['s3_bucket']
     GGInfo.infiles = event['infiles']
 
+    enable_timelog = event.get('timelog', False)
+    timelogger = TimeLog(enabled=enable_timelog)
+
     thunk_data = b64decode(event['thunk_data'])
 
     with open(GGPaths.blob_path(GGInfo.thunk_hash), "wb") as fout:
         fout.write(thunk_data)
+
+    timelogger.add_point("write thunk to disk")
 
     if os.path.exists(EXECUTABLES_DIR):
         for exe in os.listdir(EXECUTABLES_DIR):
@@ -68,16 +88,22 @@ def handler(event, context):
                 shutil.copy(exe_path, blob_path)
                 make_executable(blob_path)
 
+    timelogger.add_point("copy executables to ggdir")
+
     fetch_dependencies(GGInfo.infiles)
 
     for infile in GGInfo.infiles:
         if infile['executable']:
             make_executable(GGPaths.blob_path(infile['hash']))
 
+    timelogger.add_point("fetching the dependencies")
+
     return_code, output = run_command(["gg-execute-static", GGInfo.thunk_hash])
 
     if return_code:
         raise Exception("gg-execute failed: {}".format(output))
+
+    timelogger.add_point("gg-execute")
 
     result = GGCache.check(GGInfo.thunk_hash)
 
@@ -85,6 +111,8 @@ def handler(event, context):
         raise Exception("thunk reduction failed")
 
     executable = is_executable(GGPaths.blob_path(result))
+
+    timelogger.add_point("check the outfile")
 
     s3_client.upload_file(GGPaths.blob_path(result), GGInfo.s3_bucket, result)
 
@@ -104,6 +132,16 @@ def handler(event, context):
             ]
         }
     )
+
+    timelogger.add_point("upload outfile to s3")
+
+    if enable_timelog:
+        s3_client.put_object(
+            ACL='public-read',
+            Bucket=GGInfo.s3_bucket,
+            Key="runlogs/{}".format(GGInfo.thunk_hash),
+            Body=str({'output_hash': result, 'timelog': timelogger.points}).encode('utf-8')
+        )
 
     return {
         'thunk_hash': GGInfo.thunk_hash,

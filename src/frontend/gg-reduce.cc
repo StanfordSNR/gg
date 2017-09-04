@@ -201,8 +201,7 @@ void Reductor::upload_dependencies() const
   }
 
   const string plural = upload_requests.size() == 1 ? "" : "s";
-  cerr << "Uploading " << upload_requests.size() << " file" << plural << "..."
-       << endl;
+  cerr << "Uploading " << upload_requests.size() << " file" << plural << "... ";
 
   S3ClientConfig s3_config;
   s3_config.region = gg::remote::s3_region();
@@ -213,6 +212,8 @@ void Reductor::upload_dependencies() const
     [] ( const S3::UploadRequest & upload_request )
     { gg::remote::set_available( upload_request.object_key ); }
   );
+
+  cerr << "done." << endl;
 }
 
 void usage( const char * argv0 )
@@ -268,7 +269,7 @@ int main( int argc, char * argv[] )
     }
 
     Reductor reductor { thunk_hash, max_jobs };
-    
+
     if ( remote_execution ) {
       reductor.upload_dependencies();
     }
