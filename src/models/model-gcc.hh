@@ -83,12 +83,6 @@ static auto gcc_function =
 
 static const std::string DEFAULT_MAKE_TARGET = "__GG_MAKE_TARGET__";
 
-template <typename E>
-constexpr auto to_underlying( E e ) noexcept
-{
-    return static_cast<std::underlying_type_t<E>>( e );
-}
-
 class GCCArguments
 {
 private:

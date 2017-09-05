@@ -7,47 +7,83 @@
 
 using namespace std;
 
+struct GCCOptionData
+{
+  GCCOption option;
+  const char * option_str;
+  int has_arg;
+  bool double_dash;
+  char arg_separator;
+};
+
+template <typename E>
+constexpr auto to_underlying( E e ) noexcept
+{
+    return static_cast<std::underlying_type_t<E>>( e );
+}
+
+template<size_t N>
+struct getopt_options
+{
+  constexpr getopt_options( const GCCOptionData gcc_options_data[] )
+    : list()
+  {
+    size_t i = 0;
+    for ( ; i < N; i++ ) {
+      list[ i ].name = gcc_options_data[ i ].option_str;
+      list[ i ].has_arg = gcc_options_data[ i ].has_arg;
+      list[ i ].flag = nullptr;
+      list[ i ].val = to_underlying( gcc_options_data[ i ].option );
+    }
+
+    list[ i ] = { nullptr, 0, nullptr, 0 };
+  }
+
+  option list[ N + 1 ];
+};
+
 GCCArguments::GCCArguments( const int argc, char ** argv )
 {
   optind = 1;
   opterr = 0;
 
   constexpr const char * gcc_optstring = "-l:B:EScso:gO::D:f:I:W:L:";
-  constexpr option gcc_options[] = {
-    { "x", required_argument, NULL, to_underlying( GCCOption::x ) },
-    { "M", no_argument, NULL, to_underlying( GCCOption::M ) },
-    { "MD", no_argument, NULL, to_underlying( GCCOption::MD ) },
-    { "MP", no_argument, NULL, to_underlying( GCCOption::MP ) },
-    { "MT", required_argument, NULL, to_underlying( GCCOption::MT ) },
-    { "MF", required_argument, NULL, to_underlying( GCCOption::MF ) },
 
-    { "pie", no_argument, NULL, to_underlying( GCCOption::pie ) },
-    { "pthread", no_argument, NULL, to_underlying( GCCOption::pthread ) },
-    { "shared", no_argument, NULL, to_underlying( GCCOption::shared ) },
-    { "pipe", no_argument, NULL, to_underlying( GCCOption::pipe ) },
-    { "pedantic", no_argument, NULL, to_underlying( GCCOption::pedantic ) },
+  constexpr GCCOptionData gcc_options_data[] = {
+    { GCCOption::x,  "x",  required_argument, false, ' ' },
 
-    { "include", required_argument, NULL, to_underlying( GCCOption::include ) },
-    { "param", required_argument, NULL, to_underlying( GCCOption::param ) },
-    { "std", optional_argument, NULL, to_underlying( GCCOption::std ) },
+    /* -M options */
+    { GCCOption::M,  "M",  no_argument, false, '\0' },
+    { GCCOption::MD, "MD", no_argument, false, '\0' },
+    { GCCOption::MP, "MP", no_argument, false, '\0' },
+    { GCCOption::MT, "MT", required_argument, false, ' ' },
+    { GCCOption::MF, "MF", required_argument, false, ' ' },
 
-    { "Xlinker", required_argument, NULL, to_underlying( GCCOption::Xlinker ) },
+    { GCCOption::pie,        "pie",      no_argument, false, '\0' },
+    { GCCOption::pthread,    "pthread",  no_argument, false, '\0' },
+    { GCCOption::shared,     "shared",   no_argument, false, '\0' },
+    { GCCOption::pipe,       "pipe",     no_argument, false, '\0' },
+    { GCCOption::pedantic,   "pedantic", no_argument, false, '\0' },
+    { GCCOption::nostdlib,   "nostdlib", no_argument, false, '\0' },
+    { GCCOption::nostdinc,   "nostdinc", no_argument, false, '\0' },
+    { GCCOption::dashstatic, "static",   no_argument, false, '\0' },
+    { GCCOption::mfentry,    "mfentry",  no_argument, false, '\0' },
+    { GCCOption::gdwarf_4,   "gdwarf-4", no_argument, false, '\0' },
 
-    { "nostdlib", no_argument, NULL, to_underlying( GCCOption::nostdlib ) },
-    { "nostdinc", no_argument, NULL, to_underlying( GCCOption::nostdinc ) },
-    { "static", no_argument, NULL, to_underlying( GCCOption::dashstatic ) },
-
-    { "mcmodel", required_argument, NULL, to_underlying( GCCOption::mcmodel ) },
-    { "mfentry", no_argument, NULL, to_underlying( GCCOption::mfentry ) },
-    { "gdwarf-4", no_argument, NULL, to_underlying( GCCOption::gdwarf_4 ) },
-
-    { 0, 0, 0, 0 },
+    { GCCOption::include, "include", required_argument, false, ' ' },
+    { GCCOption::param,   "param",   required_argument, true, ' ' },
+    { GCCOption::std,     "std",     required_argument, false, '=' },
+    { GCCOption::mcmodel, "mcmodel", required_argument, false, '=' },
+    { GCCOption::Xlinker, "Xlinker", required_argument, false, ' ' },
   };
+
+  constexpr size_t option_count = sizeof( gcc_options_data ) / sizeof( GCCOptionData);
+  constexpr auto gcc_options = getopt_options<option_count>{ gcc_options_data };
 
   Language current_language = Language::NONE; /* -x arugment */
 
   while ( true ) {
-    const int opt = getopt_long_only( argc, argv, gcc_optstring, gcc_options, nullptr );
+    const int opt = getopt_long_only( argc, argv, gcc_optstring, gcc_options.list, nullptr );
     const GCCOption gccopt = static_cast<GCCOption>( opt );
 
     if ( opt == -1 ) { break; }
