@@ -255,6 +255,11 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
     }
   }
 
+  if ( arguments_.input_files().size() == 1 and arguments_.input_files()[ 0 ].name == "/dev/null" ) {
+    // just run gcc
+    execvp( argv[ 0 ], argv );
+  }
+
   if ( arguments_.input_files().size() == 0 ) {
     throw runtime_error( "no input files" );
   }
