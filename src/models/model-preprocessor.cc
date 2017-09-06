@@ -116,7 +116,5 @@ void GCCModelGenerator::generate_dependencies_file( const vector<string> & optio
     args.push_back( DEFAULT_MAKE_TARGET );
   }
 
-  cerr << command_str( args, {} ) << endl;
-
   run( args[ 0 ], args, {}, true, true );
 }

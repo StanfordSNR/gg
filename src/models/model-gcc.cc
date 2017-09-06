@@ -28,7 +28,7 @@ using namespace gg::thunk;
 void dump_gcc_specs( TempFile & target_file )
 {
   target_file.write( run( "gcc-7", { "gcc-7", "-dumpspecs" },
-                          {}, true, true, true ) );
+                                   {}, true, true, true ) );
 }
 
 vector<string> prune_makedep_flags( const vector<string> & args )
@@ -148,13 +148,14 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
     string makedep_target = DEFAULT_MAKE_TARGET;
 
     if ( generate_makedep_file ) {
-      cerr << "[+] generating make dependencies file..." << endl;
+      cerr << ">> generating make dependencies file... ";
       generate_dependencies_file( all_args, {} );
       makedep_filename = *arguments_.option_argument( GCCOption::MF );
       Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
       if ( mt_arg.initialized() ) {
         makedep_target = *mt_arg;
       }
+      cerr << "done." << endl;
     }
     else {
       generate_dependencies_file( args, makedep_tempfile.name() );
@@ -281,6 +282,8 @@ void GCCModelGenerator::generate()
     stage_output[ first_stage - 1 ] = input.name;
     input.infile = input.name;
 
+    cerr << "[input: " << input.name << "]" << endl;
+
     for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
       GCCStage stage = static_cast<GCCStage>( stage_num );
       string output_name;
@@ -299,7 +302,7 @@ void GCCModelGenerator::generate()
       switch ( stage ) {
       case PREPROCESS:
         /* generate preprocess thunk */
-        cerr << ">> preprocessing " << stage_output[ stage - 1 ] << endl;
+        cerr << ">> preprocessed: " << last_stage_hash << endl;
 
         switch ( input.language ) {
         case Language::C:
@@ -320,14 +323,14 @@ void GCCModelGenerator::generate()
 
       case COMPILE:
         /* generate compile thunk */
-        cerr << ">> compiling " << stage_output[ stage - 1 ] << endl;
+        cerr << ">> compiled: " << last_stage_hash << endl;
         input.language = Language::ASSEMBLER;
         break;
 
       case ASSEMBLE:
       {
         /* generate assemble thunk */
-        cerr << ">> assembling " << stage_output[ stage - 1 ] << endl;
+        cerr << ">> assembled: " << last_stage_hash << endl;
         input.language = Language::OBJECT;
         break;
       }
@@ -340,7 +343,10 @@ void GCCModelGenerator::generate()
       input.infile = InFile( input.name, "nonexistent",
                              last_stage_hash, stage_thunk.order(),
                              0 );
-      cerr << "[output=" << output_name << "]" << endl;
+
+      if ( stage == last_stage ) {
+        cerr << "[output: " << output_name << "]" << endl;
+      }
     }
   }
 
@@ -351,16 +357,13 @@ void GCCModelGenerator::generate()
 
     vector<string> link_args { args };
 
-    cerr << ">> linking ";
-    for ( auto const & link_input : input_files ) {
-      cerr << link_input.name << " ";
-    }
-    cerr << endl;
-
     vector<string> dependencies = get_link_dependencies( input_files, args );
 
     Thunk thunk = generate_link_thunk( input_files, dependencies, final_output );
-    thunk.store();
+    string last_stage_hash = thunk.store();
+
+    cerr << ">> linked: " << last_stage_hash << endl;
+    cerr << "[output: " << final_output << "]" << endl;
   }
 }
 
