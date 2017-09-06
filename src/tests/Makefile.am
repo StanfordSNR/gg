@@ -24,7 +24,7 @@ dist_check_SCRIPTS = fetch-vectors.test \
                      model-preprocess.test model-preprocess-makedep.test \
                      model-compile.test model-assemble.test model-link.test \
                      model-ar.test model-ranlib.test model-strip.test \
-                     gnu-hello.test mosh.test \
+                     model-ld.test gnu-hello.test mosh.test \
                      cleanup.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
@@ -41,12 +41,14 @@ model-link.log: fetch-vectors.log
 model-ar.log: fetch-vectors.log
 model-ranlib.log: fetch-vectors.log
 model-strip.log: fetch-vectors.log
+model-ld.log: fetch-vectors.log
 gnu-hello.log: fetch-vectors.log
 mosh.log: fetch-vectors.log
 
 cleanup.log: model-preprocess.log model-preprocess-makedep.log \
              model-compile.log model-assemble.log model-link.log model-ar.log \
-             model-ranlib.log model-strip.log gnu-hello.log mosh.log
+             model-ranlib.log model-strip.log model-ld.log gnu-hello.log \
+             mosh.log
 
 clean-local:
 	-rm -rf $(abs_builddir)/test_temp

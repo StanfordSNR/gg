@@ -23,7 +23,7 @@ constexpr auto to_underlying( E e ) noexcept
 
 enum class LDOption
 {
-  no_undefined = 1000, nostdlib
+  no_undefined = 1000, nostdlib, pie
 };
 
 vector<string> get_link_dependencies( size_t argc, char * argv[], list<size_t> input_indexes )
@@ -34,7 +34,7 @@ vector<string> get_link_dependencies( size_t argc, char * argv[], list<size_t> i
   args.emplace_back( "ld" );
 
   for ( size_t i = 1; i < argc; i++ ) {
-    if ( input_indexes.front() == i ) {
+    if ( input_indexes.size() > 0 and input_indexes.front() == i ) {
       input_indexes.pop_front();
       continue;
     }
@@ -63,6 +63,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     { "no-undefined", no_argument,       nullptr, to_underlying( LDOption::no_undefined ) },
     { "nostdlib",     no_argument,       nullptr, to_underlying( LDOption::nostdlib ) },
     { "output",       required_argument, nullptr, 'o' },
+    { "pie",          no_argument, nullptr, to_underlying( LDOption::pie ) },
 
     { 0, 0, 0, 0 },
   };
@@ -78,7 +79,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
   list<size_t> input_indexes;
 
   while ( true ) {
-    const int opt = getopt_long( argc, argv, "-l:o:e:m:z:", long_options, NULL );
+    const int opt = getopt_long_only( argc, argv, "-l:o:e:m:z:", long_options, NULL );
 
     if ( opt == -1 ) {
       break;
@@ -87,6 +88,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     if ( opt == 1 ) {
       infiles.emplace_back( optarg );
       input_indexes.emplace_back( optind - 1 );
+      continue;
     }
 
     bool processed = true;
@@ -113,6 +115,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
         break;
 
       case LDOption::no_undefined:
+      case LDOption::pie:
         break;
 
       default:
@@ -120,6 +123,8 @@ Thunk generate_thunk( size_t argc, char * argv[] )
       }
     }
   }
+
+  infiles.push_back( program_infiles.at( LD ) );
 
   vector<string> dependencies = get_link_dependencies( argc, argv, input_indexes );
 
@@ -133,11 +138,14 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     all_args.push_back( "-nostdlib" );
 
     for ( const string & dir : ld_search_path ) {
+      all_args.push_back( "-L" + dir );
       all_args.push_back( "-rpath-link" );
       all_args.push_back( dir );
       infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
     }
   }
+
+  all_args.insert( all_args.end(), original_args.begin(), original_args.end() );
 
   return { outfile,
     { LD, all_args, {}, program_data( LD ).first },
