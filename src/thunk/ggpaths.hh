@@ -19,6 +19,8 @@ namespace gg {
 
     roost::path blob_path( const std::string & hash );
     roost::path reduction_path( const std::string & hash );
+
+    void fix_path_envar();
   }
 
   namespace remote {

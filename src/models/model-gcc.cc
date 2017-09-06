@@ -382,6 +382,8 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
+    gg::paths::fix_path_envar();
+
     OperationMode operation_mode;
 
     if ( strcmp( argv[ 1 ], "gcc" ) == 0 ) {

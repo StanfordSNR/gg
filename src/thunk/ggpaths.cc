@@ -97,6 +97,13 @@ namespace gg {
     {
       return reductions() / hash;
     }
+
+    void fix_path_envar()
+    {
+      if ( getenv( "GG_REALPATH" ) != nullptr ) {
+        setenv( "PATH", getenv( "GG_REALPATH" ), true );
+      }
+    }
   }
 
   namespace remote {
