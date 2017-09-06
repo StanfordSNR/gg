@@ -134,3 +134,17 @@ string command_str( const vector<string> & command,
 
   return oss.str();
 }
+
+std::string command_str( const int argc, char * argv[] )
+{
+    ostringstream oss;
+    for ( int i = 0; i < argc; i++ ) {
+        oss << argv[ i ];
+
+        if ( i != argc - 1 )  {
+            oss << " ";
+        }
+    }
+
+    return oss.str();
+}

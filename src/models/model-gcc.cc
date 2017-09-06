@@ -1,5 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include <sys/ioctl.h>
+#include <cmath>
 #include <vector>
 #include <string>
 #include <tuple>
@@ -230,6 +232,27 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
   }
 }
 
+void print_gcc_command( const string & command_str )
+{
+  struct winsize size;
+  ioctl( STDOUT_FILENO, TIOCGWINSZ, &size );
+  size_t window_width = size.ws_col - 4;
+
+  cerr << "\u257f ";
+
+  size_t line_count = static_cast<size_t>( ceil( 1.0 * command_str.length() / window_width ) );
+
+  for ( size_t i = 0; i < line_count; i++ ) {
+    if ( i > 0 ) {
+      cerr << " \u2936" << endl;;
+      cerr << "\u2502 ";
+    }
+   cerr << command_str.substr( i * window_width, window_width );
+  }
+
+   cerr << endl;
+}
+
 GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
                                       int argc, char ** argv )
   : operation_mode_( operation_mode ), arguments_( argc, argv )
@@ -264,6 +287,8 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
     throw runtime_error( "no input files" );
   }
 
+  print_gcc_command( command_str( argc, argv ) );
+
   dump_gcc_specs( specs_tempfile_ );
 
   size_t non_object_inputs = std::count_if( arguments_.input_files().begin(),
@@ -295,7 +320,7 @@ void GCCModelGenerator::generate()
     stage_output[ first_stage - 1 ] = input.name;
     input.infile = input.name;
 
-    cerr << "\u257f input: " << input.name << endl;
+    cerr << "\u251c\u257c input: " << input.name << endl;
 
     for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
       GCCStage stage = static_cast<GCCStage>( stage_num );

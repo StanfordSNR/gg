@@ -23,4 +23,6 @@ std::string run( const std::string & filename,
 std::string command_str( const std::vector<std::string> & command,
                          const std::vector<std::string> & environment );
 
+std::string command_str( const int argc, char * argv[] );
+
 #endif /* SYSTEM_RUNNER_HH */
