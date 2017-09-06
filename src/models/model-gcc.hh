@@ -65,8 +65,8 @@ enum class GCCOption
   Xlinker, mcmodel, mfentry, gdwarf_4, pg, P,
 
   mno_sse, mno_mmx, mno_sse2, mno_3dnow, mno_avx, m32, m64, mno_80387,
-  mno_fp_ret_in_387, mno_red_zone,
-  
+  mno_fp_ret_in_387, mno_red_zone, msoft_float
+
   mpreferred_stack_boundary,
   mskip_rax_setup, mtune
 };
