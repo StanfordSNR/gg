@@ -84,6 +84,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::mno_sse2,          "mno-sse2",          no_argument, false, 'X' },
     { GCCOption::mno_3dnow,         "mno-3dnow",         no_argument, false, 'X' },
     { GCCOption::mno_avx,           "mno-avx",           no_argument, false, 'X' },
+    { GCCOption::m32,               "m32",               no_argument, false, 'X' },
     { GCCOption::m64,               "m64",               no_argument, false, 'X' },
     { GCCOption::mno_80387,         "mno-80387",         no_argument, false, 'X' },
     { GCCOption::mno_fp_ret_in_387, "mno-fp-ret-in-387", no_argument, false, 'X' },
