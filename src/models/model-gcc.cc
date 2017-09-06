@@ -225,10 +225,6 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
                                       int argc, char ** argv )
   : operation_mode_( operation_mode ), arguments_( argc, argv )
 {
-  if ( arguments_.input_files().size() == 0 ) {
-    throw runtime_error( "no input files" );
-  }
-
   if ( arguments_.option_argument( GCCOption::print_file_name ).initialized() ) {
     // just run gcc for this
     execvp( argv[ 0 ], argv );
@@ -250,6 +246,9 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
     }
   }
 
+  if ( arguments_.input_files().size() == 0 ) {
+    throw runtime_error( "no input files" );
+  }
 
   dump_gcc_specs( specs_tempfile_ );
 
