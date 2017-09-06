@@ -14,7 +14,7 @@ BASE_LDADD = ../thunk/libthunk.a \
              ../util/libggutil.a \
              $(CRYPTO_LIBS) $(PROTOBUF_LIBS)
 
-bin_PROGRAMS = model-gcc model-ar model-ranlib model-strip
+bin_PROGRAMS = model-gcc model-ar model-ranlib model-strip model-ld
 
 COMMON_TOOLCHAIN_SOURCES = toolchain.hh toolchain.cc model-gcc.hh
 
@@ -31,6 +31,9 @@ model_ranlib_LDADD = $(BASE_LDADD)
 
 model_strip_SOURCES = model-strip.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_strip_LDADD = $(BASE_LDADD)
+
+model_ld_SOURCES = model-ld.cc $(COMMON_TOOLCHAIN_SOURCES)
+model_ld_LDADD = $(BASE_LDADD)
 
 EXTRA_DIST = generate-toolchain-header.py
 CLEANFILES = toolchain.hh toolchain.cc
