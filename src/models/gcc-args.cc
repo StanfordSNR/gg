@@ -243,9 +243,8 @@ void GCCArguments::process_W_option( const string & optarg )
         string::size_type comma = suboptarg.find( ',' );
 
         if ( comma != string::npos ) {
-          args_.push_back( "-MD" );
-          args_.push_back( "-MF" );
-          args_.push_back( suboptarg.substr( comma + 1 ) );
+          add_option( GCCOption::MD, "MD" );
+          add_option( GCCOption::MF, "MF", suboptarg.substr( comma + 1 ).c_str(), ' ' );
           return; /* don't need to add the original argument */
         }
       }
