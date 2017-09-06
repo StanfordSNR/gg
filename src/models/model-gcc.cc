@@ -155,6 +155,14 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
       if ( mt_arg.initialized() ) {
         makedep_target = *mt_arg;
       }
+      else {
+        makedep_target = roost::rbasename( input.name ).string();
+        string::size_type dot_pos = makedep_target.rfind( '.' );
+        if ( dot_pos != string::npos ) {
+            makedep_target = makedep_target.substr( 0, dot_pos );
+        }
+        makedep_target += ".o";
+      }
       cerr << "done." << endl;
     }
     else {
