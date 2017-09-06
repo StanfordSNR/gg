@@ -63,6 +63,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     { "no-undefined", no_argument,       nullptr, to_underlying( LDOption::no_undefined ) },
     { "nostdlib",     no_argument,       nullptr, to_underlying( LDOption::nostdlib ) },
     { "output",       required_argument, nullptr, 'o' },
+    { "relocatable",       required_argument, nullptr, 'r' },
     { "pie",          no_argument, nullptr, to_underlying( LDOption::pie ) },
 
     { 0, 0, 0, 0 },
@@ -98,6 +99,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     case 'e':
     case 'm':
     case 'z':
+    case 'r':
       break;
 
     case 'o':
