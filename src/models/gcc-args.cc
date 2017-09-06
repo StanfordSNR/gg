@@ -85,13 +85,13 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::mno_80387,         "mno-80387",         no_argument, false, 'X' },
     { GCCOption::mno_fp_ret_in_387, "mno-fp-ret-in-387", no_argument, false, 'X' },
 
-
-
     { GCCOption::include, "include", required_argument, false, ' ' },
     { GCCOption::param,   "param",   required_argument, true, ' ' },
     { GCCOption::std,     "std",     required_argument, false, '=' },
     { GCCOption::mcmodel, "mcmodel", required_argument, false, '=' },
     { GCCOption::Xlinker, "Xlinker", required_argument, false, ' ' },
+
+    { GCCOption::mpreferred_stack_boundary, "mpreferred-stack-boundary", required_argument, false, '=' },
   };
 
   constexpr size_t option_count = sizeof( gcc_options_data ) / sizeof( GCCOptionData);

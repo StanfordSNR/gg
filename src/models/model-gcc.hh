@@ -65,7 +65,7 @@ enum class GCCOption
   Xlinker, mcmodel, mfentry, gdwarf_4, pg,
 
   mno_sse, mno_mmx, mno_sse2, mno_3dnow, mno_avx, m64, mno_80387, mno_fp_ret_in_387,
-  
+  mpreferred_stack_boundary,
 };
 
 struct GCCOptionData;
