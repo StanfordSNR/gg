@@ -148,7 +148,7 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
     string makedep_target = DEFAULT_MAKE_TARGET;
 
     if ( generate_makedep_file ) {
-      cerr << ">> generating make dependencies file... ";
+      cerr << "\u251c\u2500 generating make dependencies file... ";
       generate_dependencies_file( all_args, {} );
       makedep_filename = *arguments_.option_argument( GCCOption::MF );
       Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
@@ -295,7 +295,7 @@ void GCCModelGenerator::generate()
     stage_output[ first_stage - 1 ] = input.name;
     input.infile = input.name;
 
-    cerr << "[input: " << input.name << "]" << endl;
+    cerr << "\u257f input: " << input.name << endl;
 
     for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
       GCCStage stage = static_cast<GCCStage>( stage_num );
@@ -315,7 +315,7 @@ void GCCModelGenerator::generate()
       switch ( stage ) {
       case PREPROCESS:
         /* generate preprocess thunk */
-        cerr << ">> preprocessed: " << last_stage_hash << endl;
+        cerr << "\u251c\u2500 preprocessed: " << last_stage_hash << endl;
 
         switch ( input.language ) {
         case Language::C:
@@ -336,14 +336,14 @@ void GCCModelGenerator::generate()
 
       case COMPILE:
         /* generate compile thunk */
-        cerr << ">> compiled: " << last_stage_hash << endl;
+        cerr << "\u251c\u2500 compiled: " << last_stage_hash << endl;
         input.language = Language::ASSEMBLER;
         break;
 
       case ASSEMBLE:
       {
         /* generate assemble thunk */
-        cerr << ">> assembled: " << last_stage_hash << endl;
+        cerr << "\u251c\u2500 assembled: " << last_stage_hash << endl;
         input.language = Language::OBJECT;
         break;
       }
@@ -358,7 +358,7 @@ void GCCModelGenerator::generate()
                              0 );
 
       if ( stage == last_stage ) {
-        cerr << "[output: " << output_name << "]" << endl;
+        cerr << "\u2570\u257c output: " << final_output << endl;
       }
     }
   }
@@ -375,8 +375,8 @@ void GCCModelGenerator::generate()
     Thunk thunk = generate_link_thunk( input_files, dependencies, final_output );
     string last_stage_hash = thunk.store();
 
-    cerr << ">> linked: " << last_stage_hash << endl;
-    cerr << "[output: " << final_output << "]" << endl;
+    cerr << "\u251c\u2500 linked: " << last_stage_hash << endl;
+    cerr << "\u2570\u257c output: " << final_output << endl;
   }
 }
 
