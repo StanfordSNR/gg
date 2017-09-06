@@ -99,6 +99,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::mcmodel, "mcmodel", required_argument, false, '=' },
     { GCCOption::Xlinker, "Xlinker", required_argument, false, ' ' },
     { GCCOption::mtune,   "mtune",   required_argument, false, '=' },
+    { GCCOption::isystem, "isystem", required_argument, false, ' ' },
 
     { GCCOption::mpreferred_stack_boundary, "mpreferred-stack-boundary", required_argument, false, '=' },
 
@@ -195,6 +196,10 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
         input_args_.emplace_back( optarg );
         current_language = GCCModelGenerator::name_to_language( optarg );
         add_to_args = false;
+        break;
+
+      case GCCOption::isystem:
+        include_dirs_.emplace_back( optarg );
         break;
 
       case GCCOption::nostdlib:

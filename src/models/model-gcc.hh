@@ -58,7 +58,7 @@ enum class GCCOption
   E, S, c, C,
   M, MD, MP, MT, MF,
   pie,
-  include,
+  include, isystem,
   pthread, shared,
   param, pipe, pedantic, dashstatic, s,
   nostdlib, nostdinc, std,
@@ -107,6 +107,7 @@ private:
 
   std::vector<std::string> include_dirs_ {};
   std::vector<std::string> library_dirs_ {};
+  std::vector<std::string> system_include_dirs_ {};
 
   std::vector<std::string> extra_infiles_ {};
 
