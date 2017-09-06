@@ -47,7 +47,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   optind = 1;
   opterr = 0;
 
-  constexpr const char * gcc_optstring = "-l:B:o:gO::D:f:I:W:L:";
+  constexpr const char * gcc_optstring = "-l:B:o:gO::D:U:f:I:W:L:";
 
   constexpr GCCOptionData gcc_options_data[] = {
     { GCCOption::x,  "x",  required_argument, false, ' ' },
