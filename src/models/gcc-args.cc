@@ -76,6 +76,17 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::mfentry,    "mfentry",  no_argument, false, 'X' },
     { GCCOption::gdwarf_4,   "gdwarf-4", no_argument, false, 'X' },
 
+    { GCCOption::mno_sse,           "mno-sse",           no_argument, false, 'X' },
+    { GCCOption::mno_mmx,           "mno-mmx",           no_argument, false, 'X' },
+    { GCCOption::mno_sse2,          "mno-sse2",          no_argument, false, 'X' },
+    { GCCOption::mno_3dnow,         "mno-3dnow",         no_argument, false, 'X' },
+    { GCCOption::mno_avx,           "mno-avx",           no_argument, false, 'X' },
+    { GCCOption::m64,               "m64",               no_argument, false, 'X' },
+    { GCCOption::mno_80387,         "mno-80387",         no_argument, false, 'X' },
+    { GCCOption::mno_fp_ret_in_387, "mno-fp-ret-in-387", no_argument, false, 'X' },
+
+
+
     { GCCOption::include, "include", required_argument, false, ' ' },
     { GCCOption::param,   "param",   required_argument, true, ' ' },
     { GCCOption::std,     "std",     required_argument, false, '=' },
