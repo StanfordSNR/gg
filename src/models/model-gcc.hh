@@ -181,6 +181,9 @@ public:
   static GCCStage    language_to_stage( const Language lang );
   static std::string language_to_name( const Language & lang );
   static std::string stage_output_name( const GCCStage stage, const std::string basename );
+
+  static std::vector<std::string>
+  parse_linker_output( const std::vector<std::string> & linker_args );
 };
 
 #endif /* MODEL_LINKER_HH */
