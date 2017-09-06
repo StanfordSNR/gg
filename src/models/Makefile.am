@@ -32,7 +32,7 @@ model_ranlib_LDADD = $(BASE_LDADD)
 model_strip_SOURCES = model-strip.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_strip_LDADD = $(BASE_LDADD)
 
-model_ld_SOURCES = model-ld.cc $(COMMON_TOOLCHAIN_SOURCES)
+model_ld_SOURCES = model-ld.cc model-linker.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_ld_LDADD = $(BASE_LDADD)
 
 EXTRA_DIST = generate-toolchain-header.py

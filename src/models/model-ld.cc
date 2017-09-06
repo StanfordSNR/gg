@@ -3,6 +3,7 @@
 #include <string>
 #include <cstring>
 #include <getopt.h>
+#include <list>
 
 #include "thunk.hh"
 #include "ggpaths.hh"
@@ -25,7 +26,31 @@ enum class LDOption
   no_undefined = 1000, nostdlib
 };
 
-Thunk generate_thunk( int argc, char * argv[] )
+vector<string> get_link_dependencies( size_t argc, char * argv[], list<size_t> input_indexes )
+{
+  vector<string> args;
+
+  args.reserve( argc - input_indexes.size() );
+  args.emplace_back( "ld" );
+
+  for ( size_t i = 1; i < argc; i++ ) {
+    if ( input_indexes.front() == i ) {
+      input_indexes.pop_front();
+      continue;
+    }
+
+    args.push_back( argv[ i ] );
+  }
+
+  args.push_back( "--as-needed" );
+  args.push_back( "--verbose" );
+
+  assert( input_indexes.size() == 0 );
+
+  return GCCModelGenerator::parse_linker_output( args );
+}
+
+Thunk generate_thunk( size_t argc, char * argv[] )
 {
   if ( argc < 2 ) {
     throw runtime_error( "not enough arguments" );
@@ -50,7 +75,7 @@ Thunk generate_thunk( int argc, char * argv[] )
 
   string outfile;
   vector<InFile> infiles;
-  vector<size_t> input_indexes;
+  list<size_t> input_indexes;
 
   while ( true ) {
     const int opt = getopt_long( argc, argv, "-l:o:e:m:z:", long_options, NULL );
@@ -94,6 +119,12 @@ Thunk generate_thunk( int argc, char * argv[] )
         throw runtime_error( "unknown option: " + string( argv[ optind - 1 ] ) );
       }
     }
+  }
+
+  vector<string> dependencies = get_link_dependencies( argc, argv, input_indexes );
+
+  for ( const string & dep : dependencies ) {
+    infiles.emplace_back( dep );
   }
 
   vector<string> all_args;
