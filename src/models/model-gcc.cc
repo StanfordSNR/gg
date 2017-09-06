@@ -270,14 +270,14 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
     }
   }
 
-  if ( arguments_.output_filename() == "-" ) {
-    if ( arguments_.last_stage() == PREPROCESS ) {
-      // preprocessing to the standard output, just do it, don't create a thunk.
-      execvp( argv[ 0 ], argv );
-    }
-    else {
-      throw runtime_error( "outputting to stdout is only allowed for preprocessing stage" );
-    }
+  if ( arguments_.last_stage() == PREPROCESS and
+       ( arguments_.output_filename() == "-" or
+         arguments_.output_filename().empty() ) ) {
+    // preprocessing to the standard output, just do it, don't create a thunk.
+    execvp( argv[ 0 ], argv );
+  }
+  else if ( arguments_.output_filename() == "-" ) {
+    throw runtime_error( "outputting to stdout is only allowed for preprocessing stage" );
   }
 
   if ( arguments_.input_files().size() == 1 and arguments_.input_files()[ 0 ].name == "/dev/null" ) {
@@ -290,14 +290,6 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
   }
 
   dump_gcc_specs( specs_tempfile_ );
-
-  size_t non_object_inputs = std::count_if( arguments_.input_files().begin(),
-                                            arguments_.input_files().end(),
-                                            is_non_object_input );
-
-  if ( non_object_inputs > 0 && arguments_.input_files().size() > 1 ) {
-    throw runtime_error( "multiple inputs are only allowed for linking" );
-  }
 }
 
 void GCCModelGenerator::generate()
@@ -308,7 +300,9 @@ void GCCModelGenerator::generate()
 
   vector<InputFile> input_files = arguments_.input_files();
 
-  for ( InputFile & input : input_files ) {
+  for ( size_t input_index = 0; input_index < input_files.size(); input_index++ ) {
+    InputFile & input = input_files.at( input_index );
+
     if ( not is_non_object_input( input ) ) {
       continue;
     }
@@ -336,7 +330,8 @@ void GCCModelGenerator::generate()
         output_name = final_output;
       }
       else {
-        output_name = "output_" + to_string( stage_num );
+        output_name = "output_" + to_string( input_index )
+                                + "_" + to_string( stage_num );
       }
 
       Thunk stage_thunk = generate_thunk( stage, input, output_name );
