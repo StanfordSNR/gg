@@ -92,6 +92,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::std,     "std",     required_argument, false, '=' },
     { GCCOption::mcmodel, "mcmodel", required_argument, false, '=' },
     { GCCOption::Xlinker, "Xlinker", required_argument, false, ' ' },
+    { GCCOption::mtune,   "mtune",   required_argument, false, '=' },
 
     { GCCOption::mpreferred_stack_boundary, "mpreferred-stack-boundary", required_argument, false, '=' },
   };
