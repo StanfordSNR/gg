@@ -101,6 +101,8 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::mtune,   "mtune",   required_argument, false, '=' },
 
     { GCCOption::mpreferred_stack_boundary, "mpreferred-stack-boundary", required_argument, false, '=' },
+
+    { GCCOption::mregparm, "mregparm", required_argument, false, '=' },
   };
 
   constexpr size_t option_count = sizeof( gcc_options_data ) / sizeof( GCCOptionData);
