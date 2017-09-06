@@ -238,14 +238,14 @@ void print_gcc_command( const string & command_str )
   ioctl( STDOUT_FILENO, TIOCGWINSZ, &size );
   size_t window_width = size.ws_col - 4;
 
-  cerr << "\u257f ";
+  cerr << "\u2503 ";
 
   size_t line_count = static_cast<size_t>( ceil( 1.0 * command_str.length() / window_width ) );
 
   for ( size_t i = 0; i < line_count; i++ ) {
     if ( i > 0 ) {
       cerr << " \u2936" << endl;;
-      cerr << "\u2502 ";
+      cerr << "\u2503 ";
     }
    cerr << command_str.substr( i * window_width, window_width );
   }
@@ -286,8 +286,6 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
   if ( arguments_.input_files().size() == 0 ) {
     throw runtime_error( "no input files" );
   }
-
-  print_gcc_command( command_str( argc, argv ) );
 
   dump_gcc_specs( specs_tempfile_ );
 
@@ -438,6 +436,8 @@ int main( int argc, char * argv[] )
 
     argv++;
     argc--;
+
+    print_gcc_command( command_str( argc, argv ) );
 
     GCCModelGenerator gcc_model_generator { operation_mode, argc, argv };
     gcc_model_generator.generate();
