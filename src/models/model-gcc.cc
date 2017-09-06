@@ -229,6 +229,23 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
     throw runtime_error( "no input files" );
   }
 
+  for ( const InputFile & input : arguments_.input_files() ) {
+    if ( input.name == "-" ) {
+      throw runtime_error( "stdin inputs are now allowed" );
+    }
+  }
+
+  if ( arguments_.output_filename() == "-" ) {
+    if ( arguments_.last_stage() == PREPROCESS ) {
+      // preprocessing to the standard output, just do it, don't create a thunk.
+      execvp( argv[ 0 ], argv );
+    }
+    else {
+      throw runtime_error( "outputting to stdout is only allowed for preprocessing stage" );
+    }
+  }
+
+
   dump_gcc_specs( specs_tempfile_ );
 
   size_t non_object_inputs = std::count_if( arguments_.input_files().begin(),
