@@ -55,7 +55,7 @@ enum class GCCOption
   x = 1000,
   g, O, D, f,
   o,
-  E, S, c,
+  E, S, c, C,
   M, MD, MP, MT, MF,
   pie,
   include,

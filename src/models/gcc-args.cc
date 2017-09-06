@@ -57,6 +57,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::c,  "c",  no_argument, false, 'X' },
 
     { GCCOption::s,  "s",  no_argument, false, 'X' },
+    { GCCOption::C,  "C",  no_argument, false, 'X' },
 
     /* -M options */
     { GCCOption::M,  "M",  no_argument, false, 'X' },
