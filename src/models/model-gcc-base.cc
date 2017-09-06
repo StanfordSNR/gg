@@ -22,31 +22,35 @@ const unordered_map<string, Language> ext_to_lang = {
   { "c++", Language::CXX },
   { "ii",  Language::CXX_CPP_OUTPUT },
   { "s",   Language::ASSEMBLER },
+  { "S",   Language::ASSEMBLER_WITH_CPP },
+  { "sx",  Language::ASSEMBLER_WITH_CPP },
   { "o",   Language::OBJECT },
-  { "so",   Language::OBJECT },
+  { "so",  Language::OBJECT },
   { "a",   Language::ARCHIVE_LIBRARY },
 };
 
 const unordered_map<string, Language> name_to_lang = {
-  { "none",           Language::NONE },
-  { "c",              Language::C },
-  { "c-header",       Language::C_HEADER },
-  { "cpp-output",     Language::CPP_OUTPUT },
-  { "c++",            Language::CXX },
-  { "c++-header",     Language::CXX_HEADER },
-  { "c++-cpp-output", Language::CXX_CPP_OUTPUT },
-  { "assembler",      Language::ASSEMBLER },
+  { "none",               Language::NONE },
+  { "c",                  Language::C },
+  { "c-header",           Language::C_HEADER },
+  { "cpp-output",         Language::CPP_OUTPUT },
+  { "c++",                Language::CXX },
+  { "c++-header",         Language::CXX_HEADER },
+  { "c++-cpp-output",     Language::CXX_CPP_OUTPUT },
+  { "assembler",          Language::ASSEMBLER },
+  { "assembler-with-cpp", Language::ASSEMBLER_WITH_CPP },
 };
 
 const unordered_map<Language, string> lang_to_name = {
-  { Language::NONE,           "none" },
-  { Language::C,              "c" },
-  { Language::C_HEADER,       "c-header" },
-  { Language::CPP_OUTPUT,     "cpp-output" },
-  { Language::CXX,            "c++" },
-  { Language::CXX_HEADER,     "c++-header" },
-  { Language::CXX_CPP_OUTPUT, "c++-cpp-output" },
-  { Language::ASSEMBLER,      "assembler" },
+  { Language::NONE,               "none" },
+  { Language::C,                  "c" },
+  { Language::C_HEADER,           "c-header" },
+  { Language::CPP_OUTPUT,         "cpp-output" },
+  { Language::CXX,                "c++" },
+  { Language::CXX_HEADER,         "c++-header" },
+  { Language::CXX_CPP_OUTPUT,     "c++-cpp-output" },
+  { Language::ASSEMBLER,          "assembler" },
+  { Language::ASSEMBLER_WITH_CPP, "assembler-with-cpp" },
 };
 
 Language GCCModelGenerator::filename_to_language( const string & path )
@@ -93,6 +97,7 @@ GCCStage GCCModelGenerator::language_to_stage( const Language lang )
   case Language::CXX:
   case Language::C_HEADER:
   case Language::CXX_HEADER:
+  case Language::ASSEMBLER_WITH_CPP:
     return PREPROCESS;
 
   case Language::CPP_OUTPUT:

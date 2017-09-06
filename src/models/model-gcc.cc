@@ -109,7 +109,8 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
   case PREPROCESS:
   {
     const vector<string> & include_path =
-      ( input.language == Language::C or input.language == Language::C_HEADER )
+      ( input.language == Language::C or input.language == Language::C_HEADER or
+        input.language == Language::ASSEMBLER_WITH_CPP )
         ? c_include_path
         : cpp_include_path;
 
@@ -180,7 +181,8 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
     all_args = prune_makedep_flags( all_args );
 
     /* INFILES */
-    if ( input.language == Language::C or input.language == Language::C_HEADER ) {
+    if ( input.language == Language::C or input.language == Language::C_HEADER or
+         input.language == Language::ASSEMBLER_WITH_CPP ) {
       base_infiles.emplace_back( program_infiles.at( CC1 ) );
     }
     else {
@@ -324,6 +326,12 @@ void GCCModelGenerator::generate()
       GCCStage stage = static_cast<GCCStage>( stage_num );
       string output_name;
 
+      if ( input.source_language == Language::ASSEMBLER_WITH_CPP and
+           stage == COMPILE ) {
+        /* we should skip this stage */
+        continue;
+      }
+
       if ( stage == last_stage ) {
         output_name = final_output;
       }
@@ -349,6 +357,10 @@ void GCCModelGenerator::generate()
         case Language::CXX_HEADER:
         case Language::CXX:
           input.language = Language::CXX_CPP_OUTPUT;
+          break;
+
+        case Language::ASSEMBLER_WITH_CPP:
+          input.language = Language::ASSEMBLER;
           break;
 
         default:
