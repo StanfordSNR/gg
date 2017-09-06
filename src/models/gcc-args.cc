@@ -65,6 +65,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::MT, "MT", required_argument, false, ' ' },
     { GCCOption::MF, "MF", required_argument, false, ' ' },
 
+    { GCCOption::pg,         "pg",       no_argument, false, 'X' },
     { GCCOption::pie,        "pie",      no_argument, false, 'X' },
     { GCCOption::pthread,    "pthread",  no_argument, false, 'X' },
     { GCCOption::shared,     "shared",   no_argument, false, 'X' },
