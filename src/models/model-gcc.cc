@@ -229,6 +229,11 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
     throw runtime_error( "no input files" );
   }
 
+  if ( arguments_.option_argument( GCCOption::print_file_name ).initialized() ) {
+    // just run gcc for this
+    execvp( argv[ 0 ], argv );
+  }
+
   for ( const InputFile & input : arguments_.input_files() ) {
     if ( input.name == "-" ) {
       throw runtime_error( "stdin inputs are not allowed" );
