@@ -47,28 +47,34 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   optind = 1;
   opterr = 0;
 
-  constexpr const char * gcc_optstring = "-l:B:EScso:gO::D:f:I:W:L:";
+  constexpr const char * gcc_optstring = "-l:B:o:gO::D:f:I:W:L:";
 
   constexpr GCCOptionData gcc_options_data[] = {
     { GCCOption::x,  "x",  required_argument, false, ' ' },
 
+    { GCCOption::E,  "E",  no_argument, false, 'X' },
+    { GCCOption::S,  "S",  no_argument, false, 'X' },
+    { GCCOption::c,  "c",  no_argument, false, 'X' },
+
+    { GCCOption::s,  "s",  no_argument, false, 'X' },
+
     /* -M options */
-    { GCCOption::M,  "M",  no_argument, false, '\0' },
-    { GCCOption::MD, "MD", no_argument, false, '\0' },
-    { GCCOption::MP, "MP", no_argument, false, '\0' },
+    { GCCOption::M,  "M",  no_argument, false, 'X' },
+    { GCCOption::MD, "MD", no_argument, false, 'X' },
+    { GCCOption::MP, "MP", no_argument, false, 'X' },
     { GCCOption::MT, "MT", required_argument, false, ' ' },
     { GCCOption::MF, "MF", required_argument, false, ' ' },
 
-    { GCCOption::pie,        "pie",      no_argument, false, '\0' },
-    { GCCOption::pthread,    "pthread",  no_argument, false, '\0' },
-    { GCCOption::shared,     "shared",   no_argument, false, '\0' },
-    { GCCOption::pipe,       "pipe",     no_argument, false, '\0' },
-    { GCCOption::pedantic,   "pedantic", no_argument, false, '\0' },
-    { GCCOption::nostdlib,   "nostdlib", no_argument, false, '\0' },
-    { GCCOption::nostdinc,   "nostdinc", no_argument, false, '\0' },
-    { GCCOption::dashstatic, "static",   no_argument, false, '\0' },
-    { GCCOption::mfentry,    "mfentry",  no_argument, false, '\0' },
-    { GCCOption::gdwarf_4,   "gdwarf-4", no_argument, false, '\0' },
+    { GCCOption::pie,        "pie",      no_argument, false, 'X' },
+    { GCCOption::pthread,    "pthread",  no_argument, false, 'X' },
+    { GCCOption::shared,     "shared",   no_argument, false, 'X' },
+    { GCCOption::pipe,       "pipe",     no_argument, false, 'X' },
+    { GCCOption::pedantic,   "pedantic", no_argument, false, 'X' },
+    { GCCOption::nostdlib,   "nostdlib", no_argument, false, 'X' },
+    { GCCOption::nostdinc,   "nostdinc", no_argument, false, 'X' },
+    { GCCOption::dashstatic, "static",   no_argument, false, 'X' },
+    { GCCOption::mfentry,    "mfentry",  no_argument, false, 'X' },
+    { GCCOption::gdwarf_4,   "gdwarf-4", no_argument, false, 'X' },
 
     { GCCOption::include, "include", required_argument, false, ' ' },
     { GCCOption::param,   "param",   required_argument, true, ' ' },
@@ -79,6 +85,11 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
 
   constexpr size_t option_count = sizeof( gcc_options_data ) / sizeof( GCCOptionData);
   constexpr auto gcc_options = getopt_options<option_count>{ gcc_options_data };
+
+  map<GCCOption, GCCOptionData> options_map;
+  for ( size_t i = 0; i < option_count; i++ ) {
+    options_map.insert( make_pair( gcc_options_data[ i ].option, gcc_options_data[ i ] ) );
+  }
 
   Language current_language = Language::NONE; /* -x arugment */
 
@@ -109,27 +120,8 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       add_input( optarg, Language::SHARED_LIBRARY );
       break;
 
-    case 'E':
-      add_option( GCCOption::E, "-E" );
-      last_stage_ = PREPROCESS;
-      break;
-
-    case 'S':
-      add_option( GCCOption::S, "-S" );
-      last_stage_ = ( not last_stage_.initialized() or *last_stage_ >= COMPILE ) ? COMPILE : *last_stage_;
-      break;
-
-    case 'c':
-      add_option( GCCOption::c, "-c" );
-      last_stage_ = ( not last_stage_.initialized() or *last_stage_ >= ASSEMBLE ) ? ASSEMBLE : *last_stage_;
-      break;
-
     case 'o':
       output_ = optarg;
-      break;
-
-    case 's':
-      add_option( GCCOption::s, "-s" );
       break;
 
     case 'I':
@@ -142,15 +134,14 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       library_dirs_.emplace_back( optarg );
       break;
 
-    case 'g': args_.push_back( "-g" ); break;
-    case 'O': args_.push_back( string ( "-O" ) + ( optarg ? optarg : "" ) ); break;
-    case 'D': args_.push_back( string ( "-D" ) + ( optarg ? optarg : "" ) ); break;
-    case 'f': args_.push_back( string ( "-f" ) + ( optarg ? optarg : "" ) ); break;
+    case 'g': add_option( GCCOption::g, "g" ); break;
+    case 'O': add_option( GCCOption::O, "O", optarg, '\0' ); break;
+    case 'D': add_option( GCCOption::D, "D", optarg, '\0' ); break;
+    case 'f': add_option( GCCOption::f, "f", optarg, '\0' ); break;
 
     case 'W':
       process_W_option( optarg );
       break;
-
 
     case 'B':
       throw runtime_error( "illegal -B flag" );
@@ -159,51 +150,45 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       flag_processed = false;
     }
 
+    bool add_to_args = true;
+
     if ( not flag_processed ) {
       switch ( gccopt ) {
+      case GCCOption::E:
+        last_stage_ = PREPROCESS;
+        break;
+
+      case GCCOption::S:
+        last_stage_ = ( not last_stage_.initialized() or *last_stage_ >= COMPILE ) ? COMPILE : *last_stage_;
+        break;
+
+      case GCCOption::c:
+        last_stage_ = ( not last_stage_.initialized() or *last_stage_ >= ASSEMBLE ) ? ASSEMBLE : *last_stage_;
+        break;
+
       case GCCOption::x:
         input_args_.emplace_back( "-x" );
         input_args_.emplace_back( optarg );
-
         current_language = GCCModelGenerator::name_to_language( optarg );
+        add_to_args = false;
         break;
 
-      case GCCOption::M:  add_option( gccopt, "-M" ); break;
-      case GCCOption::MD: add_option( gccopt, "-MD" ); break;
-      case GCCOption::MP: add_option( gccopt, "-MP" ); break;
-      case GCCOption::MT: add_option( gccopt, "-MT", optarg ); break;
-      case GCCOption::MF: add_option( gccopt, "-MF", optarg ); break;
-
-      case GCCOption::pie: add_option( gccopt, "-pie" ); break;
-      case GCCOption::pthread: add_option( gccopt, "-pthread" ); break;
-      case GCCOption::shared: add_option( gccopt, "-shared" ); break;
-      case GCCOption::pipe: add_option( gccopt, "-pipe" ); break;
-      case GCCOption::pedantic: add_option( gccopt, "-pedantic" ); break;
-      case GCCOption::dashstatic: add_option( gccopt, "-static" ); break;
-
       case GCCOption::nostdlib:
-        add_option( gccopt, "-nostdlib" );
         no_stdlib_ = true;
         break;
 
       case GCCOption::nostdinc:
-        add_option( gccopt, "-nostdinc" );
         no_stdinc_ = true;
         break;
 
-      case GCCOption::Xlinker: add_option( gccopt, "-Xlinker", optarg ); break;
-
-      case GCCOption::include: add_option( gccopt, "-include", optarg ); break;
-      case GCCOption::param: add_option( gccopt, "--param", optarg ); break;
-      case GCCOption::std: add_option( gccopt, string( "--std=" ) + optarg ); break;
-
-      case GCCOption::mcmodel: add_option( gccopt, string( "--mcmodel=" ) + optarg ); break;
-      case GCCOption::mfentry: add_option( gccopt, "-mfentry" ); break;
-      case GCCOption::gdwarf_4: add_option( gccopt, "-gdwarf-4" ); break;
-      case GCCOption::pg: add_option( gccopt, "-pg" ); break;
-
       default:
-        throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );
+        if ( not options_map.count( gccopt ) ) {
+          throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );
+        }
+
+        if ( add_to_args ) {
+          add_option( options_map.at( gccopt ), optarg );
+        }
       }
     }
   }
@@ -268,21 +253,39 @@ void GCCArguments::process_W_option( const string & optarg )
   }
 }
 
-void GCCArguments::add_option( const GCCOption option, const string & optstr,
-                               const string & value )
+void GCCArguments::add_option( const GCCOptionData & option_data,
+                               const char * optarg )
 {
-  size_t index;
-  args_.emplace_back( optstr );
+  add_option( option_data.option, option_data.option_str, optarg ? optarg : "",
+              ( option_data.has_arg == no_argument ) ? 'X' : option_data.arg_separator,
+              option_data.double_dash );
+}
 
-  if ( not value.empty() ) {
-    args_.emplace_back( value );
-    index = args_.size() - 2;
+void GCCArguments::add_option( const GCCOption option, const string & optstr,
+                               const char * value, const char arg_separator,
+                               const bool double_dash )
+{
+  const size_t index = args_.size();
+
+  const string actual_optstr = ( double_dash ? "--" : "-" ) + optstr;
+  const string actual_value = value ? value : string();
+
+  if ( arg_separator == 'X' ) {
+    /* this option doesn't have an argument */
+    args_.emplace_back( actual_optstr );
+  }
+  else if ( arg_separator == ' ' ) {
+    args_.emplace_back( actual_optstr );
+    args_.emplace_back( actual_value );
+  }
+  else if ( arg_separator == '\0') {
+    args_.emplace_back( actual_optstr + actual_value );
   }
   else {
-    index = args_.size() - 1;
+    args_.emplace_back( actual_optstr + arg_separator + actual_value );
   }
 
-  opt_map_.insert( { option, { index, value } } );
+  opt_map_.insert( { option, { index, actual_value } } );
 }
 
 void GCCArguments::add_input( const string & filename, const Language language )

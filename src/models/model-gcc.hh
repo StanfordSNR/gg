@@ -53,6 +53,7 @@ enum class OperationMode
 enum class GCCOption
 {
   x = 1000,
+  g, O, D, f,
   o,
   E, S, c,
   M, MD, MP, MT, MF,
@@ -63,6 +64,8 @@ enum class GCCOption
   nostdlib, nostdinc, std,
   Xlinker, mcmodel, mfentry, gdwarf_4, pg
 };
+
+struct GCCOptionData;
 
 static auto gcc_function =
   []( const OperationMode operation_mode,
@@ -106,7 +109,10 @@ public:
   GCCArguments( const int argc, char ** argv );
 
   void add_option( const GCCOption option, const std::string & optstr,
-                   const std::string & value = "" );
+                   const char * optargx = nullptr, const char arg_separator = 'X',
+                   const bool double_dash = false );
+
+  void add_option( const GCCOptionData & option_data, const char * optarg );
 
   void add_input( const std::string & filename, const Language language );
 
