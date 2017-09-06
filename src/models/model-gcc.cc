@@ -231,7 +231,7 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
 
   for ( const InputFile & input : arguments_.input_files() ) {
     if ( input.name == "-" ) {
-      throw runtime_error( "stdin inputs are now allowed" );
+      throw runtime_error( "stdin inputs are not allowed" );
     }
   }
 
