@@ -80,7 +80,7 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
   int status;
 
   while ( true ) {
-    cpid = CheckSystemCall( "waitpid", waitpid( -1, &status, __WALL ) );
+    cpid = CheckSystemCall( "waitpid", waitpid( -1, &status, __WALL | WUNTRACED ) );
 
     int signum = 0;
     unsigned int event = (unsigned int) status >> 16;
@@ -139,7 +139,12 @@ bool TracedProcess::ptrace_syscall( pid_t & cpid )
       throw runtime_error( "process did not stop" );
     }
 
-    CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, cpid, NULL, signum ) );
+    if ( processes_.at( cpid ).detached() ) {
+      kill( cpid, SIGCONT );
+    }
+    else {
+      CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, cpid, NULL, signum ) );
+    }
   }
 }
 
@@ -169,7 +174,6 @@ bool TracedProcess::wait_for_syscall( function<void( TraceControlBlock & )> befo
 
   if ( tcb.detached() ) {
     CheckSystemCall( "ptrace(DETACH)", ptrace( PTRACE_DETACH, cpid, 0, 0 ) );
-    processes_.erase( cpid );
   }
   else {
     CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, cpid, 0, 0 ) );
