@@ -42,7 +42,7 @@ int main( int argc, char * argv[] )
             invocation->fetch_arguments();
             if ( invocation->arguments()->at( 0 ).value<int>() == 0 and
                  invocation->arguments()->at( 1 ).value<int>() == 0x03031990 ) {
-              /* it's a model, we should detach */
+              tcb.detach();
             }
 
             break;
