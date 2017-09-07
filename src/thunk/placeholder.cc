@@ -46,3 +46,9 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
 
   return ThunkPlaceholder { hash, order, size };
 }
+
+bool ThunkPlaceholder::is_placeholder( FileDescriptor && fd )
+{
+  string shebang = fd.read_exactly( SHEBANG_DIRECTIVE.length(), true );
+  return shebang == SHEBANG_DIRECTIVE;
+}

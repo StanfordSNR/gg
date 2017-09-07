@@ -157,7 +157,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
 
 int main( int argc, char * argv[] )
 {
-  gg::paths::fix_path_envar();
+  gg::models::init();
 
   Thunk thunk = generate_thunk( argc, argv );
   thunk.store();

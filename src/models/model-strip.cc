@@ -45,6 +45,8 @@ Thunk generate_thunk( int argc, char * argv[] )
 
 int main( int argc, char * argv[] )
 {
+  gg::models::init();
+  
   Thunk thunk = generate_thunk( argc, argv );
   thunk.store();
 

@@ -1,6 +1,9 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <libgen.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -9,6 +12,7 @@
 #include "traced_process.hh"
 #include "exception.hh"
 #include "placeholder.hh"
+#include "file_descriptor.hh"
 
 using namespace std;
 
@@ -52,12 +56,15 @@ int main( int argc, char * argv[] )
               invocation->fetch_arguments();
               string open_path = invocation->arguments()->at( 0 ).value<string>();
 
-              if ( open_path == "/dev/tty" ) {
-                break;
+              int fd_num = open( open_path.c_str(), O_RDONLY );
+
+              if ( fd_num < 0 or isatty( fd_num ) ) {
+                return;
               }
 
-              Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( open_path );
-              if ( placeholder.initialized() ) {
+              FileDescriptor fd { fd_num };
+
+              if ( ThunkPlaceholder::is_placeholder( move( fd ) ) ) {
                 throw runtime_error( "Somebody tried to open a thunk: " + open_path );
               }
             }

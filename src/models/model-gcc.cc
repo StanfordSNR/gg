@@ -418,6 +418,8 @@ void usage( const char * arg0 )
 int main( int argc, char * argv[] )
 {
   try {
+    gg::models::init();
+
     if ( argc <= 0 ) {
       abort();
     }

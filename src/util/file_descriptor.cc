@@ -99,14 +99,20 @@ string::const_iterator FileDescriptor::write( const std::string & buffer, const 
   return it;
 }
 
-string FileDescriptor::read_exactly( const size_t length )
+string FileDescriptor::read_exactly( const size_t length,
+                                     const bool fail_silently )
   {
     std::string ret;
 
     while ( ret.size() < length ) {
       ret.append( read( length - ret.size() ) );
       if ( eof() ) {
-        throw std::runtime_error( "read_exactly: reached EOF before reaching target" );
+        if ( fail_silently ) {
+          return ret;
+        }
+        else {
+          throw std::runtime_error( "read_exactly: reached EOF before reaching target" );
+        }
       }
     }
 

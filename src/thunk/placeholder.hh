@@ -7,6 +7,7 @@
 #include <string>
 
 #include "optional.hh"
+#include "file_descriptor.hh"
 
 static const std::string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-reduce-and-run" };
 
@@ -28,6 +29,8 @@ public:
 
   void write( const std::string & filename ) const;
   static Optional<ThunkPlaceholder> read( const std::string & filename );
+
+  static bool is_placeholder( FileDescriptor && fd );
 };
 
 #endif /* PLACEHOLDER_HH */

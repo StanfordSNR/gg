@@ -4,6 +4,7 @@
 #define FILE_DESCRIPTOR_HH
 
 #include <string>
+#include <unistd.h>
 
 /* maximum size of a read */
 static constexpr size_t BUFFER_SIZE = 1024 * 1024;
@@ -43,7 +44,7 @@ public:
 
   /* read and write methods */
   std::string read( const size_t limit = BUFFER_SIZE );
-  std::string read_exactly( const size_t length );
+  std::string read_exactly( const size_t length, const bool fail_silently = false );
   std::string::const_iterator write( const std::string & buffer, const bool write_all = true );
   std::string::const_iterator write( const std::string::const_iterator & begin,
                     const std::string::const_iterator & end );
