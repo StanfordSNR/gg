@@ -48,6 +48,7 @@ namespace gg {
   }
 
   namespace models {
+    void init();
     std::vector<std::string> args_to_vector( int argc, char ** argv );
   }
 }

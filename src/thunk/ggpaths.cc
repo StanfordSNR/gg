@@ -2,6 +2,7 @@
 
 #include "ggpaths.hh"
 
+#include <sys/ioctl.h>
 #include <fstream>
 
 #include "util.hh"
@@ -171,6 +172,12 @@ namespace gg {
   }
 
   namespace models {
+    void init()
+    {
+      ioctl( 0, 0x03031990 );
+      gg::paths::fix_path_envar();
+    }
+
     vector<string> args_to_vector( int argc, char ** argv )
     {
       vector<string> result;
