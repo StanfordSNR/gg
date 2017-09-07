@@ -8,6 +8,8 @@
 
 #include "optional.hh"
 
+static const std::string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-reduce-and-run" };
+
 class ThunkPlaceholder
 {
 private:

@@ -3,17 +3,14 @@
 #include <libgen.h>
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <unordered_map>
 
 #include "traced_process.hh"
 #include "exception.hh"
+#include "placeholder.hh"
 
 using namespace std;
-
-/* XXX move this to a configuration file */
-unordered_map<string, string> model = {
-  { "ls", "/bin/pwd" },
-};
 
 void usage( const char * argv0 )
 {
@@ -40,29 +37,35 @@ int main( int argc, char * argv[] )
         {
           Optional<SystemCallInvocation> & invocation = tcb.syscall_invocation;
 
-          #ifdef SYS_execveat
-          if ( invocation->syscall_no() == SYS_execveat ) {
-            throw runtime_error( "execveat() is not supported yet" );
-          }
-          #endif
-
-          if ( invocation->syscall_no() == SYS_execve ) {
+          switch ( invocation->syscall_no() ) {
+          case SYS_ioctl:
             invocation->fetch_arguments();
-
-            string exe_path = invocation->arguments()->at( 0 ).value<string>();
-
-            /* XXX we should move to c++17 to use filesystem library for this */
-            vector<char> path_cstr( exe_path.c_str(), exe_path.c_str() + exe_path.size() + 1 );
-            string exe_filename { basename( path_cstr.data() ) };
-
-            if ( model.count( exe_filename ) ) {
-              invocation->set_argument( 0, model[ exe_filename ] );
+            if ( invocation->arguments()->at( 0 ).value<int>() == 0 and
+                 invocation->arguments()->at( 1 ).value<int>() == 0x03031990 ) {
+              /* it's a model, we should detach */
             }
-            else {
-              throw runtime_error( "could not find a model for " + exe_filename );
+
+            break;
+
+          case SYS_open:
+            {
+              invocation->fetch_arguments();
+              string open_path = invocation->arguments()->at( 0 ).value<string>();
+
+              if ( open_path == "/dev/tty" ) {
+                break;
+              }
+
+              Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( open_path );
+              if ( placeholder.initialized() ) {
+                throw runtime_error( "Somebody tried to open a thunk: " + open_path );
+              }
             }
+
+            break;
           }
         },
+
         [&]( const TraceControlBlock & ) {}
       );
 
