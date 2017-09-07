@@ -70,7 +70,7 @@ void GCCModelGenerator::generate_dependencies_file( const vector<string> & optio
                                                     const string & output_name )
 {
   vector<string> args;
-  args.reserve( 2 + option_args.size() );
+  args.reserve( 1 + option_args.size() );
 
   if ( operation_mode_ == OperationMode::GCC ) {
     args.push_back( "gcc-7" );
@@ -79,7 +79,6 @@ void GCCModelGenerator::generate_dependencies_file( const vector<string> & optio
     args.push_back( "g++-7" );
   }
 
-  args.push_back( "-specs=" + specs_tempfile_.name() );
   args.insert( args.end(), option_args.begin(), option_args.end() );
 
   const bool has_dependencies_option = find_if(

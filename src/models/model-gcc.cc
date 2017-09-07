@@ -169,7 +169,7 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
       cerr << "done." << endl;
     }
     else {
-      generate_dependencies_file( args, makedep_tempfile.name() );
+      generate_dependencies_file( all_args, makedep_tempfile.name() );
       makedep_filename = makedep_tempfile.name();
     }
 

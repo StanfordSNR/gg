@@ -214,10 +214,10 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
         if ( not options_map.count( gccopt ) ) {
           throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );
         }
-
-        if ( add_to_args ) {
-          add_option( options_map.at( gccopt ), optarg );
-        }
+      }
+      
+      if ( add_to_args ) {
+        add_option( options_map.at( gccopt ), optarg );
       }
     }
   }
