@@ -15,12 +15,19 @@
 #include "syscall.hh"
 #include "invocation.hh"
 
-struct TraceControlBlock
+class TraceControlBlock
 {
+private:
+  bool detached_ { false };
+
+public:
   pid_t pid;
   bool initialized { false };
 
   Optional<SystemCallInvocation> syscall_invocation {};
+
+  void detach() { detached_ = true; }
+  bool detached() const { return detached_; }
 
   TraceControlBlock( pid_t pid )
     : pid( pid )

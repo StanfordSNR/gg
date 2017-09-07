@@ -167,7 +167,14 @@ bool TracedProcess::wait_for_syscall( function<void( TraceControlBlock & )> befo
     tcb.syscall_invocation.clear();
   }
 
-  CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, cpid, 0, 0 ) );
+  if ( tcb.detached() ) {
+    CheckSystemCall( "ptrace(DETACH)", ptrace( PTRACE_DETACH, cpid, 0, 0 ) );
+    processes_.erase( cpid );
+  }
+  else {
+    CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, cpid, 0, 0 ) );
+  }
+
   return true;
 }
 
