@@ -18,7 +18,7 @@ struct TracedThreadInfo
 
 class TracerFlock;
 
-class Tracer
+class ProcessTracer
 {
 public:
   typedef std::function<void( TracedThreadInfo & )> entry_type;
@@ -33,11 +33,11 @@ private:
   TracedThreadInfo info_ {};
 
 public:
-  Tracer( const pid_t tracee_pid );
+  ProcessTracer( const pid_t tracee_pid );
 
   /* handle one event from the tracee.
      positive return value => no longer interested in tracee, so
-     Tracer object ready to be destructed */
+     ProcessTracer object ready to be destructed */
   bool handle_one_event( TracerFlock & flock,
                          const entry_type & before_entry_function,
                          const exit_type & after_exit_function );
@@ -48,14 +48,14 @@ public:
 class TracerFlock
 {
 private:
-  Tracer::entry_type before_entry_function_;
-  Tracer::exit_type after_exit_function_;
+  ProcessTracer::entry_type before_entry_function_;
+  ProcessTracer::exit_type after_exit_function_;
 
-  std::map<pid_t, Tracer> tracers_ {};
+  std::map<pid_t, ProcessTracer> tracers_ {};
 
 public:
-  TracerFlock( const Tracer::entry_type & before_entry_function,
-               const Tracer::exit_type & after_exit_function );
+  TracerFlock( const ProcessTracer::entry_type & before_entry_function,
+               const ProcessTracer::exit_type & after_exit_function );
 
   void insert( const pid_t tracee_pid );
   void remove( const pid_t tracee_pid );

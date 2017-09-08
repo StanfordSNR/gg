@@ -20,8 +20,8 @@ using namespace std;
 
 template <typename T> void zero( T & x ) { memset( &x, 0, sizeof( x ) ); }
 
-TracerFlock::TracerFlock( const Tracer::entry_type & before_entry_function,
-                          const Tracer::exit_type & after_exit_function )
+TracerFlock::TracerFlock( const ProcessTracer::entry_type & before_entry_function,
+                          const ProcessTracer::exit_type & after_exit_function )
   : before_entry_function_( before_entry_function ),
     after_exit_function_( after_exit_function )
 {}
@@ -81,11 +81,11 @@ void TracerFlock::loop_until_all_done()
   }
 }
 
-Tracer::Tracer( const pid_t tracee_pid )
+ProcessTracer::ProcessTracer( const pid_t tracee_pid )
   : tracee_pid_( tracee_pid )
 {}
 
-void Tracer::set_ptrace_options() const
+void ProcessTracer::set_ptrace_options() const
 {
   /* set ptrace options to trace children of the tracee */
   CheckSystemCall( "ptrace(SETOPTIONS)", ptrace( PTRACE_SETOPTIONS, tracee_pid_, 0,
@@ -99,7 +99,7 @@ void Tracer::set_ptrace_options() const
 }
 
 /* blocking wait on one process */
-bool Tracer::handle_one_event( TracerFlock & flock,
+bool ProcessTracer::handle_one_event( TracerFlock & flock,
                                const entry_type & before_entry_function ,
                                const exit_type & after_exit_function )
 {
