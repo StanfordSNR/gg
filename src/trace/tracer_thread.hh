@@ -33,37 +33,42 @@ class TracerFlock;
 
 class Tracer
 {
+public:
+  typedef std::function<void( TracedThreadInfo & )> entry_type;
+  typedef std::function<void( const TracedThreadInfo & )> exit_type;
+
 private:
   pid_t tracee_pid_;
 
   bool options_set_ = false;
   void set_ptrace_options() const;
-  
-  typedef std::function<void( TracedThreadInfo & )> entry_type;
-  typedef std::function<void( const TracedThreadInfo & )> exit_type;
-
-  entry_type before_entry_function_;
-  exit_type after_exit_function_;
 
 public:
-  Tracer( const pid_t tracee_pid,
-          const entry_type & before_entry_function,
-          const exit_type & after_exit_function );
+  Tracer( const pid_t tracee_pid );
 
   /* handle one event from the tracee.
      positive return value => no longer interested in tracee, so
      Tracer object ready to be destructed */
-  bool handle_one_event( TracerFlock & flock );
+  bool handle_one_event( TracerFlock & flock,
+                         const entry_type & before_entry_function,
+                         const exit_type & after_exit_function );
+
   pid_t tracee_pid() const { return tracee_pid_; }
 };
 
 class TracerFlock
 {
 private:
+  Tracer::entry_type before_entry_function_;
+  Tracer::exit_type after_exit_function_;
+
   std::map<pid_t, Tracer> tracers_ {};
 
 public:
-  void insert( Tracer && tracer );
+  TracerFlock( const Tracer::entry_type & before_entry_function,
+               const Tracer::exit_type & after_exit_function );
+
+  void insert( const pid_t tracee_pid );
   void remove( const pid_t tracee_pid );
   
   void loop_until_all_done();

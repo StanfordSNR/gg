@@ -37,19 +37,19 @@ int main( int argc, char * argv[] )
 
     cerr << "Direct child: " << tp.pid() << endl;
     
-    TracerFlock tracers;
-    tracers.insert( { tp.pid(),
-        []( TracedThreadInfo & tcb )
+    TracerFlock tracers { []( TracedThreadInfo & tcb )
         {
           tcb.syscall_invocation->fetch_arguments();
           cerr << tcb.to_string() << endl;
         },
         []( const TracedThreadInfo & tcb )
-        {
-          assert( tcb.syscall_invocation.initialized() and
-                  tcb.syscall_invocation->retval().initialized() );
-          cerr << " = " << *tcb.syscall_invocation->retval() << endl;
-        } } );
+          {
+            assert( tcb.syscall_invocation.initialized() and
+                    tcb.syscall_invocation->retval().initialized() );
+            cerr << " = " << *tcb.syscall_invocation->retval() << endl;
+          } };
+
+    tracers.insert( tp.pid() );
 
     cerr << "Looping until all threads finish...\n";
     tracers.loop_until_all_done();

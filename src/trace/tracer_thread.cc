@@ -33,15 +33,19 @@ string TracedThreadInfo::to_string() const
   return out.str();
 }
 
-void TracerFlock::insert( Tracer && tracer )
-{
-  const pid_t the_pid = tracer.tracee_pid();
+TracerFlock::TracerFlock( const Tracer::entry_type & before_entry_function,
+                          const Tracer::exit_type & after_exit_function )
+  : before_entry_function_( before_entry_function ),
+    after_exit_function_( after_exit_function )
+{}
 
-  if ( tracers_.count( the_pid ) != 0 ) {
-    throw runtime_error( "bad attempt to insert pid " + to_string( the_pid ) );
+void TracerFlock::insert( const pid_t tracee_pid )
+{
+  if ( tracers_.count( tracee_pid ) != 0 ) {
+    throw runtime_error( "bad attempt to insert pid " + to_string( tracee_pid ) );
   }
 
-  tracers_.insert( { the_pid, move( tracer ) } );
+  tracers_.insert( { tracee_pid, tracee_pid } );
 }
 
 void TracerFlock::remove( const pid_t tracee_pid )
@@ -66,27 +70,35 @@ void TracerFlock::loop_until_all_done()
     
     const pid_t tracee_with_event = infop.si_pid;
 
-    if ( tracers_.count( tracee_with_event ) != 1 ) {
-      throw runtime_error( "unexpected event from PID " + to_string( tracee_with_event ) );
+    if ( tracers_.count( tracee_with_event ) == 0 ) {
+      /* is it an exec event from a "back from the dead" thread? */
+      /* see ptrace(2) "execve(2) under ptrace" for discussion */
+
+      if ( infop.si_status == ( SIGTRAP | ( PTRACE_EVENT_EXEC << 8 ) ) ) {
+        cerr << "inserting weirdo new tracer\n";
+        insert( tracee_with_event );
+      } else {
+        throw runtime_error( "unexpected event from PID " + to_string( tracee_with_event ) );
+      }
     }
 
-    if ( tracers_.at( tracee_with_event ).handle_one_event( *this ) ) {
+    if ( tracers_.at( tracee_with_event ).handle_one_event( *this,
+                                                            before_entry_function_,
+                                                            after_exit_function_ ) ) {
       /* tracer is done and ready to be destructed */
       remove( tracee_with_event );
     }
   }
 }
 
-Tracer::Tracer( const pid_t tracee_pid,
-                const entry_type & before_entry_function,
-                const exit_type & after_exit_function )
-  : tracee_pid_( tracee_pid ),
-    before_entry_function_( before_entry_function ),
-    after_exit_function_( after_exit_function )
+Tracer::Tracer( const pid_t tracee_pid )
+  : tracee_pid_( tracee_pid )
 {}
 
 void Tracer::set_ptrace_options() const
 {
+  cerr << "setting options on pid " << tracee_pid_ << endl;
+
   /* set ptrace options to trace children of the tracee */
   CheckSystemCall( "ptrace(SETOPTIONS)", ptrace( PTRACE_SETOPTIONS, tracee_pid_, 0,
                                                  PTRACE_O_TRACESYSGOOD |
@@ -99,7 +111,9 @@ void Tracer::set_ptrace_options() const
 }
 
 /* blocking wait on one process */
-bool Tracer::handle_one_event( TracerFlock & flock )
+bool Tracer::handle_one_event( TracerFlock & flock,
+                               const entry_type & ,
+                               const exit_type &  )
 {
   siginfo_t infop;
   zero( infop );
@@ -129,25 +143,22 @@ bool Tracer::handle_one_event( TracerFlock & flock )
   }
 
   if ( (infop.si_status & 0xff) == SIGTRAP ) {
-    cerr << "si_status: " << infop.si_status << endl;
-  
     const unsigned int ptrace_event = (infop.si_status & 0xff00) >> 8;
-
-    cerr << "ptrace_event: " << ptrace_event << endl;
   
     switch ( ptrace_event ) {
     case PTRACE_EVENT_FORK:
     case PTRACE_EVENT_CLONE:
     case PTRACE_EVENT_VFORK:
       {
-        cerr << "fork\n";
         /* get PID of the newly created child */
         pid_t child_pid;
         CheckSystemCall( "ptrace(PTRACE_GETEVENTMSG)",
                          ptrace( PTRACE_GETEVENTMSG, tracee_pid_, nullptr, &child_pid ) );
 
+        cerr << tracee_pid_ << " forked " << child_pid << endl;
+        
         /* start tracing the child */
-        flock.insert( { child_pid, before_entry_function_, after_exit_function_ } );
+        flock.insert( child_pid );
       }
       break;
 
@@ -159,7 +170,6 @@ bool Tracer::handle_one_event( TracerFlock & flock )
 
     case PTRACE_EVENT_EXEC:
       {
-        cerr << "exec\n";
         /* get former thread ID */
         pid_t former_pid;
         CheckSystemCall( "ptrace(PTRACE_GETEVENTMSG)",
@@ -177,6 +187,10 @@ bool Tracer::handle_one_event( TracerFlock & flock )
       cerr << "unhandled ptrace event type: " << ptrace_event << endl;
       throw runtime_error( "unhandled ptrace event type: " + to_string( ptrace_event ) );
     }
+  } else if ( infop.si_status == (SIGTRAP | 0x80) ) {
+    cerr << "syscall event, ignoring\n";
+  } else {
+    cerr << "other ptrace event, ignoring\n";
   }
   
   /* start tracee again and let it run until it hits a system call */
