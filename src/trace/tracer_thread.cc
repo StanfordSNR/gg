@@ -173,6 +173,12 @@ bool Tracer::handle_one_event( TracerFlock & flock,
 
       info_.syscall_invocation.initialize( tracee_pid_, syscall_no );
       before_entry_function( info_ );
+
+      if ( info_.detach ) {
+        /* set the process free */
+        CheckSystemCall( "ptrace(DETACH)", ptrace( PTRACE_DETACH, tracee_pid_, nullptr, 0 ) );
+        return true;
+      }
     } else {
       /* syscall exit */
       errno = 0;

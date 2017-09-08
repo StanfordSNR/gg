@@ -9,10 +9,11 @@
 #include "syscall.hh"
 #include "invocation.hh"
 
-class TracedThreadInfo
+struct TracedThreadInfo
 {
-public:
   Optional<SystemCallInvocation> syscall_invocation {};
+
+  bool detach = false;
 };
 
 class TracerFlock;

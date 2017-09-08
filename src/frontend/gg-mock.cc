@@ -8,11 +8,13 @@
 #include <string>
 #include <cstring>
 #include <unordered_map>
+#include <sys/ptrace.h>
 
-#include "traced_process.hh"
+#include "tracer_thread.hh"
 #include "exception.hh"
 #include "placeholder.hh"
 #include "file_descriptor.hh"
+#include "child_process.hh"
 
 using namespace std;
 
@@ -33,30 +35,30 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    TracedProcess tp( [&argv]() { return execvp( argv[ 1 ], &argv[ 1 ] ); } );
+    ChildProcess tp( argv[ 1 ],
+                     [&argv]() {
+                       CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
+                       raise( SIGSTOP );
+                       return execvp( argv[ 1 ], &argv[ 1 ] ); } );
 
-    while ( true ) {
-      int waitres = tp.wait_for_syscall(
-        [&]( TraceControlBlock & tcb )
+    TracerFlock tracers {
+      [&]( TracedThreadInfo & tcb )
         {
           Optional<SystemCallInvocation> & invocation = tcb.syscall_invocation;
 
           switch ( invocation->syscall_no() ) {
-          case SYS_ioctl:
-            invocation->fetch_arguments();
-            if ( invocation->arguments()->at( 0 ).value<int>() == 0 and
-                 invocation->arguments()->at( 1 ).value<int>() == 0x03031990 ) {
-              cerr << "detaching!" << endl;
-              tcb.detach();
-            }
-
-            break;
-
           case SYS_open:
             {
               invocation->fetch_arguments();
               string open_path = invocation->arguments()->at( 0 ).value<string>();
-              cerr << tcb.to_string() << endl;
+
+              if ( open_path == "/__gg__detach_from_tracing__/" ) {
+                cerr << "detaching!\n";
+                tcb.detach = true;
+                break;
+              }
+
+              cerr << invocation->to_string() << endl;
 
               /* if process wants to truncate the file, we don't
                  care whether it's a thunk placeholder or not */
@@ -91,14 +93,19 @@ int main( int argc, char * argv[] )
           }
         },
 
-        [&]( const TraceControlBlock & ) {}
-      );
+        [&]( const TracedThreadInfo & ) {}
+    };
 
-      if ( not waitres ) { break; }
+    tracers.insert( tp.pid() );
+
+    tracers.loop_until_all_done();
+
+    while ( not tp.terminated() ) {
+      tp.wait();
     }
 
-    if ( tp.exit_status().initialized() ) {
-      cerr << "Process exited with " << tp.exit_status().get() << endl;
+    if ( tp.exit_status() ) {
+      tp.throw_exception();
     }
   }
   catch ( const exception &  e ) {
