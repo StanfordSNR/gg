@@ -4,20 +4,27 @@
 
 #include <fcntl.h>
 #include <iostream>
+#include <functional>
 
 using namespace std;
 
 SandboxedProcess::SandboxedProcess( const unordered_map<std::string, Permissions> & allowed_files,
                                     function<int()> && child_procedure,
                                     function<void()> && preparation_procedure )
-  : process_( move( child_procedure ), move (preparation_procedure ) ),
+  : tracer_( move( child_procedure ),
+             std::bind( &SandboxedProcess::syscall_entry, this, std::placeholders::_1 ),
+             std::bind( &SandboxedProcess::syscall_exit,  this, std::placeholders::_1 ),
+             move( preparation_procedure ) ),
     allowed_files_( allowed_files )
 {}
 
-inline void Check( const TraceControlBlock & tcb, bool status )
+SandboxedProcess::~SandboxedProcess()
+{}
+
+inline void Check( const TracedThreadInfo & tcb, bool status )
 {
   if ( not status ) {
-    throw SandboxViolation( "Illegal syscall: ", tcb.to_string() );
+    throw SandboxViolation( "Illegal syscall: ", tcb.syscall_invocation->to_string() );
   }
 }
 
@@ -105,91 +112,82 @@ bool SandboxedProcess::rename_entry( const SystemCallInvocation & syscall )
          ( allowed_files_[ dst ].write );
 }
 
+void SandboxedProcess::syscall_entry( TracedThreadInfo & tcb )
+{
+  SystemCallInvocation & syscall = tcb.syscall_invocation.get();
+
+  switch ( syscall.syscall_no() ) {
+  case SYS_chroot:
+  case SYS_stat:
+  case SYS_lstat:
+  case SYS_chdir:
+  case SYS_fchdir:
+  case SYS_openat:
+  case SYS_mkdirat:
+  case SYS_mknodat:
+  case SYS_fchownat:
+  case SYS_futimesat:
+  case SYS_newfstatat:
+  case SYS_unlinkat:
+  case SYS_renameat:
+  case SYS_linkat:
+  case SYS_symlinkat:
+  case SYS_readlinkat:
+  case SYS_fchmodat:
+  case SYS_faccessat:
+  case SYS_utimensat:
+  case SYS_name_to_handle_at:
+  case SYS_open_by_handle_at:
+#ifdef SYS_execveat
+  case SYS_execveat:
+#endif
+  case SYS_fanotify_mark:
+  case SYS_renameat2:
+  case SYS_getpid:
+  case SYS_gettimeofday:
+  case SYS_time:
+  case SYS_clock_gettime:
+  case SYS_getcpu:
+  case SYS_mkdir:
+  case SYS_socket:
+    throw SandboxViolation( "Forbidden syscall", tcb.syscall_invocation->to_string() );
+  }
+
+  if ( syscall.signature().initialized() ) {
+    if ( not ( syscall.signature()->flags() & TRACE_FILE ) ) {
+      return;
+      /* this system call is not file-related. allow it! */
+    }
+
+    /* only fetch the arguments when it's necessary */
+    syscall.fetch_arguments();
+
+    switch ( syscall.syscall_no() ) {
+    case SYS_open:   Check( tcb, open_entry( syscall ) ); break;
+    case SYS_rename: Check( tcb, rename_entry( syscall ) ); break;
+    case SYS_execve: Check( tcb, execve_entry( syscall ) ); break;
+
+    /* general check for file-related syscalls */
+    default: Check( tcb, file_syscall_entry( syscall ) );
+    }
+  }
+  else {
+    throw SandboxViolation( "Unknown syscall", tcb.syscall_invocation->to_string() );
+  }
+}
+
+void SandboxedProcess::syscall_exit( const TracedThreadInfo & tcb )
+{
+  const SystemCallInvocation & syscall = tcb.syscall_invocation.get();
+
+  switch ( syscall.syscall_no() ) {
+  case SYS_open:
+    Check( tcb, open_exit( syscall ) );
+    break;
+  }
+}
+
 void SandboxedProcess::execute()
 {
-  auto syscall_entry =
-    [&]( TraceControlBlock & tcb )
-    {
-      if ( log_level_ >= LOG_LEVEL_DEBUG ) {
-        cerr << tcb.to_string() << endl;
-      }
-
-      SystemCallInvocation & syscall = tcb.syscall_invocation.get();
-
-      switch ( syscall.syscall_no() ) {
-      case SYS_chroot:
-      case SYS_stat:
-      case SYS_lstat:
-      case SYS_chdir:
-      case SYS_fchdir:
-      case SYS_openat:
-      case SYS_mkdirat:
-      case SYS_mknodat:
-      case SYS_fchownat:
-      case SYS_futimesat:
-      case SYS_newfstatat:
-      case SYS_unlinkat:
-      case SYS_renameat:
-      case SYS_linkat:
-      case SYS_symlinkat:
-      case SYS_readlinkat:
-      case SYS_fchmodat:
-      case SYS_faccessat:
-      case SYS_utimensat:
-      case SYS_name_to_handle_at:
-      case SYS_open_by_handle_at:
-#ifdef SYS_execveat
-      case SYS_execveat:
-#endif
-      case SYS_fanotify_mark:
-      case SYS_renameat2:
-      case SYS_getpid:
-      case SYS_gettimeofday:
-      case SYS_time:
-      case SYS_clock_gettime:
-      case SYS_getcpu:
-      case SYS_mkdir:
-      case SYS_socket:
-        throw SandboxViolation( "Forbidden syscall", tcb.to_string() );
-      }
-
-      if ( syscall.signature().initialized() ) {
-        if ( not ( syscall.signature()->flags() & TRACE_FILE ) ) {
-          return;
-          /* this system call is not file-related. allow it! */
-        }
-
-        /* only fetch the arguments when it's necessary */
-        syscall.fetch_arguments();
-
-        switch ( syscall.syscall_no() ) {
-        case SYS_open:   Check( tcb, open_entry( syscall ) ); break;
-        case SYS_rename: Check( tcb, rename_entry( syscall ) ); break;
-        case SYS_execve: Check( tcb, execve_entry( syscall ) ); break;
-
-        /* general check for file-related syscalls */
-        default: Check( tcb, file_syscall_entry( syscall ) );
-        }
-      }
-      else {
-        throw SandboxViolation( "Unknown syscall", tcb.to_string() );
-      }
-    };
-
-  auto syscall_exit =
-    [&]( const TraceControlBlock & tcb )
-    {
-      const SystemCallInvocation & syscall = tcb.syscall_invocation.get();
-
-      switch ( syscall.syscall_no() ) {
-      case SYS_open:
-        Check( tcb, open_exit( syscall ) );
-        break;
-      }
-    };
-
-  while ( true ) {
-    int waitres = process_.wait_for_syscall( syscall_entry, syscall_exit );
-    if ( not waitres ) { break; }
-  }
+  tracer_.loop_until_done();
 }

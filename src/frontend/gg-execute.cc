@@ -70,10 +70,6 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
     };
 
     process.execute();
-
-    if ( not process.exit_status().initialized() or process.exit_status().get() != 0 ) {
-      throw runtime_error( "thunk execution failed: " + thunk_hash );
-    }
   }
 
   // GRABBING THE OUTPUT

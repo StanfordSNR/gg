@@ -101,14 +101,14 @@ int main( int argc, char * argv[] )
 
     /* test 4 */
     unordered_map<string, Permissions> allowed_files_4 {
-      { "/bin/ls", { true, false, true } },
+      { "/bin/blahblah", { true, false, true } },
     };
 
     SandboxedProcess sp_4(
       allowed_files_4,
       []()
       {
-        execl( "/bin/ls", "/bin/ls" );
+        execl( "/bin/blahblah", "/bin/blahblah" );
         return 0;
       }
     );

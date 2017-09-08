@@ -8,24 +8,17 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "traced_process.hh"
+#include "tracer.hh"
 
 struct Permissions
 {
   bool read, write, execute;
 };
 
-enum LogLevel
-{
-  LOG_LEVEL_NO_LOG = 0,
-  LOG_LEVEL_DEBUG,
-};
-
 class SandboxedProcess
 {
 private:
-  TracedProcess process_;
-  LogLevel log_level_ { LOG_LEVEL_NO_LOG };
+  Tracer tracer_;
 
   /* map from pathname to access modes (O_RDONLY, O_WRONLY, O_RDRW) */
   std::unordered_map<std::string, Permissions> allowed_files_;
@@ -38,6 +31,9 @@ private:
   bool rename_entry( const SystemCallInvocation & syscall );
   bool execve_entry( const SystemCallInvocation & syscall );
 
+  void syscall_entry( TracedThreadInfo & tcb );
+  void syscall_exit( const TracedThreadInfo & tcb );
+
 public:
   SandboxedProcess( const std::unordered_map<std::string, Permissions> & allowed_files,
                     std::function<int()> && child_procedure,
@@ -45,10 +41,6 @@ public:
 
   /* throws an exception if sandbox violation happens. */
   void execute();
-
-  void set_log_level( const LogLevel log_level ) { log_level_ = log_level; }
-
-  Optional<int> exit_status() { return process_.exit_status(); }
 };
 
 class SandboxViolation : public std::runtime_error
