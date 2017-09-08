@@ -37,16 +37,18 @@ int main( int argc, char * argv[] )
 
     cerr << "Direct child: " << tp.pid() << endl;
     
-    TracerFlock tracers { []( TracedThreadInfo & tcb )
+    TracerFlock tracers { []( TracedThreadInfo &  )
         {
-          tcb.syscall_invocation->fetch_arguments();
-          cerr << tcb.syscall_invocation->to_string();
+          //          tcb.syscall_invocation->fetch_arguments();
+          //          cerr << tcb.syscall_invocation->to_string();
         },
-        []( const TracedThreadInfo & tcb )
+        []( const TracedThreadInfo &  )
           {
+            /*
             assert( tcb.syscall_invocation.initialized() and
                     tcb.syscall_invocation->retval().initialized() );
             cerr << " = " << *tcb.syscall_invocation->retval() << endl;
+            */
           } };
 
     tracers.insert( tp.pid() );

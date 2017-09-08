@@ -58,11 +58,14 @@ void TracerFlock::loop_until_all_done()
     const pid_t tracee_with_event = infop.si_pid;
 
     if ( tracers_.count( tracee_with_event ) == 0 ) {
-      /* is it an exec event from a "back from the dead" thread? */
-      /* see ptrace(2) "execve(2) under ptrace" for discussion */
-
       if ( infop.si_status == ( SIGTRAP | ( PTRACE_EVENT_EXEC << 8 ) ) ) {
-        cerr << "inserting weirdo new tracer\n";
+        /* is it an exec event from a "back from the dead" thread? */
+        /* see ptrace(2) "execve(2) under ptrace" for discussion */
+
+        insert( tracee_with_event );
+      } else if ( infop.si_status == SIGSTOP ) {
+        /* is it a fresh new process? */
+
         insert( tracee_with_event );
       } else {
         throw runtime_error( "unexpected event from PID " + to_string( tracee_with_event ) );
@@ -84,8 +87,6 @@ Tracer::Tracer( const pid_t tracee_pid )
 
 void Tracer::set_ptrace_options() const
 {
-  cerr << "setting options on pid " << tracee_pid_ << endl;
-
   /* set ptrace options to trace children of the tracee */
   CheckSystemCall( "ptrace(SETOPTIONS)", ptrace( PTRACE_SETOPTIONS, tracee_pid_, 0,
                                                  PTRACE_O_TRACESYSGOOD |
@@ -122,35 +123,26 @@ bool Tracer::handle_one_event( TracerFlock & flock,
     throw runtime_error( "waitid: unexpected siginfo_t si_code" );    
   }
 
-  /* tell ptrace when we next want to hear from the tracee,
-     if we haven't already */
-  if ( not options_set_ ) {
+  if ( infop.si_status == SIGSTOP ) {
+    /* tell ptrace when we next want to hear from the tracee,
+       if we haven't already */
+    if ( options_set_ ) {
+      throw runtime_error( "multiple SIGSTOPs on same traced process" );
+    }
+
     set_ptrace_options();
     options_set_ = true;
-  }
-
-  if ( (infop.si_status & 0xff) == SIGTRAP ) {
+  } else if ( (infop.si_status & 0xff) == SIGTRAP ) {
     const unsigned int ptrace_event = (infop.si_status & 0xff00) >> 8;
   
     switch ( ptrace_event ) {
     case PTRACE_EVENT_FORK:
-    case PTRACE_EVENT_CLONE:
     case PTRACE_EVENT_VFORK:
-      {
-        /* get PID of the newly created child */
-        pid_t child_pid;
-        CheckSystemCall( "ptrace(PTRACE_GETEVENTMSG)",
-                         ptrace( PTRACE_GETEVENTMSG, tracee_pid_, nullptr, &child_pid ) );
-
-        cerr << tracee_pid_ << " forked " << child_pid << endl;
-        
-        /* start tracing the child */
-        flock.insert( child_pid );
-      }
+    case PTRACE_EVENT_CLONE:
+      /* ignore these events; we will trace the process when it shows up with a SIGSTOP */
       break;
 
     case PTRACE_EVENT_EXIT:
-      cerr << "exit from " << tracee_pid_ << endl;
       CheckSystemCall( "ptrace(DETACH)", ptrace( PTRACE_DETACH, tracee_pid_, nullptr, 0 ) );
       return true;
       break;
@@ -162,7 +154,6 @@ bool Tracer::handle_one_event( TracerFlock & flock,
         CheckSystemCall( "ptrace(PTRACE_GETEVENTMSG)",
                          ptrace( PTRACE_GETEVENTMSG, tracee_pid_, nullptr, &former_pid ) );
 
-        cerr << "After exec, pid " << former_pid << " is now " << tracee_pid_ << endl;
         if ( former_pid != tracee_pid_ ) {
           flock.remove( former_pid );
         }
@@ -171,7 +162,6 @@ bool Tracer::handle_one_event( TracerFlock & flock,
       break;
 
     default:
-      cerr << "unhandled ptrace event type: " << ptrace_event << endl;
       throw runtime_error( "unhandled ptrace event type: " + to_string( ptrace_event ) );
     }
   } else if ( infop.si_status == (SIGTRAP | 0x80) ) {
@@ -193,10 +183,11 @@ bool Tracer::handle_one_event( TracerFlock & flock,
       after_exit_function( info_ );
       info_.syscall_invocation.clear();
     }
-  } else if ( infop.si_status == SIGSTOP ) {
-    /* no need to do anything other than continue (as below) */
+  } else if ( infop.si_status == SIGCHLD ) {
+    /* ignore */
   } else {
-    cerr << "other ptrace event, ignoring (status=" << infop.si_status << ")\n";
+    cerr << "other ptrace event (status=" << infop.si_status << ")\n";
+    throw runtime_error( "unexpected ptrace event " + to_string( infop.si_status ) );
   }
   
   /* start tracee again and let it run until it hits a system call */
