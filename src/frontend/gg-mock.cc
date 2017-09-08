@@ -15,6 +15,7 @@
 #include "placeholder.hh"
 #include "file_descriptor.hh"
 #include "child_process.hh"
+#include "ggpaths.hh"
 
 using namespace std;
 
@@ -52,7 +53,7 @@ int main( int argc, char * argv[] )
               invocation->fetch_arguments();
               string open_path = invocation->arguments()->at( 0 ).value<string>();
 
-              if ( open_path == "/__gg__detach_from_tracing__/" ) {
+              if ( open_path == gg::models::OPEN_TO_DETACH_PATH ) {
                 cerr << "detaching!\n";
                 tcb.detach = true;
                 break;

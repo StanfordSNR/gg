@@ -4,6 +4,9 @@
 
 #include <sys/ioctl.h>
 #include <fstream>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "util.hh"
 
@@ -174,7 +177,12 @@ namespace gg {
   namespace models {
     void init()
     {
-      ioctl( 0, 0x03031990 );
+      int fd = open( gg::models::OPEN_TO_DETACH_PATH.c_str(), O_RDONLY );
+
+      if ( fd >= 0 ) {
+        close( fd );
+      }
+
       gg::paths::fix_path_envar();
     }
 
