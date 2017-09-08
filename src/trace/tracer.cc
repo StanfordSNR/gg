@@ -1,6 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "tracer_thread.hh"
+#include "tracer.hh"
 
 #include <sys/ptrace.h>
 #include <sys/types.h>
@@ -54,7 +54,7 @@ void TracerFlock::loop_until_all_done()
     if ( infop.si_signo != SIGCHLD ) {
       throw runtime_error( "waitid: unexpected value in siginfo_t si_signo field (not SIGCHLD)" );
     }
-    
+
     const pid_t tracee_with_event = infop.si_pid;
 
     if ( tracers_.count( tracee_with_event ) == 0 ) {
@@ -110,7 +110,7 @@ bool Tracer::handle_one_event( TracerFlock & flock,
   if ( infop.si_pid == 0 ) {
     throw runtime_error( "PID " + to_string( tracee_pid_ ) + " was not waitable" );
   }
-  
+
   if ( infop.si_pid != tracee_pid_ ) {
     throw runtime_error( "waitid: unexpected value in siginfo_t si_pid field" );
   }
@@ -120,7 +120,7 @@ bool Tracer::handle_one_event( TracerFlock & flock,
   }
 
   if ( infop.si_code != CLD_TRAPPED ) {
-    throw runtime_error( "waitid: unexpected siginfo_t si_code" );    
+    throw runtime_error( "waitid: unexpected siginfo_t si_code" );
   }
 
   if ( infop.si_status == SIGSTOP ) {
@@ -134,7 +134,7 @@ bool Tracer::handle_one_event( TracerFlock & flock,
     options_set_ = true;
   } else if ( (infop.si_status & 0xff) == SIGTRAP ) {
     const unsigned int ptrace_event = (infop.si_status & 0xff00) >> 8;
-  
+
     switch ( ptrace_event ) {
     case PTRACE_EVENT_FORK:
     case PTRACE_EVENT_VFORK:
@@ -158,7 +158,7 @@ bool Tracer::handle_one_event( TracerFlock & flock,
           flock.remove( former_pid );
         }
       }
-      
+
       break;
 
     default:
@@ -199,7 +199,7 @@ bool Tracer::handle_one_event( TracerFlock & flock,
     CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, tracee_pid_, nullptr, infop.si_status ) );
     return false;
   }
-  
+
   /* start tracee again and let it run until it hits a system call */
   CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, tracee_pid_, nullptr, 0 ) );
 

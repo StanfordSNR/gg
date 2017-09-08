@@ -1,7 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#ifndef TRACER_THREAD_HH
-#define TRACER_THREAD_HH
+#ifndef TRACER_HH
+#define TRACER_HH
 
 #include <map>
 #include <functional>
@@ -31,7 +31,7 @@ private:
   void set_ptrace_options() const;
 
   TracedThreadInfo info_ {};
-  
+
 public:
   Tracer( const pid_t tracee_pid );
 
@@ -59,8 +59,8 @@ public:
 
   void insert( const pid_t tracee_pid );
   void remove( const pid_t tracee_pid );
-  
+
   void loop_until_all_done();
 };
 
-#endif /* TRACER_THREAD_HH */
+#endif /* TRACER_HH */

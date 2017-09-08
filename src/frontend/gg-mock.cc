@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <sys/ptrace.h>
 
-#include "tracer_thread.hh"
+#include "tracer.hh"
 #include "exception.hh"
 #include "placeholder.hh"
 #include "file_descriptor.hh"

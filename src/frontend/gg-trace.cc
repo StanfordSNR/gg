@@ -8,7 +8,7 @@
 #include "exception.hh"
 #include "syscall.hh"
 #include "child_process.hh"
-#include "tracer_thread.hh"
+#include "tracer.hh"
 
 using namespace std;
 
