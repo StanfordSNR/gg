@@ -189,7 +189,7 @@ bool Tracer::handle_one_event( TracerFlock & flock,
       after_exit_function( info_ );
       info_.syscall_invocation.clear();
     }
-  } else if ( infop.si_status > RTSIG_MAX ) {
+  } else if ( infop.si_status > SIGRTMAX ) {
     cerr << "other ptrace event (status=" << infop.si_status << ")\n";
     throw runtime_error( "unexpected ptrace event " + to_string( infop.si_status ) );
   } else {
