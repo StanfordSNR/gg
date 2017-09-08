@@ -36,13 +36,8 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    ChildProcess tp( argv[ 1 ],
-                     [&argv]() {
-                       CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
-                       raise( SIGSTOP );
-                       return execvp( argv[ 1 ], &argv[ 1 ] ); } );
-
-    TracerFlock tracers {
+    Tracer tracer {
+      [&argv] { return execvp( argv[ 1 ], &argv[ 1 ] ); },
       [&]( TracedThreadInfo & tcb )
         {
           Optional<SystemCallInvocation> & invocation = tcb.syscall_invocation;
@@ -59,7 +54,7 @@ int main( int argc, char * argv[] )
                 break;
               }
 
-              cerr << invocation->to_string() << endl;
+              // cerr << invocation->to_string() << endl;
 
               /* if process wants to truncate the file, we don't
                  care whether it's a thunk placeholder or not */
@@ -97,17 +92,7 @@ int main( int argc, char * argv[] )
         [&]( const TracedThreadInfo & ) {}
     };
 
-    tracers.insert( tp.pid() );
-
-    tracers.loop_until_all_done();
-
-    while ( not tp.terminated() ) {
-      tp.wait();
-    }
-
-    if ( tp.exit_status() ) {
-      tp.throw_exception();
-    }
+    tracer.loop_until_done();
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );

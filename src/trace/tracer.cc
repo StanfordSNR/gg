@@ -205,3 +205,34 @@ bool ProcessTracer::handle_one_event( TracerFlock & flock,
 
   return false;
 }
+
+Tracer::Tracer( function<int()> && child_procedure,
+                const ProcessTracer::entry_type & before_entry_function,
+                const ProcessTracer::exit_type & after_exit_function,
+                function<void()> && preparation_procedure )
+  : flock_( before_entry_function, after_exit_function ),
+    tp_( "traced",
+      [preparation_procedure, child_procedure]()
+      {
+        preparation_procedure(),
+        CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
+        raise( SIGSTOP );
+        return child_procedure();
+      }
+    )
+{
+  flock_.insert( tp_.pid() );
+}
+
+void Tracer::loop_until_done()
+{
+  flock_.loop_until_all_done();
+
+  while ( not tp_.terminated() ) {
+    tp_.wait();
+  }
+
+  if ( tp_.exit_status() ) {
+    tp_.throw_exception();
+  }
+}

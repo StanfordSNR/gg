@@ -8,6 +8,7 @@
 
 #include "syscall.hh"
 #include "invocation.hh"
+#include "child_process.hh"
 
 struct TracedThreadInfo
 {
@@ -61,6 +62,21 @@ public:
   void remove( const pid_t tracee_pid );
 
   void loop_until_all_done();
+};
+
+class Tracer
+{
+private:
+  TracerFlock flock_;
+  ChildProcess tp_;
+
+public:
+  Tracer( std::function<int()> && child_procedure,
+          const ProcessTracer::entry_type & before_entry_function,
+          const ProcessTracer::exit_type & after_exit_function,
+          std::function<void()> && preparation_procedure = [](){} );
+
+  void loop_until_done();
 };
 
 #endif /* TRACER_HH */

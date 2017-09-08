@@ -3,10 +3,10 @@
 #include "ggpaths.hh"
 
 #include <sys/ioctl.h>
-#include <fstream>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <fstream>
 
 #include "util.hh"
 
