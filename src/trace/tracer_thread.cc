@@ -189,11 +189,15 @@ bool Tracer::handle_one_event( TracerFlock & flock,
       after_exit_function( info_ );
       info_.syscall_invocation.clear();
     }
-  } else if ( infop.si_status == SIGCHLD ) {
-    /* ignore */
-  } else {
+  } else if ( infop.si_status > RTSIG_MAX ) {
     cerr << "other ptrace event (status=" << infop.si_status << ")\n";
     throw runtime_error( "unexpected ptrace event " + to_string( infop.si_status ) );
+  } else {
+    /* received signal */
+
+    /* start tracee again and let it run until it hits a system call */
+    CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, tracee_pid_, nullptr, infop.si_status ) );
+    return false;
   }
   
   /* start tracee again and let it run until it hits a system call */
