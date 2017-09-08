@@ -20,19 +20,6 @@ using namespace std;
 
 template <typename T> void zero( T & x ) { memset( &x, 0, sizeof( x ) ); }
 
-string TracedThreadInfo::to_string() const
-{
-  ostringstream out;
-
-  out << "[" << pid << "]";
-
-  if ( syscall_invocation.initialized() ) {
-    out << " " << syscall_invocation->to_string();
-  }
-
-  return out.str();
-}
-
 TracerFlock::TracerFlock( const Tracer::entry_type & before_entry_function,
                           const Tracer::exit_type & after_exit_function )
   : before_entry_function_( before_entry_function ),
@@ -112,8 +99,8 @@ void Tracer::set_ptrace_options() const
 
 /* blocking wait on one process */
 bool Tracer::handle_one_event( TracerFlock & flock,
-                               const entry_type & ,
-                               const exit_type &  )
+                               const entry_type & before_entry_function ,
+                               const exit_type & after_exit_function )
 {
   siginfo_t infop;
   zero( infop );
@@ -188,9 +175,28 @@ bool Tracer::handle_one_event( TracerFlock & flock,
       throw runtime_error( "unhandled ptrace event type: " + to_string( ptrace_event ) );
     }
   } else if ( infop.si_status == (SIGTRAP | 0x80) ) {
-    cerr << "syscall event, ignoring\n";
+    if ( not info_.syscall_invocation.initialized() ) {
+      /* syscall entry */
+      errno = 0;
+      const long syscall_no = ptrace( PTRACE_PEEKUSER, tracee_pid_, sizeof( long ) * ORIG_RAX );
+      if ( errno ) { throw unix_error( "ptrace" ); }
+
+      info_.syscall_invocation.initialize( tracee_pid_, syscall_no );
+      before_entry_function( info_ );
+    } else {
+      /* syscall exit */
+      errno = 0;
+      long syscall_ret = ptrace( PTRACE_PEEKUSER, tracee_pid_, sizeof( long ) * RAX );
+      if ( errno ) { throw unix_error( "ptrace" ); }
+
+      info_.syscall_invocation->set_retval( syscall_ret );
+      after_exit_function( info_ );
+      info_.syscall_invocation.clear();
+    }
+  } else if ( infop.si_status == SIGSTOP ) {
+    /* no need to do anything other than continue (as below) */
   } else {
-    cerr << "other ptrace event, ignoring\n";
+    cerr << "other ptrace event, ignoring (status=" << infop.si_status << ")\n";
   }
   
   /* start tracee again and let it run until it hits a system call */

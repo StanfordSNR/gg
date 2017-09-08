@@ -11,22 +11,8 @@
 
 class TracedThreadInfo
 {
-private:
-  bool detached_ { false };
-
 public:
-  pid_t pid;
-
   Optional<SystemCallInvocation> syscall_invocation {};
-
-  void detach() { detached_ = true; }
-  bool detached() const { return detached_; }
-
-  TracedThreadInfo( pid_t pid )
-    : pid( pid )
-  {}
-
-  std::string to_string() const;
 };
 
 class TracerFlock;
@@ -43,6 +29,8 @@ private:
   bool options_set_ = false;
   void set_ptrace_options() const;
 
+  TracedThreadInfo info_ {};
+  
 public:
   Tracer( const pid_t tracee_pid );
 

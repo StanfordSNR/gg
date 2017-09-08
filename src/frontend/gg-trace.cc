@@ -40,7 +40,7 @@ int main( int argc, char * argv[] )
     TracerFlock tracers { []( TracedThreadInfo & tcb )
         {
           tcb.syscall_invocation->fetch_arguments();
-          cerr << tcb.to_string() << endl;
+          cerr << tcb.syscall_invocation->to_string();
         },
         []( const TracedThreadInfo & tcb )
           {
