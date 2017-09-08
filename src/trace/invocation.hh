@@ -57,6 +57,12 @@ private:
      yet */
   Optional<long> return_value_;
 
+  template<typename T>
+  T get_syscall_arg( const uint8_t argnum ) const;
+
+  template<typename T>
+  void set_syscall_arg( const uint8_t argnum, const T & value ) const;
+  
 public:
   SystemCallInvocation( const pid_t pid, const long syscall_no );
 

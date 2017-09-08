@@ -2,11 +2,96 @@
 
 #include <sstream>
 #include <string>
+#include <sys/ptrace.h>
+#include <climits>
 
 #include "invocation.hh"
 #include "traced_process.hh"
+#include "exception.hh"
 
 using namespace std;
+
+template<typename T>
+T SystemCallInvocation::get_syscall_arg( const uint8_t argnum ) const
+{
+  return reinterpret_cast<T>( ptrace( PTRACE_PEEKUSER, pid_,
+                                      sizeof( long ) * SYSCALL_ARG_REGS[ argnum ], NULL ) );
+}
+
+template<>
+string SystemCallInvocation::get_syscall_arg( const uint8_t argnum ) const
+{
+  string result;
+
+  char * str_addr = get_syscall_arg<char *>( argnum );
+  size_t i = 0;
+
+  do {
+    errno = 0;
+
+    int val = ptrace( PTRACE_PEEKTEXT, pid_, str_addr, NULL );
+
+    if ( errno and val < 0 ) {
+      throw unix_error( "ptrace(PEEKTEXT)" );
+    }
+
+    str_addr += sizeof( int );
+
+    char * p = reinterpret_cast<char *>( &val );
+    char c;
+
+    for ( i = 0; i < sizeof( int ); i++ ) {
+      c = *p++;
+      if ( c == '\0' ) break;
+
+      result += c;
+    }
+  } while( i == sizeof( int ) );
+
+  return result;
+}
+
+template<typename T>
+void SystemCallInvocation::set_syscall_arg( const uint8_t argnum, const T & value ) const
+{
+  ptrace( PTRACE_POKEUSER, pid_,
+          sizeof( long ) * SYSCALL_ARG_REGS[ argnum ], &value );
+}
+
+template<>
+void SystemCallInvocation::set_syscall_arg( const uint8_t argnum, const string & value ) const
+{
+  if ( value.length() >= PATH_MAX ) {
+    throw runtime_error( "maximum string length for set_syscall_arg is PATH_MAX" );
+  }
+
+  char * stack_addr = ( char * )ptrace( PTRACE_PEEKUSER, pid_, sizeof( long ) * RSP, 0 );
+  stack_addr -= 128 + PATH_MAX * ( argnum + 1 );
+
+  char * const str_addr = stack_addr;
+
+  size_t i = 0;
+  long val = 0;
+  char * val_ptr = reinterpret_cast<char *>( &val );
+
+  for ( const char * c = value.c_str(); ; c++ ) {
+    val_ptr[ i++ ] = *c;
+
+    if ( i == sizeof( long ) or *c == '\0' ) {
+      ptrace( PTRACE_POKETEXT, pid_, stack_addr, val );
+
+      stack_addr += i;
+      i = 0;
+      val = 0;
+    }
+
+    if ( *c == '\0' ) {
+      break;
+    }
+  }
+
+  ptrace( PTRACE_POKEUSER, pid_, sizeof( long ) * SYSCALL_ARG_REGS[ argnum ], str_addr );
+}
 
 /* Argument */
 
@@ -53,12 +138,12 @@ void SystemCallInvocation::fetch_arguments()
   for ( size_t i = 0; i < args.size(); i++ ) {
     const ArgumentInfo & arg_info = args.at( i );
 
-    arguments_->emplace_back( arg_info, TracedProcess::get_syscall_arg<long>( pid_, i ) );
+    arguments_->emplace_back( arg_info, get_syscall_arg<long>( i ) );
 
     Argument & last_arg = arguments_->back();
 
     if ( arg_info.is_readable_string() ) {
-      last_arg.set_value( TracedProcess::get_syscall_arg<string>( pid_, i ) );
+      last_arg.set_value( get_syscall_arg<string>( i ) );
     }
 
     // let's set the raw value anyway
@@ -118,7 +203,7 @@ std::string SystemCallInvocation::to_string() const
 template<>
 void SystemCallInvocation::set_argument( uint8_t argnum, const string value )
 {
-  TracedProcess::set_syscall_arg( pid_, argnum, value );
+  set_syscall_arg( argnum, value );
 
   if ( arguments_.initialized() ) {
     arguments_->at( argnum ).set_value( value ); /* XXX what about the long_val? */

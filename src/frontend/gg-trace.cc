@@ -3,10 +3,12 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <sys/ptrace.h>
 
 #include "exception.hh"
 #include "syscall.hh"
-#include "traced_process.hh"
+#include "child_process.hh"
+#include "tracer_thread.hh"
 
 using namespace std;
 
@@ -27,28 +29,41 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    TracedProcess tp( [&argv]() { return execvp( argv[ 1 ], &argv[ 1 ] ); } );
+    ChildProcess tp( argv[ 1 ],
+                     [&argv]() {
+                       CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
+                       raise( SIGSTOP );
+                       return execvp( argv[ 1 ], &argv[ 1 ] ); } );
 
-    while ( true ) {
-      int waitres = tp.wait_for_syscall(
-        [&]( TraceControlBlock & tcb )
+    cerr << "Direct child: " << tp.pid() << endl;
+    
+    TracerFlock tracers;
+    tracers.insert( { tp.pid(),
+        []( TracedThreadInfo & tcb )
         {
           tcb.syscall_invocation->fetch_arguments();
           cerr << tcb.to_string() << endl;
         },
-        [&]( const TraceControlBlock & tcb )
+        []( const TracedThreadInfo & tcb )
         {
           assert( tcb.syscall_invocation.initialized() and
                   tcb.syscall_invocation->retval().initialized() );
           cerr << " = " << *tcb.syscall_invocation->retval() << endl;
-        }
-      );
+        } } );
 
-      if ( not waitres ) { break; }
+    cerr << "Looping until all threads finish...\n";
+    tracers.loop_until_all_done();
+
+    cerr << "Waiting for direct child to finish... ";
+
+    while ( !tp.terminated() ) {
+      tp.wait();
     }
 
-    if ( tp.exit_status().initialized() ) {
-      cerr << endl << "Process exited with " << tp.exit_status().get() << endl;
+    cerr << "done.\n";
+    
+    if ( tp.exit_status() != 0 ) {
+      tp.throw_exception();
     }
   }
   catch ( const exception &  e ) {
