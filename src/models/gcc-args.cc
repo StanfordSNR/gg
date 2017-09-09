@@ -94,11 +94,12 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::mskip_rax_setup,   "mskip-rax-setup",   no_argument, false, 'X' },
 
     { GCCOption::include, "include", required_argument, false, ' ' },
-    { GCCOption::param,   "param",   required_argument, true, ' ' },
+    { GCCOption::param,   "param",   required_argument, true,  ' ' },
     { GCCOption::std,     "std",     required_argument, false, '=' },
     { GCCOption::mcmodel, "mcmodel", required_argument, false, '=' },
     { GCCOption::Xlinker, "Xlinker", required_argument, false, ' ' },
     { GCCOption::mtune,   "mtune",   required_argument, false, '=' },
+    { GCCOption::march,   "march",   required_argument, false, '=' },
     { GCCOption::isystem, "isystem", required_argument, false, ' ' },
 
     { GCCOption::mpreferred_stack_boundary, "mpreferred-stack-boundary", required_argument, false, '=' },

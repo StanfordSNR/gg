@@ -69,7 +69,7 @@ enum class GCCOption
   mno_fp_ret_in_387, mno_red_zone, msoft_float, mregparm,
 
   mpreferred_stack_boundary,
-  mskip_rax_setup, mtune,
+  mskip_rax_setup, mtune, march,
 
   print_file_name,
 };
