@@ -54,7 +54,8 @@ int main( int argc, char * argv[] )
 
     Thunk original_thunk { outfile, function, infiles };
 
-    ThunkWriter::write_thunk( original_thunk, outfile );
+    const string contents = ThunkWriter::serialize_thunk( original_thunk );
+    roost::atomic_create( contents, outfile );
 
     // Now reading it back
     ThunkReader thunk_reader { outfile };

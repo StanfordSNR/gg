@@ -10,30 +10,6 @@
 
 #include "file_descriptor.hh"
 
-class ProtobufSerializer
-{
-protected:
-  FileDescriptor fout_;
-  google::protobuf::io::FileOutputStream raw_output_ { fout_.fd_num() };
-  google::protobuf::io::CodedOutputStream coded_output_ { &raw_output_ };
-
-public:
-  ProtobufSerializer( const std::string & filename );
-  ProtobufSerializer( FileDescriptor && fd );
-  void write_string( const std::string & str );
-
-  template<class EntryProtobufType>
-  void write_protobuf( const EntryProtobufType & entry );
-};
-
-template<class EntryProtobufType>
-void ProtobufSerializer::write_protobuf( const EntryProtobufType & protobuf )
-{
-  if ( not protobuf.SerializeToCodedStream( &coded_output_ ) ) {
-    throw std::runtime_error( "write_protobuf: write error" );
-  }
-}
-
 class ProtobufDeserializer
 {
 protected:

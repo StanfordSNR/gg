@@ -8,7 +8,6 @@
 #include "serialization.hh"
 #include "ggpaths.hh"
 #include "path.hh"
-#include "temp_file.hh"
 #include "digest.hh"
 
 using namespace std;
@@ -25,13 +24,6 @@ std::string ThunkWriter::write_thunk( const Thunk & thunk )
   }
 
   return thunk_hash;
-}
-
-void ThunkWriter::write_thunk( const Thunk & thunk, const string & filename )
-{
-  ProtobufSerializer serializer { filename };
-  serializer.write_string( MAGIC_NUMBER );
-  serializer.write_protobuf<protobuf::Thunk>( thunk.to_protobuf() );
 }
 
 string ThunkWriter::serialize_thunk( const gg::thunk::Thunk & thunk )
