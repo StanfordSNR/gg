@@ -38,6 +38,7 @@ int main( int argc, char * argv[] )
     }
 
     Tracer tracer {
+      argv[ 1 ],
       [&argv] { return execvp( argv[ 1 ], &argv[ 1 ] ); },
       [&]( TracedThreadInfo & tcb )
         {

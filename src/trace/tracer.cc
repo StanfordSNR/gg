@@ -243,14 +243,15 @@ ProcessTracer::~ProcessTracer()
   }
 }
 
-Tracer::Tracer( function<int()> && child_procedure,
+Tracer::Tracer( const std::string & name,
+                function<int()> && child_procedure,
                 const ProcessTracer::entry_type & before_entry_function,
                 const ProcessTracer::exit_type & after_exit_function,
                 function<void()> && preparation_procedure )
   : flock_( before_entry_function, after_exit_function )
 {
   /* create a ChildProcess that will be traced */
-  ChildProcess tp { "child process",
+  ChildProcess tp { name,
       [preparation_procedure, child_procedure]() {
       preparation_procedure();
       CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );

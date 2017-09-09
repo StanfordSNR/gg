@@ -35,7 +35,8 @@ private:
   void syscall_exit( const TracedThreadInfo & tcb );
 
 public:
-  SandboxedProcess( const std::unordered_map<std::string, Permissions> & allowed_files,
+  SandboxedProcess( const std::string & name,
+                    const std::unordered_map<std::string, Permissions> & allowed_files,
                     std::function<int()> && child_procedure,
                     std::function<void()> && preparation_procedure = [](){} );
 

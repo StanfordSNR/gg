@@ -79,7 +79,8 @@ private:
   TracerFlock flock_;
 
 public:
-  Tracer( std::function<int()> && child_procedure,
+  Tracer( const std::string & name,
+          std::function<int()> && child_procedure,
           const ProcessTracer::entry_type & before_entry_function,
           const ProcessTracer::exit_type & after_exit_function,
           std::function<void()> && preparation_procedure = [](){} );

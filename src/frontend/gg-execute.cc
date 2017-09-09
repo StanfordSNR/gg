@@ -61,6 +61,7 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
     auto allowed_files = thunk.get_allowed_files( thunk_hash );
 
     SandboxedProcess process {
+      "execute(" + thunk_hash.substr( 0, 5 ) + ")",
       allowed_files,
       [thunk, thunk_hash]() {
         return thunk.execute( thunk_hash );

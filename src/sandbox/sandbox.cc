@@ -8,10 +8,11 @@
 
 using namespace std;
 
-SandboxedProcess::SandboxedProcess( const unordered_map<std::string, Permissions> & allowed_files,
+SandboxedProcess::SandboxedProcess( const std::string & name,
+                                    const unordered_map<std::string, Permissions> & allowed_files,
                                     function<int()> && child_procedure,
                                     function<void()> && preparation_procedure )
-  : tracer_( move( child_procedure ),
+  : tracer_( name, move( child_procedure ),
              std::bind( &SandboxedProcess::syscall_entry, this, std::placeholders::_1 ),
              std::bind( &SandboxedProcess::syscall_exit,  this, std::placeholders::_1 ),
              move( preparation_procedure ) ),
