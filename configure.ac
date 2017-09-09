@@ -35,7 +35,7 @@ PKG_CHECK_MODULES([CRYPTO],[libcrypto++])
 PKG_CHECK_MODULES([SSL],[libcrypto libssl])
 PKG_CHECK_MODULES([PROTOBUF], [protobuf])
 
-AX_BOOST_BASE([1.54.0])
+AX_BOOST_BASE([1.54.0], [], [AC_MSG_ERROR([Missing boost (may need to install libboost-dev)])])
 
 # Protobuf compiler
 AC_PATH_PROG([PROTOC], [protoc], [])
