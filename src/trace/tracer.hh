@@ -12,9 +12,12 @@
 
 struct TracedThreadInfo
 {
+  pid_t pid;
+
   Optional<SystemCallInvocation> syscall_invocation {};
 
   bool detach = false;
+  bool pause = false;
 };
 
 class TracerFlock;
@@ -22,7 +25,7 @@ class TracerFlock;
 class ProcessTracer
 {
 public:
-  typedef std::function<void( TracedThreadInfo & )> entry_type;
+  typedef std::function<void( TracedThreadInfo &, TracerFlock & )> entry_type;
   typedef std::function<void( const TracedThreadInfo & )> exit_type;
 
 private:
@@ -31,7 +34,7 @@ private:
   bool options_set_ = false;
   void set_ptrace_options() const;
 
-  TracedThreadInfo info_ {};
+  TracedThreadInfo info_ { tracee_pid_ };
 
 public:
   ProcessTracer( const pid_t tracee_pid );
@@ -45,6 +48,8 @@ public:
                          const exit_type & after_exit_function );
 
   pid_t tracee_pid() const { return tracee_pid_; }
+  bool is_paused() const { return info_.pause; }
+  void resume( const int signal );
 
   ProcessTracer( const ProcessTracer & ) = delete;
   ProcessTracer & operator=( const ProcessTracer & ) = delete;
@@ -60,6 +65,7 @@ private:
 
   std::map<pid_t, ChildProcess> children_ {};
   std::map<pid_t, ProcessTracer> tracers_ {};
+  std::multimap<pid_t, pid_t> tracers_waiting_for_children_ {};
 
 public:
   TracerFlock( const ProcessTracer::entry_type & before_entry_function,
@@ -69,6 +75,8 @@ public:
   void remove( const pid_t tracee_pid );
 
   void add_child_process( ChildProcess && child_process );
+  void resume_after_termination( const pid_t child_to_wait_for,
+                                 const pid_t tracee_to_resume );
 
   void loop_until_all_done();
 };

@@ -40,7 +40,7 @@ int main( int argc, char * argv[] )
     Tracer tracer {
       argv[ 1 ],
       [&argv] { return execvp( argv[ 1 ], &argv[ 1 ] ); },
-      [&]( TracedThreadInfo & tcb )
+      [&]( TracedThreadInfo & tcb, TracerFlock & flock )
         {
           Optional<SystemCallInvocation> & invocation = tcb.syscall_invocation;
 
@@ -81,8 +81,13 @@ int main( int argc, char * argv[] )
                     /* (3) successfully opened -- is it a thunk placeholder? */
                     if ( ThunkPlaceholder::is_placeholder( FileDescriptor { fd_num } ) ) {
                       /* (4) it's a thunk placeholder! let's force it */
-                      vector<string> args = { "gg-reduce", open_path };
-                      run( args[ 0 ], args, {}, true, true );
+                      tcb.pause = true;
+                      ChildProcess reducer { "gg-reduce " + open_path,
+                          [&](){ return ezexec( "gg-reduce", { "gg-reduce", open_path },
+                                                {}, true, true ); } };
+                      const pid_t reducer_pid = reducer.pid();
+                      flock.add_child_process( move( reducer ) );
+                      flock.resume_after_termination( reducer_pid, tcb.pid );
                     }
                   }
                 }

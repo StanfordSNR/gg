@@ -37,7 +37,7 @@ int main( int argc, char * argv[] )
 
     cerr << "Direct child: " << tp.pid() << endl;
     
-    TracerFlock tracers { []( TracedThreadInfo &  )
+    TracerFlock tracers { []( TracedThreadInfo &, TracerFlock & )
         {
           //          tcb.syscall_invocation->fetch_arguments();
           //          cerr << tcb.syscall_invocation->to_string();

@@ -71,6 +71,23 @@ void TracerFlock::loop_until_all_done()
         }
 
         children_.erase( process_with_event );
+
+        /* resume tracees that were waiting for this ChildProcess to complete */
+        const auto waiting_on_this = tracers_waiting_for_children_.equal_range( process_with_event );
+        for ( auto it = waiting_on_this.first; it != waiting_on_this.second; ++it ) {
+          const pid_t tracee_pid = it->second;
+          if ( tracers_.count( tracee_pid ) != 1 ) {
+            throw runtime_error( "can't find tracee process " + to_string( tracee_pid ) + " to wake up from end of child " + to_string( process_with_event ) );
+          }
+
+          if ( not tracers_.at( tracee_pid ).is_paused() ) {
+            throw runtime_error( "waking up " + to_string( tracee_pid ) + " but it was not paused" );
+          }
+
+          tracers_.at( tracee_pid ).resume( 0 );
+        }
+
+        tracers_waiting_for_children_.erase( process_with_event );
       }
     } else {
       /* handle an event on a traced process (not necessarily a direct child) */
@@ -123,8 +140,8 @@ void ProcessTracer::set_ptrace_options() const
 
 /* blocking wait on one process */
 bool ProcessTracer::handle_one_event( TracerFlock & flock,
-                               const entry_type & before_entry_function ,
-                               const exit_type & after_exit_function )
+                                      const entry_type & before_entry_function ,
+                                      const exit_type & after_exit_function )
 {
   siginfo_t infop;
   zero( infop );
@@ -195,11 +212,17 @@ bool ProcessTracer::handle_one_event( TracerFlock & flock,
       if ( errno ) { throw unix_error( "ptrace" ); }
 
       info_.syscall_invocation.initialize( tracee_pid_, syscall_no );
-      before_entry_function( info_ );
+      before_entry_function( info_, flock );
 
       if ( info_.detach ) {
         /* set the process free */
         return true;
+      }
+
+      if ( info_.pause ) {
+        /* process may be waiting on another process to first complete */
+        /* don't resume process with ptrace( PTRACE_SYSCALL ) */
+        return false;
       }
     } else {
       /* syscall exit */
@@ -218,13 +241,12 @@ bool ProcessTracer::handle_one_event( TracerFlock & flock,
     /* received signal */
 
     /* start tracee again and let it run until it hits a system call */
-    CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, tracee_pid_, nullptr, infop.si_status ) );
+    resume( infop.si_status );
     return false;
   }
 
   /* start tracee again and let it run until it hits a system call */
-  CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, tracee_pid_, nullptr, 0 ) );
-
+  resume( 0 );
   return false;
 }
 
@@ -260,4 +282,29 @@ Tracer::Tracer( const std::string & name,
 
   flock_.insert( tp.pid() );
   flock_.add_child_process( move( tp ) );
+}
+
+void TracerFlock::resume_after_termination( const pid_t child_to_wait_for,
+                                            const pid_t tracee_to_resume )
+{
+  if ( children_.count( child_to_wait_for ) != 1 ) {
+    throw runtime_error( "unknown child process " + to_string( child_to_wait_for ) );
+  }
+
+  if ( tracers_.count( tracee_to_resume ) != 1 ) {
+    throw runtime_error( "unknown tracee " + to_string( tracee_to_resume ) );
+  }
+
+  if ( tracers_.at( tracee_to_resume ).is_paused() != true ) {
+    throw runtime_error( "tracee " + to_string( tracee_to_resume ) + " is not paused" );
+  }
+
+  tracers_waiting_for_children_.insert( { child_to_wait_for, tracee_to_resume } );
+}
+
+void ProcessTracer::resume( const int signal )
+{
+  info_.pause = false;
+
+  CheckSystemCall( "ptrace(SYSCALL)", ptrace( PTRACE_SYSCALL, tracee_pid_, nullptr, signal ) );
 }
