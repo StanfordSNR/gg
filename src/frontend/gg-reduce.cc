@@ -240,6 +240,8 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
+    gg::models::init();
+
     size_t max_jobs = sysconf( _SC_NPROCESSORS_ONLN );
     string thunk_filename { argv[ 1 ] };
     const roost::path thunk_path = roost::canonical( thunk_filename );
