@@ -163,7 +163,8 @@ private:
   void generate_dependencies_file( const std::vector<std::string> & option_args,
                                    const std::string & output_name );
 
-  gg::thunk::Thunk generate_thunk( const GCCStage stage,
+  gg::thunk::Thunk generate_thunk( const GCCStage first_stage,
+                                   const GCCStage stage,
                                    const InputFile & input,
                                    const std::string & output );
 

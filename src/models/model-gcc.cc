@@ -64,7 +64,8 @@ bool is_non_object_input( const InputFile & input )
   }
 }
 
-Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
+Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
+                                         const GCCStage stage,
                                          const InputFile & input,
                                          const string & output )
 {
@@ -225,6 +226,17 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage stage,
     return { output, gcc_function( operation_mode_, args, envars_ ), base_infiles };
 
   case ASSEMBLE:
+    if ( first_stage != ASSEMBLE and
+         ( arguments_.option_argument( GCCOption::gdwarf_4 ).initialized() or
+           arguments_.option_argument( GCCOption::g ).initialized() ) ) {
+      args.erase(
+        remove_if(
+          args.begin(), args.end(),
+          []( const string & s ) { return ( s == "-gdwarf-4" or s == "-g" ); }
+        ), args.end()
+      );
+    }
+
     args.push_back( "-c" );
     args = prune_makedep_flags( args );
     base_infiles.push_back( program_infiles.at( AS ) );
@@ -334,7 +346,7 @@ void GCCModelGenerator::generate()
                                 + "_" + to_string( stage_num );
       }
 
-      Thunk stage_thunk = generate_thunk( stage, input, output_name );
+      Thunk stage_thunk = generate_thunk( first_stage, stage, input, output_name );
 
       const string last_stage_hash = stage_thunk.store( stage == last_stage );
 
