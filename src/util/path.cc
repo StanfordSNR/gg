@@ -168,7 +168,10 @@ namespace roost {
     {
       UniqueFile tmp_file { dst.string() };
       tmp_file_name = tmp_file.name();
-      tmp_file.fd().write( contents );
+
+      if ( contents.size() > 0 ) {
+        tmp_file.fd().write( contents );
+      }
 
       if ( set_mode ) {
         CheckSystemCall( "fchmod", fchmod( tmp_file.fd().fd_num(), target_mode ) );
