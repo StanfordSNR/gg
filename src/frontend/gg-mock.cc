@@ -16,6 +16,7 @@
 #include "file_descriptor.hh"
 #include "child_process.hh"
 #include "ggpaths.hh"
+#include "system_runner.hh"
 
 using namespace std;
 
@@ -49,7 +50,6 @@ int main( int argc, char * argv[] )
               string open_path = invocation->arguments()->at( 0 ).value<string>();
 
               if ( open_path == gg::models::OPEN_TO_DETACH_PATH ) {
-                cerr << "detaching!\n";
                 tcb.detach = true;
                 break;
               }
@@ -79,7 +79,9 @@ int main( int argc, char * argv[] )
                   if ( fd_num >= 0 ) {
                     /* (3) successfully opened -- is it a thunk placeholder? */
                     if ( ThunkPlaceholder::is_placeholder( FileDescriptor { fd_num } ) ) {
-                      throw runtime_error( "Attempt to open thunk placeholder: " + open_path );
+                      /* (4) it's a thunk placeholder! let's force it */
+                      vector<string> args = { "gg-reduce", open_path };
+                      run( args[ 0 ], args, {}, true, true );
                     }
                   }
                 }
