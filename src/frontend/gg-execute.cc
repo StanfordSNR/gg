@@ -83,9 +83,9 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
 
   if ( not roost::exists( outfile_gg ) ) {
     roost::move_file( outfile, outfile_gg );
+  } else {
+    roost::remove( outfile );
   }
-
-  roost::remove( outfile );
 
   return outfile_hash;
 }

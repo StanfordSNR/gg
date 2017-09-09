@@ -270,10 +270,6 @@ namespace roost {
 
   bool remove( const path & pathn )
   {
-    if ( not exists( pathn ) ) {
-      return false;
-    }
-
     CheckSystemCall( "remove " + pathn.string(),
                      ::remove( pathn.string().c_str() ) );
 
