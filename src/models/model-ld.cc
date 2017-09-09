@@ -64,6 +64,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     { "nostdlib",     no_argument,       nullptr, to_underlying( LDOption::nostdlib ) },
     { "output",       required_argument, nullptr, 'o' },
     { "relocatable",  no_argument,       nullptr, 'r' },
+    { "emit-relocs",  no_argument,       nullptr, 'q' },
     { "pie",          no_argument,       nullptr, to_underlying( LDOption::pie ) },
 
     { 0, 0, 0, 0 },
@@ -95,18 +96,11 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     bool processed = true;
 
     switch( opt ) {
-    case 'l':
-    case 'e':
-    case 'm':
-    case 'z':
-    case 'r':
-      break;
-
     case 'o':
       outfile = optarg;
       break;
 
-    default:
+    case '?':
       processed = false;
     }
 
