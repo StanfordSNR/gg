@@ -255,16 +255,17 @@ void print_gcc_command( const string & command_str )
 {
   struct winsize size;
   ioctl( STDOUT_FILENO, TIOCGWINSZ, &size );
-  size_t window_width = size.ws_col - 4;
+  size_t window_width = size.ws_col - 5;
 
-  cerr << "\u2503 ";
+  cerr << "\u256d\u257c generating model for:" << endl;
+  cerr << "\u2503  ";
 
   size_t line_count = static_cast<size_t>( ceil( 1.0 * command_str.length() / window_width ) );
 
   for ( size_t i = 0; i < line_count; i++ ) {
     if ( i > 0 ) {
       cerr << " \u2936" << endl;;
-      cerr << "\u2503 ";
+      cerr << "\u2503  ";
     }
    cerr << command_str.substr( i * window_width, window_width );
   }
@@ -278,11 +279,13 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
 {
   if ( arguments_.option_argument( GCCOption::print_file_name ).initialized() ) {
     // just run gcc for this
+    cerr << "\u2570\u257c -print-file-name option is present, executing gcc..." << endl;
     execvp( argv[ 0 ], argv );
   }
 
   for ( const InputFile & input : arguments_.input_files() ) {
     if ( input.name == "-" ) {
+      cerr << "\u2570\u257c input is stdin, executing gcc..." << endl;
       execvp( argv[ 0 ], argv );
     }
   }
@@ -291,6 +294,7 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
        ( arguments_.output_filename() == "-" or
          arguments_.output_filename().empty() ) ) {
     // preprocessing to the standard output, just do it, don't create a thunk.
+    cerr << "\u2570\u257c output is stdout, executing gcc..." << endl;
     execvp( argv[ 0 ], argv );
   }
   else if ( arguments_.output_filename() == "-" ) {
@@ -299,6 +303,7 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
 
   if ( arguments_.input_files().size() == 1 and arguments_.input_files()[ 0 ].name == "/dev/null" ) {
     // just run gcc
+    cerr << "\u2570\u257c input is /dev/null, executing gcc..." << endl;
     execvp( argv[ 0 ], argv );
   }
 
