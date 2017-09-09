@@ -161,10 +161,31 @@ namespace roost {
     remove( src );
   }
 
-  void copy_to_fd( const path & src, FileDescriptor & dst_file )
+  void atomic_create( const string & contents, const path & dst,
+                      const bool set_mode, const mode_t target_mode )
   {
+    string tmp_file_name;
+    {
+      UniqueFile tmp_file { dst.string() };
+      tmp_file_name = tmp_file.name();
+      tmp_file.fd().write( contents );
+
+      if ( set_mode ) {
+        CheckSystemCall( "fchmod", fchmod( tmp_file.fd().fd_num(), target_mode ) );
+      }
+
+      /* allow block to end so the UniqueFile gets closed() before rename. */
+      /* not 100% sure readers will see fully-written file appear atomically otherwise */
+    }
+
+    rename( tmp_file_name, dst.string() );
+  }
+
+  void copy_then_rename( const path & src, const path & dst )
+  {
+    /* read input file into memory */
     FileDescriptor src_file { CheckSystemCall( "open (" + src.string() + ")",
-                              open( src.string().c_str(), O_RDONLY | O_CLOEXEC ) ) };
+                              open( src.string().c_str(), O_RDONLY ) ) };
     struct stat src_info;
     CheckSystemCall( "fstat", fstat( src_file.fd_num(), &src_info ) );
 
@@ -172,22 +193,10 @@ namespace roost {
       throw runtime_error( src.string() + " is not a regular file" );
     }
 
-    dst_file.write( src_file.read_exactly( src_info.st_size ) );
-    CheckSystemCall( "fchmod", fchmod( dst_file.fd_num(), src_info.st_mode ) );
-  }
+    const string contents = src_file.read_exactly( src_info.st_size );
 
-  void copy_then_rename( const path & src, const path & dst )
-  {
-    string tmp_file_name;
-    {
-      UniqueFile tmp_file { dst.string() };
-      tmp_file_name = tmp_file.name();
-      copy_to_fd( src, tmp_file.fd() );
-      /* allow block to end so the UniqueFile gets closed() before rename. */
-      /* not 100% sure readers will see fully-written file appear atomically otherwise */
-    }
-
-    rename( tmp_file_name, dst.string() );
+    /* write out to new file */
+    atomic_create( contents, dst, true, src_info.st_mode );
   }
 
   path operator/( const path & prefix, const path & suffix )
