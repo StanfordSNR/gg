@@ -6,7 +6,6 @@
 #include <climits>
 
 #include "invocation.hh"
-#include "traced_process.hh"
 #include "exception.hh"
 
 using namespace std;

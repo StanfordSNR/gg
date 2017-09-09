@@ -4,8 +4,7 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 noinst_LIBRARIES = libggtrace.a libggsyscalltable.a
 
 libggtrace_a_SOURCES = syscall.hh invocation.hh invocation.cc \
-                       traced_process.hh traced_process.cc \
-		       tracer.hh tracer.cc
+                       tracer.hh tracer.cc
 
 libggsyscalltable_a_SOURCES = @OS@/@ARCH@/syscalltbl.cc
 libggsyscalltable_a_CPPFLAGS = $(AM_CPPFLAGS) -fno-var-tracking
