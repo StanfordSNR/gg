@@ -2,13 +2,15 @@
 
 #include "ggpaths.hh"
 
-#include <sys/ioctl.h>
 #include <sys/types.h>
+#include <sys/fcntl.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <fstream>
 
 #include "util.hh"
+#include "file_descriptor.hh"
+#include "exception.hh"
+#include "digest.hh"
 
 using namespace std;
 
@@ -98,7 +100,7 @@ namespace gg {
 
     void set_available( const std::string & hash )
     {
-      ofstream fout { ( gg::paths::remote_index() / hash ).string() };
+      atomic_create( "", gg::paths::remote_index() / hash );
     }
 
     std::string s3_bucket()
@@ -129,20 +131,16 @@ namespace gg {
         return {}; // no reductions are available
       }
 
-      ifstream fin { reduction.string() };
-
-      string output_hash;
-      fin >> output_hash;
+      FileDescriptor cache_entry { CheckSystemCall( "open( " + reduction.string() + " )",
+                                                    open( reduction.string().c_str(), O_RDONLY ) ) };
+      const string output_hash = cache_entry.read_exactly( digest::length );
 
       return ReductionResult { output_hash, 0 };
     }
 
     void insert( const string & old_hash, const string & new_hash )
     {
-      ofstream fout { gg::paths::reduction_path( old_hash ).string(),
-                      ios::out | ios::trunc };
-
-      fout << new_hash;
+      atomic_create( new_hash, gg::paths::reduction_path( old_hash ) );
     }
   }
 
