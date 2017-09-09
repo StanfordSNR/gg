@@ -110,7 +110,7 @@ private:
   std::vector<std::string> library_dirs_ {};
   std::vector<std::string> system_include_dirs_ {};
 
-  std::vector<std::string> extra_infiles_ {};
+  std::unordered_map<GCCStage, std::vector<std::string>> extra_infiles_ {};
 
   bool no_stdlib_ { false };
   bool no_stdinc_ { false };
@@ -133,7 +133,7 @@ public:
   GCCStage last_stage() const { return last_stage_.get_or( LINK ); }
   const std::vector<std::string> & include_dirs() const { return include_dirs_; }
   const std::vector<std::string> & library_dirs() const { return library_dirs_; }
-  const std::vector<std::string> & extra_infiles() const { return extra_infiles_; }
+  const std::vector<std::string> & extra_infiles( const GCCStage stage );
   bool no_stdlib() const { return no_stdlib_; }
   bool no_stdinc() const { return no_stdinc_; }
 

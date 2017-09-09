@@ -264,10 +264,10 @@ void GCCArguments::process_W_option( const string & optarg )
       accepted = true;
 
       if ( startswith( suboptarg, VERSION_SCRIPT ) ) {
-        extra_infiles_.emplace_back( suboptarg.substr( VERSION_SCRIPT.size() ) );
+        extra_infiles_[ LINK ].emplace_back( suboptarg.substr( VERSION_SCRIPT.size() ) );
       }
       else if ( startswith( suboptarg, LINKER_SCRIPT ) ) {
-        extra_infiles_.emplace_back( suboptarg.substr( LINKER_SCRIPT.size() ) );
+        extra_infiles_[ LINK ].emplace_back( suboptarg.substr( LINKER_SCRIPT.size() ) );
       }
 
       break;
@@ -359,6 +359,15 @@ Optional<string> GCCArguments::option_argument( const GCCOption option ) const
   }
 
   return {};
+}
+
+const vector<string> & GCCArguments::extra_infiles( const GCCStage stage )
+{
+  if ( extra_infiles_.count( stage ) == 0 ) {
+    extra_infiles_.emplace( piecewise_construct, forward_as_tuple( stage ), forward_as_tuple( 0 ) );
+  }
+
+  return extra_infiles_.at( stage );
 }
 
 void GCCArguments::print_args() const

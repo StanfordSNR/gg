@@ -19,7 +19,7 @@ bin_PROGRAMS = model-gcc model-ar model-ranlib model-strip model-ld
 COMMON_TOOLCHAIN_SOURCES = toolchain.hh toolchain.cc model-gcc.hh
 
 model_gcc_SOURCES = model-gcc.cc model-gcc-base.cc  model-preprocessor.cc \
-                    model-linker.cc gcc-args.cc \
+                    model-linker.cc model-linker-base.cc gcc-args.cc \
                     $(COMMON_TOOLCHAIN_SOURCES)
 model_gcc_LDADD = $(BASE_LDADD)
 
@@ -32,7 +32,7 @@ model_ranlib_LDADD = $(BASE_LDADD)
 model_strip_SOURCES = model-strip.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_strip_LDADD = $(BASE_LDADD)
 
-model_ld_SOURCES = model-ld.cc model-linker.cc $(COMMON_TOOLCHAIN_SOURCES)
+model_ld_SOURCES = model-ld.cc model-linker-base.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_ld_LDADD = $(BASE_LDADD)
 
 EXTRA_DIST = generate-toolchain-header.py

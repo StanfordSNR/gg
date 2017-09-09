@@ -3,51 +3,15 @@
 #include "model-gcc.hh"
 
 #include <iostream>
-#include <sstream>
+#include <algorithm>
 #include <vector>
 #include <string>
-#include <array>
-#include <regex>
 #include <unordered_set>
 
 #include "system_runner.hh"
 
 using namespace std;
 using namespace gg::thunk;
-
-vector<string>
-GCCModelGenerator::parse_linker_output( const vector<string> & linker_args )
-{
-  unordered_set<string> dependencies;
-
-  istringstream output { run( linker_args.front(), linker_args, {}, true, true, true, true ) };
-
-  size_t seperator_line_count = 0;
-
-  regex path_regex( "^(?:attempt to open|opened script file|found [^\\s]+ at) "
-                    "([^\\s]+)\\s?(?:succeeded|)$" );
-  smatch match;
-  string line;
-
-  while ( getline( output, line ) ) {
-    if ( seperator_line_count < 2 and line[ 0 ] == '=' ) {
-      seperator_line_count++;
-      continue;
-    }
-    else if ( seperator_line_count < 2 ) {
-      continue;
-    }
-
-    regex_match( line, match, path_regex );
-
-    if ( match.size() == 2 ) {
-      dependencies.insert( match[ 1 ].str() );
-    }
-  }
-
-  return { dependencies.begin(), dependencies.end() };
-}
-
 
 vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile> & link_inputs,
                                                          const vector<string> & gcc_args )
@@ -157,7 +121,7 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
 
   infiles.emplace_back( gcc_install_path, "", InFile::Type::DUMMY_DIRECTORY );
 
-  for ( const string & infile : arguments_.extra_infiles() ) {
+  for ( const string & infile : arguments_.extra_infiles( LINK ) ) {
     infiles.emplace_back( infile );
   }
 
