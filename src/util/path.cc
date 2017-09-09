@@ -102,12 +102,6 @@ namespace roost {
     return path_;
   }
 
-  bool lexists( const path & pathn )
-  {
-    struct stat file_info;
-    return lstat( pathn.string().c_str(), &file_info ) == 0;
-  }
-
   bool exists( const path & pathn )
   {
     return not access( pathn.string().c_str(), F_OK );
@@ -150,25 +144,6 @@ namespace roost {
     char path_cstr[ PATH_MAX ];
     strcpy( path_cstr, pathn.string().c_str() );
     return ::basename( path_cstr );
-  }
-
-  void copy_file( const path & src, const path & dst )
-  {
-    FileDescriptor src_file { CheckSystemCall( "open (" + src.string() + ")",
-                              open( src.string().c_str(), O_RDONLY | O_CLOEXEC ) ) };
-    struct stat src_info;
-    CheckSystemCall( "fstat", fstat( src_file.fd_num(), &src_info ) );
-
-    if ( not S_ISREG( src_info.st_mode ) ) {
-      throw runtime_error( src.string() + " is not a regular file" );
-    }
-
-    FileDescriptor dst_file { CheckSystemCall( "open (" + dst.string() + ")",
-                              open( dst.string().c_str(),
-                                    O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
-                              src_info.st_mode ) ) };
-
-    dst_file.write( src_file.read_exactly( src_info.st_size ) );
   }
 
   void move_file( const path & src, const path & dst )
@@ -348,12 +323,6 @@ namespace roost {
     Directory directory { pathn.string() };
     empty_directory_relative( directory, "." );
     remove( pathn );
-  }
-
-  void symlink( const path & old_name, const path & new_name )
-  {
-    CheckSystemCall( "symlink", ::symlink( old_name.string().c_str(),
-                                           new_name.string().c_str() ) );
   }
 
   void rename( const path & oldpath, const path & newpath )

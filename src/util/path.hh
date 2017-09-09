@@ -38,9 +38,7 @@ namespace roost {
   };
 
   bool exists( const path & pathn );
-  bool lexists( const path & pathn );
   off_t file_size( const path & pathn );
-  void copy_file( const path & src, const path & dest );
   void copy_then_rename( const path & src, const path & dest );
   void move_file( const path & src, const path & dest );
   path operator/( const path & prefix, const path & suffix );
@@ -53,7 +51,6 @@ namespace roost {
   bool remove_at( const Directory & directory, const path & pathn,
                   const bool is_directory = false );
   void remove_directory( const path & pathn );
-  void symlink( const path & old_name, const path & new_name );
   void rename( const path & oldpath, const path & newpath );
   void chmod( const path & pathn, mode_t mode );
   std::string readlink( const path & pathn );
