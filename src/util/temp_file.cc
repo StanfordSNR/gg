@@ -49,8 +49,9 @@ TempFile::~TempFile()
 
   try {
     CheckSystemCall( "unlink " + name(), unlink( name().c_str() ) );
+  } catch ( const exception & e ) {
+    print_exception( "TempFile", e );
   }
-  catch ( const exception & e ) {}
 }
 
 void UniqueFile::write( const string & contents )
