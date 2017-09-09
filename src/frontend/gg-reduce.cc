@@ -146,7 +146,8 @@ string Reductor::reduce()
   poller_.add_action(
     Poller::Action(
       signal_fd.fd(), Direction::In,
-      [&]() { return handle_signal( signal_fd.read_signal() ); }
+      [&]() { return handle_signal( signal_fd.read_signal() ); },
+      [&]() { return not child_processes_.empty(); }
     )
   );
 
@@ -156,16 +157,23 @@ string Reductor::reduce()
     while ( not dep_queue_.empty() and child_processes_.size() < max_jobs_ ) {
       const string & dependency_hash = dep_queue_.front();
 
-      child_processes_.emplace_back(
-        dependency_hash,
-        [dependency_hash, remote_exec]()
-        {
-          string exec_bin = remote_exec ? "gg-lambda-execute" : "gg-execute";
+      /* don't bother executing gg-execute if it's in the cache */
+      Optional<ReductionResult> cache_entry = gg::cache::check( dependency_hash );
+      if ( cache_entry.initialized() ) {
+        unordered_set<string> new_o1s = dep_graph_.force_thunk( dependency_hash, cache_entry->hash );
+        dep_queue_.insert( dep_queue_.end(), new_o1s.begin(), new_o1s.end() );
+      } else {
+        child_processes_.emplace_back(
+          dependency_hash,
+          [dependency_hash, remote_exec]()
+          {
+            string exec_bin = remote_exec ? "gg-lambda-execute" : "gg-execute";
 
-          vector<string> command { exec_bin, dependency_hash };
-          return ezexec( command[ 0 ], command, {}, true, true );
-        }
-      );
+            vector<string> command { exec_bin, dependency_hash };
+            return ezexec( command[ 0 ], command, {}, true, true );
+          }
+        );
+      }
 
       dep_queue_.pop_front();
     }
