@@ -65,6 +65,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     { "output",       required_argument, nullptr, 'o' },
     { "relocatable",  no_argument,       nullptr, 'r' },
     { "emit-relocs",  no_argument,       nullptr, 'q' },
+    { "script",       required_argument, nullptr, 'T' },
     { "pie",          no_argument,       nullptr, to_underlying( LDOption::pie ) },
 
     { 0, 0, 0, 0 },
@@ -81,7 +82,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
   list<size_t> input_indexes;
 
   while ( true ) {
-    const int opt = getopt_long_only( argc, argv, "-l:o:e:m:z:", long_options, NULL );
+    const int opt = getopt_long_only( argc, argv, "-rql:o:e:m:z:T:", long_options, NULL );
 
     if ( opt == -1 ) {
       break;
@@ -98,6 +99,10 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     switch( opt ) {
     case 'o':
       outfile = optarg;
+      break;
+
+    case 'T':
+      infiles.emplace_back( optarg );
       break;
 
     case '?':
