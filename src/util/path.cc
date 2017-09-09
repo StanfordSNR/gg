@@ -148,6 +148,15 @@ namespace roost {
 
   void move_file( const path & src, const path & dst )
   {
+    /* attempt simple rename (will work if on same filesystem) */
+    const int rename_result = ::rename( src.string().c_str(),
+                                        dst.string().c_str() );
+
+    if ( rename_result == 0 ) {
+      return;
+    }
+
+    /* failed, so make copy onto target filesystem first */
     copy_then_rename( src, dst );
     remove( src );
   }
