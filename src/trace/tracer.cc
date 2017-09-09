@@ -72,10 +72,9 @@ void TracerFlock::loop_until_all_done()
 
         children_.erase( process_with_event );
 
-        /* resume tracees that were waiting for this ChildProcess to complete */
-        const auto waiting_on_this = tracers_waiting_for_children_.equal_range( process_with_event );
-        for ( auto it = waiting_on_this.first; it != waiting_on_this.second; ++it ) {
-          const pid_t tracee_pid = it->second;
+        /* resume tracee that was waiting for this ChildProcess to complete */
+        if ( tracers_waiting_for_children_.count( process_with_event ) ) {
+          const pid_t tracee_pid = tracers_waiting_for_children_.at( process_with_event );
           if ( tracers_.count( tracee_pid ) != 1 ) {
             throw runtime_error( "can't find tracee process " + to_string( tracee_pid ) + " to wake up from end of child " + to_string( process_with_event ) );
           }

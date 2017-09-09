@@ -65,7 +65,7 @@ private:
 
   std::map<pid_t, ChildProcess> children_ {};
   std::map<pid_t, ProcessTracer> tracers_ {};
-  std::multimap<pid_t, pid_t> tracers_waiting_for_children_ {};
+  std::map<pid_t, pid_t> tracers_waiting_for_children_ {};
 
 public:
   TracerFlock( const ProcessTracer::entry_type & before_entry_function,
