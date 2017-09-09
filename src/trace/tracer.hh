@@ -58,6 +58,7 @@ private:
   ProcessTracer::entry_type before_entry_function_;
   ProcessTracer::exit_type after_exit_function_;
 
+  std::map<pid_t, ChildProcess> children_ {};
   std::map<pid_t, ProcessTracer> tracers_ {};
 
 public:
@@ -67,15 +68,14 @@ public:
   void insert( const pid_t tracee_pid );
   void remove( const pid_t tracee_pid );
 
+  void add_child_process( ChildProcess && child_process );
+
   void loop_until_all_done();
 };
 
 class Tracer
 {
 private:
-  /* We can't terminated a ChildProcess that is already being traced. So, first,
-     we need to destory the flock. */
-  ChildProcess tp_;
   TracerFlock flock_;
 
 public:
@@ -84,7 +84,7 @@ public:
           const ProcessTracer::exit_type & after_exit_function,
           std::function<void()> && preparation_procedure = [](){} );
 
-  void loop_until_done();
+  void loop_until_done() { flock_.loop_until_all_done(); }
 };
 
 #endif /* TRACER_HH */

@@ -46,39 +46,62 @@ void TracerFlock::remove( const pid_t tracee_pid )
 
 void TracerFlock::loop_until_all_done()
 {
-  while ( not tracers_.empty() ) {
+  while ( not ( tracers_.empty() and children_.empty() ) ) {
     siginfo_t infop;
     zero( infop );
-    CheckSystemCall( "waitid", waitid( P_ALL, 0, &infop, WSTOPPED | WNOWAIT ) );
+    CheckSystemCall( "waitid", waitid( P_ALL, 0, &infop, WEXITED | WSTOPPED | WNOWAIT ) );
 
     if ( infop.si_signo != SIGCHLD ) {
       throw runtime_error( "waitid: unexpected value in siginfo_t si_signo field (not SIGCHLD)" );
     }
 
-    const pid_t tracee_with_event = infop.si_pid;
+    const pid_t process_with_event = infop.si_pid;
 
-    if ( tracers_.count( tracee_with_event ) == 0 ) {
-      if ( infop.si_status == ( SIGTRAP | ( PTRACE_EVENT_EXEC << 8 ) ) ) {
-        /* is it an exec event from a "back from the dead" thread? */
-        /* see ptrace(2) "execve(2) under ptrace" for discussion */
+    if ( infop.si_code != CLD_TRAPPED ) {
+      /* handle an event on a child process */
+      if ( children_.count( process_with_event ) == 0 ) {
+        throw runtime_error( "unexpected event from child PID " + to_string( process_with_event ) );
+      }
 
-        insert( tracee_with_event );
-      } else if ( infop.si_status == SIGSTOP ) {
-        /* is it a fresh new process? */
+      ChildProcess & cp = children_.at( process_with_event );
+      cp.wait( true );
+      if ( cp.terminated() ) {
+        if ( cp.exit_status() ) {
+          cp.throw_exception();
+        }
 
-        insert( tracee_with_event );
-      } else {
-        throw runtime_error( "unexpected event from PID " + to_string( tracee_with_event ) );
+        children_.erase( process_with_event );
+      }
+    } else {
+      /* handle an event on a traced process (not necessarily a direct child) */
+      if ( tracers_.count( process_with_event ) == 0 ) {
+        if ( infop.si_status == ( SIGTRAP | ( PTRACE_EVENT_EXEC << 8 ) ) ) {
+          /* is it an exec event from a "back from the dead" thread? */
+          /* see ptrace(2) "execve(2) under ptrace" for discussion */
+
+          insert( process_with_event );
+        } else if ( infop.si_status == SIGSTOP ) {
+          /* is it a fresh new process? */
+
+          insert( process_with_event );
+        } else {
+          throw runtime_error( "unexpected event from PID " + to_string( process_with_event ) );
+        }
+      }
+
+      if ( tracers_.at( process_with_event ).handle_one_event( *this,
+                                                               before_entry_function_,
+                                                               after_exit_function_ ) ) {
+        /* tracer is done and ready to be destructed */
+        remove( process_with_event );
       }
     }
-
-    if ( tracers_.at( tracee_with_event ).handle_one_event( *this,
-                                                            before_entry_function_,
-                                                            after_exit_function_ ) ) {
-      /* tracer is done and ready to be destructed */
-      remove( tracee_with_event );
-    }
   }
+}
+
+void TracerFlock::add_child_process( ChildProcess && child_process )
+{
+  children_.insert( make_pair( child_process.pid(), move( child_process ) ) );
 }
 
 ProcessTracer::ProcessTracer( const pid_t tracee_pid )
@@ -224,29 +247,16 @@ Tracer::Tracer( function<int()> && child_procedure,
                 const ProcessTracer::entry_type & before_entry_function,
                 const ProcessTracer::exit_type & after_exit_function,
                 function<void()> && preparation_procedure )
-  :
-    tp_( "traced",
-      [preparation_procedure, child_procedure]()
-      {
-        preparation_procedure(),
-        CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
-        raise( SIGSTOP );
-        return child_procedure();
-      }
-    ), flock_( before_entry_function, after_exit_function )
+  : flock_( before_entry_function, after_exit_function )
 {
-  flock_.insert( tp_.pid() );
-}
+  /* create a ChildProcess that will be traced */
+  ChildProcess tp { "child process",
+      [preparation_procedure, child_procedure]() {
+      preparation_procedure();
+      CheckSystemCall( "ptrace(TRACEME)", ptrace( PTRACE_TRACEME ) );
+      raise( SIGSTOP );
+      return child_procedure(); } };
 
-void Tracer::loop_until_done()
-{
-  flock_.loop_until_all_done();
-
-  while ( not tp_.terminated() ) {
-    tp_.wait();
-  }
-
-  if ( tp_.exit_status() ) {
-    tp_.throw_exception();
-  }
+  flock_.insert( tp.pid() );
+  flock_.add_child_process( move( tp ) );
 }
