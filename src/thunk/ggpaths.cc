@@ -39,56 +39,36 @@ namespace gg {
       return roost::canonical( gg_path );
     }
 
-    roost::path get_blobs_path()
+    roost::path get_inner_directory( const std::string & name )
     {
-      return get_gg_dir();
-    }
+      roost::path inner_dir = get_gg_dir() / name;
 
-    roost::path get_reductions_path()
-    {
-      roost::path reductions_dir = get_gg_dir() / "reductions";
-
-      if ( roost::exists( reductions_dir ) ) {
-        if ( not roost::is_directory( reductions_dir ) ) {
-          throw runtime_error( reductions_dir.string() + " is not a directory" );
+      if ( roost::exists( inner_dir ) ) {
+        if ( not roost::is_directory( inner_dir ) ) {
+          throw runtime_error( inner_dir.string() + " is not a directory" );
         }
       } else {
-        roost::create_directories( reductions_dir );
+        roost::create_directories( inner_dir );
       }
 
-      return reductions_dir;
-    }
-
-    roost::path get_remote_index()
-    {
-      roost::path index_dir = get_gg_dir() / "remote";
-
-      if ( roost::exists( index_dir ) ) {
-        if ( not roost::is_directory( index_dir ) ) {
-          throw runtime_error( index_dir.string() + " is not a directory" );
-        }
-      } else {
-        roost::create_directories( index_dir );
-      }
-
-      return index_dir;
+      return inner_dir;
     }
 
     roost::path blobs()
     {
-      const static roost::path blobs_path = get_blobs_path();
+      const static roost::path blobs_path = get_inner_directory( "blobs" );
       return blobs_path;
     }
 
     roost::path reductions()
     {
-      const static roost::path reductions_path = get_reductions_path();
+      const static roost::path reductions_path = get_inner_directory( "reductions" );
       return reductions_path;
     }
 
     roost::path remote_index()
     {
-      const static roost::path index_path = get_remote_index();
+      const static roost::path index_path = get_inner_directory( "remote" );
       return index_path;
     }
 

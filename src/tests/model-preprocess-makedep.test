@@ -15,10 +15,10 @@ GCC_ARGS="-D_FORTIFY_SOURCE=0 -g -O2 -E -frandom-seed=winstein ${INPUT_FILE}"
 INCLUDE_ARGS=$(gcc-7 -E -Wp,-v - < /dev/null 2>&1 | grep "^ " | sed 's/ \(.*\)/-isystem\1/' | tr '\n' ' ')
 
 # Run with system GCC
-mkdir -p $GG_DIR
-cd $GG_DIR
+mkdir -p $GG_DIR/blobs
+cd $GG_DIR/blobs
 gcc-7 -nostdinc ${INCLUDE_ARGS} ${GCC_ARGS} ${GCC_M_ARGS} $TEST_TMPDIR/${MAKEDEP_FILE}.gold -o $TEST_TMPDIR/${OUTPUT_FILE}.gold
-cd ..
+cd ../..
 
 # Create thunk
 model-gcc gcc ${GCC_ARGS} ${GCC_M_ARGS} ${MAKEDEP_FILE} -o ${OUTPUT_FILE}
