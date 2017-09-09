@@ -193,6 +193,8 @@ string Thunk::executable_hash() const
 void Thunk::update_infile( const string & old_hash, const string & new_hash,
                            const size_t new_order, const off_t new_size )
 {
+  bool found = false;
+
   for ( size_t i = 0; i < infiles_.size(); i++ ) {
     if ( infiles_[ i ].content_hash() == old_hash ) {
       InFile new_infile { infiles_[ i ].filename(), infiles_[ i ].real_filename(),
@@ -200,11 +202,13 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
 
       infiles_[ i ] = new_infile;
       order_ = compute_order();
-      return;
+      found = true;
     }
   }
 
-  throw runtime_error( "infile doesn't exist: " + old_hash );
+  if ( not found ) {
+    throw runtime_error( "infile doesn't exist: " + old_hash );
+  }
 }
 
 string Thunk::filename_to_hash( const string & filename ) const
