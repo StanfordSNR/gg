@@ -149,11 +149,12 @@ bool ProcessTracer::handle_one_event( TracerFlock & flock,
     case PTRACE_EVENT_EXEC:
       {
         /* get former thread ID */
-        pid_t former_pid;
+        long former_pid;
         CheckSystemCall( "ptrace(PTRACE_GETEVENTMSG)",
                          ptrace( PTRACE_GETEVENTMSG, tracee_pid_, nullptr, &former_pid ) );
 
-        if ( former_pid != tracee_pid_ ) {
+
+        if ( static_cast<pid_t>( former_pid ) != tracee_pid_ ) {
           flock.remove( former_pid );
         }
       }
