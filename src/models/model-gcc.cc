@@ -127,6 +127,7 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     args.push_back( "-D__TIMESTAMP__=\"REDACTED\"" );
     args.push_back( "-D__DATE__=\"REDACTED\"" );
     args.push_back( "-D__TIME__=\"REDACTED\"" );
+    args.push_back( "-fno-canonical-system-headers" );
 
     vector<string> all_args;
     all_args.reserve( c_include_path.size() + args.size() + 2 );
