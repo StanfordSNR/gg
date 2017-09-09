@@ -54,7 +54,7 @@ enum class OperationMode
 enum class GCCOption
 {
   x = 1000,
-  g, O, D, f,
+  g, O, D, U, f,
   o,
   E, S, c, C,
   M, MD, MP, MT, MF,

@@ -162,6 +162,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     case 'g': add_option( GCCOption::g, "g" ); break;
     case 'O': add_option( GCCOption::O, "O", optarg, '\0' ); break;
     case 'D': add_option( GCCOption::D, "D", optarg, '\0' ); break;
+    case 'U': add_option( GCCOption::U, "U", optarg, '\0' ); break;
     case 'f': add_option( GCCOption::f, "f", optarg, '\0' ); break;
 
     case 'W':
@@ -215,7 +216,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
           throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );
         }
       }
-      
+
       if ( add_to_args ) {
         add_option( options_map.at( gccopt ), optarg );
       }
