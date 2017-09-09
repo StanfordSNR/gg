@@ -1,11 +1,12 @@
-/* -*-mode:c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include "file_descriptor.hh"
 #include "exception.hh"
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <assert.h>
+#include <cassert>
+#include <sys/file.h>
 
 using namespace std;
 
@@ -119,3 +120,8 @@ string FileDescriptor::read_exactly( const size_t length,
     assert( ret.size() == length );
     return ret;
   }
+
+void FileDescriptor::block_for_exclusive_lock()
+{
+  CheckSystemCall( "flock", flock( fd_num(), LOCK_EX ) );
+}

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <sys/fcntl.h>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -108,12 +109,19 @@ int main( int argc, char * argv[] )
 
     string thunk_hash { argv[ 1 ] };
 
+    /* take out an advisory lock on the thunk, in case
+       other gg-execute processes are running at the same time */
+    const string thunk_path = gg::paths::blob_path( thunk_hash ).string();
+    FileDescriptor raw_thunk { CheckSystemCall( "open( " + thunk_path + " )",
+                                                open( thunk_path.c_str(), O_RDONLY ) ) };
+    raw_thunk.block_for_exclusive_lock();
+
     if ( gg::cache::check( thunk_hash ).initialized() ) {
       /* already reduced */
       return EXIT_SUCCESS;
     }
 
-    ThunkReader thunk_reader { gg::paths::blob_path( thunk_hash ).string() };
+    ThunkReader thunk_reader { thunk_path };
     Thunk thunk = thunk_reader.read_thunk();
     string output_hash = execute_thunk( thunk, thunk_hash );
     gg::cache::insert( thunk_hash, output_hash );

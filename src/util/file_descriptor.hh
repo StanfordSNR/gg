@@ -49,6 +49,9 @@ public:
   std::string::const_iterator write( const std::string::const_iterator & begin,
                     const std::string::const_iterator & end );
 
+  /* block on an exclusive lock */
+  void block_for_exclusive_lock();
+
   /* forbid copying FileDescriptor objects or assigning them */
   FileDescriptor( const FileDescriptor & other ) = delete;
   const FileDescriptor & operator=( const FileDescriptor & other ) = delete;
