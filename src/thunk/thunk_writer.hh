@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "thunk.hh"
-#include "gg.pb.h"
 
 class ThunkWriter
 {
@@ -15,6 +14,7 @@ private:
 
 public:
   static std::string write_thunk( const gg::thunk::Thunk & thunk );
+  static std::string serialize_thunk( const gg::thunk::Thunk & thunk );
   static void write_thunk( const gg::thunk::Thunk & thunk,
                            const std::string & filename );
 };

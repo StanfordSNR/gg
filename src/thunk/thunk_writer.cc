@@ -9,6 +9,7 @@
 #include "ggpaths.hh"
 #include "path.hh"
 #include "temp_file.hh"
+#include "digest.hh"
 
 using namespace std;
 using namespace gg;
@@ -16,14 +17,11 @@ using namespace gg::thunk;
 
 std::string ThunkWriter::write_thunk( const Thunk & thunk )
 {
-  TempFile temp_thunk { paths::blob_path( "TEMPTHUNK" ).string() };
+  const string serialized_thunk = serialize_thunk( thunk );
+  const string thunk_hash = digest::sha256( serialized_thunk );
 
-  write_thunk( thunk, temp_thunk.name() );
-  string thunk_hash = InFile::compute_hash( temp_thunk.name() );
-  roost::path thunk_in_gg_path = paths::blob_path( thunk_hash );
-
-  if ( not roost::exists( thunk_in_gg_path ) ) {
-    roost::rename( temp_thunk.name(), thunk_in_gg_path );
+  if ( not roost::exists( paths::blob_path( thunk_hash ) ) ) {
+    atomic_create( serialized_thunk, paths::blob_path( thunk_hash ) );
   }
 
   return thunk_hash;
@@ -34,4 +32,13 @@ void ThunkWriter::write_thunk( const Thunk & thunk, const string & filename )
   ProtobufSerializer serializer { filename };
   serializer.write_string( MAGIC_NUMBER );
   serializer.write_protobuf<protobuf::Thunk>( thunk.to_protobuf() );
+}
+
+string ThunkWriter::serialize_thunk( const gg::thunk::Thunk & thunk )
+{
+  string ret { MAGIC_NUMBER };
+  if ( not thunk.to_protobuf().AppendToString( &ret ) ) {
+    throw runtime_error( "could not serialize thunk for " + thunk.outfile() );
+  }
+  return ret;
 }
