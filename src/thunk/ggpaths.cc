@@ -74,6 +74,12 @@ namespace gg {
       return index_path;
     }
 
+    roost::path hash_cache()
+    {
+      const static roost::path hash_cache_path = get_inner_directory( "hash_cache" );
+      return hash_cache_path;
+    }
+
     roost::path blob_path( const string & hash )
     {
       return blobs() / hash;
@@ -82,6 +88,13 @@ namespace gg {
     roost::path reduction_path( const string & hash )
     {
       return reductions() / hash;
+    }
+
+    roost::path hash_cache_entry( const string & filename, const struct stat & stat_entry )
+    {
+      const string cache_key = to_string( stat_entry.st_dev ) + "-"
+        + to_string( stat_entry.st_ino ) + "-" + roost::rbasename( filename ).string();
+      return hash_cache() / cache_key;
     }
 
     void fix_path_envar()

@@ -11,6 +11,8 @@
 #include "path.hh"
 #include "placeholder.hh"
 #include "exception.hh"
+#include "ggpaths.hh"
+#include "tokenize.hh"
 
 using namespace std;
 using namespace gg;
@@ -103,15 +105,54 @@ size_t InFile::compute_order( const string & filename )
 
 string InFile::compute_hash( const string & filename )
 {
+  /* do we have this hash in cache? */
+  struct stat file_stat;
+  CheckSystemCall( "stat", stat( filename.c_str(), &file_stat ) );
+
+  const auto cache_entry_path = gg::paths::hash_cache_entry( filename, file_stat );
+
+  if ( roost::exists( cache_entry_path ) ) {
+    FileDescriptor cache_file { CheckSystemCall( "open",
+                                                 open( cache_entry_path.string().c_str(), O_RDONLY ) ) };
+    string cache_entry;
+    while ( not cache_file.eof() ) { cache_entry += cache_file.read(); }
+
+    vector<string> cache_contents = split( cache_entry, " " );
+
+    if ( cache_contents.size() != 6 ) {
+      throw runtime_error( "bad cache entry: " + cache_entry_path.string() );
+    }
+
+    if ( cache_contents.at( 0 ) == to_string( file_stat.st_size )
+         and cache_contents.at( 1 ) == to_string( file_stat.st_mtim.tv_sec )
+         and cache_contents.at( 2 ) == to_string( file_stat.st_mtim.tv_nsec )
+         and cache_contents.at( 3 ) == to_string( file_stat.st_ctim.tv_sec )
+         and cache_contents.at( 4 ) == to_string( file_stat.st_ctim.tv_nsec ) ) {
+      /* cache hit! */
+      return cache_contents.at( 5 );
+    }
+  }
+
+  /* not a cache hit, so need to compute hash ourselves */
+
   FileDescriptor file { CheckSystemCall( "open (" + filename + ")",
                                          open( filename.c_str(), O_RDONLY ) ) };
 
   string contents;
-  while ( not file.eof() ) {
-    contents += file.read();
-  }
+  while ( not file.eof() ) { contents += file.read(); }
 
-  return digest::sha256( contents );
+  const string computed_hash = digest::sha256( contents );
+
+  /* make a cache entry */
+  atomic_create( to_string( file_stat.st_size ) + " "
+                 + to_string( file_stat.st_mtim.tv_sec ) + " "
+                 + to_string( file_stat.st_mtim.tv_nsec ) + " "
+                 + to_string( file_stat.st_ctim.tv_sec ) + " "
+                 + to_string( file_stat.st_ctim.tv_nsec ) + " "
+                 + computed_hash,
+                 cache_entry_path );
+
+  return computed_hash;
 }
 
 off_t InFile::compute_size( const string & filename )
