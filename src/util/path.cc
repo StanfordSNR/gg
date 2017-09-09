@@ -194,9 +194,16 @@ namespace roost {
 
   void copy_then_rename( const path & src, const path & dst )
   {
-    TempFile tmp_file { dst.string() };
-    copy_to_fd( src, tmp_file.fd() );
-    rename( tmp_file.name(), dst.string() );
+    string tmp_file_name;
+    {
+      UniqueFile tmp_file { dst.string() };
+      tmp_file_name = tmp_file.name();
+      copy_to_fd( src, tmp_file.fd() );
+      /* allow block to end so the UniqueFile gets closed() before rename. */
+      /* not 100% sure readers will see fully-written file appear atomically otherwise */
+    }
+
+    rename( tmp_file_name, dst.string() );
   }
 
   path operator/( const path & prefix, const path & suffix )
