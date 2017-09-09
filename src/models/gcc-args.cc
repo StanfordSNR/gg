@@ -275,6 +275,12 @@ void GCCArguments::process_W_option( const string & optarg )
     case 'a':
       /* XXX allow all */
       accepted = true;
+      if ( suboptarg.find( ',' ) == string::npos ) {
+        if ( roost::exists( suboptarg ) ) {
+          extra_infiles_[ ASSEMBLE ].emplace_back( suboptarg );
+        }
+      }
+
       break;
     }
   }

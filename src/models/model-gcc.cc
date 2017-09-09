@@ -86,6 +86,10 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
   base_infiles.emplace_back( "/__gg__/gcc-specs", specs_tempfile_.name() );
 
+  for ( const string & extra_infile : arguments_.extra_infiles( stage ) ) {
+    base_infiles.emplace_back( extra_infile );
+  }
+
   /* Common args */
   args.push_back( "-x" );
   args.push_back( language_to_name( input.language ) );
