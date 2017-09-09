@@ -32,7 +32,7 @@ void TracerFlock::insert( const pid_t tracee_pid )
     throw runtime_error( "bad attempt to insert pid " + to_string( tracee_pid ) );
   }
 
-  tracers_.insert( { tracee_pid, tracee_pid } );
+  tracers_.emplace( make_pair( tracee_pid, tracee_pid ) );
 }
 
 void TracerFlock::remove( const pid_t tracee_pid )
@@ -143,7 +143,6 @@ bool ProcessTracer::handle_one_event( TracerFlock & flock,
       break;
 
     case PTRACE_EVENT_EXIT:
-      CheckSystemCall( "ptrace(DETACH)", ptrace( PTRACE_DETACH, tracee_pid_, nullptr, 0 ) );
       return true;
       break;
 
@@ -176,7 +175,6 @@ bool ProcessTracer::handle_one_event( TracerFlock & flock,
 
       if ( info_.detach ) {
         /* set the process free */
-        CheckSystemCall( "ptrace(DETACH)", ptrace( PTRACE_DETACH, tracee_pid_, nullptr, 0 ) );
         return true;
       }
     } else {
@@ -206,11 +204,26 @@ bool ProcessTracer::handle_one_event( TracerFlock & flock,
   return false;
 }
 
+ProcessTracer::ProcessTracer( ProcessTracer && pt )
+  : tracee_pid_( pt.tracee_pid_ ),
+    options_set_( pt.options_set_ ),
+    info_( pt.info_ )
+{
+  pt.tracee_pid_ = -1;
+}
+
+ProcessTracer::~ProcessTracer()
+{
+  if ( tracee_pid_ != -1 ) {
+    CheckSystemCall( "ptrace(DETACH)", ptrace( PTRACE_DETACH, tracee_pid_, nullptr, 0 ) );
+  }
+}
+
 Tracer::Tracer( function<int()> && child_procedure,
                 const ProcessTracer::entry_type & before_entry_function,
                 const ProcessTracer::exit_type & after_exit_function,
                 function<void()> && preparation_procedure )
-  : flock_( before_entry_function, after_exit_function ),
+  :
     tp_( "traced",
       [preparation_procedure, child_procedure]()
       {
@@ -219,7 +232,7 @@ Tracer::Tracer( function<int()> && child_procedure,
         raise( SIGSTOP );
         return child_procedure();
       }
-    )
+    ), flock_( before_entry_function, after_exit_function )
 {
   flock_.insert( tp_.pid() );
 }

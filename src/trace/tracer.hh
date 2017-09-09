@@ -35,6 +35,7 @@ private:
 
 public:
   ProcessTracer( const pid_t tracee_pid );
+  ~ProcessTracer();
 
   /* handle one event from the tracee.
      positive return value => no longer interested in tracee, so
@@ -44,6 +45,11 @@ public:
                          const exit_type & after_exit_function );
 
   pid_t tracee_pid() const { return tracee_pid_; }
+
+  ProcessTracer( const ProcessTracer & ) = delete;
+  ProcessTracer & operator=( const ProcessTracer & ) = delete;
+
+  ProcessTracer( ProcessTracer && pt );
 };
 
 class TracerFlock
@@ -67,8 +73,10 @@ public:
 class Tracer
 {
 private:
-  TracerFlock flock_;
+  /* We can't terminated a ChildProcess that is already being traced. So, first,
+     we need to destory the flock. */
   ChildProcess tp_;
+  TracerFlock flock_;
 
 public:
   Tracer( std::function<int()> && child_procedure,

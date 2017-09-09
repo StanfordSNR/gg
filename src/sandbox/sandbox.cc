@@ -18,9 +18,6 @@ SandboxedProcess::SandboxedProcess( const unordered_map<std::string, Permissions
     allowed_files_( allowed_files )
 {}
 
-SandboxedProcess::~SandboxedProcess()
-{}
-
 inline void Check( const TracedThreadInfo & tcb, bool status )
 {
   if ( not status ) {
