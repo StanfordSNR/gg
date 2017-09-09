@@ -237,6 +237,7 @@ void GCCArguments::process_W_option( const string & optarg )
   bool accepted = true;
 
   static const string VERSION_SCRIPT = "--version-script=";
+  static const string LINKER_SCRIPT = "-T,";
 
   if ( optarg.length() >= 2 and optarg[ 1 ] == ',' ) {
     accepted = false;
@@ -263,6 +264,9 @@ void GCCArguments::process_W_option( const string & optarg )
 
       if ( startswith( suboptarg, VERSION_SCRIPT ) ) {
         extra_infiles_.emplace_back( suboptarg.substr( VERSION_SCRIPT.size() ) );
+      }
+      else if ( startswith( suboptarg, LINKER_SCRIPT ) ) {
+        extra_infiles_.emplace_back( suboptarg.substr( LINKER_SCRIPT.size() ) );
       }
 
       break;
