@@ -16,5 +16,4 @@ libggutil_a_SOURCES = exception.hh optional.hh chunk.hh \
                       pipe.hh pipe.cc \
                       poller.hh poller.cc \
                       signalfd.hh signalfd.cc \
-                      event_loop.hh event_loop.cc \
                       tokenize.hh
