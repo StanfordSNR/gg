@@ -64,6 +64,21 @@ bool is_non_object_input( const InputFile & input )
   }
 }
 
+bool has_include_or_incbin( const string & filename )
+{
+  ifstream fin { filename };
+  string line;
+
+  while ( getline( fin, line ) ) {
+    if ( line.find( ".include" ) != string::npos or
+         line.find( ".incbin" ) != string::npos ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
                                          const GCCStage stage,
                                          const InputFile & input,
@@ -277,16 +292,24 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
                                       int argc, char ** argv )
   : operation_mode_( operation_mode ), arguments_( argc, argv )
 {
+  exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
+
   if ( arguments_.option_argument( GCCOption::print_file_name ).initialized() ) {
     // just run gcc for this
-    cerr << "\u2570\u257c -print-file-name option is present, executing gcc..." << endl;
-    execvp( argv[ 0 ], argv );
+    cerr << "\u2570\u257c print-file-name option is present, executing gcc..." << endl;
+    exec_original_gcc();
   }
 
   for ( const InputFile & input : arguments_.input_files() ) {
     if ( input.name == "-" ) {
       cerr << "\u2570\u257c input is stdin, executing gcc..." << endl;
-      execvp( argv[ 0 ], argv );
+      exec_original_gcc();
+    }
+
+    if ( input.source_language == Language::ASSEMBLER_WITH_CPP and
+         has_include_or_incbin( input.name ) ) {
+      cerr << "\u2570\u257c assembler file has .include or .incbin directive, executing gcc..." << endl;
+      exec_original_gcc();
     }
   }
 
@@ -295,7 +318,7 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
          arguments_.output_filename().empty() ) ) {
     // preprocessing to the standard output, just do it, don't create a thunk.
     cerr << "\u2570\u257c output is stdout, executing gcc..." << endl;
-    execvp( argv[ 0 ], argv );
+    exec_original_gcc();
   }
   else if ( arguments_.output_filename() == "-" ) {
     throw runtime_error( "outputting to stdout is only allowed for preprocessing stage" );
@@ -304,7 +327,7 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
   if ( arguments_.input_files().size() == 1 and arguments_.input_files()[ 0 ].name == "/dev/null" ) {
     // just run gcc
     cerr << "\u2570\u257c input is /dev/null, executing gcc..." << endl;
-    execvp( argv[ 0 ], argv );
+    exec_original_gcc();
   }
 
   if ( arguments_.input_files().size() == 0 ) {

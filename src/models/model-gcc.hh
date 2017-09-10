@@ -148,6 +148,8 @@ public:
 class GCCModelGenerator
 {
 private:
+  std::function<void(void)> exec_original_gcc {};
+
   OperationMode operation_mode_;
   GCCArguments arguments_;
   TempFile specs_tempfile_ { "/tmp/gg-gccspecs" };
