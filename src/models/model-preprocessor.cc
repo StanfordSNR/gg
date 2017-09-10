@@ -21,6 +21,26 @@
 using namespace std;
 using namespace boost;
 
+vector<string> write_dependencies_file( const string & output_name,
+                                        const string & target_name,
+                                        const vector<gg::thunk::InFile> & infiles )
+{
+  /* always write a canonical dependencies file to make sure it matches our parse */
+
+  string output { target_name + ":" };
+  vector<string> filenames;
+  for ( const auto & infile : infiles ) {
+    filenames.emplace_back( infile.filename() );
+    output.append( " " );
+    output.append( infile.filename() );
+  }
+  output.append( "\n" );
+
+  atomic_create( output, roost::path( output_name ) );
+
+  return filenames;
+}
+
 vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_filename,
                                                            const string & target_name )
 {
@@ -150,9 +170,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
       }
 
       if ( cache_hit ) {
-        roost::atomic_create( dep_cache_entry.outfile(), /* here we abuse outfile to store the contents */
-                              output_name );
-        return parse_dependencies_file( output_name, target_name );
+        return write_dependencies_file( output_name, target_name, dep_cache_entry.infiles() );
       }
     }
   }
@@ -172,7 +190,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
     dependencies.emplace_back( str );
   }
 
-  gg::thunk::Thunk dep_cache_entry( contents, /* abuse outfile to store the contents */
+  gg::thunk::Thunk dep_cache_entry( "",
                                     makedep_fn,
                                     dependencies );
 
@@ -183,5 +201,5 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
   }
   atomic_create( serialized_cache_entry, cache_entry_path );
 
-  return infiles_list;
+  return write_dependencies_file( output_name, target_name, dep_cache_entry.infiles() );
 }
