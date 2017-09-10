@@ -21,7 +21,7 @@ AM_TESTS_ENVIRONMENT = \
 
 check_PROGRAMS = thunk-roundtrip sandbox-test path-test
 dist_check_SCRIPTS = fetch-vectors.test \
-                     model-preprocess.test model-preprocess-makedep.test \
+                     model-preprocess.test \
                      model-compile.test model-assemble.test model-link.test \
                      model-ar.test model-ranlib.test model-strip.test \
                      model-ld.test gnu-hello.test mosh.test \
@@ -34,7 +34,6 @@ path_test_SOURCES = path-test.cc
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 model-preprocess.log: fetch-vectors.log
-model-preprocess-makedep.log: fetch-vectors.log
 model-compile.log: fetch-vectors.log
 model-assemble.log: fetch-vectors.log
 model-link.log: fetch-vectors.log
@@ -45,7 +44,7 @@ model-ld.log: fetch-vectors.log
 gnu-hello.log: fetch-vectors.log
 mosh.log: fetch-vectors.log
 
-cleanup.log: model-preprocess.log model-preprocess-makedep.log \
+cleanup.log: model-preprocess.log \
              model-compile.log model-assemble.log model-link.log model-ar.log \
              model-ranlib.log model-strip.log model-ld.log gnu-hello.log \
              mosh.log

@@ -128,3 +128,46 @@ string GCCModelGenerator::stage_output_name( const GCCStage stage, const string 
     throw runtime_error( "invalid GCCstage stage" );
   }
 }
+
+void error_if( const char * name )
+{
+  if ( getenv( name ) ) {
+    throw runtime_error( "unsupported environment variable: " + string( name ) );
+  }
+}
+
+string environment_or_blank( const string & name )
+{
+  const char * value = getenv( name.c_str() );
+  if ( value ) {
+    return name + "=" + value;
+  } else {
+    return name + "=";
+  }
+}
+
+void verify_no_unhandled_environment_variables()
+{
+  error_if( "CPATH" );
+  error_if( "C_INCLUDE_PATH" );
+  error_if( "CPLUS_INCLUDE_PATH" );
+  error_if( "OBJC_INCLUDE_PATH" );
+  error_if( "DEPENDENCIES_OUTPUT" );
+  error_if( "SUNPRO_DEPENDENCIES" );
+  error_if( "SOURCE_DATE_EPOCH" );
+  error_if( "GCC_EXEC_PREFIX" );
+  error_if( "COMPILER_PATH" );
+  error_if( "LIBRARY_PATH" );
+}
+
+vector<string> GCCModelGenerator::gcc_environment()
+{
+  verify_no_unhandled_environment_variables();
+
+  vector<string> environment;
+  environment.push_back( environment_or_blank( "LANG" ) );
+  environment.push_back( environment_or_blank( "LC_CTYPE" ) );
+  environment.push_back( environment_or_blank( "LC_MESSAGES" ) );
+  environment.push_back( environment_or_blank( "LC_ALL" ) );
+  return environment;
+}
