@@ -39,10 +39,11 @@ vector<string> get_link_dependencies( size_t argc, char * argv[], list<size_t> i
       continue;
     }
 
-    args.push_back( argv[ i ] );
+    if ( strcmp( argv[ i ], "--as-needed") != 0 ) {
+      args.push_back( argv[ i ] );
+    }
   }
 
-  args.push_back( "--as-needed" );
   args.push_back( "--verbose" );
 
   assert( input_indexes.size() == 0 );
