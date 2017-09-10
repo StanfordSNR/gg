@@ -72,45 +72,11 @@ vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_fi
   return dependencies;
 }
 
-void error_if( const char * name )
-{
-  if ( getenv( name ) ) {
-    throw runtime_error( "unsupported environment variable: " + string( name ) );
-  }
-}
-
-string environment_or_blank( const string & name )
-{
-  const char * value = getenv( name.c_str() );
-  if ( value ) {
-    return name + "=" + value;
-  } else {
-    return name + "=";
-  }
-}
-
-void verify_no_cpp_environment_variables()
-{
-  error_if( "CPATH" );
-  error_if( "C_INCLUDE_PATH" );
-  error_if( "CPLUS_INCLUDE_PATH" );
-  error_if( "OBJC_INCLUDE_PATH" );
-  error_if( "DEPENDENCIES_OUTPUT" );
-  error_if( "SUNPRO_DEPENDENCIES" );
-  error_if( "SOURCE_DATE_EPOCH" );
-  error_if( "GCC_EXEC_PREFIX" );
-  error_if( "COMPILER_PATH" );
-  error_if( "LIBRARY_PATH" );
-}
-
 vector<string> GCCModelGenerator::generate_dependencies_file( const string & input_filename,
                                                               const vector<string> & option_args,
                                                               const string & output_name,
                                                               const string & target_name )
 {
-  /* bail out on cpp-affecting environment variables */
-  verify_no_cpp_environment_variables();
-
   vector<string> args;
   args.reserve( 1 + option_args.size() );
 
@@ -164,13 +130,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
   const auto cache_entry_path = gg::paths::preprocessor_dependency_cache_entry( input_file_hash );
 
   /* assemble the function */
-  vector<string> environment;
-  environment.push_back( environment_or_blank( "LANG" ) );
-  environment.push_back( environment_or_blank( "LC_CTYPE" ) );
-  environment.push_back( environment_or_blank( "LC_MESSAGES" ) );
-  environment.push_back( environment_or_blank( "LC_ALL" ) );
-
-  const gg::thunk::Function makedep_fn { args.front(), args, environment, args.front() };
+  const gg::thunk::Function makedep_fn { args.front(), args, gcc_environment(), args.front() };
 
   if ( roost::exists( cache_entry_path ) ) {
     /* abuse the thunk format to store a cache of dependencies */

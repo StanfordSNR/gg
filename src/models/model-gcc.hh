@@ -174,6 +174,8 @@ private:
                                         const std::vector<std::string> & dependencies,
                                         const std::string & output );
 
+  static std::vector<std::string> gcc_environment();
+
 public:
   GCCModelGenerator( const OperationMode operation_mode, int argc, char ** argv );
   void generate();
