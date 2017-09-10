@@ -23,7 +23,7 @@ constexpr auto to_underlying( E e ) noexcept
 
 enum class LDOption
 {
-  no_undefined = 1000, nostdlib, pie
+  no_undefined = 1000, nostdlib, pie, start_group, end_group
 };
 
 vector<string> get_link_dependencies( size_t argc, char * argv[], list<size_t> input_indexes )
@@ -67,6 +67,8 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     { "emit-relocs",  no_argument,       nullptr, 'q' },
     { "script",       required_argument, nullptr, 'T' },
     { "pie",          no_argument,       nullptr, to_underlying( LDOption::pie ) },
+    { "start-group",  no_argument,       nullptr, to_underlying( LDOption::start_group ) },
+    { "end-group",    no_argument,       nullptr, to_underlying( LDOption::end_group ) },
 
     { 0, 0, 0, 0 },
   };
@@ -115,6 +117,8 @@ Thunk generate_thunk( size_t argc, char * argv[] )
         no_stdlib = true;
         break;
 
+      case LDOption::start_group:
+      case LDOption::end_group:
       case LDOption::no_undefined:
       case LDOption::pie:
         break;
