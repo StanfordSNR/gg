@@ -8,9 +8,15 @@
 #include <string>
 #include <fstream>
 #include <boost/tokenizer.hpp>
+#include <sys/fcntl.h>
+#include <unistd.h>
 
 #include "temp_file.hh"
 #include "system_runner.hh"
+#include "thunk.hh"
+#include "ggpaths.hh"
+#include "thunk_reader.hh"
+#include "exception.hh"
 
 using namespace std;
 using namespace boost;
@@ -66,9 +72,45 @@ vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_fi
   return dependencies;
 }
 
-void GCCModelGenerator::generate_dependencies_file( const vector<string> & option_args,
-                                                    const string & output_name )
+void error_if( const char * name )
 {
+  if ( getenv( name ) ) {
+    throw runtime_error( "unsupported environment variable: " + string( name ) );
+  }
+}
+
+string environment_or_blank( const string & name )
+{
+  const char * value = getenv( name.c_str() );
+  if ( value ) {
+    return name + "=" + value;
+  } else {
+    return name + "=";
+  }
+}
+
+void verify_no_cpp_environment_variables()
+{
+  error_if( "CPATH" );
+  error_if( "C_INCLUDE_PATH" );
+  error_if( "CPLUS_INCLUDE_PATH" );
+  error_if( "OBJC_INCLUDE_PATH" );
+  error_if( "DEPENDENCIES_OUTPUT" );
+  error_if( "SUNPRO_DEPENDENCIES" );
+  error_if( "SOURCE_DATE_EPOCH" );
+  error_if( "GCC_EXEC_PREFIX" );
+  error_if( "COMPILER_PATH" );
+  error_if( "LIBRARY_PATH" );
+}
+
+vector<string> GCCModelGenerator::generate_dependencies_file( const string & input_filename,
+                                                              const vector<string> & option_args,
+                                                              const string & output_name,
+                                                              const string & target_name )
+{
+  /* bail out on cpp-affecting environment variables */
+  verify_no_cpp_environment_variables();
+
   vector<string> args;
   args.reserve( 1 + option_args.size() );
 
@@ -80,6 +122,8 @@ void GCCModelGenerator::generate_dependencies_file( const vector<string> & optio
   }
 
   args.insert( args.end(), option_args.begin(), option_args.end() );
+
+  string output_filename;
 
   const bool has_dependencies_option = find_if(
     args.begin(), args.end(),
@@ -112,8 +156,72 @@ void GCCModelGenerator::generate_dependencies_file( const vector<string> & optio
     args.push_back( "-MF" );
     args.push_back( output_name );
     args.push_back( "-MT" );
-    args.push_back( DEFAULT_MAKE_TARGET );
+    args.push_back( target_name );
+  }
+
+  /* do we have a valid cache for these dependencies? */
+  const string input_file_hash = gg::thunk::InFile::compute_hash( input_filename );
+  const auto cache_entry_path = gg::paths::preprocessor_dependency_cache_entry( input_file_hash );
+
+  /* assemble the function */
+  vector<string> environment;
+  environment.push_back( environment_or_blank( "LANG" ) );
+  environment.push_back( environment_or_blank( "LC_CTYPE" ) );
+  environment.push_back( environment_or_blank( "LC_MESSAGES" ) );
+  environment.push_back( environment_or_blank( "LC_ALL" ) );
+
+  const gg::thunk::Function makedep_fn { args.front(), args, environment, args.front() };
+
+  if ( roost::exists( cache_entry_path ) ) {
+    /* abuse the thunk format to store a cache of dependencies */
+    ThunkReader thunk_reader( cache_entry_path.string() );
+    const gg::thunk::Thunk dep_cache_entry = thunk_reader.read_thunk();
+
+    /* do we have a possible cache hit? */
+    if ( makedep_fn == dep_cache_entry.function() ) {
+      bool cache_hit = true;
+
+      /* check if all the infiles are still the same */
+      for ( const auto & infile : dep_cache_entry.infiles() ) {
+        if ( not infile.matches_filesystem() ) {
+          cache_hit = false;
+          break;
+        }
+      }
+
+      if ( cache_hit ) {
+        roost::atomic_create( dep_cache_entry.outfile(), /* here we abuse outfile to store the contents */
+                              output_name );
+        return parse_dependencies_file( output_name, target_name );
+      }
+    }
   }
 
   run( args[ 0 ], args, {}, true, true );
+
+  /* write a cache entry for next time */
+  FileDescriptor outfile { CheckSystemCall( "open (" + output_name + ")",
+                                            open( output_name.c_str(), O_RDONLY ) ) };
+  string contents;
+  while ( not outfile.eof() ) { contents += outfile.read(); }
+
+  /* assemble the infiles */
+  const vector<string> infiles_list = parse_dependencies_file( output_name, target_name );
+  vector<gg::thunk::InFile> dependencies;
+  for ( const auto & str : infiles_list ) {
+    dependencies.emplace_back( str );
+  }
+
+  gg::thunk::Thunk dep_cache_entry( contents, /* abuse outfile to store the contents */
+                                    makedep_fn,
+                                    dependencies );
+
+  /* serialize and write the fake thunk */
+  string serialized_cache_entry { gg::thunk::MAGIC_NUMBER };
+  if ( not dep_cache_entry.to_protobuf().AppendToString( &serialized_cache_entry ) ) {
+    throw runtime_error( "could not serialize cache entry" );
+  }
+  atomic_create( serialized_cache_entry, cache_entry_path );
+
+  return infiles_list;
 }

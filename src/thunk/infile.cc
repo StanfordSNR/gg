@@ -103,6 +103,23 @@ size_t InFile::compute_order( const string & filename )
   }
 }
 
+/* does the same file exist, with same contents, in the filesystem? */
+bool InFile::matches_filesystem() const
+{
+  /* does it exist at all? */
+  if ( not roost::exists( real_filename_ ) ) {
+    return false;
+  }
+
+  /* does it have the same size? */
+  if ( size() != compute_size( real_filename_ ) ) {
+    return false;
+  }
+
+  /* does it have the same contents? */
+  return ( content_hash() == compute_hash( real_filename_ ) );
+}
+
 string InFile::compute_hash( const string & filename )
 {
   /* do we have this hash in cache? */

@@ -17,10 +17,12 @@ namespace gg {
     roost::path reductions();
     roost::path remote_index();
     roost::path hash_cache();
+    roost::path preprocessor_dependency_cache();
 
     roost::path blob_path( const std::string & hash );
     roost::path reduction_path( const std::string & hash );
     roost::path hash_cache_entry( const std::string & filename, const struct stat & stat_entry );
+    roost::path preprocessor_dependency_cache_entry( const std::string & input_hash );
 
     void fix_path_envar();
   }

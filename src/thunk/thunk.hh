@@ -68,6 +68,9 @@ namespace gg {
       static size_t compute_order( const std::string & filename );
       static std::string compute_hash( const std::string & filename );
       static off_t compute_size( const std::string & filename );
+
+      /* does the same file exist, with same contents, in the filesystem? */
+      bool matches_filesystem() const;
     };
 
     class Function

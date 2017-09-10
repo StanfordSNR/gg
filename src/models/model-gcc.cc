@@ -158,7 +158,6 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     if ( generate_makedep_file ) {
       cerr << "\u251c\u2500 generating make dependencies file... ";
-      generate_dependencies_file( all_args, {} );
       makedep_filename = *arguments_.option_argument( GCCOption::MF );
       Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
       if ( mt_arg.initialized() ) {
@@ -175,11 +174,11 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       cerr << "done." << endl;
     }
     else {
-      generate_dependencies_file( all_args, makedep_tempfile.name() );
       makedep_filename = makedep_tempfile.name();
     }
 
-    vector<string> dependencies = parse_dependencies_file( makedep_filename, makedep_target );
+    const vector<string> dependencies = generate_dependencies_file( input.name, all_args,
+                                                                    makedep_filename, makedep_target );
 
     all_args.insert( all_args.begin(), "-specs=/__gg__/gcc-specs" );
     all_args.push_back( "-o" );
