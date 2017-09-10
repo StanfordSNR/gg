@@ -80,6 +80,12 @@ namespace gg {
       return hash_cache_path;
     }
 
+    roost::path dependency_cache()
+    {
+      const static roost::path cache_path = get_inner_directory( "depcache" );
+      return cache_path;
+    }
+
     roost::path blob_path( const string & hash )
     {
       return blobs() / hash;
@@ -95,6 +101,11 @@ namespace gg {
       const string cache_key = to_string( stat_entry.st_dev ) + "-"
         + to_string( stat_entry.st_ino ) + "-" + roost::rbasename( filename ).string();
       return hash_cache() / cache_key;
+    }
+
+    roost::path dependency_cache_entry( const string & cache_key )
+    {
+      return dependency_cache() / cache_key;
     }
 
     void fix_path_envar()
