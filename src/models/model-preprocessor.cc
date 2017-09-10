@@ -147,7 +147,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
 
   /* do we have a valid cache for these dependencies? */
   const string input_file_hash = gg::thunk::InFile::compute_hash( input_filename );
-  const auto cache_entry_path = gg::paths::preprocessor_dependency_cache_entry( input_file_hash );
+  const auto cache_entry_path = gg::paths::dependency_cache_entry( input_file_hash );
 
   /* assemble the function */
   const gg::thunk::Function makedep_fn { args.front(), args, gcc_environment(), args.front() };
@@ -178,10 +178,6 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
   run( args[ 0 ], args, {}, true, true );
 
   /* write a cache entry for next time */
-  FileDescriptor outfile { CheckSystemCall( "open (" + output_name + ")",
-                                            open( output_name.c_str(), O_RDONLY ) ) };
-  string contents;
-  while ( not outfile.eof() ) { contents += outfile.read(); }
 
   /* assemble the infiles */
   const vector<string> infiles_list = parse_dependencies_file( output_name, target_name );

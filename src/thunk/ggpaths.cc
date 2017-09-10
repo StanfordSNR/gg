@@ -80,7 +80,7 @@ namespace gg {
       return hash_cache_path;
     }
 
-    roost::path preprocessor_dependency_cache()
+    roost::path dependency_cache()
     {
       const static roost::path cache_path = get_inner_directory( "depcache" );
       return cache_path;
@@ -103,9 +103,9 @@ namespace gg {
       return hash_cache() / cache_key;
     }
 
-    roost::path preprocessor_dependency_cache_entry( const string & input_hash )
+    roost::path dependency_cache_entry( const string & cache_key )
     {
-      return preprocessor_dependency_cache() / input_hash;
+      return dependency_cache() / cache_key;
     }
 
     void fix_path_envar()
