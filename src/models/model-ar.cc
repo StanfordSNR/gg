@@ -65,7 +65,7 @@ Thunk generate_thunk( int argc, char * argv[] )
   opterr = 0; /* turn off error messages */
 
   while ( true ) {
-    const int opt = getopt_long( argc, argv, "abiNx", long_options, NULL );
+    const int opt = getopt_long( argc, argv, "abiNpxtTdms", long_options, NULL );
 
     if ( opt == -1 ) {
       break;
@@ -91,9 +91,11 @@ Thunk generate_thunk( int argc, char * argv[] )
     case 't':
       throw runtime_error( "model for operation table not implemented" );
 
+    case 'T':
+      throw runtime_error( "model for thin archives not implemented" );
+
     case 'd':
     case 'm':
-    case 's':
       members_infile = false;
       break;
     }

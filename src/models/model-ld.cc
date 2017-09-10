@@ -23,7 +23,7 @@ constexpr auto to_underlying( E e ) noexcept
 
 enum class LDOption
 {
-  no_undefined = 1000, nostdlib, pie, start_group, end_group
+  no_undefined = 1000, nostdlib, pie, start_group, end_group, whole_archive, no_whole_archive, build_id
 };
 
 vector<string> get_link_dependencies( size_t argc, char * argv[], list<size_t> input_indexes )
@@ -69,6 +69,9 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     { "pie",          no_argument,       nullptr, to_underlying( LDOption::pie ) },
     { "start-group",  no_argument,       nullptr, to_underlying( LDOption::start_group ) },
     { "end-group",    no_argument,       nullptr, to_underlying( LDOption::end_group ) },
+    { "whole-archive",  no_argument,     nullptr, to_underlying( LDOption::whole_archive ) },
+    { "no-whole-archive",  no_argument,  nullptr, to_underlying( LDOption::no_whole_archive ) },
+    { "build-id",     optional_argument, nullptr, to_underlying( LDOption::build_id ) },
 
     { 0, 0, 0, 0 },
   };
@@ -119,6 +122,9 @@ Thunk generate_thunk( size_t argc, char * argv[] )
 
       case LDOption::start_group:
       case LDOption::end_group:
+      case LDOption::whole_archive:
+      case LDOption::no_whole_archive:
+      case LDOption::build_id:
       case LDOption::no_undefined:
       case LDOption::pie:
         break;
