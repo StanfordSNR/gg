@@ -37,8 +37,6 @@ using ReductionResult = gg::cache::ReductionResult;
 
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const bool remote_execution = ( getenv( "GG_REMOTE" ) != NULL );
-const string temp_dir_template = "/tmp/thunk-execute";
-const string temp_file_template = "/tmp/thunk-file";
 
 class Reductor
 {
