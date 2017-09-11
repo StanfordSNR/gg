@@ -27,6 +27,7 @@ functions = [
     ["ranlib"],
     ["ar"],
     ["strip"],
+    ["ld"],
 ]
 
 hash_cache = {}

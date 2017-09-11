@@ -11,7 +11,7 @@ if not os.path.isabs(GG_DIR):
     raise Exception("GG_DIR must be an absolute path")
 
 class GGPaths:
-    blobs = GG_DIR
+    blobs = os.path.join(GG_DIR, "blobs")
     reductions = os.path.join(GG_DIR, "reductions")
 
     @classmethod
