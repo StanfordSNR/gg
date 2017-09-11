@@ -428,7 +428,7 @@ void GCCModelGenerator::generate()
       }
 
       default:
-        throw runtime_error( "unexcepted stage" );
+        throw runtime_error( "unexpected stage" );
       }
 
       input.name = output_name;
