@@ -30,7 +30,7 @@ vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile>
     last_index = it->index;
   }
 
-  remove( args.begin(), args.end(), string( "-Wl,--as-needed" ) );
+  args.erase( remove( args.begin(), args.end(), string( "-Wl,--as-needed" ) ), args.end() );
 
   if ( operation_mode_ == OperationMode::GCC ) {
     args.insert( args.begin(), ( toolchain_path / GCC ).string() );
