@@ -12,7 +12,8 @@ BASE_LDADD = ../thunk/libthunk.a \
              $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
-               gg-execute gg-run gg-thunkgraph gg-thunksummary gg-s3-upload
+               gg-execute gg-run gg-thunkgraph gg-thunksummary gg-s3-upload \
+               lambda-invoker
 
 if BUILD_STATIC_BINS
   bin_PROGRAMS += gg-execute-static
@@ -52,3 +53,6 @@ gg_run_LDADD = $(BASE_LDADD)
 
 gg_s3_upload_SOURCES = gg-s3-upload.cc
 gg_s3_upload_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
+
+lambda_invoker_SOURCES = lambda-invoker.cc
+lambda_invoker_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
