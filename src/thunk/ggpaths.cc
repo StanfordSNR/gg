@@ -43,7 +43,8 @@ namespace gg {
 
     roost::path get_inner_directory( const std::string & name )
     {
-      roost::path inner_dir = get_gg_dir() / name;
+      const static roost::path gg_dir = get_gg_dir();
+      roost::path inner_dir = gg_dir / name;
 
       if ( roost::exists( inner_dir ) ) {
         if ( not roost::is_directory( inner_dir ) ) {
