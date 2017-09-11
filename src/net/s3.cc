@@ -24,7 +24,6 @@ S3PutRequest::S3PutRequest( const AWSCredentials & credentials,
                             const string & content_hash )
   : AWSRequest( credentials, region, "PUT /" + object + " HTTP/1.1", contents )
 {
-  headers_[ "x-amz-date" ] = request_date_;
   headers_[ "x-amz-acl" ] = "public-read";
   headers_[ "host" ] = bucket + ".s3.amazonaws.com";
   headers_[ "content-length" ] = to_string( contents.length() );

@@ -18,7 +18,9 @@ AWSRequest::AWSRequest( const AWSCredentials & credentials, const string & regio
   : credentials_( credentials ), region_( region ),
     request_date_( x_amz_date_( time( 0 ) ) ), first_line_( first_line ),
     contents_( contents ), headers_()
-{}
+{
+  headers_[ "x-amz-date" ] = request_date_;
+}
 
 string AWSRequest::x_amz_date_( const time_t & t )
 {
