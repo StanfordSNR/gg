@@ -146,6 +146,15 @@ namespace roost {
     return ::basename( path_cstr );
   }
 
+  path current_working_directory()
+  {
+    char path_cstr[ PATH_MAX ];
+    if ( getcwd( path_cstr, sizeof( path_cstr ) ) == nullptr ) {
+      throw runtime_error( "cannot get current working directory" );
+    }
+    return { path_cstr };
+  }
+
   void move_file( const path & src, const path & dst )
   {
     /* attempt simple rename (will work if on same filesystem) */

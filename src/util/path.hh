@@ -45,6 +45,7 @@ namespace roost {
   path canonical( const path & pathn );
   path dirname( const path & pathn );
   path rbasename( const path & pathn );
+  path current_working_directory();
   void create_directories( const path & pathn );
   bool is_directory( const path & pathn );
   bool remove( const path & pathn );
