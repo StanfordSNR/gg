@@ -183,6 +183,7 @@ public:
   void generate();
 
   /* static functions */
+  static std::pair<std::string, std::string> split_source_name( const std::string & path );
   static Language    filename_to_language( const std::string & path );
   static Language    name_to_language( const std::string & name );
   static GCCStage    language_to_stage( const Language lang );

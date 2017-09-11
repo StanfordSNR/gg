@@ -53,7 +53,9 @@ const unordered_map<Language, string> lang_to_name = {
   { Language::ASSEMBLER_WITH_CPP, "assembler-with-cpp" },
 };
 
-Language GCCModelGenerator::filename_to_language( const string & path )
+/* split an input filename (e.g. "hello.abc.c") into the base ("hello.abc")
+   and the last extension (e.g. "c") */
+pair<string, string> GCCModelGenerator::split_source_name( const string & path )
 {
   vector<char> path_cstr( path.c_str(), path.c_str() + path.size() + 1 );
   const string filename { basename( path_cstr.data() ) };
@@ -61,9 +63,15 @@ Language GCCModelGenerator::filename_to_language( const string & path )
 
   if ( pos == string::npos ) {
     /* did not find a file extension! */
+    throw runtime_error( "missing extension in filename: " + path );
   }
 
-  string extension = filename.substr( pos + 1 );
+  return { filename.substr( 0, pos ), filename.substr( pos + 1 ) };
+}
+
+Language GCCModelGenerator::filename_to_language( const std::string & path )
+{
+  string extension = split_source_name( path ).second;
 
   if ( ext_to_lang.count( extension ) > 0 ) {
     return ext_to_lang.at( extension );
