@@ -8,6 +8,9 @@
 
 using namespace std;
 
+static const std::string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-reduce-and-run" };
+static const std::string LIBRARY_DIRECTIVE { "OUTPUT_FORMAT(\"elf64-x86-64\") /*" };
+
 ThunkPlaceholder::ThunkPlaceholder( const string & hash,
                                     const size_t order,
                                     const off_t size )
@@ -17,15 +20,39 @@ ThunkPlaceholder::ThunkPlaceholder( const string & hash,
 
 void ThunkPlaceholder::write( const string & filename ) const
 {
+  /* guess placeholder type based on filename extension */
+  const auto pos = filename.find_last_of( '.' );
+  const string extension = filename.substr( pos + 1 );
+  if ( extension == "so" or extension == "a" or extension == "o"
+       or extension == "s" or extension == "S" ) {
+    write( filename, Type::LinkerScript );
+  } else {
+    write( filename, Type::ShellScript );
+  }
+}
+
+void ThunkPlaceholder::write( const string & filename, const Type type ) const
+{
+  const string & header = (type == Type::LinkerScript)
+    ? LIBRARY_DIRECTIVE
+    : SHEBANG_DIRECTIVE;
+
   ofstream fout { filename };
-  fout << SHEBANG_DIRECTIVE
+  fout << header
        << endl
        << content_hash_ << " "
        << order_ << " "
        << size_
+       << "\n" << '*' << '/'
        << endl;
 
-  roost::chmod( filename, 0755 );
+  if ( not fout.good() ) {
+    throw runtime_error( "failed writing to " + filename );
+  }
+
+  if ( type == Type::ShellScript ) {
+    roost::chmod( filename, 0755 );
+  }
 }
 
 Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
@@ -34,7 +61,8 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
   string line;
   getline( fin, line );
 
-  if ( line != SHEBANG_DIRECTIVE ) {
+  if ( line != SHEBANG_DIRECTIVE
+       and line != LIBRARY_DIRECTIVE ) {
     return {};
   }
 
@@ -44,11 +72,16 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
 
   fin >> hash >> order >> size;
 
+  if ( not fin.good() ) {
+    throw runtime_error( "failed reading from " + filename );
+  }
+
   return ThunkPlaceholder { hash, order, size };
 }
 
 bool ThunkPlaceholder::is_placeholder( FileDescriptor && fd )
 {
-  string shebang = fd.read_exactly( SHEBANG_DIRECTIVE.length(), true );
-  return shebang == SHEBANG_DIRECTIVE;
+  assert( SHEBANG_DIRECTIVE.length() == LIBRARY_DIRECTIVE.length() );
+  const string header = fd.read_exactly( SHEBANG_DIRECTIVE.length(), true );
+  return (header == SHEBANG_DIRECTIVE) or (header == LIBRARY_DIRECTIVE);
 }

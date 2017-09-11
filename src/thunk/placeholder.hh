@@ -9,8 +9,6 @@
 #include "optional.hh"
 #include "file_descriptor.hh"
 
-static const std::string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-reduce-and-run" };
-
 class ThunkPlaceholder
 {
 private:
@@ -19,6 +17,8 @@ private:
   off_t size_;
 
 public:
+  enum class Type { LinkerScript, ShellScript };
+
   ThunkPlaceholder( const std::string & content_hash,
                     const size_t order,
                     const off_t size );
@@ -27,6 +27,7 @@ public:
   size_t order() const { return order_; }
   off_t size() const { return size_; }
 
+  void write( const std::string & filename, const Type type ) const;
   void write( const std::string & filename ) const;
   static Optional<ThunkPlaceholder> read( const std::string & filename );
 
