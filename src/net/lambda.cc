@@ -45,6 +45,7 @@ LambdaInvocationRequest::LambdaInvocationRequest( const AWSCredentials & credent
   first_line_ = "POST " + path + " HTTP/1.1";
 
   headers_[ "Host" ] = "lambda." + region_ + ".amazonaws.com";
+  headers_[ "Content-Length" ] = to_string( payload.length() );
   headers_[ "X-Amz-Invocation-Type" ] = to_string( invocation_type );
   headers_[ "X-Amz-Log-Type" ] = to_string( log_type );
   headers_[ "X-Amz-Client-Context" ] = context;
