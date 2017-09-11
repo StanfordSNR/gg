@@ -293,6 +293,11 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
 {
   exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
 
+  if ( getenv( "GG_BYPASS" ) != nullptr ) {
+    cerr << "\u2570\u257c bypassing model generation, executing gcc..." << endl;
+    exec_original_gcc();
+  }
+
   if ( arguments_.option_argument( GCCOption::print_file_name ).initialized() ) {
     // just run gcc for this
     cerr << "\u2570\u257c print-file-name option is present, executing gcc..." << endl;
