@@ -18,11 +18,11 @@ using namespace std;
 
 const static std::string UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD";
 
-S3PutRequest::S3PutRequest( const string & akid, const string & secret,
+S3PutRequest::S3PutRequest( const AWSCredentials & credentials,
                             const string & region, const string & bucket,
                             const string & object, const string & contents,
                             const string & content_hash )
-  : AWSRequest( akid, secret, region, "PUT /" + object + " HTTP/1.1", contents ),
+  : AWSRequest( credentials, region, "PUT /" + object + " HTTP/1.1", contents ),
     bucket_( bucket ), object_( object )
 {
   headers_[ "x-amz-date" ] = request_date_;
@@ -31,8 +31,9 @@ S3PutRequest::S3PutRequest( const string & akid, const string & secret,
   headers_[ "content-length" ] = to_string( contents.length() );
 
   AWSv4Sig::sign_request( "PUT\n/" + object,
-                          secret_, akid_, region_, "s3", request_date_, contents,
-                          headers_, content_hash );
+                          credentials_.secret_key(), credentials_.access_key(),
+                          region_, "s3", request_date_, contents, headers_,
+                          content_hash );
 }
 
 TCPSocket tcp_connection( const Address & address )
@@ -83,8 +84,7 @@ void S3Client::upload_files( const string & bucket,
               while ( not file.eof() ) { contents.append( file.read() ); }
               file.close();
 
-              S3PutRequest request { credentials_.access_key(),
-                                     credentials_.secret_key(), config_.region,
+              S3PutRequest request { credentials_, config_.region,
                                      bucket, object_key, contents, hash };
 
               HTTPRequest outgoing_request = request.to_http_request();

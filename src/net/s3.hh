@@ -32,7 +32,7 @@ private:
   std::string object_;
 
 public:
-  S3PutRequest( const std::string & akid, const std::string & secret,
+  S3PutRequest( const AWSCredentials & credentials,
                 const std::string & region, const std::string & bucket,
                 const std::string & object, const std::string & contents,
                 const std::string & content_hash = {} );

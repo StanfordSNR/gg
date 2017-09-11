@@ -13,12 +13,11 @@ using namespace std;
 #define AWS_ACCESS_KEY_ENV "AWS_ACCESS_KEY_ID"
 #define AWS_SECRET_KEY_ENV "AWS_SECRET_ACCESS_KEY"
 
-AWSRequest::AWSRequest( const string & akid, const string & secret,
-                        const string & region, const string & first_line,
-                        const string & contents )
-  : request_date_( x_amz_date_( time( 0 ) ) ), akid_( akid ), secret_( secret ),
-    region_( region ), first_line_( first_line ), contents_( contents ),
-    headers_()
+AWSRequest::AWSRequest( const AWSCredentials & credentials, const string & region,
+                        const string & first_line, const string & contents )
+  : credentials_( credentials ), region_( region ),
+    request_date_( x_amz_date_( time( 0 ) ) ), first_line_( first_line ),
+    contents_( contents ), headers_()
 {}
 
 string AWSRequest::x_amz_date_( const time_t & t )
