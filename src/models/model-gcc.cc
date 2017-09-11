@@ -349,6 +349,16 @@ void GCCModelGenerator::generate()
 
   vector<InputFile> input_files = arguments_.input_files();
 
+  /* count non-object input files */
+  const size_t source_inputs = std::count_if( input_files.begin(),
+                                              input_files.end(),
+                                              []( const InputFile & input ) {
+                                                return is_non_object_input( input );
+                                              } );
+  if ( source_inputs > 1 and not final_output.empty() ) {
+    throw runtime_error( "cannot specify -o with -c, -S or -E with multiple files" );
+  }
+
   for ( size_t input_index = 0; input_index < input_files.size(); input_index++ ) {
     InputFile & input = input_files.at( input_index );
 
@@ -376,6 +386,19 @@ void GCCModelGenerator::generate()
       }
 
       if ( stage == last_stage ) {
+        if ( final_output.empty() ) {
+          /* fill in default names based on the original input filename,
+             e.g. hello.abc.cc -> hello.s in compile stage, hello.abc.o in assembly */
+          if ( stage == PREPROCESS ) {
+            throw runtime_error( "gcc model cannot preprocess to stdout" );
+          } else if ( stage == LINK ) {
+            throw runtime_error( "internal error" );
+          } else {
+            final_output = stage_output_name( stage,
+                                              split_source_name( arguments_.input_files().at( input_index ).name ).first );
+          }
+        }
+
         output_name = final_output;
       }
       else {
