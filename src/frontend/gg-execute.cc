@@ -37,13 +37,32 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
   TempDirectory exec_dir { temp_dir_template };
   roost::path exec_dir_path { exec_dir.name() };
 
-  roost::path outfile_dir = roost::dirname( thunk.outfile() );
+  roost::path outfile_path { thunk.outfile() };
+
+  if ( roost::is_absolute( outfile_path ) ) {
+    throw runtime_error( "absolute path for outfiles is not supported" );
+  }
+
+  roost::path outfile_dir = roost::dirname( outfile_path );
+  vector<string> path_components = outfile_dir.path_components();
+
+  /* sometimes the outfile path can be in form of ../../../outfile. we need to
+  accommodate for those cases */
+  for ( const string & pc : outfile_dir.path_components() ) {
+    if ( pc == ".." ) {
+      exec_dir_path = exec_dir_path / "_ggsubdir";
+    }
+    else {
+      break;
+    }
+  }
 
   // EXECUTING THE THUNK
   if ( not sandboxed ) {
     ChildProcess process {
       thunk.outfile(),
       [thunk, thunk_hash, exec_dir_path, &outfile_dir]() {
+        roost::create_directories( exec_dir_path );
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
         roost::create_directories( outfile_dir );
         return thunk.execute( thunk_hash );
@@ -68,6 +87,7 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
         return thunk.execute( thunk_hash );
       },
       [exec_dir_path, &outfile_dir] () {
+        roost::create_directories( exec_dir_path );
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
         roost::create_directories( outfile_dir );
       }
