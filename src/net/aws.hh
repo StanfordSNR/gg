@@ -3,7 +3,33 @@
 #ifndef AWS_HH
 #define AWS_HH
 
+#include <ctime>
 #include <string>
+#include <map>
+
+#include "http_request.hh"
+
+class AWSRequest
+{
+protected:
+  static std::string x_amz_date_( const std::time_t & t );
+
+  std::string request_date_;
+  std::string akid_;
+  std::string secret_;
+  std::string region_;
+  std::string first_line_;
+  std::string contents_;
+
+  std::map<std::string, std::string> headers_;
+
+  AWSRequest( const std::string & akid, const std::string & secret,
+              const std::string & region, const std::string & first_line,
+              const std::string & contents );
+
+public:
+  HTTPRequest to_http_request() const;
+};
 
 class AWSCredentials
 {

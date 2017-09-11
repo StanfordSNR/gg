@@ -25,25 +25,13 @@ public:
   };
 };
 
-class S3PutRequest
+class S3PutRequest : public AWSRequest
 {
 private:
-  static std::string x_amz_date_( const std::time_t & t );
-
-  std::string request_date_;
-  std::string akid_;
-  std::string secret_;
-  std::string region_;
   std::string bucket_;
   std::string object_;
-  std::string contents_;
-  std::string first_line_;
-  std::map<std::string, std::string> headers_ {};
-  void add_authorization();
 
 public:
-  HTTPRequest to_http_request() const;
-
   S3PutRequest( const std::string & akid, const std::string & secret,
                 const std::string & region, const std::string & bucket,
                 const std::string & object, const std::string & contents,

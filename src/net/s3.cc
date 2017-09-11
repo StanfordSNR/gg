@@ -18,40 +18,12 @@ using namespace std;
 
 const static std::string UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD";
 
-string S3PutRequest::x_amz_date_( const time_t & t )
-{
-  char sbuf[ 17 ];
-  strftime( sbuf, 17, "%Y%m%dT%H%M%SZ", gmtime( &t ) );
-  return string( sbuf, 16 );
-}
-
-HTTPRequest S3PutRequest::to_http_request() const
-{
-  HTTPRequest req;
-
-  req.set_first_line( first_line_ );
-  for ( const auto & header : headers_ ) {
-    req.add_header( HTTPHeader { header.first, header.second } );
-  }
-  req.done_with_headers();
-
-  req.read_in_body( contents_ );
-  assert( req.state() == COMPLETE );
-
-  return req;
-}
-
-S3PutRequest::S3PutRequest( const string & akid,
-                            const string & secret,
-                            const string & region,
-                            const string & bucket,
-                            const string & object,
-                            const string & contents,
+S3PutRequest::S3PutRequest( const string & akid, const string & secret,
+                            const string & region, const string & bucket,
+                            const string & object, const string & contents,
                             const string & content_hash )
-  : request_date_( x_amz_date_( time( 0 ) ) ),
-    akid_( akid ), secret_( secret ), region_( region ),
-    bucket_( bucket ), object_( object ), contents_( contents ),
-    first_line_( "PUT /" + object + " HTTP/1.1" )
+  : AWSRequest( akid, secret, region, "PUT /" + object + " HTTP/1.1", contents ),
+    bucket_( bucket ), object_( object )
 {
   headers_[ "x-amz-date" ] = request_date_;
   headers_[ "x-amz-acl" ] = "public-read";

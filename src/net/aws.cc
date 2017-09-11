@@ -2,6 +2,8 @@
 
 #include "aws.hh"
 
+#include <ctime>
+#include <cassert>
 #include <stdexcept>
 
 #include "util.hh"
@@ -10,6 +12,37 @@ using namespace std;
 
 #define AWS_ACCESS_KEY_ENV "AWS_ACCESS_KEY_ID"
 #define AWS_SECRET_KEY_ENV "AWS_SECRET_ACCESS_KEY"
+
+AWSRequest::AWSRequest( const string & akid, const string & secret,
+                        const string & region, const string & first_line,
+                        const string & contents )
+  : request_date_( x_amz_date_( time( 0 ) ) ), akid_( akid ), secret_( secret ),
+    region_( region ), first_line_( first_line ), contents_( contents ),
+    headers_()
+{}
+
+string AWSRequest::x_amz_date_( const time_t & t )
+{
+  char sbuf[ 17 ];
+  strftime( sbuf, 17, "%Y%m%dT%H%M%SZ", gmtime( &t ) );
+  return string( sbuf, 16 );
+}
+
+HTTPRequest AWSRequest::to_http_request() const
+{
+  HTTPRequest req;
+
+  req.set_first_line( first_line_ );
+  for ( const auto & header : headers_ ) {
+    req.add_header( HTTPHeader { header.first, header.second } );
+  }
+  req.done_with_headers();
+
+  req.read_in_body( contents_ );
+  assert( req.state() == COMPLETE );
+
+  return req;
+}
 
 AWSCredentials::AWSCredentials()
   : AWSCredentials( safe_getenv( AWS_ACCESS_KEY_ENV ),
