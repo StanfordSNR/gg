@@ -27,8 +27,6 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
     throw runtime_error( "thunk is not executable (order != 1)" );
   }
 
-  gg::models::init();
-
   /* when executing the thunk, we create a temp directory, and execute the thunk
      in that directory. then we take the outfile, compute the hash, and move it
      to the .gg directory. */
@@ -126,6 +124,8 @@ int main( int argc, char * argv[] )
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
+
+    gg::models::init();
 
     string thunk_hash { argv[ 1 ] };
 
