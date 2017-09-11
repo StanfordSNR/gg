@@ -27,10 +27,6 @@ public:
 
 class S3PutRequest : public AWSRequest
 {
-private:
-  std::string bucket_;
-  std::string object_;
-
 public:
   S3PutRequest( const AWSCredentials & credentials,
                 const std::string & region, const std::string & bucket,

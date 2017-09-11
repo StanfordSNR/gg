@@ -22,8 +22,7 @@ S3PutRequest::S3PutRequest( const AWSCredentials & credentials,
                             const string & region, const string & bucket,
                             const string & object, const string & contents,
                             const string & content_hash )
-  : AWSRequest( credentials, region, "PUT /" + object + " HTTP/1.1", contents ),
-    bucket_( bucket ), object_( object )
+  : AWSRequest( credentials, region, "PUT /" + object + " HTTP/1.1", contents )
 {
   headers_[ "x-amz-date" ] = request_date_;
   headers_[ "x-amz-acl" ] = "public-read";
