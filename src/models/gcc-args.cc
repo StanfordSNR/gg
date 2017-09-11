@@ -47,7 +47,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   optind = 1;
   opterr = 0;
 
-  constexpr const char * gcc_optstring = "-l:B:o:gO::D:U:f:I:W:L:";
+  constexpr const char * gcc_optstring = "-l:B:o:gO::D:U:f:I:W::L:";
 
   constexpr GCCOptionData gcc_options_data[] = {
     { GCCOption::x,  "x",  required_argument, false, ' ' },
@@ -167,7 +167,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     case 'f': add_option( GCCOption::f, "f", optarg, '\0' ); break;
 
     case 'W':
-      process_W_option( optarg );
+      process_W_option( optarg ? optarg : "" );
       break;
 
     case 'B':
@@ -236,6 +236,11 @@ bool startswith( const string & str, const string & prefix ) {
 void GCCArguments::process_W_option( const string & optarg )
 {
   bool accepted = true;
+
+  if ( optarg.size() == 0 ) {
+    args_.push_back( "-W" );
+    return;
+  }
 
   static const string VERSION_SCRIPT = "--version-script=";
   static const string LINKER_SCRIPT = "-T,";
