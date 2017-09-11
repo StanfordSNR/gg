@@ -102,6 +102,11 @@ namespace roost {
     return path_;
   }
 
+  bool path::operator==( const path & other ) const
+  {
+    return other.path_ == path_;
+  }
+
   bool exists( const path & pathn )
   {
     return not access( pathn.string().c_str(), F_OK );

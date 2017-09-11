@@ -20,8 +20,24 @@ namespace gg {
     {
       const char * envar = getenv( "GG_DIR" );
 
-      if ( envar == NULL ) {
-        throw runtime_error( "GG_DIR environment variable not set" );
+      if ( envar == nullptr ) {
+        /* walk up the directory tree and look for .gg folder */
+        roost::path cwd;
+        roost::path new_cwd = roost::current_working_directory();
+
+        do {
+          cwd = new_cwd;
+          roost::path path_candidate = cwd / ".gg";
+
+          if ( roost::exists( path_candidate ) and roost::is_directory( path_candidate ) ) {
+            return path_candidate;
+          }
+          else {
+            new_cwd = roost::dirname( cwd );
+          }
+        } while( cwd != new_cwd );
+
+        throw runtime_error( "GG_DIR not set, and could not find .gg in any of parent dirs" );
       }
 
       roost::path gg_path { string( envar ) };
