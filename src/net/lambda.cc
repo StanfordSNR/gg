@@ -32,6 +32,11 @@ string to_string( const LogType & log_type )
   }
 }
 
+std::string LambdaInvocationRequest::endpoint( const std::string & region )
+{
+  return "lambda." + region + ".amazonaws.com";
+}
+
 LambdaInvocationRequest::LambdaInvocationRequest( const AWSCredentials & credentials,
                                                   const string & region,
                                                   const string & function_name,
@@ -44,7 +49,7 @@ LambdaInvocationRequest::LambdaInvocationRequest( const AWSCredentials & credent
   const string path = "/2015-03-31/functions/" + function_name + "/invocations";
   first_line_ = "POST " + path + " HTTP/1.1";
 
-  headers_[ "host" ] = "lambda." + region_ + ".amazonaws.com";
+  headers_[ "host" ] = endpoint( region );
   headers_[ "content-length" ] = to_string( payload.length() );
   headers_[ "x-amz-invocation-type" ] = to_string( invocation_type );
   headers_[ "x-amz-log-type" ] = to_string( log_type );

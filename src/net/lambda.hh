@@ -10,6 +10,8 @@ public:
   enum class InvocationType { EVENT, REQUEST_RESPONSE, DRY_RUN };
   enum class LogType { NONE, TAIL };
 
+  static std::string endpoint( const std::string & region );
+
   LambdaInvocationRequest( const AWSCredentials & credentials,
                            const std::string & region,
                            const std::string & function_name,
