@@ -155,7 +155,7 @@ namespace roost {
   {
     char path_cstr[ PATH_MAX ];
     if ( getcwd( path_cstr, sizeof( path_cstr ) ) == nullptr ) {
-      throw runtime_error( "cannot get current working directory" );
+      throw unix_error( "cannot get current working directory" );
     }
     return { path_cstr };
   }
