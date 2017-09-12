@@ -59,7 +59,10 @@ private:
   lambda::RequestGenerator request_generator_ { {}, gg::remote::s3_region() };
   lambda::ExecutionConnectionManager connection_manager_ { gg::remote::s3_region() };
 
+  void execution_finalize( const string & old_hash, const string & new_hash );
   Result handle_signal( const signalfd_siginfo & sig );
+
+  bool is_finished() const;
 
 public:
   Reductor( const string & thunk_hash, const size_t max_jobs = 8 );
@@ -76,6 +79,19 @@ Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
   dep_graph_.add_thunk( thunk_hash_ );
   unordered_set<string> o1_deps = dep_graph_.order_one_dependencies( thunk_hash_ );
   dep_queue_.insert( dep_queue_.end(), o1_deps.begin(), o1_deps.end() );
+}
+
+bool Reductor::is_finished() const
+{
+  return ( remote_executions_.size() == 0 ) and
+         ( child_processes_.size() == 0 ) and
+         ( dep_queue_.size() == 0 );
+}
+
+void Reductor::execution_finalize( const string & old_hash, const string & new_hash )
+{
+  unordered_set<string> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
+  dep_queue_.insert( dep_queue_.end(), new_o1s.begin(), new_o1s.end() );
 }
 
 Result Reductor::handle_signal( const signalfd_siginfo & sig )
@@ -115,13 +131,12 @@ Result Reductor::handle_signal( const signalfd_siginfo & sig )
           throw runtime_error( "could not find the reduction entry" );
         }
 
-        unordered_set<string> new_o1s = dep_graph_.force_thunk( thunk_hash, result->hash );
-        dep_queue_.insert( dep_queue_.end(), new_o1s.begin(), new_o1s.end() );
+        execution_finalize( thunk_hash, result->hash );
 
         it = child_processes_.erase( it );
         it--;
 
-        if ( child_processes_.size() == 0 and dep_queue_.size() == 0 ) {
+        if ( is_finished() ) {
           return ResultType::Exit;
         }
       }
@@ -222,6 +237,8 @@ string Reductor::reduce()
                   gg::cache::insert( response.thunk_hash, response.output_hash );
                   cerr << "\u03bb(" + response.thunk_hash.substr( 0, 12 ) + ") = " +
                           response.output_hash.substr( 0, 12 ) << endl;
+
+                  execution_finalize( response.thunk_hash, response.output_hash );
 
                   return ResultType::Cancel;
                 }
