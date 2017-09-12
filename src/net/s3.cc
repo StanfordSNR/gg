@@ -79,18 +79,19 @@ void S3Client::download_file( const string & bucket, const string & object,
   responses.new_request_arrived( outgoing_request );
   s3.write( outgoing_request.str() );
 
-  FileDescriptor file { CheckSystemCall( "open " + filename.string(), open( filename.string().c_str(), O_WRONLY | O_TRUNC | O_CREAT ) ) };
+  FileDescriptor file { CheckSystemCall( "open",
+    open( filename.string().c_str(), O_RDWR | O_TRUNC | O_CREAT,
+          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH ) ) };
 
-  while ( responses.pending_requests() ) {
+  while ( responses.empty() ) {
     responses.parse( s3.read() );
-    if ( not responses.empty() ) {
-      if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
-        throw runtime_error( "HTTP failure" );
-      }
-      else {
-        file.write( responses.front().body(), true );
-      }
-    }
+  }
+
+  if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
+    throw runtime_error( "HTTP failure" );
+  }
+  else {
+    file.write( responses.front().body(), true );
   }
 }
 
