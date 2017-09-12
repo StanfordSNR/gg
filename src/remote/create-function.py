@@ -47,8 +47,8 @@ def create_lambda_package(output, function_execs, gg_execute_static):
     PACKAGE_FILES = {
         "gg-execute-static": gg_execute_static,
         "function.py": "lambda_function/function.py",
-        "ggpaths.py": "ggpaths.py",
-        "downloader.py": "downloader.py",
+        "ggpaths.py": "lambda_function/ggpaths.py",
+        "downloader.py": "lambda_function/downloader.py",
         "common.py": "common.py"
     }
 
