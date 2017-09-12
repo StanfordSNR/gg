@@ -44,7 +44,6 @@ S3GetRequest::S3GetRequest( const AWSCredentials & credentials,
                             const string & object )
   : AWSRequest( credentials, region, "GET /" + object + " HTTP/1.1", {} )
 {
-  headers_[ "x-amz-acl" ] = "public-read";
   headers_[ "host" ] = S3::endpoint( bucket );
 
   AWSv4Sig::sign_request( "GET\n/" + object,
@@ -63,6 +62,37 @@ TCPSocket tcp_connection( const Address & address )
 S3Client::S3Client( const S3ClientConfig & config )
   : credentials_(), config_( config )
 {}
+
+void S3Client::download_file( const string & bucket, const string & object,
+                              const roost::path & filename )
+{
+  const string endpoint = S3::endpoint( bucket );
+  const Address s3_address { endpoint, "https" };
+
+  SSLContext ssl_context;
+  HTTPResponseParser responses;
+  SecureSocket s3 = ssl_context.new_secure_socket( tcp_connection( s3_address ) );
+  s3.connect();
+
+  S3GetRequest request { credentials_, config_.region, bucket, object };
+  HTTPRequest outgoing_request = request.to_http_request();
+  responses.new_request_arrived( outgoing_request );
+  s3.write( outgoing_request.str() );
+
+  FileDescriptor file { CheckSystemCall( "open " + filename.string(), open( filename.string().c_str(), O_WRONLY | O_TRUNC | O_CREAT ) ) };
+
+  while ( responses.pending_requests() ) {
+    responses.parse( s3.read() );
+    if ( not responses.empty() ) {
+      if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
+        throw runtime_error( "HTTP failure" );
+      }
+      else {
+        file.write( responses.front().body(), true );
+      }
+    }
+  }
+}
 
 void S3Client::upload_files( const string & bucket,
                              const vector<S3::UploadRequest> & upload_requests,

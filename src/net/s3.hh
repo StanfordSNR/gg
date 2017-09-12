@@ -60,6 +60,10 @@ private:
 public:
   S3Client( const S3ClientConfig & config = {} );
 
+  void download_file( const std::string & bucket,
+                      const std::string & object,
+                      const roost::path & filename );
+
   /* `files` is a vector of pairs<path_to_file, object_key> */
   void upload_files( const std::string & bucket,
                      const std::vector<S3::UploadRequest> & upload_requests,
