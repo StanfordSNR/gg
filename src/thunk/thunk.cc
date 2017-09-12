@@ -90,7 +90,11 @@ int Thunk::execute( const string & thunk_hash ) const
 
   int retval;
 
-  cerr << "+ " << command_str( args, envars ) << endl;
+  string exec_string = "+ exec(" + thunk_hash + ") {"
+                     + roost::rbasename( function_.exe() ).string()
+                     + "}\n";
+
+  cerr << exec_string;
 
   if ( ( retval = ezexec( gg::paths::blob_path( function_.hash() ).string(), args, envars ) ) < 0 ) {
     throw runtime_error( "execvpe failed" );
