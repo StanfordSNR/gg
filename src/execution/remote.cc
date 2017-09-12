@@ -69,7 +69,7 @@ ExecutionConnectionManager::ExecutionConnectionManager( const string & region )
   : address_( LambdaInvocationRequest::endpoint( region ), "https" )
 {}
 
-SecureSocket & ExecutionConnectionManager::new_socket( const std::string & hash )
+SecureSocket & ExecutionConnectionManager::new_connection( const std::string & hash )
 {
   if ( sockets_.count( hash ) > 0 ) {
     throw runtime_error( "hash already exists" );
@@ -77,8 +77,12 @@ SecureSocket & ExecutionConnectionManager::new_socket( const std::string & hash 
 
   TCPSocket sock;
   sock.connect( address_ );
-  sockets_.emplace( make_pair( hash, move( ssl_context_.new_secure_socket( move( sock ) ) ) ) );
+  SecureSocket lambda_socket = ssl_context_.new_secure_socket( move( sock ) );
+  lambda_socket.connect();
 
+  sockets_.emplace( make_pair( hash, move( lambda_socket ) ) );
+
+  responses_[ hash ];
   return sockets_.at( hash );
 }
 

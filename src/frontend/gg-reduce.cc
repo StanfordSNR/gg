@@ -49,7 +49,10 @@ private:
 
   SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT };
   Poller poller_ {};
+
+  unordered_set<std::string> remote_executions_ {};
   list<ChildProcess> child_processes_ {};
+
   deque<string> dep_queue_ {};
   DependencyGraph dep_graph_ {};
 
@@ -180,7 +183,54 @@ string Reductor::reduce()
           );
         }
         else {
+          remote_executions_.insert( dependency_hash );
 
+          /* create new socket */
+          SecureSocket & socket = connection_manager_.new_connection( dependency_hash );
+
+          poller_.add_action(
+            Poller::Action(
+              socket, Direction::Out,
+              [&]()
+              {
+                HTTPRequest request = request_generator_.generate( dep_graph_.get_thunk( dependency_hash ),
+                                                                   dependency_hash );
+                connection_manager_.response_parser( dependency_hash ).new_request_arrived( request );
+                socket.write( request.str() );
+
+                return ResultType::Cancel;
+              },
+              [&]() { return not remote_executions_.empty(); }
+            )
+          );
+
+          poller_.add_action(
+            Poller::Action(
+              socket, Direction::In,
+              [&]()
+              {
+                auto & response_parser = connection_manager_.response_parser( dependency_hash );
+                response_parser.parse( socket.read() );
+
+                if ( not response_parser.empty() ) {
+                  RemoteResponse response { response_parser.front().body() };
+
+                  if ( response.thunk_hash != dependency_hash ) {
+                    throw runtime_error( "unexpected hash" );
+                  }
+
+                  gg::cache::insert( response.thunk_hash, response.output_hash );
+                  cerr << "\u03bb(" + response.thunk_hash.substr( 0, 12 ) + ") = " +
+                          response.output_hash.substr( 0, 12 ) << endl;
+
+                  return ResultType::Cancel;
+                }
+
+                return ResultType::Continue;
+              },
+              [&]() { return not remote_executions_.empty(); }
+            )
+          );
         }
       }
 
