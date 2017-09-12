@@ -1,7 +1,7 @@
 AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util -I$(srcdir)/../net \
               -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox -I$(srcdir)/../models \
-              $(CXX14_FLAGS) $(PROTOBUF_CFLAGS) $(SSL_CFLAGS) $(SSL_CFLAGS)
+              $(CXX14_FLAGS) $(PROTOBUF_CFLAGS) $(SSL_CFLAGS)
 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
