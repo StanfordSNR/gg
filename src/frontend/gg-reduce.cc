@@ -5,7 +5,6 @@
 #include <getopt.h>
 #include <iostream>
 #include <unordered_set>
-#include <unordered_map>
 #include <algorithm>
 #include <deque>
 #include <list>
@@ -31,6 +30,7 @@
 #include "digest.hh"
 #include "remote.hh"
 #include "secure_socket.hh"
+#include "optional.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -50,14 +50,14 @@ private:
   SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT };
   Poller poller_ {};
 
-  unordered_set<std::string> remote_executions_ {};
+  unordered_set<std::string> remote_jobs_ {};
   list<ChildProcess> child_processes_ {};
 
   deque<string> dep_queue_ {};
   DependencyGraph dep_graph_ {};
 
-  lambda::RequestGenerator request_generator_ { {}, gg::remote::s3_region() };
-  lambda::ExecutionConnectionManager connection_manager_ { gg::remote::s3_region() };
+  Optional<lambda::RequestGenerator> request_generator_ {};
+  Optional<lambda::ExecutionConnectionManager> connection_manager_ {};
 
   void execution_finalize( const string & old_hash, const string & new_hash );
   Result handle_signal( const signalfd_siginfo & sig );
@@ -79,11 +79,16 @@ Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
   dep_graph_.add_thunk( thunk_hash_ );
   unordered_set<string> o1_deps = dep_graph_.order_one_dependencies( thunk_hash_ );
   dep_queue_.insert( dep_queue_.end(), o1_deps.begin(), o1_deps.end() );
+
+  if ( remote_execution ) {
+    request_generator_.initialize( AWSCredentials(), gg::remote::s3_region() );
+    connection_manager_.initialize( gg::remote::s3_region() );
+  }
 }
 
 bool Reductor::is_finished() const
 {
-  return ( remote_executions_.size() == 0 ) and
+  return ( remote_jobs_.size() == 0 ) and
          ( child_processes_.size() == 0 ) and
          ( dep_queue_.size() == 0 );
 }
@@ -198,24 +203,24 @@ string Reductor::reduce()
           );
         }
         else {
-          remote_executions_.insert( dependency_hash );
+          remote_jobs_.insert( dependency_hash );
 
           /* create new socket */
-          SecureSocket & socket = connection_manager_.new_connection( dependency_hash );
+          SecureSocket & socket = connection_manager_->new_connection( dependency_hash );
 
           poller_.add_action(
             Poller::Action(
               socket, Direction::Out,
               [dependency_hash, &socket, this]()
               {
-                HTTPRequest request = request_generator_.generate( dep_graph_.get_thunk( dependency_hash ),
-                                                                   dependency_hash );
-                connection_manager_.response_parser( dependency_hash ).new_request_arrived( request );
+                HTTPRequest request = request_generator_->generate( dep_graph_.get_thunk( dependency_hash ),
+                                                                    dependency_hash );
+                connection_manager_->response_parser( dependency_hash ).new_request_arrived( request );
                 socket.write( request.str() );
 
                 return ResultType::Cancel;
               },
-              [&]() { return not remote_executions_.empty(); }
+              [&]() { return not remote_jobs_.empty(); }
             )
           );
 
@@ -224,7 +229,7 @@ string Reductor::reduce()
               socket, Direction::In,
               [dependency_hash, &socket, this]()
               {
-                auto & response_parser = connection_manager_.response_parser( dependency_hash );
+                auto & response_parser = connection_manager_->response_parser( dependency_hash );
                 response_parser.parse( socket.read() );
 
                 if ( not response_parser.empty() ) {
@@ -240,8 +245,8 @@ string Reductor::reduce()
 
                   execution_finalize( response.thunk_hash, response.output_hash );
 
-                  remote_executions_.erase( response.thunk_hash );
-                  connection_manager_.remove_connection( response.thunk_hash );
+                  remote_jobs_.erase( response.thunk_hash );
+                  connection_manager_->remove_connection( response.thunk_hash );
 
                   if ( is_finished() ) {
                     return ResultType::Exit;
@@ -253,7 +258,7 @@ string Reductor::reduce()
 
                 return ResultType::Continue;
               },
-              [&]() { return not remote_executions_.empty(); }
+              [&]() { return not remote_jobs_.empty(); }
             )
           );
         }
