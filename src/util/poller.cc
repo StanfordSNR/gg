@@ -24,15 +24,19 @@ Poller::Result Poller::poll( const int & timeout_ms )
   assert( pollfds_.size() == actions_.size() );
 
   /* tell poll whether we care about each fd */
-  for ( unsigned int i = 0; i < actions_.size(); i++ ) {
-    assert( pollfds_.at( i ).fd == actions_.at( i ).fd.fd_num() );
-    pollfds_.at( i ).events = (actions_.at( i ).active and actions_.at( i ).when_interested())
-      ? actions_.at( i ).direction : 0;
+  auto it_action = actions_.begin();
+  auto it_pollfd = pollfds_.begin();
+
+  for ( ; it_action != actions_.end() and it_pollfd != pollfds_.end()
+        ; it_action++, it_pollfd++ ) {
+    assert( it_pollfd->fd == it_action->fd.fd_num() );
+    it_pollfd->events = (it_action->active and it_action->when_interested())
+      ? it_action->direction : 0;
 
     /* don't poll in on fds that have had EOF */
-    if ( actions_.at( i ).direction == Direction::In
-       and actions_.at( i ).fd.eof() ) {
-      pollfds_.at( i ).events = 0;
+    if ( it_action->direction == Direction::In
+       and it_action->fd.eof() ) {
+      it_pollfd->events = 0;
     }
   }
 
@@ -46,32 +50,41 @@ Poller::Result Poller::poll( const int & timeout_ms )
     return Result::Type::Timeout;
   }
 
-  for ( unsigned int i = 0; i < pollfds_.size(); i++ ) {
-    if ( pollfds_[ i ].revents & (POLLERR | POLLHUP | POLLNVAL) ) {
+  it_action = actions_.begin();
+  it_pollfd = pollfds_.begin();
+
+  while ( it_action != actions_.end() and it_pollfd != pollfds_.end() ) {
+    if ( it_pollfd->revents & (POLLERR | POLLHUP | POLLNVAL) ) {
       //            throw Exception( "poll fd error" );
       return Result::Type::Exit;
     }
 
-    if ( pollfds_[ i ].revents & pollfds_[ i ].events ) {
+    if ( it_pollfd->revents & it_pollfd->events ) {
       /* we only want to call callback if revents includes
         the event we asked for */
-      const auto count_before = actions_.at( i ).service_count();
-      auto result = actions_.at( i ).callback();
+      const auto count_before = it_action->service_count();
+      auto result = it_action->callback();
 
       switch ( result.result ) {
       case ResultType::Exit:
         return Result( Result::Type::Exit, result.exit_status );
+
       case ResultType::Cancel:
-        actions_.at( i ).active = false;
-        break;
+        it_action = actions_.erase( it_action );
+        it_pollfd = pollfds_.erase( it_pollfd );
+        return Result::Type::Success;
+
       case ResultType::Continue:
         break;
       }
 
-      if ( count_before == actions_.at( i ).service_count() ) {
+      if ( count_before == it_action->service_count() ) {
         throw runtime_error( "Poller: busy wait detected: callback did not read/write fd" );
       }
     }
+
+    it_action++;
+    it_pollfd++;
   }
 
   return Result::Type::Success;

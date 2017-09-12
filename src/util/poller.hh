@@ -6,6 +6,7 @@
 #include <functional>
 #include <vector>
 #include <cassert>
+#include <list>
 
 #include <poll.h>
 
@@ -43,7 +44,7 @@ public:
   };
 
 private:
-  std::vector<Action> actions_;
+  std::list<Action> actions_;
   std::vector<pollfd> pollfds_;
 
 public:
