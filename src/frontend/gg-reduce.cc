@@ -54,7 +54,7 @@ private:
   DependencyGraph dep_graph_ {};
 
   lambda::RequestGenerator request_generator_ { {}, gg::remote::s3_region() };
-  lambda::ExecutionSocketManager socket_manager_ { gg::remote::s3_region() };
+  lambda::ExecutionConnectionManager connection_manager_ { gg::remote::s3_region() };
 
   Result handle_signal( const signalfd_siginfo & sig );
 

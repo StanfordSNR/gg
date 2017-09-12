@@ -65,11 +65,11 @@ HTTPRequest RequestGenerator::generate( const Thunk & thunk,
   ).to_http_request();
 }
 
-ExecutionSocketManager::ExecutionSocketManager( const string & region )
+ExecutionConnectionManager::ExecutionConnectionManager( const string & region )
   : address_( LambdaInvocationRequest::endpoint( region ), "https" )
 {}
 
-SecureSocket & ExecutionSocketManager::new_socket( const std::string & hash )
+SecureSocket & ExecutionConnectionManager::new_socket( const std::string & hash )
 {
   if ( sockets_.count( hash ) > 0 ) {
     throw runtime_error( "hash already exists" );
@@ -80,4 +80,20 @@ SecureSocket & ExecutionSocketManager::new_socket( const std::string & hash )
   sockets_.emplace( make_pair( hash, move( ssl_context_.new_secure_socket( move( sock ) ) ) ) );
 
   return sockets_.at( hash );
+}
+
+RemoteResponse::RemoteResponse( const string & response_str )
+  : thunk_hash(), output_hash(), output_size(), is_executable()
+{
+  protobuf::RemoteResponse rr_proto;
+
+  JsonParseOptions options;
+  options.ignore_unknown_fields = true;
+
+  JsonStringToMessage( response_str, &rr_proto, options );
+
+  thunk_hash = rr_proto.thunk_hash();
+  output_hash = rr_proto.output_hash();
+  output_size = rr_proto.output_size();
+  is_executable = rr_proto.executable_output();
 }

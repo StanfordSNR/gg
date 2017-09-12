@@ -42,3 +42,10 @@ message LambdaEvent {
   repeated LambdaInFile infiles = 3;
   string thunk_data = 4;
 }
+
+message RemoteResponse {
+  string thunk_hash = 1;
+  string output_hash = 2;
+  uint64 output_size = 3;
+  bool executable_output = 4;
+}

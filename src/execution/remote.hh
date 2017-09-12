@@ -3,15 +3,27 @@
 #ifndef REMOTE_HH
 #define REMOTE_HH
 
+#include <sys/types.h>
 #include <string>
 #include <unordered_map>
 
 #include "thunk.hh"
 #include "lambda.hh"
 #include "http_request.hh"
+#include "http_response_parser.hh"
 #include "aws.hh"
 #include "secure_socket.hh"
 #include "address.hh"
+
+struct RemoteResponse
+{
+  std::string thunk_hash;
+  std::string output_hash;
+  off_t output_size;
+  bool is_executable;
+
+  RemoteResponse( const std::string & response_str );
+};
 
 namespace lambda {
 
@@ -26,7 +38,7 @@ namespace lambda {
     HTTPRequest generate( const gg::thunk::Thunk & thunk, const std::string & thunk_hash );
   };
 
-  class ExecutionSocketManager
+  class ExecutionConnectionManager
   {
   private:
     SSLContext ssl_context_ {};
@@ -34,10 +46,13 @@ namespace lambda {
 
     /* thunk_hash -> socket */
     std::unordered_map<std::string, SecureSocket> sockets_ {};
+    std::unordered_map<std::string, HTTPResponseParser> responses_ {};
 
   public:
-    ExecutionSocketManager( const std::string & region );
+    ExecutionConnectionManager( const std::string & region );
     SecureSocket & new_socket( const std::string & hash );
+
+    HTTPResponseParser & response_parser( const std::string & hash ) { return responses_.at( hash ); }
   };
 
 }
