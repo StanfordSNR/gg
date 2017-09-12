@@ -36,6 +36,14 @@ class GGInfo:
 def fetch_dependencies(infiles):
     download_list = []
 
+    blob_path = GGPaths.blobs
+    infile_hashes = {x['hash'] for x in infiles}
+    infile_hashes.add(GGInfo.thunk_hash)
+
+    for x in os.listdir(blob_path):
+        if x not in infile_hashes:
+            os.remove(os.path.join(blob_path, x))
+
     for infile in infiles:
         bpath = GGPaths.blob_path(infile['hash'])
         if os.path.exists(bpath) and os.path.getsize(bpath) == infile['size']:
