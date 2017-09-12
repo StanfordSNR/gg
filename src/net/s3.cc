@@ -18,6 +18,11 @@ using namespace std;
 
 const static std::string UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD";
 
+std::string S3::endpoint( const std::string & bucket )
+{
+  return bucket + ".s3.amazonaws.com";
+}
+
 S3PutRequest::S3PutRequest( const AWSCredentials & credentials,
                             const string & region, const string & bucket,
                             const string & object, const string & contents,
@@ -25,13 +30,27 @@ S3PutRequest::S3PutRequest( const AWSCredentials & credentials,
   : AWSRequest( credentials, region, "PUT /" + object + " HTTP/1.1", contents )
 {
   headers_[ "x-amz-acl" ] = "public-read";
-  headers_[ "host" ] = bucket + ".s3.amazonaws.com";
+  headers_[ "host" ] = S3::endpoint( bucket );
   headers_[ "content-length" ] = to_string( contents.length() );
 
   AWSv4Sig::sign_request( "PUT\n/" + object,
                           credentials_.secret_key(), credentials_.access_key(),
                           region_, "s3", request_date_, contents, headers_,
                           content_hash );
+}
+
+S3GetRequest::S3GetRequest( const AWSCredentials & credentials,
+                            const string & region, const string & bucket,
+                            const string & object )
+  : AWSRequest( credentials, region, "GET /" + object + " HTTP/1.1", {} )
+{
+  headers_[ "x-amz-acl" ] = "public-read";
+  headers_[ "host" ] = S3::endpoint( bucket );
+
+  AWSv4Sig::sign_request( "GET\n/" + object,
+                          credentials_.secret_key(), credentials_.access_key(),
+                          region_, "s3", request_date_, {}, headers_,
+                          {} );
 }
 
 TCPSocket tcp_connection( const Address & address )
@@ -49,7 +68,7 @@ void S3Client::upload_files( const string & bucket,
                              const vector<S3::UploadRequest> & upload_requests,
                              function<void( const S3::UploadRequest & )> && success_callback )
 {
-  const string endpoint = "s3-" + config_.region + ".amazonaws.com";
+  const string endpoint = S3::endpoint( bucket );
   const Address s3_address { endpoint, "https" };
 
   const size_t thread_count = config_.max_threads;

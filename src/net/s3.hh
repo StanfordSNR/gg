@@ -17,6 +17,8 @@
 class S3
 {
 public:
+  static std::string endpoint( const std::string & bucket );
+
   struct UploadRequest
   {
     roost::path filename;
@@ -32,6 +34,14 @@ public:
                 const std::string & region, const std::string & bucket,
                 const std::string & object, const std::string & contents,
                 const std::string & content_hash = {} );
+};
+
+class S3GetRequest : public AWSRequest
+{
+public:
+  S3GetRequest( const AWSCredentials & credentials,
+                const std::string & region, const std::string & bucket,
+                const std::string & object );
 };
 
 struct S3ClientConfig
