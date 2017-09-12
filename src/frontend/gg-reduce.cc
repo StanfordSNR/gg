@@ -372,8 +372,14 @@ int main( int argc, char * argv[] )
     string reduced_hash = reductor.reduce();
 
     if ( remote_execution ) {
-      /* Running this will fetch the file if it's not locally available */
-      run( "gg-local-execute", { "gg-local-execute", reduced_hash }, {}, true, true);
+      /* we need to fetch the output from S3 */
+      S3ClientConfig s3_config;
+      s3_config.region = gg::remote::s3_region();
+
+      S3Client s3_client;
+      s3_client.download_file(
+        gg::remote::s3_bucket(), reduced_hash, gg::paths::blob_path( reduced_hash )
+      );
     }
 
     roost::copy_then_rename( gg::paths::blob_path( reduced_hash ), thunk_path );
