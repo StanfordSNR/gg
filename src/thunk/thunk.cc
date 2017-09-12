@@ -248,3 +248,17 @@ Thunk::get_allowed_files( const std::string & thunk_hash ) const
 
   return allowed_files;
 }
+
+off_t Thunk::infiles_size( const bool include_executables ) const
+{
+  off_t total_size = 0;
+
+  for ( const InFile & infile : infiles_ ) {
+    if ( infile.type() == InFile::Type::FILE or
+         ( include_executables and infile.type() == InFile::Type::EXECUTABLE ) ) {
+      total_size += infile.size();
+    }
+  }
+
+  return total_size;
+}
