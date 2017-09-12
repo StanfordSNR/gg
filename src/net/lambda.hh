@@ -1,5 +1,8 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#ifndef LAMBDA_HH
+#define LAMBDA_HH
+
 #include <string>
 
 #include "aws.hh"
@@ -20,3 +23,5 @@ public:
                            const LogType & log_type = LogType::NONE,
                            const std::string & context = "e30=" /* base64( "{}" ) */ );
 };
+
+#endif /* LAMBDA_HH */
