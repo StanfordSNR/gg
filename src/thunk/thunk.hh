@@ -147,7 +147,7 @@ namespace gg {
                           const size_t new_order,
                           const off_t new_size );
 
-      off_t infiles_size( const bool include_executables = true ) const;
+      size_t infiles_size( const bool include_executables = true ) const;
 
       /* Returns a list of files that can be accessed while executing this
          thunk. */
