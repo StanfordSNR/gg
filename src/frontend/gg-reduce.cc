@@ -5,6 +5,7 @@
 #include <getopt.h>
 #include <iostream>
 #include <unordered_set>
+#include <unordered_map>
 #include <algorithm>
 #include <deque>
 #include <list>
@@ -28,6 +29,8 @@
 #include "util.hh"
 #include "s3.hh"
 #include "digest.hh"
+#include "remote.hh"
+#include "secure_socket.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -49,6 +52,9 @@ private:
   list<ChildProcess> child_processes_ {};
   deque<string> dep_queue_ {};
   DependencyGraph dep_graph_ {};
+
+  lambda::RequestGenerator request_generator_ { {}, gg::remote::s3_region() };
+  lambda::ExecutionSocketManager socket_manager_ { gg::remote::s3_region() };
 
   Result handle_signal( const signalfd_siginfo & sig );
 
@@ -160,17 +166,22 @@ string Reductor::reduce()
       if ( cache_entry.initialized() ) {
         unordered_set<string> new_o1s = dep_graph_.force_thunk( dependency_hash, cache_entry->hash );
         dep_queue_.insert( dep_queue_.end(), new_o1s.begin(), new_o1s.end() );
-      } else {
-        child_processes_.emplace_back(
-          dependency_hash,
-          [dependency_hash, remote_exec]()
-          {
-            string exec_bin = remote_exec ? "gg-lambda-execute" : "gg-execute";
+      }
+      else {
+        if ( not remote_exec ) {
+          /* for local execution, we just fork and run gg-execute. */
+          child_processes_.emplace_back(
+            dependency_hash,
+            [dependency_hash]()
+            {
+              vector<string> command { "gg-execute", dependency_hash };
+              return ezexec( command[ 0 ], command, {}, true, true );
+            }
+          );
+        }
+        else {
 
-            vector<string> command { exec_bin, dependency_hash };
-            return ezexec( command[ 0 ], command, {}, true, true );
-          }
-        );
+        }
       }
 
       dep_queue_.pop_front();

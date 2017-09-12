@@ -4,6 +4,7 @@
 
 #include <string>
 #include <crypto++/base64.h>
+#include <crypto++/files.h>
 #include <google/protobuf/util/json_util.h>
 
 #include "digest.hh"
@@ -11,6 +12,7 @@
 #include "thunk_writer.hh"
 #include "ggpaths.hh"
 #include "gg.pb.h"
+#include "lambda.hh"
 
 using namespace std;
 using namespace gg;
@@ -24,15 +26,14 @@ RequestGenerator::RequestGenerator( const AWSCredentials & credentials,
   : credentials_( credentials ), region_( region )
 {}
 
-HTTPRequest RequestGenerator::generate( const Thunk & thunk )
+HTTPRequest RequestGenerator::generate( const Thunk & thunk,
+                                        const string & thunk_hash )
 {
-  const string serialized_thunk = ThunkWriter::serialize_thunk( thunk );
-  const string thunk_hash = digest::sha256( serialized_thunk );
   const string function_name = "gg-" + thunk.executable_hash();
   string base64_thunk;
 
-  StringSource s( serialized_thunk, true,
-                  new Base64Encoder( new StringSink( base64_thunk ), false ) );
+  FileSource s( gg::paths::blob_path( thunk_hash ).string().c_str(), true,
+                new Base64Encoder( new StringSink( base64_thunk ), false ) );
 
   gg::protobuf::LambdaEvent lambda_event;
   lambda_event.set_thunk_hash( thunk_hash );
@@ -62,4 +63,21 @@ HTTPRequest RequestGenerator::generate( const Thunk & thunk )
     LambdaInvocationRequest::InvocationType::REQUEST_RESPONSE,
     LambdaInvocationRequest::LogType::NONE
   ).to_http_request();
+}
+
+ExecutionSocketManager::ExecutionSocketManager( const string & region )
+  : address_( LambdaInvocationRequest::endpoint( region ), "https" )
+{}
+
+SecureSocket & ExecutionSocketManager::new_socket( const std::string & hash )
+{
+  if ( sockets_.count( hash ) > 0 ) {
+    throw runtime_error( "hash already exists" );
+  }
+
+  TCPSocket sock;
+  sock.connect( address_ );
+  sockets_.emplace( make_pair( hash, move( ssl_context_.new_secure_socket( move( sock ) ) ) ) );
+
+  return sockets_.at( hash );
 }
