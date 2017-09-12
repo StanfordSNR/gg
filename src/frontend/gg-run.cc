@@ -7,6 +7,7 @@
 
 #include "util.hh"
 #include "exception.hh"
+#include "ggpaths.hh"
 
 using namespace std;
 
@@ -26,6 +27,8 @@ int main( int argc, char * argv[] )
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
+
+    gg::paths::blobs();
 
     string system_path { safe_getenv( "PATH" ) };
     string models_path { safe_getenv( "GG_MODELPATH" ) };
