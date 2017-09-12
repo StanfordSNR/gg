@@ -63,6 +63,7 @@ private:
   Result handle_signal( const signalfd_siginfo & sig );
 
   bool is_finished() const;
+  size_t running_jobs() const { return remote_jobs_.size() + child_processes_.size(); }
 
 public:
   Reductor( const string & thunk_hash, const size_t max_jobs = 8 );
@@ -181,7 +182,7 @@ string Reductor::reduce()
   const bool remote_exec = remote_execution;
 
   while ( true ) {
-    while ( not dep_queue_.empty() and child_processes_.size() < max_jobs_ ) {
+    while ( not dep_queue_.empty() and running_jobs() < max_jobs_ ) {
       const string & dependency_hash = dep_queue_.front();
 
       /* don't bother executing gg-execute if it's in the cache */
