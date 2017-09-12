@@ -206,7 +206,7 @@ string Reductor::reduce()
           poller_.add_action(
             Poller::Action(
               socket, Direction::Out,
-              [&]()
+              [dependency_hash, &socket, this]()
               {
                 HTTPRequest request = request_generator_.generate( dep_graph_.get_thunk( dependency_hash ),
                                                                    dependency_hash );
@@ -222,7 +222,7 @@ string Reductor::reduce()
           poller_.add_action(
             Poller::Action(
               socket, Direction::In,
-              [&]()
+              [dependency_hash, &socket, this]()
               {
                 auto & response_parser = connection_manager_.response_parser( dependency_hash );
                 response_parser.parse( socket.read() );
