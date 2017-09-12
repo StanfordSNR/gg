@@ -29,3 +29,16 @@ message Thunk {
   repeated InFile infiles = 2;
   string outfile = 3;
 }
+
+message LambdaInFile {
+  string hash = 1;
+  uint64 size = 3;
+  bool executable = 2;
+}
+
+message LambdaEvent {
+  string thunk_hash = 1;
+  string s3_bucket = 2;
+  repeated LambdaInFile infiles = 3;
+  string thunk_data = 4;
+}
