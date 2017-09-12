@@ -175,7 +175,7 @@ string Reductor::reduce()
     Poller::Action(
       signal_fd.fd(), Direction::In,
       [&]() { return handle_signal( signal_fd.read_signal() ); },
-      [&]() { return not child_processes_.empty(); }
+      [&]() { return running_jobs() > 0; }
     )
   );
 
