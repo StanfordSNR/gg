@@ -240,7 +240,15 @@ string Reductor::reduce()
 
                   execution_finalize( response.thunk_hash, response.output_hash );
 
-                  return ResultType::Cancel;
+                  remote_executions_.erase( response.thunk_hash );
+                  connection_manager_.remove_connection( response.thunk_hash );
+
+                  if ( is_finished() ) {
+                    return ResultType::Exit;
+                  }
+                  else {
+                    return ResultType::Cancel;
+                  }
                 }
 
                 return ResultType::Continue;

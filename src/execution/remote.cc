@@ -86,6 +86,13 @@ SecureSocket & ExecutionConnectionManager::new_connection( const std::string & h
   return sockets_.at( hash );
 }
 
+void ExecutionConnectionManager::remove_connection( const std::string & hash )
+{
+  sockets_.at( hash ).close();
+  sockets_.erase( hash );
+  responses_.erase( hash );
+}
+
 RemoteResponse::RemoteResponse( const string & response_str )
   : thunk_hash(), output_hash(), output_size(), is_executable()
 {

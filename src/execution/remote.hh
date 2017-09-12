@@ -51,6 +51,7 @@ namespace lambda {
   public:
     ExecutionConnectionManager( const std::string & region );
     SecureSocket & new_connection( const std::string & hash );
+    void remove_connection( const std::string & hash );
 
     HTTPResponseParser & response_parser( const std::string & hash ) { return responses_.at( hash ); }
   };
