@@ -179,8 +179,6 @@ string Reductor::reduce()
     )
   );
 
-  const bool remote_exec = remote_execution;
-
   while ( true ) {
     while ( not dep_queue_.empty() and running_jobs() < max_jobs_ ) {
       const string & thunk_hash = dep_queue_.front();
@@ -192,7 +190,9 @@ string Reductor::reduce()
         dep_queue_.insert( dep_queue_.end(), new_o1s.begin(), new_o1s.end() );
       }
       else {
-        if ( not remote_exec ) {
+        const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
+
+        if ( not remote_execution ) {
           /* for local execution, we just fork and run gg-execute. */
           child_processes_.emplace_back(
             thunk_hash,
@@ -206,17 +206,15 @@ string Reductor::reduce()
         else {
           remote_jobs_.insert( thunk_hash );
 
-          cerr << "\u03bb(" << thunk_hash.substr( 0, 12 ) << ")..." << endl;
-
           /* create new socket */
           SecureSocket & socket = connection_manager_->new_connection( thunk_hash );
 
           poller_.add_action(
             Poller::Action(
               socket, Direction::Out,
-              [thunk_hash, &socket, this]()
+              [thunk_hash, &socket, &thunk, this]()
               {
-                HTTPRequest request = request_generator_->generate( dep_graph_.get_thunk( thunk_hash ),
+                HTTPRequest request = request_generator_->generate( thunk,
                                                                     thunk_hash );
                 connection_manager_->response_parser( thunk_hash ).new_request_arrived( request );
                 socket.write( request.str() );
