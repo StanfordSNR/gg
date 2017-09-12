@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <iostream>
+#include <regex>
 
 using namespace std;
 
@@ -77,7 +78,15 @@ Language GCCModelGenerator::filename_to_language( const std::string & path )
     return ext_to_lang.at( extension );
   }
 
-  throw runtime_error( "unknown file extension" );
+  regex so_pattern { ".+\\.so[\\.\\d+]+$" };
+  smatch match;
+  regex_match( path, match, so_pattern );
+
+  if ( match.size() > 0 ) {
+    return Language::OBJECT;
+  }
+
+  throw runtime_error( "unknown file extension: " + path );
 }
 
 Language GCCModelGenerator::name_to_language( const string & name )
@@ -86,7 +95,7 @@ Language GCCModelGenerator::name_to_language( const string & name )
     return name_to_lang.at( name );
   }
 
-  throw runtime_error( "unknown language name" );
+  throw runtime_error( "unknown language name: " + name );
 }
 
 string GCCModelGenerator::language_to_name( const Language & lang )
