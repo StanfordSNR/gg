@@ -136,11 +136,6 @@ int main( int argc, char * argv[] )
                                                 open( thunk_path.c_str(), O_RDONLY ) ) };
     raw_thunk.block_for_exclusive_lock();
 
-    if ( gg::cache::check( thunk_hash ).initialized() ) {
-      /* already reduced */
-      return EXIT_SUCCESS;
-    }
-
     ThunkReader thunk_reader { thunk_path };
     Thunk thunk = thunk_reader.read_thunk();
     string output_hash = execute_thunk( thunk, thunk_hash );
