@@ -183,40 +183,42 @@ string Reductor::reduce()
 
   while ( true ) {
     while ( not dep_queue_.empty() and running_jobs() < max_jobs_ ) {
-      const string & dependency_hash = dep_queue_.front();
+      const string & thunk_hash = dep_queue_.front();
 
       /* don't bother executing gg-execute if it's in the cache */
-      Optional<ReductionResult> cache_entry = gg::cache::check( dependency_hash );
+      Optional<ReductionResult> cache_entry = gg::cache::check( thunk_hash );
       if ( cache_entry.initialized() ) {
-        unordered_set<string> new_o1s = dep_graph_.force_thunk( dependency_hash, cache_entry->hash );
+        unordered_set<string> new_o1s = dep_graph_.force_thunk( thunk_hash, cache_entry->hash );
         dep_queue_.insert( dep_queue_.end(), new_o1s.begin(), new_o1s.end() );
       }
       else {
         if ( not remote_exec ) {
           /* for local execution, we just fork and run gg-execute. */
           child_processes_.emplace_back(
-            dependency_hash,
-            [dependency_hash]()
+            thunk_hash,
+            [thunk_hash]()
             {
-              vector<string> command { "gg-execute", dependency_hash };
+              vector<string> command { "gg-execute", thunk_hash };
               return ezexec( command[ 0 ], command, {}, true, true );
             }
           );
         }
         else {
-          remote_jobs_.insert( dependency_hash );
+          remote_jobs_.insert( thunk_hash );
+
+          cerr << "\u03bb(" << thunk_hash.substr( 0, 12 ) << ")..." << endl;
 
           /* create new socket */
-          SecureSocket & socket = connection_manager_->new_connection( dependency_hash );
+          SecureSocket & socket = connection_manager_->new_connection( thunk_hash );
 
           poller_.add_action(
             Poller::Action(
               socket, Direction::Out,
-              [dependency_hash, &socket, this]()
+              [thunk_hash, &socket, this]()
               {
-                HTTPRequest request = request_generator_->generate( dep_graph_.get_thunk( dependency_hash ),
-                                                                    dependency_hash );
-                connection_manager_->response_parser( dependency_hash ).new_request_arrived( request );
+                HTTPRequest request = request_generator_->generate( dep_graph_.get_thunk( thunk_hash ),
+                                                                    thunk_hash );
+                connection_manager_->response_parser( thunk_hash ).new_request_arrived( request );
                 socket.write( request.str() );
 
                 return ResultType::Cancel;
@@ -228,15 +230,15 @@ string Reductor::reduce()
           poller_.add_action(
             Poller::Action(
               socket, Direction::In,
-              [dependency_hash, &socket, this]()
+              [thunk_hash, &socket, this]()
               {
-                auto & response_parser = connection_manager_->response_parser( dependency_hash );
+                auto & response_parser = connection_manager_->response_parser( thunk_hash );
                 response_parser.parse( socket.read() );
 
                 if ( not response_parser.empty() ) {
                   RemoteResponse response { response_parser.front().body() };
 
-                  if ( response.thunk_hash != dependency_hash ) {
+                  if ( response.thunk_hash != thunk_hash ) {
                     throw runtime_error( "unexpected hash" );
                   }
 
