@@ -109,14 +109,18 @@ def handler(event, context):
     return_code, output = run_command(["gg-execute-static", GGInfo.thunk_hash])
 
     if return_code:
-        raise Exception("gg-execute failed: {}".format(output))
+        return {
+            'errorType': 'GG-ExecutionFailed'
+        }
 
     timelogger.add_point("gg-execute")
 
     result = GGCache.check(GGInfo.thunk_hash)
 
     if not result:
-        raise Exception("thunk reduction failed")
+        return {
+            'errorType': 'GG-ExecutionFailed'
+        }
 
     executable = is_executable(GGPaths.blob_path(result))
 
