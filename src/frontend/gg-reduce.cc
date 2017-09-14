@@ -9,6 +9,7 @@
 #include <deque>
 #include <list>
 #include <vector>
+#include <iomanip>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -32,6 +33,7 @@
 #include "secure_socket.hh"
 #include "optional.hh"
 #include "units.hh"
+#include "timeit.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -71,7 +73,23 @@ public:
 
   string reduce();
   void upload_dependencies() const;
+  void print_status() const;
 };
+
+#define COLOR_RED    "\033[1;31m"
+#define COLOR_GREEN  "\033[1;32m"
+#define COLOR_YELLOW "\033[1;33m"
+#define COLOR_BLUE   "\033[1;34m"
+#define COLOR_CYAN   "\033[1;36m"
+#define COLOR_RESET  "\033[0m"
+
+void Reductor::print_status() const
+{
+  cerr << "\r* in queue: " << COLOR_YELLOW << setw( 6 ) << std::left << job_queue_.size() << COLOR_RESET
+       << " / remote: "  << COLOR_RED    << setw( 6 ) << std::left << remote_jobs_.size() << COLOR_RESET
+       << " / local: "   << COLOR_CYAN   << setw( 6 ) << std::left << local_jobs_.size() << COLOR_RESET
+       << " / total: "   << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET;
+}
 
 Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
   : thunk_hash_( thunk_hash ), max_jobs_( max_jobs )
@@ -182,6 +200,8 @@ string Reductor::reduce()
 
   while ( true ) {
     while ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
+      print_status();
+
       const string & thunk_hash = job_queue_.front();
 
       /* don't bother executing gg-execute if it's in the cache */
@@ -247,8 +267,8 @@ string Reductor::reduce()
                   }
 
                   gg::cache::insert( response.thunk_hash, response.output_hash );
-                  cerr << "\u03bb(" + response.thunk_hash.substr( 0, 12 ) + ") = " +
-                          response.output_hash.substr( 0, 12 ) << endl;
+                  //cerr << "\u03bb(" + response.thunk_hash.substr( 0, 12 ) + ") = " +
+                  //        response.output_hash.substr( 0, 12 ) << endl;
 
                   execution_finalize( response.thunk_hash, response.output_hash );
 
@@ -308,17 +328,22 @@ void Reductor::upload_dependencies() const
   const string plural = upload_requests.size() == 1 ? "" : "s";
   cerr << "Uploading " << upload_requests.size() << " file" << plural << "... ";
 
-  S3ClientConfig s3_config;
-  s3_config.region = gg::remote::s3_region();
+  auto upload_time = time_it<chrono::milliseconds>(
+    [&upload_requests]()
+    {
+      S3ClientConfig s3_config;
+      s3_config.region = gg::remote::s3_region();
 
-  S3Client s3_client;
-  s3_client.upload_files(
-    gg::remote::s3_bucket(), upload_requests,
-    [] ( const S3::UploadRequest & upload_request )
-    { gg::remote::set_available( upload_request.object_key ); }
+      S3Client s3_client { s3_config };
+      s3_client.upload_files(
+        gg::remote::s3_bucket(), upload_requests,
+        [] ( const S3::UploadRequest & upload_request )
+        { gg::remote::set_available( upload_request.object_key ); }
+      );
+    }
   );
 
-  cerr << "done." << endl;
+  cerr << "done (" << upload_time.count() << " ms)." << endl;
 }
 
 void usage( const char * argv0 )
@@ -388,7 +413,7 @@ int main( int argc, char * argv[] )
       S3ClientConfig s3_config;
       s3_config.region = gg::remote::s3_region();
 
-      S3Client s3_client;
+      S3Client s3_client { s3_config };
       s3_client.download_file(
         gg::remote::s3_bucket(), reduced_hash, gg::paths::blob_path( reduced_hash )
       );

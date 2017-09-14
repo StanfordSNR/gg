@@ -45,6 +45,8 @@ public:
   get_thunk( const std::string & hash ) const { return thunks_.at( hash ); }
 
   std::string updated_hash( const std::string & original_hash ) const;
+
+  size_t size() const { return thunks_.size(); }
 };
 
 #endif /* GRAPH_HH */
