@@ -259,10 +259,20 @@ string Reductor::reduce()
                 response_parser.parse( socket.read() );
 
                 if ( not response_parser.empty() ) {
-                  RemoteResponse response { response_parser.front().body() };
+                  const HTTPResponse & http_response = response_parser.front();
+
+                  if ( http_response.status_code() != "200" ) {
+                    throw runtime_error( "HTTP failure: " + http_response.status_code() );
+                  }
+
+                  RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
+
+                  if ( response.type != RemoteResponse::Type::SUCCESS ) {
+                    throw runtime_error( "execution failed." );
+                  }
 
                   if ( response.thunk_hash != thunk_hash ) {
-                    cerr << response_parser.front().str() << endl;
+                    cerr << http_response.str() << endl;
                     throw runtime_error( "expected output for " + thunk_hash + ", got output for" + response.output_hash );
                   }
 

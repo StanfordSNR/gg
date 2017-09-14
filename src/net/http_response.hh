@@ -12,8 +12,6 @@
 class HTTPResponse : public HTTPMessage
 {
 private:
-    std::string status_code() const;
-
     HTTPRequest request_ {};
 
     /* required methods */
@@ -26,6 +24,8 @@ private:
 public:
     void set_request( const HTTPRequest & request );
     const HTTPRequest & request() const { return request_; }
+
+    std::string status_code() const;
 
     using HTTPMessage::HTTPMessage;
 };

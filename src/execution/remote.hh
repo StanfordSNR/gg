@@ -15,14 +15,26 @@
 #include "secure_socket.hh"
 #include "address.hh"
 
-struct RemoteResponse
+class RemoteResponse
 {
+private:
+  RemoteResponse();
+  
+public:
+  enum class Type
+  {
+    SUCCESS,
+    EXECUTION_FAILURE,
+    LAMBDA_FAILURE,
+    RATE_LIMIT
+  } type;
+
   std::string thunk_hash;
   std::string output_hash;
   off_t output_size;
   bool is_executable;
 
-  RemoteResponse( const std::string & response_str );
+  static RemoteResponse parse_message( const std::string & message );
 };
 
 namespace lambda {
@@ -57,6 +69,5 @@ namespace lambda {
   };
 
 }
-
 
 #endif /* REMOTE_HH */

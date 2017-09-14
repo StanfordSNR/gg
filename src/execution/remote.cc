@@ -98,15 +98,37 @@ void ExecutionConnectionManager::remove_connection( const std::string & hash )
   responses_.erase( hash );
 }
 
-RemoteResponse::RemoteResponse( const string & response_str )
-  : thunk_hash(), output_hash(), output_size(), is_executable()
+RemoteResponse RemoteResponse::parse_message( const std::string & message )
 {
-  istringstream iss { response_str };
+  RemoteResponse response;
+
+  istringstream iss { message };
   json::Object response_json;
   json::Reader::Read( response_json, iss );
 
-  thunk_hash = static_cast<json::String>( response_json[ "thunk_hash" ] );
-  output_hash = static_cast<json::String>( response_json[ "output_hash" ] );
-  output_size = static_cast<json::Number>( response_json[ "output_size" ] );
-  is_executable = static_cast<json::Boolean>( response_json[ "executable_output" ] );
+  auto error_type_it = response_json.Find( "errorType" );
+  if ( error_type_it != response_json.End() ) {
+    /* Something happened */
+    string error_type = static_cast<json::String>( error_type_it->element );
+
+    if ( error_type == "GG-ExecutionFailed" ) {
+      response.type = Type::EXECUTION_FAILURE;
+      return response;
+    }
+    else {
+      throw runtime_error( "unknown error type: " + error_type );
+    }
+  }
+
+  response.type = Type::SUCCESS;
+  response.thunk_hash = static_cast<json::String>( response_json[ "thunk_hash" ] );
+  response.output_hash = static_cast<json::String>( response_json[ "output_hash" ] );
+  response.output_size = static_cast<json::Number>( response_json[ "output_size" ] );
+  response.is_executable = static_cast<json::Boolean>( response_json[ "executable_output" ] );
+
+  return response;
 }
+
+RemoteResponse::RemoteResponse()
+  : type(), thunk_hash(), output_hash(), output_size(), is_executable()
+{}
