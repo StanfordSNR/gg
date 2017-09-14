@@ -242,7 +242,8 @@ string Reductor::reduce()
                   RemoteResponse response { response_parser.front().body() };
 
                   if ( response.thunk_hash != thunk_hash ) {
-                    throw runtime_error( "unexpected hash" );
+                    cerr << response_parser.front().str() << endl;
+                    throw runtime_error( "expected output for " + thunk_hash + ", got output for" + response.output_hash );
                   }
 
                   gg::cache::insert( response.thunk_hash, response.output_hash );
