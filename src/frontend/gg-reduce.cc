@@ -31,6 +31,7 @@
 #include "remote.hh"
 #include "secure_socket.hh"
 #include "optional.hh"
+#include "units.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -204,6 +205,10 @@ string Reductor::reduce()
           );
         }
         else {
+          if ( thunk.infiles_size() > 500_MiB ) {
+            throw runtime_error( "thunk doesn't fit on \u03bb: " + thunk_hash );
+          }
+
           remote_jobs_.insert( thunk_hash );
 
           /* create new socket */
