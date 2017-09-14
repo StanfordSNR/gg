@@ -199,7 +199,7 @@ string Reductor::reduce()
   );
 
   while ( true ) {
-    while ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
+    if ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
       print_status();
 
       const string & thunk_hash = job_queue_.front();
@@ -225,7 +225,7 @@ string Reductor::reduce()
           );
         }
         else {
-          if ( thunk.infiles_size() > 500_MiB ) {
+          if ( thunk.infiles_size() > 250_MiB ) {
             throw runtime_error( "thunk doesn't fit on \u03bb: " + thunk_hash );
           }
 
@@ -304,7 +304,7 @@ string Reductor::reduce()
       job_queue_.pop_front();
     }
 
-    const auto poll_result = poller_.poll( -1 );
+    const auto poll_result = poller_.poll( 0 );
 
     if ( poll_result.result == Poller::Result::Type::Exit ) {
       const string final_hash = dep_graph_.updated_hash( thunk_hash_ );
