@@ -95,7 +95,7 @@ def main():
     parser.add_argument('--delete', dest='delete', action='store_true', default=False)
     parser.add_argument('--role', dest='role', action='store',
                         default=os.environ.get('GG_LAMBDA_ROLE'))
-    parser.add_argument('--region', dest='region', default='us-west-1', action='store')
+    parser.add_argument('--region', dest='region', default=os.environ.get('GG_S3_REGION'), action='store')
     parser.add_argument('--gg-execute-static', dest='gg_execute_static',
                         default=shutil.which("gg-execute-static"))
     parser.add_argument('--toolchain-path', dest='toolchain_path', required=True)
