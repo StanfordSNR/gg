@@ -58,7 +58,7 @@ public:
 
   Poller() : actions_(), pollfds_() {}
   void add_action( Action action );
-  Result poll( const int & timeout_ms );
+  Result poll( const int timeout_ms );
 };
 
 namespace PollerShortNames {

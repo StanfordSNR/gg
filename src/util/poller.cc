@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <numeric>
+#include <chrono>
+
 #include "poller.hh"
 #include "exception.hh"
 
@@ -19,9 +21,13 @@ unsigned int Poller::Action::service_count( void ) const
   return direction == Direction::In ? fd.read_count() : fd.write_count();
 }
 
-Poller::Result Poller::poll( const int & timeout_ms )
+Poller::Result Poller::poll( const int timeout_ms )
 {
   assert( pollfds_.size() == actions_.size() );
+
+  if ( timeout_ms == 0 ) {
+    throw runtime_error( "poll asked to busy-wait" );
+  }
 
   /* tell poll whether we care about each fd */
   auto it_action = actions_.begin();
@@ -63,7 +69,16 @@ Poller::Result Poller::poll( const int & timeout_ms )
       /* we only want to call callback if revents includes
         the event we asked for */
       const auto count_before = it_action->service_count();
+
+      const auto starting_time = chrono::system_clock::now();
       auto result = it_action->callback();
+      const auto ending_time = chrono::system_clock::now();
+
+      const int ms_for_callback = chrono::duration_cast<chrono::milliseconds>( ending_time - starting_time ).count();
+
+      if ( ms_for_callback > 50 ) {
+        throw runtime_error( "callback took " + to_string( ms_for_callback ) + " ms, blocking likely" );
+      }
 
       switch ( result.result ) {
       case ResultType::Exit:
