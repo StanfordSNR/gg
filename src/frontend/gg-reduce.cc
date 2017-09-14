@@ -57,6 +57,8 @@ private:
   list<ChildProcess> local_jobs_ {};
   deque<string> job_queue_ {};
 
+  size_t finished_jobs_ { 0 };
+
   DependencyGraph dep_graph_ {};
 
   Optional<lambda::RequestGenerator> request_generator_ {};
@@ -86,9 +88,10 @@ public:
 void Reductor::print_status() const
 {
   cerr << "\r* in queue: " << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
-       << " remote: "  << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << COLOR_RESET
-       << " local: "   << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size() << COLOR_RESET
-       << " total: "   << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET;
+       << " remote: "      << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << COLOR_RESET
+       << " local: "       << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size() << COLOR_RESET
+       << " done: "        << COLOR_GREEN  << setw( 5 ) << std::left << finished_jobs_ << COLOR_RESET
+       << " total: "       << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET;
 }
 
 Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
@@ -158,8 +161,10 @@ Result Reductor::handle_signal( const signalfd_siginfo & sig )
 
         execution_finalize( thunk_hash, result->hash );
 
+        finished_jobs_++;
         it = local_jobs_.erase( it );
         it--;
+
 
         if ( is_finished() ) {
           return ResultType::Exit;
@@ -199,9 +204,9 @@ string Reductor::reduce()
   );
 
   while ( true ) {
-    if ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
-      print_status();
+    print_status();
 
+    if ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
       const string & thunk_hash = job_queue_.front();
 
       /* don't bother executing gg-execute if it's in the cache */
@@ -284,6 +289,7 @@ string Reductor::reduce()
 
                   remote_jobs_.erase( response.thunk_hash );
                   connection_manager_->remove_connection( response.thunk_hash );
+                  finished_jobs_++;
 
                   if ( is_finished() ) {
                     return ResultType::Exit;
