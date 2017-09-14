@@ -60,11 +60,12 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::C,  "C",  no_argument, false, 'X' },
 
     /* -M options */
-    { GCCOption::M,  "M",  no_argument, false, 'X' },
-    { GCCOption::MD, "MD", no_argument, false, 'X' },
-    { GCCOption::MP, "MP", no_argument, false, 'X' },
-    { GCCOption::MT, "MT", required_argument, false, ' ' },
-    { GCCOption::MF, "MF", required_argument, false, ' ' },
+    { GCCOption::M,   "M",  no_argument, false, 'X' },
+    { GCCOption::MD,  "MD", no_argument, false, 'X' },
+    { GCCOption::MP,  "MP", no_argument, false, 'X' },
+    { GCCOption::MT,  "MT", required_argument, false, ' ' },
+    { GCCOption::MF,  "MF", required_argument, false, ' ' },
+    { GCCOption::MMD, "MMD", no_argument, false, ' ' },
 
     { GCCOption::P,          "P",        no_argument, false, 'X' },
     { GCCOption::pg,         "pg",       no_argument, false, 'X' },
@@ -181,6 +182,11 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
 
     if ( not flag_processed ) {
       switch ( gccopt ) {
+      case GCCOption::MMD:
+        add_option( options_map.at( GCCOption::MD ), optarg );
+        add_to_args = false;
+        break;
+
       case GCCOption::E:
         last_stage_ = PREPROCESS;
         break;

@@ -57,7 +57,7 @@ enum class GCCOption
   g, O, D, U, f,
   o,
   E, S, c, C,
-  M, MD, MP, MT, MF,
+  M, MD, MP, MT, MF, MMD,
   pie,
   include, isystem,
   pthread, shared,
