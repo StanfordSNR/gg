@@ -84,14 +84,24 @@ public:
 #define COLOR_BLUE   "\033[1;34m"
 #define COLOR_CYAN   "\033[1;36m"
 #define COLOR_RESET  "\033[0m"
+#define HIDE_CURSOR  "\033[25l"
+#define SHOW_CURSOR  "\033[25h"
 
 void Reductor::print_status() const
 {
-  cerr << "\r* in queue: " << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
-       << " remote: "      << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << COLOR_RESET
-       << " local: "       << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size() << COLOR_RESET
-       << " done: "        << COLOR_GREEN  << setw( 5 ) << std::left << finished_jobs_ << COLOR_RESET
-       << " total: "       << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET;
+  static time_t last_display = 0;
+
+  time_t this_display = time( nullptr );
+
+  if ( this_display != last_display ) {
+    last_display = this_display;
+
+    cerr << HIDE_CURSOR << "\r* in queue: " << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
+         << " remote: "      << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << COLOR_RESET
+         << " local: "       << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size() << COLOR_RESET
+         << " done: "        << COLOR_GREEN  << setw( 5 ) << std::left << finished_jobs_ << COLOR_RESET
+         << " total: "       << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET << SHOW_CURSOR;
+  }
 }
 
 Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
@@ -204,9 +214,7 @@ string Reductor::reduce()
   );
 
   while ( true ) {
-    print_status();
-
-    if ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
+    while ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
       const string & thunk_hash = job_queue_.front();
 
       /* don't bother executing gg-execute if it's in the cache */
@@ -310,7 +318,9 @@ string Reductor::reduce()
       job_queue_.pop_front();
     }
 
-    const auto poll_result = poller_.poll( 0 );
+    print_status();
+
+    const auto poll_result = poller_.poll( -1 );
 
     if ( poll_result.result == Poller::Result::Type::Exit ) {
       const string final_hash = dep_graph_.updated_hash( thunk_hash_ );
