@@ -88,7 +88,7 @@ void S3Client::download_file( const string & bucket, const string & object,
   }
 
   if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
-    throw runtime_error( "HTTP failure" );
+    throw runtime_error( "HTTP failure in S3Client::download_file( " + bucket + ", " + object + " ): " + responses.front().first_line() );
   }
   else {
     file.write( responses.front().body(), true );
@@ -148,7 +148,7 @@ void S3Client::upload_files( const string & bucket,
               responses.parse( s3.read() );
               if ( not responses.empty() ) {
                 if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
-                  throw runtime_error( "HTTP failure" );
+                  throw runtime_error( "HTTP failure in S3Client::upload_files(): " + responses.front().first_line() );
                 }
                 else {
                   const size_t response_index = first_file_idx + response_count * thread_count;
