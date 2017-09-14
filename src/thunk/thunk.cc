@@ -43,6 +43,8 @@ int Thunk::execute( const string & thunk_hash ) const
     throw runtime_error( "cannot execute thunk with order != 1" );
   }
 
+  bool verbose = ( getenv( "GG_VERBOSE" ) != nullptr );
+
   // preparing argv
   vector<string> args = function_.args();
 
@@ -82,7 +84,7 @@ int Thunk::execute( const string & thunk_hash ) const
     "__GG_ENABLED__=1",
   };
 
-  if ( getenv( "__GG_VERBOSE__" ) ) {
+  if ( verbose ) {
     envars.emplace_back( "__GG_VERBOSE__=1" );
   }
 
@@ -90,11 +92,13 @@ int Thunk::execute( const string & thunk_hash ) const
 
   int retval;
 
-  string exec_string = "+ exec(" + thunk_hash + ") {"
-                     + roost::rbasename( function_.exe() ).string()
-                     + "}\n";
+  if ( verbose ) {
+    string exec_string = "+ exec(" + thunk_hash + ") {"
+                       + roost::rbasename( function_.exe() ).string()
+                       + "}\n";
 
-  cerr << exec_string;
+    cerr << exec_string;
+  }
 
   if ( ( retval = ezexec( gg::paths::blob_path( function_.hash() ).string(), args, envars ) ) < 0 ) {
     throw runtime_error( "execvpe failed" );
