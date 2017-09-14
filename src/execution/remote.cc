@@ -29,7 +29,8 @@ RequestGenerator::RequestGenerator( const AWSCredentials & credentials,
 {}
 
 HTTPRequest RequestGenerator::generate( const Thunk & thunk,
-                                        const string & thunk_hash )
+                                        const string & thunk_hash,
+                                        const bool timelog )
 {
   const string function_name = "gg-" + thunk.executable_hash();
   string base64_thunk;
@@ -41,6 +42,10 @@ HTTPRequest RequestGenerator::generate( const Thunk & thunk,
   lambda_event[ "thunk_hash" ] = json::String( thunk_hash );
   lambda_event[ "s3_bucket" ] = json::String( gg::remote::s3_bucket() );
   lambda_event[ "thunk_data" ] = json::String( base64_thunk );
+
+  if ( timelog ) {
+    lambda_event[ "timelog" ] = json::Boolean( true );
+  }
 
   json::Array lambda_event_infiles;
 

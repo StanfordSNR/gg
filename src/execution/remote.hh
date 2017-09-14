@@ -19,7 +19,7 @@ class RemoteResponse
 {
 private:
   RemoteResponse();
-  
+
 public:
   enum class Type
   {
@@ -47,7 +47,8 @@ namespace lambda {
 
   public:
     RequestGenerator( const AWSCredentials & credentials, const std::string & region );
-    HTTPRequest generate( const gg::thunk::Thunk & thunk, const std::string & thunk_hash );
+    HTTPRequest generate( const gg::thunk::Thunk & thunk, const std::string & thunk_hash,
+                          const bool timelog = false );
   };
 
   class ExecutionConnectionManager

@@ -85,10 +85,10 @@ public:
 
 void Reductor::print_status() const
 {
-  cerr << "\r* in queue: " << COLOR_YELLOW << setw( 6 ) << std::left << job_queue_.size() << COLOR_RESET
-       << " / remote: "  << COLOR_RED    << setw( 6 ) << std::left << remote_jobs_.size() << COLOR_RESET
-       << " / local: "   << COLOR_CYAN   << setw( 6 ) << std::left << local_jobs_.size() << COLOR_RESET
-       << " / total: "   << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET;
+  cerr << "\r* in queue: " << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
+       << " remote: "  << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << COLOR_RESET
+       << " local: "   << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size() << COLOR_RESET
+       << " total: "   << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET;
 }
 
 Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
@@ -240,7 +240,7 @@ string Reductor::reduce()
               [thunk_hash, &socket, &thunk, this]()
               {
                 HTTPRequest request = request_generator_->generate( thunk,
-                                                                    thunk_hash );
+                                                                    thunk_hash, true );
                 connection_manager_->response_parser( thunk_hash ).new_request_arrived( request );
                 socket.write( request.str() );
 
@@ -430,6 +430,8 @@ int main( int argc, char * argv[] )
     }
 
     roost::copy_then_rename( gg::paths::blob_path( reduced_hash ), thunk_path );
+
+    cerr << endl;
 
     return EXIT_SUCCESS;
   }

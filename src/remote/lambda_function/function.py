@@ -62,6 +62,7 @@ class TimeLog:
     def __init__(self, enabled=True):
         self.enabled = enabled
         self.start = time.time()
+        self.prev = self.start
         self.points = []
 
     def add_point(self, title):
@@ -69,8 +70,8 @@ class TimeLog:
             return
 
         now = time.time()
-        self.points += [(title, now - self.start)]
-        self.start = now
+        self.points += [(title, now - self.prev)]
+        self.prev = now
 
 def handler(event, context):
     GGInfo.thunk_hash = event['thunk_hash']
@@ -152,7 +153,9 @@ def handler(event, context):
             ACL='public-read',
             Bucket=GGInfo.s3_bucket,
             Key="runlogs/{}".format(GGInfo.thunk_hash),
-            Body=str({'output_hash': result, 'timelog': timelogger.points}).encode('utf-8')
+            Body=str({'output_hash': result,
+                      'started': timelogger.start,
+                      'timelog': timelogger.points}).encode('utf-8')
         )
 
     return {
