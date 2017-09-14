@@ -51,10 +51,10 @@ private:
   SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT };
   Poller poller_ {};
 
-  unordered_set<std::string> remote_jobs_ {};
-  list<ChildProcess> child_processes_ {};
+  unordered_set<string> remote_jobs_ {};
+  list<ChildProcess> local_jobs_ {};
+  deque<string> job_queue_ {};
 
-  deque<string> dep_queue_ {};
   DependencyGraph dep_graph_ {};
 
   Optional<lambda::RequestGenerator> request_generator_ {};
@@ -64,7 +64,7 @@ private:
   Result handle_signal( const signalfd_siginfo & sig );
 
   bool is_finished() const;
-  size_t running_jobs() const { return remote_jobs_.size() + child_processes_.size(); }
+  size_t running_jobs() const { return remote_jobs_.size() + local_jobs_.size(); }
 
 public:
   Reductor( const string & thunk_hash, const size_t max_jobs = 8 );
@@ -80,7 +80,7 @@ Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
 
   dep_graph_.add_thunk( thunk_hash_ );
   unordered_set<string> o1_deps = dep_graph_.order_one_dependencies( thunk_hash_ );
-  dep_queue_.insert( dep_queue_.end(), o1_deps.begin(), o1_deps.end() );
+  job_queue_.insert( job_queue_.end(), o1_deps.begin(), o1_deps.end() );
 
   if ( remote_execution ) {
     request_generator_.initialize( AWSCredentials(), gg::remote::s3_region() );
@@ -91,31 +91,31 @@ Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
 bool Reductor::is_finished() const
 {
   return ( remote_jobs_.size() == 0 ) and
-         ( child_processes_.size() == 0 ) and
-         ( dep_queue_.size() == 0 );
+         ( local_jobs_.size() == 0 ) and
+         ( job_queue_.size() == 0 );
 }
 
 void Reductor::execution_finalize( const string & old_hash, const string & new_hash )
 {
   unordered_set<string> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
-  dep_queue_.insert( dep_queue_.end(), new_o1s.begin(), new_o1s.end() );
+  job_queue_.insert( job_queue_.end(), new_o1s.begin(), new_o1s.end() );
 }
 
 Result Reductor::handle_signal( const signalfd_siginfo & sig )
 {
   switch ( sig.ssi_signo ) {
   case SIGCONT:
-    for ( auto & child : child_processes_ ) {
+    for ( auto & child : local_jobs_ ) {
       child.resume();
     }
     break;
 
   case SIGCHLD:
-    if ( child_processes_.empty() ) {
+    if ( local_jobs_.empty() ) {
       throw runtime_error( "received SIGCHLD without any managed children" );
     }
 
-    for ( auto it = child_processes_.begin(); it != child_processes_.end(); it++ ) {
+    for ( auto it = local_jobs_.begin(); it != local_jobs_.end(); it++ ) {
       ChildProcess & child = *it;
 
       if ( child.terminated() or ( not child.waitable() ) ) {
@@ -140,7 +140,7 @@ Result Reductor::handle_signal( const signalfd_siginfo & sig )
 
         execution_finalize( thunk_hash, result->hash );
 
-        it = child_processes_.erase( it );
+        it = local_jobs_.erase( it );
         it--;
 
         if ( is_finished() ) {
@@ -181,21 +181,21 @@ string Reductor::reduce()
   );
 
   while ( true ) {
-    while ( not dep_queue_.empty() and running_jobs() < max_jobs_ ) {
-      const string & thunk_hash = dep_queue_.front();
+    while ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
+      const string & thunk_hash = job_queue_.front();
 
       /* don't bother executing gg-execute if it's in the cache */
       Optional<ReductionResult> cache_entry = gg::cache::check( thunk_hash );
       if ( cache_entry.initialized() ) {
         unordered_set<string> new_o1s = dep_graph_.force_thunk( thunk_hash, cache_entry->hash );
-        dep_queue_.insert( dep_queue_.end(), new_o1s.begin(), new_o1s.end() );
+        job_queue_.insert( job_queue_.end(), new_o1s.begin(), new_o1s.end() );
       }
       else {
         const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
 
         if ( not remote_execution ) {
           /* for local execution, we just fork and run gg-execute. */
-          child_processes_.emplace_back(
+          local_jobs_.emplace_back(
             thunk_hash,
             [thunk_hash]()
             {
@@ -271,7 +271,7 @@ string Reductor::reduce()
         }
       }
 
-      dep_queue_.pop_front();
+      job_queue_.pop_front();
     }
 
     const auto poll_result = poller_.poll( -1 );
