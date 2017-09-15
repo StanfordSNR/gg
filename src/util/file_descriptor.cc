@@ -125,3 +125,16 @@ void FileDescriptor::block_for_exclusive_lock()
 {
   CheckSystemCall( "flock", flock( fd_num(), LOCK_EX ) );
 }
+
+void FileDescriptor::set_blocking( const bool block )
+{
+  int flags = CheckSystemCall( "fcntl F_GETFL", fcntl( fd_, F_GETFL ) );
+
+  if ( block ) {
+    flags = flags & ~O_NONBLOCK;
+  } else {
+    flags = flags | O_NONBLOCK;
+  }
+
+  CheckSystemCall( "fcntl F_SETFL", fcntl( fd_, F_SETFL, flags ) );
+}

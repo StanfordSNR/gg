@@ -16,6 +16,7 @@
 #include "ggpaths.hh"
 #include "gg.pb.h"
 #include "lambda.hh"
+#include "exception.hh"
 
 using namespace std;
 using namespace gg;
@@ -79,28 +80,37 @@ ExecutionConnectionManager::ExecutionConnectionManager( const string & region )
   : address_( LambdaInvocationRequest::endpoint( region ), "https" )
 {}
 
-SecureSocket & ExecutionConnectionManager::new_connection( const std::string & hash )
+ConnectionContext & ExecutionConnectionManager::new_connection( const std::string & hash )
 {
-  if ( sockets_.count( hash ) > 0 ) {
+  if ( connections_.count( hash ) > 0 ) {
     throw runtime_error( "hash already exists" );
   }
 
   TCPSocket sock;
-  sock.connect( address_ );
+  sock.set_blocking( false );
+  try {
+    sock.connect( address_ );
+    throw runtime_error( "nonblocking connect unexpectedly succeeded immediately" );
+  } catch ( const unix_error & e ) {
+    if ( e.error_code() == EINPROGRESS ) {
+      /* do nothing */
+    } else {
+      throw;
+    }
+  }
+
   SecureSocket lambda_socket = ssl_context_.new_secure_socket( move( sock ) );
-  lambda_socket.connect();
+  /* don't try to SSL_connect yet */
 
-  sockets_.emplace( make_pair( hash, move( lambda_socket ) ) );
-
-  responses_[ hash ];
-  return sockets_.at( hash );
+  auto ret = connections_.emplace( make_pair( hash, move( lambda_socket ) ) );
+  assert( ret.second );
+  
+  return ret.first->second;
 }
 
 void ExecutionConnectionManager::remove_connection( const std::string & hash )
 {
-  sockets_.at( hash ).close();
-  sockets_.erase( hash );
-  responses_.erase( hash );
+  connections_.erase( hash );
 }
 
 RemoteResponse RemoteResponse::parse_message( const std::string & message )
@@ -137,3 +147,38 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
 RemoteResponse::RemoteResponse()
   : type(), thunk_hash(), output_hash(), output_size(), is_executable()
 {}
+
+void ConnectionContext::continue_SSL_connect()
+{
+  if ( state == State::needs_connect ) {
+    socket.verify_no_errors();
+    /* TCP successfully connected, so start SSL session */
+
+    state = State::needs_ssl_write_to_connect;
+  }
+
+  if ( state == State::needs_ssl_write_to_connect
+       or state == State::needs_ssl_read_to_connect ) {
+    try {
+      socket.connect();
+    } catch ( const ssl_error & s ) {
+      /* is it a WANT_READ or WANT_WRITE? */
+      if ( s.error_code() == SSL_ERROR_WANT_READ ) {
+        state = State::needs_ssl_read_to_connect;
+        cerr << "wants read to connect\n";
+      } else if ( s.error_code() == SSL_ERROR_WANT_WRITE ) {
+        state = State::needs_ssl_write_to_connect;
+        cerr << "wants write to connect\n";
+      } else {
+        cerr << "other ssl error: " << s.error_code() << endl;
+        throw;
+      }
+    }
+
+    state = State::ready;
+    return;
+  }
+
+  assert( ready() );
+  throw runtime_error( "session already connected");
+}

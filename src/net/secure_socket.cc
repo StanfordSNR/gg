@@ -4,32 +4,11 @@
 #include <vector>
 #include <thread>
 #include <mutex>
-#include <openssl/err.h>
 
 #include "secure_socket.hh"
 #include "exception.hh"
 
 using namespace std;
-
-/* error category for OpenSSL */
-class ssl_error_category : public error_category
-{
-public:
-    const char * name( void ) const noexcept override { return "SSL"; }
-    string message( const int ssl_error ) const noexcept override
-    {
-        return ERR_error_string( ssl_error, nullptr );
-    }
-};
-
-class ssl_error : public tagged_error
-{
-public:
-    ssl_error( const string & s_attempt,
-               const int error_code = ERR_get_error() )
-        : tagged_error( ssl_error_category(), s_attempt, error_code )
-    {}
-};
 
 class OpenSSL
 {
@@ -115,6 +94,9 @@ void SecureSocket::connect( void )
     if ( not SSL_connect( ssl_.get() ) ) {
         throw ssl_error( "SSL_connect" );
     }
+
+    register_read();
+    register_write();
 }
 
 void SecureSocket::accept( void )
@@ -171,4 +153,9 @@ void SecureSocket::write(const string & message )
     }
 
     register_write();
+}
+
+int SecureSocket::get_error( const int return_value )
+{
+    return SSL_get_error( ssl_.get(), return_value );
 }

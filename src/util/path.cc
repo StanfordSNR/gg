@@ -247,7 +247,7 @@ namespace roost {
                        S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH ) );
     }
     catch ( const unix_error & e ) {
-      if ( e.saved_errno() == EEXIST ) {
+      if ( e.error_code() == EEXIST ) {
         /* okay */
       }
       else {

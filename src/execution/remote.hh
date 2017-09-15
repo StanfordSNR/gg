@@ -51,6 +51,21 @@ namespace lambda {
                           const bool timelog = false );
   };
 
+  struct ConnectionContext
+  {
+    enum class State { needs_connect, needs_ssl_read_to_connect, needs_ssl_write_to_connect, ready };
+
+    State state { State::needs_connect };
+
+    SecureSocket socket;
+    HTTPResponseParser responses {};
+
+    ConnectionContext( SecureSocket && sock ) : socket( std::move( sock ) ) {}
+    bool ready() const { return state == State::ready; }
+
+    void continue_SSL_connect();
+  };
+
   class ExecutionConnectionManager
   {
   private:
@@ -58,15 +73,12 @@ namespace lambda {
     Address address_;
 
     /* thunk_hash -> socket */
-    std::unordered_map<std::string, SecureSocket> sockets_ {};
-    std::unordered_map<std::string, HTTPResponseParser> responses_ {};
+    std::unordered_map<std::string, ConnectionContext> connections_ {};
 
   public:
     ExecutionConnectionManager( const std::string & region );
-    SecureSocket & new_connection( const std::string & hash );
+    ConnectionContext & new_connection( const std::string & hash );
     void remove_connection( const std::string & hash );
-
-    HTTPResponseParser & response_parser( const std::string & hash ) { return responses_.at( hash ); }
   };
 
 }

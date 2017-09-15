@@ -72,6 +72,7 @@ void Socket::connect( const Address & address )
     CheckSystemCall( "connect", ::connect( fd_num(),
                                            &address.to_sockaddr(),
                                            address.size() ) );
+    register_write();
 }
 
 /* send datagram to specified address */
@@ -185,4 +186,17 @@ Address TCPSocket::original_dest( void ) const
     socklen_t len = getsockopt( SOL_IP, SO_ORIGINAL_DST, dstaddr );
 
     return Address( dstaddr, len );
+}
+
+void TCPSocket::verify_no_errors() const
+{
+    int socket_error = 0;
+    const socklen_t len = getsockopt( SOL_SOCKET, SO_ERROR, socket_error );
+    if ( len != sizeof( socket_error ) ) {
+        throw runtime_error( "unexpected length from getsockopt" );
+    }
+
+    if ( socket_error ) {
+        throw unix_error( "nonblocking socket", socket_error );
+    }
 }

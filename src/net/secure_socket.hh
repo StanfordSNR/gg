@@ -5,8 +5,30 @@
 #pragma once
 #include <memory>
 #include <openssl/ssl.h>
+#include <openssl/err.h>
 
 #include "socket.hh"
+#include "exception.hh"
+
+/* error category for OpenSSL */
+class ssl_error_category : public std::error_category
+{
+public:
+    const char * name( void ) const noexcept override { return "SSL"; }
+    std::string message( const int ssl_error ) const noexcept override
+    {
+        return ERR_error_string( ssl_error, nullptr );
+    }
+};
+
+class ssl_error : public tagged_error
+{
+public:
+    ssl_error( const std::string & s_attempt,
+               const int error_code = ERR_get_error() )
+        : tagged_error( ssl_error_category(), s_attempt, error_code )
+    {}
+};
 
 class SecureSocket : public TCPSocket
 {
@@ -25,6 +47,7 @@ public:
 
     std::string read( void );
     void write( const std::string & message );
+    int get_error( const int return_value );
 };
 
 class SSLContext

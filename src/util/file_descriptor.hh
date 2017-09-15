@@ -1,4 +1,4 @@
-/* -*-mode:c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #ifndef FILE_DESCRIPTOR_HH
 #define FILE_DESCRIPTOR_HH
@@ -51,6 +51,9 @@ public:
 
   /* block on an exclusive lock */
   void block_for_exclusive_lock();
+
+  /* set nonblocking/blocking behavior */
+  void set_blocking( const bool block );
 
   /* forbid copying FileDescriptor objects or assigning them */
   FileDescriptor( const FileDescriptor & other ) = delete;

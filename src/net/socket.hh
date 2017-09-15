@@ -82,6 +82,9 @@ public:
 
     /* original destination of a DNAT connection */
     Address original_dest( void ) const;
+
+    /* are there pending errors on a nonblocking socket? */
+    void verify_no_errors() const;
 };
 
 #endif /* SOCKET_HH */
