@@ -58,6 +58,7 @@ private:
   unordered_set<string> remote_jobs_ {};
   list<ChildProcess> local_jobs_ {};
   deque<string> job_queue_ {};
+  deque<string> remote_cleanup_queue_ {};
 
   size_t finished_jobs_ { 0 };
 
@@ -241,11 +242,10 @@ string Reductor::reduce()
           );
         }
         else {
+          /* let's execute this job on Lambda! */
           if ( thunk.infiles_size() > 250_MiB ) {
             throw runtime_error( "thunk doesn't fit on \u03bb: " + thunk_hash );
           }
-
-          remote_jobs_.insert( thunk_hash );
 
           /* create new socket */
           lambda::ConnectionContext & connection = connection_manager_->new_connection( thunk, thunk_hash );
@@ -302,6 +302,7 @@ string Reductor::reduce()
                   const HTTPResponse & http_response = connection.responses.front();
 
                   if ( http_response.status_code() != "200" ) {
+                    job_queue_.push_back( thunk_hash );
                     throw runtime_error( "HTTP failure: " + http_response.status_code() );
                   }
 
@@ -320,14 +321,13 @@ string Reductor::reduce()
                   execution_finalize( response.thunk_hash, response.output_hash );
 
                   remote_jobs_.erase( response.thunk_hash );
-                  //connection_manager_->remove_connection( response.thunk_hash );
+                  remote_cleanup_queue_.push_back( response.thunk_hash );
                   finished_jobs_++;
+
+                  connection.state = ConnectionState::closed;
 
                   if ( is_finished() ) {
                     return ResultType::Exit;
-                  }
-                  else {
-                    return ResultType::Cancel;
                   }
                 }
 
@@ -343,6 +343,8 @@ string Reductor::reduce()
               }
             )
           );
+
+          remote_jobs_.insert( thunk_hash );
         }
       }
 
@@ -352,6 +354,15 @@ string Reductor::reduce()
     print_status();
 
     const auto poll_result = poller_.poll( -1 );
+
+    /* let's cleanup closed connections */
+    while ( not remote_cleanup_queue_.empty() ) {
+      const string & hash = remote_cleanup_queue_.front();
+      const auto & connection = connection_manager_->connection_context( hash );
+      poller_.remove_actions( connection.socket.fd_num() );
+      connection_manager_->remove_connection( hash );
+      remote_cleanup_queue_.pop_front();
+    }
 
     if ( poll_result.result == Poller::Result::Type::Exit ) {
       const string final_hash = dep_graph_.updated_hash( thunk_hash_ );

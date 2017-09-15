@@ -60,7 +60,8 @@ namespace lambda {
                        needs_ssl_write_to_read,
                        needs_ssl_read_to_write,
                        needs_ssl_read_to_read,
-                       ready };
+                       ready,
+                       closed };
 
     State state { State::needs_connect };
 
@@ -103,8 +104,12 @@ namespace lambda {
   public:
     ExecutionConnectionManager( const AWSCredentials & credentials,
                                 const std::string & region );
+
     ConnectionContext & new_connection( const gg::thunk::Thunk & thunk,
                                         const std::string & hash );
+
+    ConnectionContext & connection_context( const std::string & hash ) { return connections_.at( hash ); }
+
     void remove_connection( const std::string & hash );
   };
 

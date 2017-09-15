@@ -59,6 +59,9 @@ public:
   Poller() : actions_(), pollfds_() {}
   void add_action( Action action );
   Result poll( const int timeout_ms );
+
+  /* remove all actions for file descriptor `fd_num` */
+  void remove_actions( const int fd_num );
 };
 
 namespace PollerShortNames {

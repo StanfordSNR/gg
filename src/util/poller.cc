@@ -59,7 +59,8 @@ Poller::Result Poller::poll( const int timeout_ms )
   it_action = actions_.begin();
   it_pollfd = pollfds_.begin();
 
-  while ( it_action != actions_.end() and it_pollfd != pollfds_.end() ) {
+  for ( ; it_action != actions_.end() and it_pollfd != pollfds_.end()
+        ; it_action++, it_pollfd++ ) {
     if ( it_pollfd->revents & (POLLERR | POLLHUP | POLLNVAL) ) {
       //            throw Exception( "poll fd error" );
       return Result::Type::Exit;
@@ -77,7 +78,7 @@ Poller::Result Poller::poll( const int timeout_ms )
       const int ms_for_callback = chrono::duration_cast<chrono::milliseconds>( ending_time - starting_time ).count();
 
       if ( ms_for_callback > 10 ) {
-        throw runtime_error( "callback took " + to_string( ms_for_callback ) + " ms, blocking likely" );
+        cerr << "callback took " + to_string( ms_for_callback ) + " ms, blocking likely";
       }
 
       switch ( result.result ) {
@@ -85,9 +86,8 @@ Poller::Result Poller::poll( const int timeout_ms )
         return Result( Result::Type::Exit, result.exit_status );
 
       case ResultType::Cancel:
-        it_action = actions_.erase( it_action );
-        it_pollfd = pollfds_.erase( it_pollfd );
-        return Result::Type::Success;
+        it_action->active = false;
+        break;
 
       case ResultType::Continue:
         break;
@@ -97,10 +97,24 @@ Poller::Result Poller::poll( const int timeout_ms )
         throw runtime_error( "Poller: busy wait detected: callback did not read/write fd" );
       }
     }
-
-    it_action++;
-    it_pollfd++;
   }
 
   return Result::Type::Success;
+}
+
+void Poller::remove_actions( const int fd_num )
+{
+  auto it_action = actions_.begin();
+  auto it_pollfd = pollfds_.begin();
+
+  while ( it_action != actions_.end() and it_pollfd != pollfds_.end() ) {
+    if ( it_action->fd.fd_num() == fd_num ) {
+      it_action = actions_.erase( it_action );
+      it_pollfd = pollfds_.erase( it_pollfd );
+    }
+    else {
+      it_action++;
+      it_pollfd++;
+    }
+  }
 }

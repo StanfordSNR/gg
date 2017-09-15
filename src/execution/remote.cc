@@ -137,6 +137,7 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
       return response;
     }
     else {
+      cerr << message << endl;
       throw runtime_error( "unknown error type: " + error_type );
     }
   }
