@@ -59,7 +59,9 @@ gg_s3_upload_SOURCES = gg-s3-upload.cc
 gg_s3_upload_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 gg_s3_download_SOURCES = gg-s3-download.cc
-gg_s3_download_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
+gg_s3_download_CXXFLAGS = $(PICKY_CXXFLAGS) -static
+gg_s3_download_LDADD = $(BASE_LDADD) $(SSL_LIBS) -ldl -lz
+gg_s3_download_LDFLAGS = -static-libgcc -static -s
 
 lambda_invoker_SOURCES = lambda-invoker.cc
 lambda_invoker_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
