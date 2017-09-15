@@ -7,6 +7,6 @@
 #include <chrono>
 
 template<class TimeUnit>
-TimeUnit time_it( std::function<void()> && f );
+TimeUnit time_it( const std::function<void()> & f );
 
 #endif /* TIMEIT_HH */

@@ -96,11 +96,13 @@ void Reductor::print_status() const
   if ( this_display != last_display ) {
     last_display = this_display;
 
-    cerr << HIDE_CURSOR << "\r* in queue: " << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
+    cerr << HIDE_CURSOR
+         << "\r* in queue: " << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
          << " remote: "      << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << COLOR_RESET
          << " local: "       << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size() << COLOR_RESET
          << " done: "        << COLOR_GREEN  << setw( 5 ) << std::left << finished_jobs_ << COLOR_RESET
-         << " total: "       << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET << SHOW_CURSOR;
+         << " total: "       << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET
+         << SHOW_CURSOR;
   }
 }
 
@@ -461,20 +463,29 @@ int main( int argc, char * argv[] )
 
     string reduced_hash = reductor.reduce();
 
+    cerr << endl;
+
     if ( remote_execution ) {
       /* we need to fetch the output from S3 */
-      S3ClientConfig s3_config;
-      s3_config.region = gg::remote::s3_region();
+      cerr << "Downloading output file... ";
 
-      S3Client s3_client { s3_config };
-      s3_client.download_file(
-        gg::remote::s3_bucket(), reduced_hash, gg::paths::blob_path( reduced_hash )
+      auto download_time = time_it<chrono::milliseconds>(
+        [&reduced_hash]()
+        {
+          S3ClientConfig s3_config;
+          s3_config.region = gg::remote::s3_region();
+
+          S3Client s3_client { s3_config };
+          s3_client.download_file(
+            gg::remote::s3_bucket(), reduced_hash, gg::paths::blob_path( reduced_hash )
+          );
+        }
       );
+
+      cerr << "done (" << download_time.count() << " ms)." << endl;
     }
 
     roost::copy_then_rename( gg::paths::blob_path( reduced_hash ), thunk_path );
-
-    cerr << endl;
 
     return EXIT_SUCCESS;
   }

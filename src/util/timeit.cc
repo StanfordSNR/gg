@@ -7,7 +7,7 @@
 using namespace std;
 
 template<class TimeUnit>
-TimeUnit time_it( function<void()> && f )
+TimeUnit time_it( const function<void()> & f )
 {
   chrono::high_resolution_clock::time_point begin = chrono::high_resolution_clock::now();
   f();
@@ -15,4 +15,4 @@ TimeUnit time_it( function<void()> && f )
   return chrono::duration_cast<TimeUnit>( end - begin );
 }
 
-template std::chrono::milliseconds time_it( std::function<void()> && f );
+template std::chrono::milliseconds time_it( const std::function<void()> & f );
