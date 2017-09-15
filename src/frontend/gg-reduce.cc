@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 #include <cstring>
+#include <cmath>
 #include <getopt.h>
 #include <iostream>
 #include <unordered_set>
@@ -96,8 +97,9 @@ void Reductor::print_status() const
   if ( this_display != last_display ) {
     last_display = this_display;
 
-    cerr << HIDE_CURSOR
-         << "\r* in queue: " << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
+    cerr << HIDE_CURSOR << "\r"
+         << "[" << setw( 3 ) << std::right << ceil( 100 * finished_jobs_ / dep_graph_.size() ) << "%]"
+         << " in queue: "    << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
          << " remote: "      << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << COLOR_RESET
          << " local: "       << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size() << COLOR_RESET
          << " done: "        << COLOR_GREEN  << setw( 5 ) << std::left << finished_jobs_ << COLOR_RESET
