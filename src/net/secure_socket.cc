@@ -81,6 +81,7 @@ SecureSocket::SecureSocket( TCPSocket && sock, SSL * ssl )
 
     /* enable read/write to return only after handshake/renegotiation and successful completion */
     SSL_set_mode( ssl_.get(), SSL_MODE_AUTO_RETRY );
+    SSL_set_mode( ssl_.get(), SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER );
 }
 
 SecureSocket SSLContext::new_secure_socket( TCPSocket && sock )
@@ -91,8 +92,11 @@ SecureSocket SSLContext::new_secure_socket( TCPSocket && sock )
 
 void SecureSocket::connect( void )
 {
-    if ( not SSL_connect( ssl_.get() ) ) {
-        throw ssl_error( "SSL_connect" );
+    ERR_clear_error();
+    int retval = SSL_connect( ssl_.get() );
+
+    if ( not retval ) {
+        throw ssl_error( "SSL_connect", SSL_get_error( ssl_.get(), retval ) );
     }
 
     register_read();
@@ -101,11 +105,13 @@ void SecureSocket::connect( void )
 
 void SecureSocket::accept( void )
 {
+    ERR_clear_error();
     const auto ret = SSL_accept( ssl_.get() );
+
     if ( ret == 1 ) {
         return;
     } else {
-        throw ssl_error( "SSL_accept" );
+        throw ssl_error( "SSL_accept", SSL_get_error( ssl_.get(), ret ) );
     }
 
     register_read();
@@ -118,13 +124,14 @@ string SecureSocket::read( void )
 
     char buffer[ SSL_max_record_length ];
 
+    ERR_clear_error();
     ssize_t bytes_read = SSL_read( ssl_.get(), buffer, SSL_max_record_length );
 
     /* Make sure that we really are reading from the underlying fd */
     assert( 0 == SSL_pending( ssl_.get() ) );
+    int error_return = SSL_get_error( ssl_.get(), bytes_read );
 
     if ( bytes_read == 0 ) {
-        int error_return = SSL_get_error( ssl_.get(), bytes_read );
         if ( SSL_ERROR_ZERO_RETURN == error_return ) { /* Clean SSL close */
             set_eof();
         } else if ( SSL_ERROR_SYSCALL == error_return ) { /* Underlying TCP connection close */
@@ -135,7 +142,7 @@ string SecureSocket::read( void )
         register_read();
         return string(); /* EOF */
     } else if ( bytes_read < 0 ) {
-        throw ssl_error( "SSL_read" );
+        throw ssl_error( "SSL_read", SSL_get_error( ssl_.get(), error_return ) );
     } else {
         /* success */
         register_read();
@@ -146,10 +153,11 @@ string SecureSocket::read( void )
 void SecureSocket::write(const string & message )
 {
     /* SSL_write returns with success if complete contents of message are written */
+    ERR_clear_error();
     ssize_t bytes_written = SSL_write( ssl_.get(), message.data(), message.length() );
 
     if ( bytes_written < 0 ) {
-        throw ssl_error( "SSL_write" );
+        throw ssl_error( "SSL_write", SSL_get_error( ssl_.get(), bytes_written ) );
     }
 
     register_write();
