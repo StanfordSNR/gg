@@ -169,12 +169,16 @@ void ConnectionContext::continue_SSL_connect()
       socket.connect();
     } catch ( const ssl_error & s ) {
       /* is it a WANT_READ or WANT_WRITE? */
-      if ( s.error_code() == SSL_ERROR_WANT_READ ) {
+      switch ( s.error_code() ) {
+      case SSL_ERROR_WANT_READ:
         state = State::needs_ssl_read_to_connect;
-      } else if ( s.error_code() == SSL_ERROR_WANT_WRITE ) {
+        break;
+
+      case SSL_ERROR_WANT_WRITE:
         state = State::needs_ssl_write_to_connect;
-      } else {
-        cerr << "other ssl error: " << s.error_code() << endl;
+        break;
+
+      default:
         throw;
       }
 
@@ -195,14 +199,16 @@ void ConnectionContext::continue_SSL_write()
     socket.write( request_str, state == State::needs_ssl_read_to_write );
   }
   catch ( ssl_error & s ) {
-    if ( s.error_code() == SSL_ERROR_WANT_READ ) {
+    switch ( s.error_code() ) {
+    case SSL_ERROR_WANT_READ:
       state = State::needs_ssl_read_to_write;
-    }
-    else if ( s.error_code() == SSL_ERROR_WANT_WRITE ) {
+      break;
+
+    case SSL_ERROR_WANT_WRITE:
       state = State::needs_ssl_write_to_write;
-    }
-    else {
-      cerr << "wants something else: " + to_string( s.error_code() ) << endl;
+      break;
+
+    default:
       throw;
     }
 
@@ -219,14 +225,16 @@ void ConnectionContext::continue_SSL_read()
     responses.parse( socket.read( state == State::needs_ssl_write_to_read ) );
   }
   catch ( ssl_error & s ) {
-    if ( s.error_code() == SSL_ERROR_WANT_READ ) {
+    switch ( s.error_code() ) {
+    case SSL_ERROR_WANT_READ:
       state = State::needs_ssl_read_to_read;
-    }
-    else if ( s.error_code() == SSL_ERROR_WANT_WRITE ) {
+      break;
+
+    case SSL_ERROR_WANT_WRITE:
       state = State::needs_ssl_write_to_read;
-    }
-    else {
-      cerr << "wants something else: " + to_string( s.error_code() ) << endl;
+      break;
+
+    default:
       throw;
     }
 
