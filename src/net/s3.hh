@@ -25,6 +25,12 @@ public:
     std::string object_key;
     Optional<std::string> content_hash;
   };
+
+  struct DownloadRequest
+  {
+    std::string object_key;
+    roost::path filename;
+  };
 };
 
 class S3PutRequest : public AWSRequest
@@ -64,11 +70,15 @@ public:
                       const std::string & object,
                       const roost::path & filename );
 
-  /* `files` is a vector of pairs<path_to_file, object_key> */
   void upload_files( const std::string & bucket,
                      const std::vector<S3::UploadRequest> & upload_requests,
-                     std::function<void( const S3::UploadRequest & )> && success_callback
-                       = [](const S3::UploadRequest &){} );
+                     const std::function<void( const S3::UploadRequest & )> & success_callback
+                       = []( const S3::UploadRequest & ){} );
+
+  void download_files( const std::string & bucket,
+                       const std::vector<S3::DownloadRequest> & download_requests,
+                       const std::function<void( const S3::DownloadRequest & )> & success_callback
+                         = []( const S3::DownloadRequest & ){} );
 };
 
 #endif /* S3_HH */

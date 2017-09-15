@@ -13,32 +13,40 @@ using namespace std;
 
 void usage( const char * argv0 )
 {
-  cerr << argv0 << " BLOB-HASH [output-file]" << endl;
+  cerr << argv0 << " S3-REGION S3-BUCKET" << endl;
 }
 
-int main( int argc, char * argv[] )
+int main( int argc, char * const argv[] )
 {
   if ( argc <= 0 ) {
     abort();
   }
 
-  if ( argc < 2 ) {
+  if ( argc != 3 ) {
     usage( argv[ 0 ] );
     return EXIT_FAILURE;
   }
 
-  string blob_hash { argv[ 1 ] };
-  roost::path output_path = gg::paths::blob_path( blob_hash );
+  string s3_region { argv[ 1 ] };
+  string s3_bucket { argv[ 2 ] };
 
-  if ( argc == 3 ) {
-    output_path = argv[ 2 ];
+  vector<S3::DownloadRequest> files;
+
+  string object_key;
+  while ( cin >> object_key ) {
+    files.push_back( { object_key, gg::paths::blob_path( object_key ) } );
   }
 
   S3ClientConfig client_config;
-  client_config.region = gg::remote::s3_region();
+  client_config.region = s3_region;
 
-  S3Client s3_client;
-  s3_client.download_file( gg::remote::s3_bucket(), blob_hash, output_path );
+  S3Client s3_client { client_config };
+  s3_client.download_files( s3_bucket, files,
+    [] ( const S3::DownloadRequest & request )
+    {
+      cout << "Download done: " + request.filename.string() + "\n";
+    }
+  );
 
   return EXIT_SUCCESS;
 }

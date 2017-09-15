@@ -97,7 +97,7 @@ void S3Client::download_file( const string & bucket, const string & object,
 
 void S3Client::upload_files( const string & bucket,
                              const vector<S3::UploadRequest> & upload_requests,
-                             function<void( const S3::UploadRequest & )> && success_callback )
+                             const function<void( const S3::UploadRequest & )> & success_callback )
 {
   const string endpoint = S3::endpoint( bucket );
   const Address s3_address { endpoint, "https" };
@@ -153,6 +153,87 @@ void S3Client::upload_files( const string & bucket,
                 else {
                   const size_t response_index = first_file_idx + response_count * thread_count;
                   success_callback( upload_requests[ response_index ] );
+                }
+
+                responses.pop();
+                response_count++;
+              }
+            }
+          }
+        }, thread_index
+      );
+    }
+  }
+
+  for ( auto & thread : threads ) {
+    thread.join();
+  }
+}
+
+void S3Client::download_files( const std::string & bucket,
+                               const std::vector<S3::DownloadRequest> & download_requests,
+                               const std::function<void( const S3::DownloadRequest & )> & success_callback )
+{
+  const string endpoint = S3::endpoint( bucket );
+  const Address s3_address { endpoint, "https" };
+
+  const size_t thread_count = config_.max_threads;
+  const size_t batch_size = config_.max_batch_size;
+
+  vector<thread> threads;
+  for ( size_t thread_index = 0; thread_index < thread_count; thread_index++ ) {
+    if ( thread_index < download_requests.size() ) {
+      threads.emplace_back(
+        [&] ( const size_t index )
+        {
+          for ( size_t first_file_idx = index;
+                first_file_idx < download_requests.size();
+                first_file_idx += thread_count * batch_size ) {
+            SSLContext ssl_context;
+            HTTPResponseParser responses;
+            SecureSocket s3 = ssl_context.new_secure_socket( tcp_connection( s3_address ) );
+
+            s3.connect();
+
+            size_t expected_responses = 0;
+
+            for ( size_t file_id = first_file_idx;
+                  file_id < min( download_requests.size(), first_file_idx + thread_count * batch_size );
+                  file_id += thread_count ) {
+              const string & object_key = download_requests.at( file_id ).object_key;
+
+              S3GetRequest request { credentials_, config_.region, bucket, object_key };
+
+              HTTPRequest outgoing_request = request.to_http_request();
+              responses.new_request_arrived( outgoing_request );
+              cerr << outgoing_request.str() << endl;
+
+              s3.write( outgoing_request.str() );
+              expected_responses++;
+            }
+
+            size_t response_count = 0;
+
+            while ( response_count != expected_responses ) {
+              /* drain responses */
+              responses.parse( s3.read() );
+              if ( not responses.empty() ) {
+                if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
+                  cerr << responses.front().str() << endl;
+                  throw runtime_error( "HTTP failure in S3Client::download_files(): " + responses.front().first_line() );
+                }
+                else {
+                  const size_t response_index = first_file_idx + response_count * thread_count;
+                  const string & filename = download_requests.at( response_index ).filename.string();
+
+                  FileDescriptor file { CheckSystemCall( "open",
+                    open( filename.c_str(), O_RDWR | O_TRUNC | O_CREAT,
+                          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH ) ) };
+
+                  file.write( responses.front().body() );
+                  file.close();
+
+                  success_callback( download_requests[ response_index ] );
                 }
 
                 responses.pop();
