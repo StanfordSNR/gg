@@ -117,7 +117,7 @@ void SecureSocket::accept( void )
     register_read();
 }
 
-string SecureSocket::read( void )
+string SecureSocket::read( const bool register_as_write )
 {
     /* SSL record max size is 16kB */
     const size_t SSL_max_record_length = 16384;
@@ -139,28 +139,38 @@ string SecureSocket::read( void )
             assert( ERR_get_error() == 0 );
             set_eof();
         }
-        register_read();
+        register_service( register_as_write );
         return string(); /* EOF */
     } else if ( bytes_read < 0 ) {
+        if ( error_return == SSL_ERROR_WANT_WRITE or error_return == SSL_ERROR_WANT_READ ) {
+          register_service( register_as_write );
+        }
+
         throw ssl_error( "SSL_read", SSL_get_error( ssl_.get(), error_return ) );
     } else {
         /* success */
-        register_read();
+        register_service( register_as_write );
         return string( buffer, bytes_read );
     }
 }
 
-void SecureSocket::write(const string & message )
+void SecureSocket::write( const string & message, const bool register_as_read )
 {
     /* SSL_write returns with success if complete contents of message are written */
     ERR_clear_error();
     ssize_t bytes_written = SSL_write( ssl_.get(), message.data(), message.length() );
 
     if ( bytes_written < 0 ) {
-        throw ssl_error( "SSL_write", SSL_get_error( ssl_.get(), bytes_written ) );
+        int error_return = SSL_get_error( ssl_.get(), bytes_written );
+
+        if ( error_return == SSL_ERROR_WANT_WRITE or error_return == SSL_ERROR_WANT_READ ) {
+          register_service( not register_as_read );
+        }
+
+        throw ssl_error( "SSL_write", error_return );
     }
 
-    register_write();
+    register_service( not register_as_read );
 }
 
 int SecureSocket::get_error( const int return_value )

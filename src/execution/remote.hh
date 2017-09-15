@@ -53,19 +53,42 @@ namespace lambda {
 
   struct ConnectionContext
   {
-    enum class State { needs_connect, needs_ssl_read_to_connect, needs_ssl_write_to_connect, ready };
+    enum class State { needs_connect,
+                       needs_ssl_read_to_connect,
+                       needs_ssl_write_to_connect,
+                       needs_ssl_write_to_write,
+                       needs_ssl_write_to_read,
+                       needs_ssl_read_to_write,
+                       needs_ssl_read_to_read,
+                       ready };
 
     State state { State::needs_connect };
 
     SecureSocket socket;
     HTTPResponseParser responses {};
     HTTPRequest request {};
+    std::string request_str {};
+
+    bool something_to_write { true };
 
     ConnectionContext( SecureSocket && sock, HTTPRequest && request )
-      : socket( std::move( sock ) ), request( std::move ( request ) ) {}
+      : socket( std::move( sock ) ), request( std::move ( request ) ),
+        request_str( request.str() )
+    {
+      responses.new_request_arrived( request );
+    }
+
     bool ready() const { return state == State::ready; }
+    bool connected() const
+    {
+      return ( state != State::needs_connect ) and
+             ( state != State::needs_ssl_read_to_connect ) and
+             ( state != State::needs_ssl_write_to_connect );
+    }
 
     void continue_SSL_connect();
+    void continue_SSL_write();
+    void continue_SSL_read();
   };
 
   class ExecutionConnectionManager

@@ -21,6 +21,7 @@ private:
 protected:
   void register_read( void ) { read_count_++; }
   void register_write( void ) { write_count_++; }
+  void register_service( const bool write ) { write ? write_count_++ : read_count_++; }
   void set_eof( void ) { eof_ = true; }
 
 public:
@@ -47,7 +48,7 @@ public:
   std::string read_exactly( const size_t length, const bool fail_silently = false );
   std::string::const_iterator write( const std::string & buffer, const bool write_all = true );
   std::string::const_iterator write( const std::string::const_iterator & begin,
-                    const std::string::const_iterator & end );
+                                     const std::string::const_iterator & end );
 
   /* block on an exclusive lock */
   void block_for_exclusive_lock();

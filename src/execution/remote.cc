@@ -88,7 +88,7 @@ ConnectionContext & ExecutionConnectionManager::new_connection( const Thunk & th
     throw runtime_error( "hash already exists" );
   }
 
-  HTTPRequest request = request_generator_.generate( thunk, hash );
+  HTTPRequest request = request_generator_.generate( thunk, hash, true );
 
   TCPSocket sock;
   sock.set_blocking( false );
@@ -171,14 +171,14 @@ void ConnectionContext::continue_SSL_connect()
       /* is it a WANT_READ or WANT_WRITE? */
       if ( s.error_code() == SSL_ERROR_WANT_READ ) {
         state = State::needs_ssl_read_to_connect;
-        cerr << "wants read to connect\n";
       } else if ( s.error_code() == SSL_ERROR_WANT_WRITE ) {
         state = State::needs_ssl_write_to_connect;
-        cerr << "wants write to connect\n";
       } else {
         cerr << "other ssl error: " << s.error_code() << endl;
         throw;
       }
+
+      return;
     }
 
     state = State::ready;
@@ -187,4 +187,51 @@ void ConnectionContext::continue_SSL_connect()
 
   assert( ready() );
   throw runtime_error( "session already connected");
+}
+
+void ConnectionContext::continue_SSL_write()
+{
+  try {
+    socket.write( request_str, state == State::needs_ssl_read_to_write );
+  }
+  catch ( ssl_error & s ) {
+    if ( s.error_code() == SSL_ERROR_WANT_READ ) {
+      state = State::needs_ssl_read_to_write;
+    }
+    else if ( s.error_code() == SSL_ERROR_WANT_WRITE ) {
+      state = State::needs_ssl_write_to_write;
+    }
+    else {
+      cerr << "wants something else: " + to_string( s.error_code() ) << endl;
+      throw;
+    }
+
+    return;
+  }
+
+  something_to_write = false;
+  state = State::ready;
+}
+
+void ConnectionContext::continue_SSL_read()
+{
+  try {
+    responses.parse( socket.read( state == State::needs_ssl_write_to_read ) );
+  }
+  catch ( ssl_error & s ) {
+    if ( s.error_code() == SSL_ERROR_WANT_READ ) {
+      state = State::needs_ssl_read_to_read;
+    }
+    else if ( s.error_code() == SSL_ERROR_WANT_WRITE ) {
+      state = State::needs_ssl_write_to_read;
+    }
+    else {
+      cerr << "wants something else: " + to_string( s.error_code() ) << endl;
+      throw;
+    }
+
+    return;
+  }
+
+  state = State::ready;
 }

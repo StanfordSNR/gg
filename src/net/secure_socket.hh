@@ -45,8 +45,8 @@ public:
     void connect( void );
     void accept( void );
 
-    std::string read( void );
-    void write( const std::string & message );
+    std::string read( const bool register_as_write = false );
+    void write( const std::string & message, const bool register_as_read = false );
     int get_error( const int return_value );
 };
 

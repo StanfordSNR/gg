@@ -40,6 +40,7 @@ using namespace gg::thunk;
 using namespace PollerShortNames;
 
 using ReductionResult = gg::cache::ReductionResult;
+using ConnectionState = lambda::ConnectionContext::State;
 
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const bool remote_execution = ( getenv( "GG_REMOTE" ) != NULL );
@@ -249,17 +250,29 @@ string Reductor::reduce()
           poller_.add_action(
             Poller::Action(
               connection.socket, Direction::Out,
-              [thunk_hash, &connection, &thunk]()
+              [thunk_hash, &connection]()
               {
                 /* did it connect successfully? */
-                if ( not connection.ready() ) {
+                if ( not connection.connected() ) {
                   connection.continue_SSL_connect();
-                  return ResultType::Continue;
+                }
+                else if ( connection.state == ConnectionState::needs_ssl_write_to_write or
+                     ( connection.state == ConnectionState::ready and connection.something_to_write ) ) {
+                  connection.continue_SSL_write();
+                }
+                else if ( connection.state == ConnectionState::needs_ssl_write_to_read ) {
+                  connection.continue_SSL_read();
                 }
 
-                connection.responses.new_request_arrived( connection.request );
-                connection.socket.write( connection.request.str() );
-                return ResultType::Cancel;
+                return ResultType::Continue;
+              },
+              [&connection]()
+              {
+                return ( connection.state == ConnectionState::needs_connect ) or
+                       ( connection.state == ConnectionState::needs_ssl_write_to_connect ) or
+                       ( connection.state == ConnectionState::needs_ssl_write_to_write ) or
+                       ( connection.state == ConnectionState::needs_ssl_write_to_read ) or
+                       ( connection.state == ConnectionState::ready and connection.something_to_write );
               }
             )
           );
@@ -270,12 +283,16 @@ string Reductor::reduce()
               connection.socket, Direction::In,
               [thunk_hash, &connection, this]()
               {
-                if ( not connection.ready() ) {
+                if ( not connection.connected() ) {
                   connection.continue_SSL_connect();
-                  return ResultType::Continue;
                 }
-
-                connection.responses.parse( connection.socket.read() );
+                else if ( connection.state == ConnectionState::needs_ssl_read_to_write ) {
+                  connection.continue_SSL_write();
+                }
+                else if ( connection.state == ConnectionState::needs_ssl_read_to_read or
+                          connection.state == ConnectionState::ready ) {
+                  connection.continue_SSL_read();
+                }
 
                 if ( not connection.responses.empty() ) {
                   const HTTPResponse & http_response = connection.responses.front();
@@ -296,13 +313,10 @@ string Reductor::reduce()
                   }
 
                   gg::cache::insert( response.thunk_hash, response.output_hash );
-                  //cerr << "\u03bb(" + response.thunk_hash.substr( 0, 12 ) + ") = " +
-                  //        response.output_hash.substr( 0, 12 ) << endl;
-
                   execution_finalize( response.thunk_hash, response.output_hash );
 
                   remote_jobs_.erase( response.thunk_hash );
-                  connection_manager_->remove_connection( response.thunk_hash );
+                  //connection_manager_->remove_connection( response.thunk_hash );
                   finished_jobs_++;
 
                   if ( is_finished() ) {
@@ -314,6 +328,14 @@ string Reductor::reduce()
                 }
 
                 return ResultType::Continue;
+              },
+              [&connection]()
+              {
+                return ( connection.state == ConnectionState::needs_connect ) or
+                       ( connection.state == ConnectionState::needs_ssl_read_to_connect ) or
+                       ( connection.state == ConnectionState::needs_ssl_read_to_write ) or
+                       ( connection.state == ConnectionState::needs_ssl_read_to_read ) or
+                       ( connection.state == ConnectionState::ready );
               }
             )
           );
