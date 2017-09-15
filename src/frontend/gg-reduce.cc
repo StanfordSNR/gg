@@ -61,7 +61,6 @@ private:
 
   DependencyGraph dep_graph_ {};
 
-  Optional<lambda::RequestGenerator> request_generator_ {};
   Optional<lambda::ExecutionConnectionManager> connection_manager_ {};
 
   void execution_finalize( const string & old_hash, const string & new_hash );
@@ -114,8 +113,7 @@ Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
   job_queue_.insert( job_queue_.end(), o1_deps.begin(), o1_deps.end() );
 
   if ( remote_execution ) {
-    request_generator_.initialize( AWSCredentials(), gg::remote::s3_region() );
-    connection_manager_.initialize( gg::remote::s3_region() );
+    connection_manager_.initialize( AWSCredentials(), gg::remote::s3_region() );
   }
 }
 
@@ -245,26 +243,22 @@ string Reductor::reduce()
           remote_jobs_.insert( thunk_hash );
 
           /* create new socket */
-          lambda::ConnectionContext & connection = connection_manager_->new_connection( thunk_hash );
-
-          /* create request */
-          const HTTPRequest request = request_generator_->generate( thunk,
-                                                                    thunk_hash, true );
+          lambda::ConnectionContext & connection = connection_manager_->new_connection( thunk, thunk_hash );
 
           /* what to do when socket is writeable */
           poller_.add_action(
             Poller::Action(
               connection.socket, Direction::Out,
-              [thunk_hash, &connection, &thunk, &request]()
+              [thunk_hash, &connection, &thunk]()
               {
                 /* did it connect successfully? */
                 if ( not connection.ready() ) {
                   connection.continue_SSL_connect();
                   return ResultType::Continue;
                 }
-                
-                connection.responses.new_request_arrived( request );
-                connection.socket.write( request.str() );
+
+                connection.responses.new_request_arrived( connection.request );
+                connection.socket.write( connection.request.str() );
                 return ResultType::Cancel;
               }
             )
@@ -280,7 +274,7 @@ string Reductor::reduce()
                   connection.continue_SSL_connect();
                   return ResultType::Continue;
                 }
-                
+
                 connection.responses.parse( connection.socket.read() );
 
                 if ( not connection.responses.empty() ) {

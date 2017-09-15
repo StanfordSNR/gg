@@ -76,15 +76,19 @@ HTTPRequest RequestGenerator::generate( const Thunk & thunk,
   ).to_http_request();
 }
 
-ExecutionConnectionManager::ExecutionConnectionManager( const string & region )
-  : address_( LambdaInvocationRequest::endpoint( region ), "https" )
+ExecutionConnectionManager::ExecutionConnectionManager( const AWSCredentials & credentials,
+                                                        const string & region )
+  : address_( LambdaInvocationRequest::endpoint( region ), "https" ),
+    request_generator_( credentials, region )
 {}
 
-ConnectionContext & ExecutionConnectionManager::new_connection( const std::string & hash )
+ConnectionContext & ExecutionConnectionManager::new_connection( const Thunk & thunk, const std::string & hash )
 {
   if ( connections_.count( hash ) > 0 ) {
     throw runtime_error( "hash already exists" );
   }
+
+  HTTPRequest request = request_generator_.generate( thunk, hash );
 
   TCPSocket sock;
   sock.set_blocking( false );
@@ -102,9 +106,11 @@ ConnectionContext & ExecutionConnectionManager::new_connection( const std::strin
   SecureSocket lambda_socket = ssl_context_.new_secure_socket( move( sock ) );
   /* don't try to SSL_connect yet */
 
-  auto ret = connections_.emplace( make_pair( hash, move( lambda_socket ) ) );
+  auto ret = connections_.emplace( piecewise_construct,
+                                  forward_as_tuple( hash ),
+                                  forward_as_tuple( move( lambda_socket ), move ( request ) ) );
   assert( ret.second );
-  
+
   return ret.first->second;
 }
 

@@ -48,7 +48,7 @@ namespace lambda {
   public:
     RequestGenerator( const AWSCredentials & credentials, const std::string & region );
     HTTPRequest generate( const gg::thunk::Thunk & thunk, const std::string & thunk_hash,
-                          const bool timelog = false );
+                          const bool timelog = true );
   };
 
   struct ConnectionContext
@@ -59,8 +59,10 @@ namespace lambda {
 
     SecureSocket socket;
     HTTPResponseParser responses {};
+    HTTPRequest request {};
 
-    ConnectionContext( SecureSocket && sock ) : socket( std::move( sock ) ) {}
+    ConnectionContext( SecureSocket && sock, HTTPRequest && request )
+      : socket( std::move( sock ) ), request( std::move ( request ) ) {}
     bool ready() const { return state == State::ready; }
 
     void continue_SSL_connect();
@@ -71,13 +73,16 @@ namespace lambda {
   private:
     SSLContext ssl_context_ {};
     Address address_;
+    RequestGenerator request_generator_;
 
     /* thunk_hash -> socket */
     std::unordered_map<std::string, ConnectionContext> connections_ {};
 
   public:
-    ExecutionConnectionManager( const std::string & region );
-    ConnectionContext & new_connection( const std::string & hash );
+    ExecutionConnectionManager( const AWSCredentials & credentials,
+                                const std::string & region );
+    ConnectionContext & new_connection( const gg::thunk::Thunk & thunk,
+                                        const std::string & hash );
     void remove_connection( const std::string & hash );
   };
 
