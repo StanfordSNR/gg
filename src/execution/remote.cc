@@ -186,7 +186,7 @@ void ConnectionContext::continue_SSL_connect()
   }
 
   assert( ready() );
-  throw runtime_error( "session already connected");
+  throw runtime_error( "session already connected" );
 }
 
 void ConnectionContext::continue_SSL_write()

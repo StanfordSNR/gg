@@ -66,19 +66,18 @@ namespace lambda {
 
     SecureSocket socket;
     HTTPResponseParser responses {};
-    HTTPRequest request {};
     std::string request_str {};
 
     bool something_to_write { true };
 
-    ConnectionContext( SecureSocket && sock, HTTPRequest && request )
-      : socket( std::move( sock ) ), request( std::move ( request ) ),
-        request_str( request.str() )
+    ConnectionContext( SecureSocket && sock, const HTTPRequest & request )
+      : socket( std::move( sock ) ), request_str( request.str() )
     {
       responses.new_request_arrived( request );
     }
 
     bool ready() const { return state == State::ready; }
+
     bool connected() const
     {
       return ( state != State::needs_connect ) and
