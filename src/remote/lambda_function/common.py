@@ -25,8 +25,3 @@ def run_command(command):
         return 0, output.decode('utf-8')
     except sub.CalledProcessError as exc:
         return exc.returncode, exc.output.decode('utf-8')
-
-def executable_hash(hashes):
-    hashes.sort()
-    str_to_hash = "".join(hashes).encode('ascii')
-    return "{}".format(base64.urlsafe_b64encode(hashlib.sha256(str_to_hash).digest()).decode('ascii').replace('=',''))

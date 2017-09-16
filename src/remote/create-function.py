@@ -10,8 +10,6 @@ import hashlib
 import base64
 import boto3
 
-from common import executable_hash
-
 BASE_FILE = "lambda_function/packages.zip"
 PACKAGE_GG_DIR = "_gg"
 
@@ -31,6 +29,12 @@ functions = [
 ]
 
 hash_cache = {}
+
+def executable_hash(hashes):
+    hashes.sort()
+    str_to_hash = "".join(hashes).encode('ascii')
+    return "{}".format(base64.urlsafe_b64encode(hashlib.sha256(str_to_hash).digest()).decode('ascii').replace('=',''))
+
 
 def gghash(filename, block_size=65536):
     sha256 = hashlib.sha256()
