@@ -10,8 +10,9 @@
 
 using namespace std;
 
-#define AWS_ACCESS_KEY_ENV "AWS_ACCESS_KEY_ID"
-#define AWS_SECRET_KEY_ENV "AWS_SECRET_ACCESS_KEY"
+const static string AWS_ACCESS_KEY_ENV { "AWS_ACCESS_KEY_ID" };
+const static string AWS_SECRET_KEY_ENV { "AWS_SECRET_ACCESS_KEY" };
+const static string AWS_SESSION_TOKEN_ENV { "AWS_SESSION_TOKEN" };
 
 AWSRequest::AWSRequest( const AWSCredentials & credentials, const string & region,
                         const string & first_line, const string & contents )
@@ -47,12 +48,15 @@ HTTPRequest AWSRequest::to_http_request() const
 
 AWSCredentials::AWSCredentials()
   : AWSCredentials( safe_getenv( AWS_ACCESS_KEY_ENV ),
-                    safe_getenv( AWS_SECRET_KEY_ENV ) )
+                    safe_getenv( AWS_SECRET_KEY_ENV ),
+                    safe_getenv( AWS_SESSION_TOKEN_ENV ) )
 {}
 
 AWSCredentials::AWSCredentials( const string & access_key,
-                                const string & secret_key )
-  : access_key_( access_key ), secret_key_( secret_key )
+                                const string & secret_key,
+                                const string & session_token )
+  : access_key_( access_key ), secret_key_( secret_key ),
+    session_token_( session_token.length() > 0, session_token )
 {
   if ( access_key_.length() == 0 or secret_key_.length() == 0 )
   {

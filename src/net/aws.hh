@@ -7,6 +7,7 @@
 #include <string>
 #include <map>
 
+#include "optional.hh"
 #include "http_request.hh"
 
 class AWSCredentials
@@ -14,14 +15,17 @@ class AWSCredentials
 private:
   std::string access_key_;
   std::string secret_key_;
+  Optional<std::string> session_token_ {};
 
 public:
   AWSCredentials();
   AWSCredentials( const std::string & access_key,
-                  const std::string & secret_key );
+                  const std::string & secret_key,
+                  const std::string & session_token = {} );
 
   const std::string & access_key() const { return access_key_; }
   const std::string & secret_key() const { return secret_key_; }
+  const Optional<std::string> & session_token() const { return session_token_; }
 };
 
 class AWSRequest
