@@ -24,7 +24,7 @@ Thunk generate_thunk( int argc, char * argv[] )
   optind = 1; /* reset getopt */
   opterr = 0; /* turn off error messages */
   int opt;
-  while ( ( opt = getopt_long( argc, argv, "o:", long_options, NULL ) ) != -1 ) {
+  while ( ( opt = getopt_long( argc, argv, "o:wN:", long_options, NULL ) ) != -1 ) {
     switch ( opt ) {
     case 'o':
       throw runtime_error( "-o argument not supported" );
@@ -46,7 +46,7 @@ Thunk generate_thunk( int argc, char * argv[] )
 int main( int argc, char * argv[] )
 {
   gg::models::init();
-  
+
   Thunk thunk = generate_thunk( argc, argv );
   thunk.store();
 
