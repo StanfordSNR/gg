@@ -15,10 +15,10 @@ BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
                gg-execute gg-run gg-thunkgraph gg-thunksummary gg-s3-upload \
-               gg-s3-download gg-init lambda-invoker
+               gg-init lambda-invoker
 
 if BUILD_STATIC_BINS
-  bin_PROGRAMS += gg-execute-static
+  bin_PROGRAMS += gg-execute-static gg-s3-download
 endif
 
 gg_trace_SOURCES = gg-trace.cc
