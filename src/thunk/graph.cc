@@ -29,7 +29,18 @@ void DependencyGraph::add_thunk( const string & hash )
       referenced_thunks_[ infile.content_hash() ].insert( hash );
     }
     else {
-      order_zero_dependencies_.insert( infile.content_hash() );
+      switch ( infile.type() ) {
+      case InFile::Type::FILE:
+        order_zero_dependencies_.insert( infile.content_hash() );
+        break;
+
+      case InFile::Type::EXECUTABLE:
+        executable_dependencies_.insert( infile.content_hash() );
+        break;
+
+      default:
+        break;
+      }
     }
   }
 
