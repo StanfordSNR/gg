@@ -49,7 +49,7 @@ HTTPRequest AWSRequest::to_http_request() const
 AWSCredentials::AWSCredentials()
   : AWSCredentials( safe_getenv( AWS_ACCESS_KEY_ENV ),
                     safe_getenv( AWS_SECRET_KEY_ENV ),
-                    safe_getenv( AWS_SESSION_TOKEN_ENV ) )
+                    safe_getenv_or( AWS_SESSION_TOKEN_ENV, {} ) )
 {}
 
 AWSCredentials::AWSCredentials( const string & access_key,

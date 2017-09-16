@@ -19,6 +19,7 @@ import asyncio
 import aiohttp
 import boto3
 import time
+import socket
 
 from base64 import b64decode
 
@@ -30,6 +31,7 @@ s3_client = boto3.client('s3')
 
 class GGInfo:
     s3_bucket = None
+    s3_region = None
     thunk_hash = None
     infiles = []
 
@@ -49,12 +51,20 @@ def fetch_dependencies(infiles):
         if os.path.exists(bpath) and os.path.getsize(bpath) == infile['size']:
             continue
 
-        download_list += [{
-            'url': GGPaths.object_url(GGInfo.s3_bucket, infile['hash']),
-            'filename': bpath,
-        }]
+        download_list += [infile['hash']]
 
-    download_files(download_list)
+    s3_ip = socket.gethostbyname('{}.s3.amazonaws.com'.format(GGInfo.s3_bucket))
+    p = sub.Popen(['gg-s3-download', GGInfo.s3_region, GGInfo.s3_bucket, s3_ip], stdout=sub.PIPE, stdin=sub.PIPE, stderr=sub.PIPE)
+    out, err = p.communicate(input="\n".join(download_list).encode('ascii'))
+
+    print(err)
+    print(out)
+    print(p.returncode)
+
+    if p.returncode != 0:
+        return False
+
+    return True
 
 EXECUTABLES_DIR = os.path.join(curdir, 'executables')
 
@@ -76,6 +86,7 @@ class TimeLog:
 def handler(event, context):
     GGInfo.thunk_hash = event['thunk_hash']
     GGInfo.s3_bucket = event['s3_bucket']
+    GGInfo.s3_region = event['s3_region']
     GGInfo.infiles = event['infiles']
 
     enable_timelog = event.get('timelog', False)
@@ -99,7 +110,10 @@ def handler(event, context):
 
     timelogger.add_point("copy executables to ggdir")
 
-    fetch_dependencies(GGInfo.infiles)
+    if not fetch_dependencies(GGInfo.infiles):
+        return {
+            'errorType': 'GG-FetchDependenciesFailed'
+        }
 
     for infile in GGInfo.infiles:
         if infile['executable']:

@@ -16,3 +16,12 @@ string safe_getenv( const string & key )
   }
   return value;
 }
+
+string safe_getenv_or( const string & key, const string & def_val )
+{
+  const char * const value = getenv( key.c_str() );
+  if ( not value ) {
+    return def_val;
+  }
+  return value;
+}

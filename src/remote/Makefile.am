@@ -12,5 +12,6 @@ gg_pb2.py: $(srcdir)/../protobufs/gg.proto
 ggfunctions: $(srcdir)/*.py $(srcdir)/lambda_function/*.py \
              $(srcdir)/lambda_function/packages.zip \
              $(builddir)/../frontend/gg-execute-static \
+             $(builddir)/../frontend/gg-s3-download \
              $(TOOLCHAIN_PATH)/*
-	$(AM_V_GEN)$(srcdir)/create-function.py --delete --gg-execute-static=$(builddir)/../frontend/gg-execute-static --toolchain-path=$(TOOLCHAIN_PATH)
+	$(AM_V_GEN)$(srcdir)/create-function.py --delete --gg-execute-static=$(builddir)/../frontend/gg-execute-static --gg-s3-download=$(builddir)/../frontend/gg-s3-download --toolchain-path=$(TOOLCHAIN_PATH)

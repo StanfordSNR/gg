@@ -13,7 +13,7 @@ using namespace std;
 
 void usage( const char * argv0 )
 {
-  cerr << argv0 << " S3-REGION S3-BUCKET" << endl;
+  cerr << argv0 << " S3-REGION S3-BUCKET [S3-ENDPOINT]" << endl;
 }
 
 int main( int argc, char * const argv[] )
@@ -22,13 +22,18 @@ int main( int argc, char * const argv[] )
     abort();
   }
 
-  if ( argc != 3 ) {
+  if ( argc < 3 ) {
     usage( argv[ 0 ] );
     return EXIT_FAILURE;
   }
 
   string s3_region { argv[ 1 ] };
   string s3_bucket { argv[ 2 ] };
+  string s3_endpoint;
+
+  if ( argc == 4 ) {
+    s3_endpoint = argv[ 3 ];
+  }
 
   vector<S3::DownloadRequest> files;
 

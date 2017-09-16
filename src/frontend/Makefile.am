@@ -6,11 +6,12 @@ AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util -I$(srcdir)/../net \
 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
-BASE_LDADD = ../execution/libggexecution.a ../thunk/libthunk.a \
-             ../sandbox/libggsandbox.a \
-             ../trace/libggtrace.a ../trace/libggsyscalltable.a \
-             ../protobufs/libggprotobufs.a ../net/libggnet.a ../util/libggutil.a \
-             $(PROTOBUF_LIBS)
+GG_LDADD = ../execution/libggexecution.a ../thunk/libthunk.a \
+           ../sandbox/libggsandbox.a \
+           ../trace/libggtrace.a ../trace/libggsyscalltable.a \
+           ../protobufs/libggprotobufs.a ../net/libggnet.a ../util/libggutil.a
+
+BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
                gg-execute gg-run gg-thunkgraph gg-thunksummary gg-s3-upload \
@@ -59,9 +60,9 @@ gg_s3_upload_SOURCES = gg-s3-upload.cc
 gg_s3_upload_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 gg_s3_download_SOURCES = gg-s3-download.cc
-gg_s3_download_CXXFLAGS = $(PICKY_CXXFLAGS) -static
-gg_s3_download_LDADD = $(BASE_LDADD) $(SSL_LIBS) -ldl -lz
-gg_s3_download_LDFLAGS = -static-libgcc -static -s
+gg_s3_download_CXXFLAGS = $(PICKY_CXXFLAGS)
+gg_s3_download_LDADD = $(GG_LDADD) $(SSL_LIBS) -ldl -lz
+gg_s3_download_LDFLAGS = -static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 
 lambda_invoker_SOURCES = lambda-invoker.cc
 lambda_invoker_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
