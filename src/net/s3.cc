@@ -33,6 +33,10 @@ S3PutRequest::S3PutRequest( const AWSCredentials & credentials,
   headers_[ "host" ] = S3::endpoint( bucket );
   headers_[ "content-length" ] = to_string( contents.length() );
 
+  if ( credentials.session_token().initialized() ) {
+    headers_[ "x-amz-security-token" ] = *credentials.session_token();
+  }
+
   AWSv4Sig::sign_request( "PUT\n/" + object,
                           credentials_.secret_key(), credentials_.access_key(),
                           region_, "s3", request_date_, contents, headers_,
@@ -45,6 +49,10 @@ S3GetRequest::S3GetRequest( const AWSCredentials & credentials,
   : AWSRequest( credentials, region, "GET /" + object + " HTTP/1.1", {} )
 {
   headers_[ "host" ] = S3::endpoint( bucket );
+
+  if ( credentials.session_token().initialized() ) {
+    headers_[ "x-amz-security-token" ] = *credentials.session_token();
+  }
 
   AWSv4Sig::sign_request( "GET\n/" + object,
                           credentials_.secret_key(), credentials_.access_key(),
@@ -206,7 +214,6 @@ void S3Client::download_files( const std::string & bucket,
 
               HTTPRequest outgoing_request = request.to_http_request();
               responses.new_request_arrived( outgoing_request );
-              cerr << outgoing_request.str() << endl;
 
               s3.write( outgoing_request.str() );
               expected_responses++;
@@ -219,7 +226,6 @@ void S3Client::download_files( const std::string & bucket,
               responses.parse( s3.read() );
               if ( not responses.empty() ) {
                 if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
-                  cerr << responses.front().str() << endl;
                   throw runtime_error( "HTTP failure in S3Client::download_files(): " + responses.front().first_line() );
                 }
                 else {
