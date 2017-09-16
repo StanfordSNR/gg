@@ -15,7 +15,7 @@ BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
                gg-execute gg-run gg-thunkgraph gg-thunksummary gg-s3-upload \
-               gg-init lambda-invoker
+               gg-job-server gg-init lambda-invoker
 
 if BUILD_STATIC_BINS
   bin_PROGRAMS += gg-execute-static gg-s3-download
@@ -46,6 +46,9 @@ gg_execute_static_LDFLAGS = -static -s
 
 gg_reduce_SOURCES = gg-reduce.cc
 gg_reduce_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
+
+gg_job_server_SOURCES = gg-job-server.cc
+gg_job_server_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 gg_mock_SOURCES = gg-mock.cc
 gg_mock_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
