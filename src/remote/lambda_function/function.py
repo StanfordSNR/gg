@@ -16,7 +16,6 @@ import stat
 import subprocess as sub
 import shutil
 import asyncio
-import aiohttp
 import boto3
 import time
 import socket
@@ -24,7 +23,6 @@ import socket
 from base64 import b64decode
 
 from ggpaths import GGPaths, GGCache
-from downloader import download_files
 from common import is_executable, make_executable, run_command
 
 s3_client = boto3.client('s3')
