@@ -42,7 +42,7 @@ using namespace gg::thunk;
 using namespace PollerShortNames;
 
 using ReductionResult = gg::cache::ReductionResult;
-using ConnectionState = lambda::ConnectionContext::State;
+using ConnectionState = ConnectionContext::State;
 
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const bool remote_execution = ( getenv( "GG_REMOTE" ) != NULL );
@@ -249,7 +249,7 @@ string Reductor::reduce()
           }
 
           /* create new socket */
-          lambda::ConnectionContext & connection = connection_manager_->new_connection( thunk, thunk_hash );
+          ConnectionContext & connection = connection_manager_->new_connection( thunk, thunk_hash );
 
           /* what to do when socket is writeable */
           poller_.add_action(

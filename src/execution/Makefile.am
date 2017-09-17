@@ -8,4 +8,5 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 noinst_LIBRARIES = libggexecution.a
 
 libggexecution_a_SOURCES = remote_response.hh remote_response.cc \
+                           connection_context.hh connection_context.cc \
                            remote.hh remote.cc

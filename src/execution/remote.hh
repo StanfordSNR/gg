@@ -7,6 +7,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "connection_context.hh"
 #include "thunk.hh"
 #include "lambda.hh"
 #include "http_request.hh"
@@ -27,46 +28,6 @@ namespace lambda {
     RequestGenerator( const AWSCredentials & credentials, const std::string & region );
     HTTPRequest generate( const gg::thunk::Thunk & thunk, const std::string & thunk_hash,
                           const bool timelog = true );
-  };
-
-  struct ConnectionContext
-  {
-    enum class State { needs_connect,
-                       needs_ssl_read_to_connect,
-                       needs_ssl_write_to_connect,
-                       needs_ssl_write_to_write,
-                       needs_ssl_write_to_read,
-                       needs_ssl_read_to_write,
-                       needs_ssl_read_to_read,
-                       ready,
-                       closed };
-
-    State state { State::needs_connect };
-
-    SecureSocket socket;
-    HTTPResponseParser responses {};
-    std::string request_str {};
-
-    bool something_to_write { true };
-
-    ConnectionContext( SecureSocket && sock, const HTTPRequest & request )
-      : socket( std::move( sock ) ), request_str( request.str() )
-    {
-      responses.new_request_arrived( request );
-    }
-
-    bool ready() const { return state == State::ready; }
-
-    bool connected() const
-    {
-      return ( state != State::needs_connect ) and
-             ( state != State::needs_ssl_read_to_connect ) and
-             ( state != State::needs_ssl_write_to_connect );
-    }
-
-    void continue_SSL_connect();
-    void continue_SSL_write();
-    void continue_SSL_read();
   };
 
   class ExecutionConnectionManager
