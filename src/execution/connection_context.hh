@@ -18,11 +18,13 @@ struct ConnectionContext
   TCPSocket socket;
   HTTPResponseParser responses {};
   std::string request_str {};
+  std::string::const_iterator last_write {};
 
   bool something_to_write { true };
 
   ConnectionContext( TCPSocket && sock, const HTTPRequest & request )
-    : socket( std::move( sock ) ), request_str( request.str() )
+    : socket( std::move( sock ) ), request_str( request.str() ),
+      last_write( request_str.cbegin() )
   {
     responses.new_request_arrived( request );
   }

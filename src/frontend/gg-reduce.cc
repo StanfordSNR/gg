@@ -49,7 +49,7 @@ const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const bool lambda_execution = ( getenv( "GG_LAMBDA" ) != NULL );
 const bool ggremote_execution = ( getenv( "GG_REMOTE" ) != NULL );
 
-enum class ExecutionEnvironment { LOCAL, GG_RUNNER, LAMBDA };
+enum class ExecutionEnvironment { GG_RUNNER, LAMBDA };
 
 class Reductor
 {
@@ -76,6 +76,10 @@ private:
 
   Optional<lambda::ExecutionConnectionManager> lambda_conn_manager_ {};
   Optional<ggremote::ExecutionConnectionManager> gg_conn_manager_ {};
+
+  template<class ConnectionContextType>
+  void process_execution_response( ConnectionContextType & connection,
+                                   const string & thunk_hash );
 
   void execution_finalize( const string & old_hash, const string & new_hash );
   Result handle_signal( const signalfd_siginfo & sig );
@@ -220,6 +224,40 @@ Result Reductor::handle_signal( const signalfd_siginfo & sig )
   return ResultType::Continue;
 }
 
+template<class ConnectionContextType>
+void Reductor::process_execution_response( ConnectionContextType & connection,
+                                           const string & thunk_hash )
+{
+  assert( not connection.responses.empty() );
+
+  const HTTPResponse & http_response = connection.responses.front();
+
+  if ( http_response.status_code() != "200" ) {
+    job_queue_.push_back( thunk_hash );
+    throw runtime_error( "HTTP failure: " + http_response.status_code() );
+  }
+
+  RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
+
+  if ( response.type != RemoteResponse::Type::SUCCESS ) {
+    throw runtime_error( "execution failed." );
+  }
+
+  if ( response.thunk_hash != thunk_hash ) {
+    cerr << http_response.str() << endl;
+    throw runtime_error( "expected output for " + thunk_hash + ", got output for" + response.output_hash );
+  }
+
+  gg::cache::insert( response.thunk_hash, response.output_hash );
+  execution_finalize( response.thunk_hash, response.output_hash );
+
+  remote_jobs_.erase( response.thunk_hash );
+  remote_cleanup_queue_.push_back( response.thunk_hash );
+  finished_jobs_++;
+
+  connection.state = ConnectionContextType::State::closed;
+}
+
 string Reductor::reduce()
 {
   SignalFD signal_fd( signals_ );
@@ -257,109 +295,156 @@ string Reductor::reduce()
           );
         }
         else {
-          /* let's execute this job on Lambda! */
-          if ( thunk.infiles_size() > 250_MiB ) {
+          ExecutionEnvironment target_environment;
+
+          if ( lambda_execution and thunk.infiles_size() < 100_MiB ) {
+            /* If we can run on Lambda, always run on Lambda. */
+            target_environment = ExecutionEnvironment::LAMBDA;
+          }
+          else if ( ggremote_execution ) {
+            /* Well, either Lambda execution is off, or the infiles are >100MiB,
+            so we execution on the overflow machine. */
+            target_environment = ExecutionEnvironment::GG_RUNNER;
+          }
+          else {
             throw runtime_error( "thunk doesn't fit on \u03bb: " + thunk_hash );
           }
 
-          /* create new socket */
-          SSLConnectionContext & connection = lambda_conn_manager_->new_connection( thunk, thunk_hash );
+          switch ( target_environment ) {
+          case ExecutionEnvironment::LAMBDA:
+            {
+              /* create new socket */
+              SSLConnectionContext & connection = lambda_conn_manager_->new_connection( thunk, thunk_hash );
 
-          /* what to do when socket is writeable */
-          poller_.add_action(
-            Poller::Action(
-              connection.socket, Direction::Out,
-              [thunk_hash, &connection]()
-              {
-                /* did it connect successfully? */
-                if ( not connection.connected() ) {
-                  connection.continue_SSL_connect();
-                }
-                else if ( connection.state == SSLConnectionState::needs_ssl_write_to_write or
-                     ( connection.state == SSLConnectionState::ready and connection.something_to_write ) ) {
-                  connection.continue_SSL_write();
-                }
-                else if ( connection.state == SSLConnectionState::needs_ssl_write_to_read ) {
-                  connection.continue_SSL_read();
-                }
+              /* what to do when socket is writeable */
+              poller_.add_action(
+                Poller::Action(
+                  connection.socket, Direction::Out,
+                  [thunk_hash, &connection]()
+                  {
+                    /* did it connect successfully? */
+                    if ( not connection.connected() ) {
+                      connection.continue_SSL_connect();
+                    }
+                    else if ( connection.state == SSLConnectionState::needs_ssl_write_to_write or
+                         ( connection.state == SSLConnectionState::ready and connection.something_to_write ) ) {
+                      connection.continue_SSL_write();
+                    }
+                    else if ( connection.state == SSLConnectionState::needs_ssl_write_to_read ) {
+                      connection.continue_SSL_read();
+                    }
 
-                return ResultType::Continue;
-              },
-              [&connection]()
-              {
-                return ( connection.state == SSLConnectionState::needs_connect ) or
-                       ( connection.state == SSLConnectionState::needs_ssl_write_to_connect ) or
-                       ( connection.state == SSLConnectionState::needs_ssl_write_to_write ) or
-                       ( connection.state == SSLConnectionState::needs_ssl_write_to_read ) or
-                       ( connection.state == SSLConnectionState::ready and connection.something_to_write );
-              }
-            )
-          );
-
-          /* what to do when socket is readable */
-          poller_.add_action(
-            Poller::Action(
-              connection.socket, Direction::In,
-              [thunk_hash, &connection, this]()
-              {
-                if ( not connection.connected() ) {
-                  connection.continue_SSL_connect();
-                }
-                else if ( connection.state == SSLConnectionState::needs_ssl_read_to_write ) {
-                  connection.continue_SSL_write();
-                }
-                else if ( connection.state == SSLConnectionState::needs_ssl_read_to_read or
-                          connection.state == SSLConnectionState::ready ) {
-                  connection.continue_SSL_read();
-                }
-
-                if ( not connection.responses.empty() ) {
-                  const HTTPResponse & http_response = connection.responses.front();
-
-                  if ( http_response.status_code() != "200" ) {
-                    job_queue_.push_back( thunk_hash );
-                    throw runtime_error( "HTTP failure: " + http_response.status_code() );
+                    return ResultType::Continue;
+                  },
+                  [&connection]()
+                  {
+                    return ( connection.state == SSLConnectionState::needs_connect ) or
+                           ( connection.state == SSLConnectionState::needs_ssl_write_to_connect ) or
+                           ( connection.state == SSLConnectionState::needs_ssl_write_to_write ) or
+                           ( connection.state == SSLConnectionState::needs_ssl_write_to_read ) or
+                           ( connection.state == SSLConnectionState::ready and connection.something_to_write );
                   }
+                )
+              );
 
-                  RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
+              /* what to do when socket is readable */
+              poller_.add_action(
+                Poller::Action(
+                  connection.socket, Direction::In,
+                  [thunk_hash, &connection, this]()
+                  {
+                    if ( not connection.connected() ) {
+                      connection.continue_SSL_connect();
+                    }
+                    else if ( connection.state == SSLConnectionState::needs_ssl_read_to_write ) {
+                      connection.continue_SSL_write();
+                    }
+                    else if ( connection.state == SSLConnectionState::needs_ssl_read_to_read or
+                              connection.state == SSLConnectionState::ready ) {
+                      connection.continue_SSL_read();
+                    }
 
-                  if ( response.type != RemoteResponse::Type::SUCCESS ) {
-                    throw runtime_error( "execution failed." );
+                    if ( not connection.responses.empty() ) {
+                      process_execution_response( connection, thunk_hash );
+
+                      if ( is_finished() ) {
+                        return ResultType::Exit;
+                      }
+                    }
+
+                    return ResultType::Continue;
+                  },
+                  [&connection]()
+                  {
+                    return ( connection.state == SSLConnectionState::needs_connect ) or
+                           ( connection.state == SSLConnectionState::needs_ssl_read_to_connect ) or
+                           ( connection.state == SSLConnectionState::needs_ssl_read_to_write ) or
+                           ( connection.state == SSLConnectionState::needs_ssl_read_to_read ) or
+                           ( connection.state == SSLConnectionState::ready );
                   }
+                )
+              );
 
-                  if ( response.thunk_hash != thunk_hash ) {
-                    cerr << http_response.str() << endl;
-                    throw runtime_error( "expected output for " + thunk_hash + ", got output for" + response.output_hash );
-                  }
+              remote_jobs_.insert( { thunk_hash, { ExecutionEnvironment::LAMBDA } } );
+            }
 
-                  gg::cache::insert( response.thunk_hash, response.output_hash );
-                  execution_finalize( response.thunk_hash, response.output_hash );
+            break;
+            /* end of case ExecutionEnvironment::LAMBDA */
 
-                  remote_jobs_.erase( response.thunk_hash );
-                  remote_cleanup_queue_.push_back( response.thunk_hash );
-                  finished_jobs_++;
+          case ExecutionEnvironment::GG_RUNNER:
+            {
+              ConnectionContext & connection = gg_conn_manager_->new_connection( thunk, thunk_hash );
 
-                  connection.state = SSLConnectionState::closed;
+              poller_.add_action(
+                Poller::Action(
+                  connection.socket, Direction::Out,
+                  [thunk_hash, &connection] ()
+                  {
+                    connection.socket.verify_no_errors();
 
-                  if ( is_finished() ) {
-                    return ResultType::Exit;
-                  }
-                }
+                    connection.last_write = connection.socket.write( connection.last_write,
+                                                                     connection.request_str.cend() );
 
-                return ResultType::Continue;
-              },
-              [&connection]()
-              {
-                return ( connection.state == SSLConnectionState::needs_connect ) or
-                       ( connection.state == SSLConnectionState::needs_ssl_read_to_connect ) or
-                       ( connection.state == SSLConnectionState::needs_ssl_read_to_write ) or
-                       ( connection.state == SSLConnectionState::needs_ssl_read_to_read ) or
-                       ( connection.state == SSLConnectionState::ready );
-              }
-            )
-          );
+                    if ( connection.last_write == connection.request_str.cend() ) {
+                      connection.something_to_write = false;
+                      return ResultType::Cancel;
+                    }
 
-          remote_jobs_.insert( { thunk_hash, { ExecutionEnvironment::LAMBDA } } );
+                    return ResultType::Continue;
+                  },
+                  [&connection] { return connection.something_to_write; }
+                )
+              );
+
+              poller_.add_action(
+                Poller::Action(
+                  connection.socket, Direction::In,
+                  [thunk_hash, &connection, this] ()
+                  {
+                    connection.responses.parse( connection.socket.read() );
+
+                    if ( not connection.responses.empty() ) {
+                      process_execution_response( connection, thunk_hash );
+
+                      if ( is_finished() ) {
+                        return ResultType::Exit;
+                      }
+
+                      return ResultType::Cancel;
+                    }
+
+                    return ResultType::Continue;
+                  },
+                  [&connection]() { return connection.ready(); }
+                )
+              );
+            }
+
+            break;
+            /* end of case ExecutionEnvironment::GG_RUNNER */
+          }
+
+
         }
       }
 
@@ -373,9 +458,28 @@ string Reductor::reduce()
     /* let's cleanup closed connections */
     while ( not remote_cleanup_queue_.empty() ) {
       const string & hash = remote_cleanup_queue_.front();
-      const auto & connection = lambda_conn_manager_->connection_context( hash );
-      poller_.remove_actions( connection.socket.fd_num() );
-      lambda_conn_manager_->remove_connection( hash );
+      const ExecutionEnvironment exec_env = remote_jobs_.at( hash ).environment;
+
+      switch ( exec_env ) {
+      case ExecutionEnvironment::LAMBDA:
+        {
+          const auto & connection = lambda_conn_manager_->connection_context( hash );
+          poller_.remove_actions( connection.socket.fd_num() );
+          lambda_conn_manager_->remove_connection( hash );
+        }
+
+        break;
+
+      case ExecutionEnvironment::GG_RUNNER:
+        {
+          const auto & connection = gg_conn_manager_->connection_context( hash );
+          poller_.remove_actions( connection.socket.fd_num() );
+          gg_conn_manager_->remove_connection( hash );
+        }
+
+        break;
+      }
+
       remote_cleanup_queue_.pop_front();
     }
 
