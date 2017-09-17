@@ -1,6 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "remote.hh"
+#include "remote_lambda.hh"
 
 #include <string>
 #include <sstream>

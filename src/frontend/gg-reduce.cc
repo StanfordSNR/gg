@@ -31,7 +31,7 @@
 #include "s3.hh"
 #include "digest.hh"
 #include "remote_response.hh"
-#include "remote.hh"
+#include "remote_lambda.hh"
 #include "secure_socket.hh"
 #include "optional.hh"
 #include "units.hh"

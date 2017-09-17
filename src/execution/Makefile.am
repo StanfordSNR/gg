@@ -9,4 +9,4 @@ noinst_LIBRARIES = libggexecution.a
 
 libggexecution_a_SOURCES = remote_response.hh remote_response.cc \
                            connection_context.hh connection_context.cc \
-                           remote.hh remote.cc
+                           remote_lambda.hh remote_lambda.cc

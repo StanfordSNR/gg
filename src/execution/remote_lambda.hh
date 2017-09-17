@@ -1,7 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#ifndef REMOTE_HH
-#define REMOTE_HH
+#ifndef REMOTE_LAMBDA_HH
+#define REMOTE_LAMBDA_HH
 
 #include <sys/types.h>
 #include <string>
@@ -54,4 +54,4 @@ namespace lambda {
 
 }
 
-#endif /* REMOTE_HH */
+#endif /* REMOTE_LAMBDA_HH */
