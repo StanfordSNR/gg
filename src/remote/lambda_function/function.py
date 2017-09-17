@@ -12,6 +12,7 @@ if not os.environ.get('GG_DIR'):
     os.environ['GG_DIR'] = "/tmp/_gg"
 
 GG_DIR = os.environ['GG_DIR']
+GG_RUNNER = 'GG_RUNNER' in os.environ
 
 import stat
 import subprocess as sub
@@ -34,16 +35,17 @@ class GGInfo:
     thunk_hash = None
     infiles = []
 
-def fetch_dependencies(infiles):
+def fetch_dependencies(infiles, cleanup_first=True):
     download_list = []
 
     blob_path = GGPaths.blobs
     infile_hashes = {x['hash'] for x in infiles}
     infile_hashes.add(GGInfo.thunk_hash)
 
-    for x in os.listdir(blob_path):
-        if x not in infile_hashes:
-            os.remove(os.path.join(blob_path, x))
+    if cleanup_first:
+        for x in os.listdir(blob_path):
+            if x not in infile_hashes:
+                os.remove(os.path.join(blob_path, x))
 
     for infile in infiles:
         bpath = GGPaths.blob_path(infile['hash'])
@@ -105,7 +107,8 @@ def handler(event, context):
 
     timelogger.add_point("copy executables to ggdir")
 
-    if not fetch_dependencies(GGInfo.infiles):
+    # only clean up the gg directory if running on Lambda.
+    if not fetch_dependencies(GGInfo.infiles, not GG_RUNNER):
         return {
             'errorType': 'GG-FetchDependenciesFailed'
         }
@@ -120,7 +123,7 @@ def handler(event, context):
 
     if return_code:
         return {
-            'errorType': 'GG-ExecutionFailed'
+            'errorType': 'GG-ExecutionFailed',
         }
 
     timelogger.add_point("gg-execute")

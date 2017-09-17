@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import os
+os.environ['GG_RUNNER'] = '1'
+
 import sys
 import time
 import json

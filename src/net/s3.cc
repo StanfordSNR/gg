@@ -13,6 +13,7 @@
 #include "http_response_parser.hh"
 #include "awsv4_sig.hh"
 #include "exception.hh"
+#include "temp_file.hh"
 
 using namespace std;
 
@@ -232,12 +233,10 @@ void S3Client::download_files( const std::string & bucket,
                   const size_t response_index = first_file_idx + response_count * thread_count;
                   const string & filename = download_requests.at( response_index ).filename.string();
 
-                  FileDescriptor file { CheckSystemCall( "open",
-                    open( filename.c_str(), O_RDWR | O_TRUNC | O_CREAT,
-                          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH ) ) };
-
-                  file.write( responses.front().body() );
-                  file.close();
+                  UniqueFile temp_file { filename };
+                  temp_file.write( responses.front().body() );
+                  temp_file.fd().close();
+                  roost::rename( temp_file.name(), filename );
 
                   success_callback( download_requests[ response_index ] );
                 }
