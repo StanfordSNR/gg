@@ -9,7 +9,7 @@
 #include "http_request.hh"
 #include "http_response_parser.hh"
 
-struct ConnectionContext
+struct SSLConnectionContext
 {
   enum class State { needs_connect,
                      needs_ssl_read_to_connect,
@@ -29,7 +29,7 @@ struct ConnectionContext
 
   bool something_to_write { true };
 
-  ConnectionContext( SecureSocket && sock, const HTTPRequest & request )
+  SSLConnectionContext( SecureSocket && sock, const HTTPRequest & request )
     : socket( std::move( sock ) ), request_str( request.str() )
   {
     responses.new_request_arrived( request );

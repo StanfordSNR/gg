@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void ConnectionContext::continue_SSL_connect()
+void SSLConnectionContext::continue_SSL_connect()
 {
   if ( state == State::needs_connect ) {
     socket.verify_no_errors();
@@ -45,7 +45,7 @@ void ConnectionContext::continue_SSL_connect()
   throw runtime_error( "session already connected" );
 }
 
-void ConnectionContext::continue_SSL_write()
+void SSLConnectionContext::continue_SSL_write()
 {
   try {
     socket.write( request_str, state == State::needs_ssl_read_to_write );
@@ -71,7 +71,7 @@ void ConnectionContext::continue_SSL_write()
   state = State::ready;
 }
 
-void ConnectionContext::continue_SSL_read()
+void SSLConnectionContext::continue_SSL_read()
 {
   try {
     responses.parse( socket.read( state == State::needs_ssl_write_to_read ) );

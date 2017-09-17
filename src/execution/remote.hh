@@ -38,16 +38,16 @@ namespace lambda {
     RequestGenerator request_generator_;
 
     /* thunk_hash -> socket */
-    std::unordered_map<std::string, ConnectionContext> connections_ {};
+    std::unordered_map<std::string, SSLConnectionContext> connections_ {};
 
   public:
     ExecutionConnectionManager( const AWSCredentials & credentials,
                                 const std::string & region );
 
-    ConnectionContext & new_connection( const gg::thunk::Thunk & thunk,
-                                        const std::string & hash );
+    SSLConnectionContext & new_connection( const gg::thunk::Thunk & thunk,
+                                           const std::string & hash );
 
-    ConnectionContext & connection_context( const std::string & hash ) { return connections_.at( hash ); }
+    SSLConnectionContext & connection_context( const std::string & hash ) { return connections_.at( hash ); }
 
     void remove_connection( const std::string & hash );
   };

@@ -43,7 +43,7 @@ ExecutionConnectionManager::ExecutionConnectionManager( const AWSCredentials & c
     request_generator_( credentials, region )
 {}
 
-ConnectionContext & ExecutionConnectionManager::new_connection( const Thunk & thunk, const std::string & hash )
+SSLConnectionContext & ExecutionConnectionManager::new_connection( const Thunk & thunk, const std::string & hash )
 {
   if ( connections_.count( hash ) > 0 ) {
     throw runtime_error( "hash already exists" );
@@ -68,8 +68,8 @@ ConnectionContext & ExecutionConnectionManager::new_connection( const Thunk & th
   /* don't try to SSL_connect yet */
 
   auto ret = connections_.emplace( piecewise_construct,
-                                  forward_as_tuple( hash ),
-                                  forward_as_tuple( move( lambda_socket ), move ( request ) ) );
+                                   forward_as_tuple( hash ),
+                                   forward_as_tuple( move( lambda_socket ), move ( request ) ) );
   assert( ret.second );
 
   return ret.first->second;
