@@ -32,6 +32,7 @@
 #include "digest.hh"
 #include "remote_response.hh"
 #include "remote_lambda.hh"
+#include "remote_gg.hh"
 #include "secure_socket.hh"
 #include "optional.hh"
 #include "units.hh"
@@ -50,13 +51,18 @@ const bool remote_execution = ( getenv( "GG_REMOTE" ) != NULL );
 class Reductor
 {
 private:
+  struct JobInfo
+  {
+    enum class Environment { LAMBDA, GG_RUNNER } environment;
+  };
+
   const string thunk_hash_;
   size_t max_jobs_;
 
   SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT };
   Poller poller_ {};
 
-  unordered_set<string> remote_jobs_ {};
+  unordered_map<string, JobInfo> remote_jobs_ {};
   list<ChildProcess> local_jobs_ {};
   deque<string> job_queue_ {};
   deque<string> remote_cleanup_queue_ {};
@@ -65,7 +71,7 @@ private:
 
   DependencyGraph dep_graph_ {};
 
-  Optional<lambda::ExecutionConnectionManager> connection_manager_ {};
+  Optional<lambda::ExecutionConnectionManager> lambda_conn_manager_ {};
 
   void execution_finalize( const string & old_hash, const string & new_hash );
   Result handle_signal( const signalfd_siginfo & sig );
@@ -120,7 +126,7 @@ Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
   job_queue_.insert( job_queue_.end(), o1_deps.begin(), o1_deps.end() );
 
   if ( remote_execution ) {
-    connection_manager_.initialize( AWSCredentials(), gg::remote::s3_region() );
+    lambda_conn_manager_.initialize( AWSCredentials(), gg::remote::s3_region() );
   }
 }
 
@@ -249,7 +255,7 @@ string Reductor::reduce()
           }
 
           /* create new socket */
-          SSLConnectionContext & connection = connection_manager_->new_connection( thunk, thunk_hash );
+          SSLConnectionContext & connection = lambda_conn_manager_->new_connection( thunk, thunk_hash );
 
           /* what to do when socket is writeable */
           poller_.add_action(
@@ -345,7 +351,7 @@ string Reductor::reduce()
             )
           );
 
-          remote_jobs_.insert( thunk_hash );
+          remote_jobs_.insert( { thunk_hash, { JobInfo::Environment::LAMBDA } } );
         }
       }
 
@@ -359,9 +365,9 @@ string Reductor::reduce()
     /* let's cleanup closed connections */
     while ( not remote_cleanup_queue_.empty() ) {
       const string & hash = remote_cleanup_queue_.front();
-      const auto & connection = connection_manager_->connection_context( hash );
+      const auto & connection = lambda_conn_manager_->connection_context( hash );
       poller_.remove_actions( connection.socket.fd_num() );
-      connection_manager_->remove_connection( hash );
+      lambda_conn_manager_->remove_connection( hash );
       remote_cleanup_queue_.pop_front();
     }
 

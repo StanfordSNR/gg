@@ -33,6 +33,8 @@ namespace gg {
 
     std::string s3_bucket();
     std::string s3_region();
+
+    std::string runner_server();
   }
 
   namespace cache {

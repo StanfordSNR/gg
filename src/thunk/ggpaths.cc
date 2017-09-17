@@ -161,6 +161,15 @@ namespace gg {
       }
       return bucket;
     }
+
+    std::string runner_server()
+    {
+      const static string address = safe_getenv( "GG_RUNNER_SERVER" );
+      if ( address.length() == 0 ) {
+        throw runtime_error( "GG_RUNNER_SERVER environment variable not set" );
+      }
+      return address;
+    }
   }
 
   namespace cache {
