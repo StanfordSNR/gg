@@ -18,27 +18,21 @@
 
 namespace lambda {
 
-  class RequestGenerator
+  class ExecutionConnectionManager
   {
   private:
     AWSCredentials credentials_;
     std::string region_;
 
-  public:
-    RequestGenerator( const AWSCredentials & credentials, const std::string & region );
-    HTTPRequest generate( const gg::thunk::Thunk & thunk, const std::string & thunk_hash,
-                          const bool timelog = true );
-  };
-
-  class ExecutionConnectionManager
-  {
-  private:
     SSLContext ssl_context_ {};
     Address address_;
-    RequestGenerator request_generator_;
 
     /* thunk_hash -> socket */
     std::unordered_map<std::string, SSLConnectionContext> connections_ {};
+
+    HTTPRequest generate_request( const gg::thunk::Thunk & thunk,
+                                  const std::string & thunk_hash,
+                                  const bool timelog );
 
   public:
     ExecutionConnectionManager( const AWSCredentials & credentials,
