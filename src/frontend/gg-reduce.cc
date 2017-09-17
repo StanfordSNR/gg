@@ -46,14 +46,17 @@ using ReductionResult = gg::cache::ReductionResult;
 using SSLConnectionState = SSLConnectionContext::State;
 
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
-const bool remote_execution = ( getenv( "GG_REMOTE" ) != NULL );
+const bool lambda_execution = ( getenv( "GG_LAMBDA" ) != NULL );
+const bool ggremote_execution = ( getenv( "GG_REMOTE" ) != NULL );
+
+enum class ExecutionEnvironment { LOCAL, GG_RUNNER, LAMBDA };
 
 class Reductor
 {
 private:
   struct JobInfo
   {
-    enum class Environment { LAMBDA, GG_RUNNER } environment;
+    ExecutionEnvironment environment;
   };
 
   const string thunk_hash_;
@@ -72,6 +75,7 @@ private:
   DependencyGraph dep_graph_ {};
 
   Optional<lambda::ExecutionConnectionManager> lambda_conn_manager_ {};
+  Optional<ggremote::ExecutionConnectionManager> gg_conn_manager_ {};
 
   void execution_finalize( const string & old_hash, const string & new_hash );
   Result handle_signal( const signalfd_siginfo & sig );
@@ -125,8 +129,12 @@ Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
   unordered_set<string> o1_deps = dep_graph_.order_one_dependencies( thunk_hash_ );
   job_queue_.insert( job_queue_.end(), o1_deps.begin(), o1_deps.end() );
 
-  if ( remote_execution ) {
+  if ( lambda_execution ) {
     lambda_conn_manager_.initialize( AWSCredentials(), gg::remote::s3_region() );
+  }
+
+  if ( ggremote_execution ) {
+    gg_conn_manager_.initialize( gg::remote::runner_server() );
   }
 }
 
@@ -237,7 +245,7 @@ string Reductor::reduce()
       else {
         const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
 
-        if ( not remote_execution ) {
+        if ( not ( ggremote_execution or lambda_execution ) ) {
           /* for local execution, we just fork and run gg-execute. */
           local_jobs_.emplace_back(
             thunk_hash,
@@ -351,7 +359,7 @@ string Reductor::reduce()
             )
           );
 
-          remote_jobs_.insert( { thunk_hash, { JobInfo::Environment::LAMBDA } } );
+          remote_jobs_.insert( { thunk_hash, { ExecutionEnvironment::LAMBDA } } );
         }
       }
 
@@ -477,7 +485,7 @@ int main( int argc, char * argv[] )
 
     Reductor reductor { thunk_hash, max_jobs };
 
-    if ( remote_execution ) {
+    if ( lambda_execution or ggremote_execution ) {
       reductor.upload_dependencies();
     }
 
@@ -485,7 +493,7 @@ int main( int argc, char * argv[] )
 
     cerr << endl;
 
-    if ( remote_execution ) {
+    if ( lambda_execution or ggremote_execution ) {
       /* we need to fetch the output from S3 */
       cerr << "Downloading output file... ";
 
