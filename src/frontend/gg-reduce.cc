@@ -514,15 +514,6 @@ void Reductor::upload_dependencies() const
                                  digest::gghash_to_hex( dep ) } );
   }
 
-  for ( const string & dep : dep_graph_.executable_dependencies() ) {
-    if ( gg::remote::is_available( dep ) ) {
-      continue;
-    }
-
-    upload_requests.push_back( { gg::paths::blob_path( dep ), dep,
-                                 digest::gghash_to_hex( dep ) } );
-  }
-
   if ( upload_requests.size() == 0 ) {
     cerr << "No files to upload." << endl;
     return;
