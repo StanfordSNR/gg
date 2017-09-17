@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
+import os
+import sys
+import time
 import http.server
 import socketserver
-import time
 
-from lambda_function import handler
+import lambda_function
 
 class GGRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
@@ -12,7 +14,7 @@ class GGRequestHandler(http.server.BaseHTTPRequestHandler):
         event = json.loads(input_data)
 
         try:
-            output = handler(event, {})
+            output = lambda_function.handler(event, {})
         except Exception as ex:
             output = {
                 'errorType': ex.__class__.__name__,
@@ -33,7 +35,7 @@ def usage(argv0):
     print("{} PORT".format(argv0))
 
 def main(port):
-    gg_server = GGServer(('', ), GGRequestHandler)
+    gg_server = GGServer(('', port), GGRequestHandler)
     gg_server.serve_forever()
 
 if __name__ == '__main__':
@@ -44,4 +46,4 @@ if __name__ == '__main__':
         usage(sys.argv[0])
         sys.exit(1)
 
-    main()
+    main(int(sys.argv[1]))
