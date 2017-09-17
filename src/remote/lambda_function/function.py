@@ -56,12 +56,6 @@ def fetch_dependencies(infiles):
     p = sub.Popen(['gg-s3-download', GGInfo.s3_region, GGInfo.s3_bucket, s3_ip], stdout=sub.PIPE, stdin=sub.PIPE, stderr=sub.PIPE)
     out, err = p.communicate(input="\n".join(download_list).encode('ascii'))
 
-    print("\n".join(download_list))
-
-    print(err)
-    print(out)
-    print(p.returncode)
-
     if p.returncode != 0:
         return False
 
