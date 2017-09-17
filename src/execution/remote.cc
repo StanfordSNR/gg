@@ -4,11 +4,6 @@
 
 #include <string>
 #include <sstream>
-#include <crypto++/base64.h>
-#include <crypto++/files.h>
-#include <cajun/json/reader.h>
-#include <cajun/json/writer.h>
-#include <cajun/json/elements.h>
 
 #include "digest.hh"
 #include "thunk.hh"
@@ -84,42 +79,6 @@ void ExecutionConnectionManager::remove_connection( const std::string & hash )
 {
   connections_.erase( hash );
 }
-
-RemoteResponse RemoteResponse::parse_message( const std::string & message )
-{
-  RemoteResponse response;
-
-  istringstream iss { message };
-  json::Object response_json;
-  json::Reader::Read( response_json, iss );
-
-  auto error_type_it = response_json.Find( "errorType" );
-  if ( error_type_it != response_json.End() ) {
-    /* Something happened */
-    string error_type = static_cast<json::String>( error_type_it->element );
-
-    if ( error_type == "GG-ExecutionFailed" ) {
-      response.type = Type::EXECUTION_FAILURE;
-      return response;
-    }
-    else {
-      cerr << message << endl;
-      throw runtime_error( "unknown error type: " + error_type );
-    }
-  }
-
-  response.type = Type::SUCCESS;
-  response.thunk_hash = static_cast<json::String>( response_json[ "thunk_hash" ] );
-  response.output_hash = static_cast<json::String>( response_json[ "output_hash" ] );
-  response.output_size = static_cast<json::Number>( response_json[ "output_size" ] );
-  response.is_executable = static_cast<json::Boolean>( response_json[ "executable_output" ] );
-
-  return response;
-}
-
-RemoteResponse::RemoteResponse()
-  : type(), thunk_hash(), output_hash(), output_size(), is_executable()
-{}
 
 void ConnectionContext::continue_SSL_connect()
 {

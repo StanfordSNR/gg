@@ -30,6 +30,7 @@
 #include "util.hh"
 #include "s3.hh"
 #include "digest.hh"
+#include "remote_response.hh"
 #include "remote.hh"
 #include "secure_socket.hh"
 #include "optional.hh"
