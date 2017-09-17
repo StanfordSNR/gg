@@ -138,7 +138,8 @@ Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
   }
 
   if ( ggremote_execution ) {
-    gg_conn_manager_.initialize( gg::remote::runner_server() );
+    auto runner_server = gg::remote::runner_server();
+    gg_conn_manager_.initialize( runner_server.first, runner_server.second );
   }
 }
 
@@ -402,6 +403,10 @@ string Reductor::reduce()
                   {
                     connection.socket.verify_no_errors();
 
+                    if ( connection.state == ConnectionContext::State::needs_connect ) {
+                      connection.state = ConnectionContext::State::ready;
+                    }
+
                     connection.last_write = connection.socket.write( connection.last_write,
                                                                      connection.request_str.cend() );
 
@@ -438,6 +443,8 @@ string Reductor::reduce()
                   [&connection]() { return connection.ready(); }
                 )
               );
+
+              remote_jobs_.insert( { thunk_hash, { ExecutionEnvironment::GG_RUNNER } } );
             }
 
             break;

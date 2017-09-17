@@ -29,7 +29,7 @@ namespace ggremote {
                                   const bool timelog );
 
   public:
-    ExecutionConnectionManager( const std::string & address );
+    ExecutionConnectionManager( const std::string & address, const uint16_t port );
 
     ConnectionContext & new_connection( const gg::thunk::Thunk & thunk,
                                          const std::string & hash );

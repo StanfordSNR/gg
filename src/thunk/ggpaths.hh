@@ -34,7 +34,7 @@ namespace gg {
     std::string s3_bucket();
     std::string s3_region();
 
-    std::string runner_server();
+    std::pair<std::string, uint16_t> runner_server();
   }
 
   namespace cache {

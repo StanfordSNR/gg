@@ -4,6 +4,7 @@ import os
 import sys
 
 curdir = os.path.dirname(__file__)
+sys.path.append(curdir)
 sys.path.append(os.path.join(curdir, 'packages'))
 os.environ['PATH'] = "{}:{}".format(curdir, os.environ.get('PATH', ''))
 

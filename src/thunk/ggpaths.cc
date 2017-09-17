@@ -11,6 +11,7 @@
 #include "file_descriptor.hh"
 #include "exception.hh"
 #include "digest.hh"
+#include "tokenize.hh"
 
 using namespace std;
 
@@ -57,7 +58,7 @@ namespace gg {
       return roost::canonical( gg_path );
     }
 
-    roost::path get_inner_directory( const std::string & name )
+    roost::path get_inner_directory( const string & name )
     {
       const static roost::path gg_dir = get_gg_dir();
       roost::path inner_dir = gg_dir / name;
@@ -134,17 +135,17 @@ namespace gg {
   }
 
   namespace remote {
-    bool is_available( const std::string & hash )
+    bool is_available( const string & hash )
     {
       return roost::exists( gg::paths::remote_index() / hash );
     }
 
-    void set_available( const std::string & hash )
+    void set_available( const string & hash )
     {
       atomic_create( "", gg::paths::remote_index() / hash );
     }
 
-    std::string s3_bucket()
+    string s3_bucket()
     {
       const static string bucket = safe_getenv( "GG_S3_BUCKET" );
       if ( bucket.length() == 0 ) {
@@ -153,7 +154,7 @@ namespace gg {
       return bucket;
     }
 
-    std::string s3_region()
+    string s3_region()
     {
       const static string bucket = safe_getenv( "GG_S3_REGION" );
       if ( bucket.length() == 0 ) {
@@ -162,13 +163,15 @@ namespace gg {
       return bucket;
     }
 
-    std::string runner_server()
+    pair<string, uint16_t> runner_server()
     {
       const static string address = safe_getenv( "GG_RUNNER_SERVER" );
       if ( address.length() == 0 ) {
         throw runtime_error( "GG_RUNNER_SERVER environment variable not set" );
       }
-      return address;
+      vector<string> data = split( address, ":" );
+
+      return { data.at( 0 ), stoul( data.at( 1 ) ) };
     }
   }
 

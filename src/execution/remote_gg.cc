@@ -30,8 +30,9 @@ HTTPRequest ExecutionConnectionManager::generate_request( const Thunk & thunk,
   return request;
 }
 
-ExecutionConnectionManager::ExecutionConnectionManager( const std::string & address )
-  : address_( address, "http" )
+ExecutionConnectionManager::ExecutionConnectionManager( const std::string & address,
+                                                        const uint16_t port )
+  : address_( address, port )
 {}
 
 ConnectionContext & ExecutionConnectionManager::new_connection( const Thunk & thunk,
