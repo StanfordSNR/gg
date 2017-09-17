@@ -9,6 +9,27 @@
 #include "http_request.hh"
 #include "http_response_parser.hh"
 
+struct ConnectionContext
+{
+  enum class State { needs_connect, ready, closed };
+
+  State state { State::needs_connect };
+
+  TCPSocket socket;
+  HTTPResponseParser responses {};
+  std::string request_str {};
+
+  bool something_to_write { true };
+
+  ConnectionContext( TCPSocket && sock, const HTTPRequest & request )
+    : socket( std::move( sock ) ), request_str( request.str() )
+  {
+    responses.new_request_arrived( request );
+  }
+
+  bool ready() const { return state == State::ready; }
+};
+
 struct SSLConnectionContext
 {
   enum class State { needs_connect,
