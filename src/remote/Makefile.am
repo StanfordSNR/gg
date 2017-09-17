@@ -14,4 +14,4 @@ ggfunctions: $(srcdir)/*.py $(srcdir)/lambda_function/*.py \
              $(builddir)/../frontend/gg-execute-static \
              $(builddir)/../frontend/gg-s3-download \
              $(TOOLCHAIN_PATH)/*
-	$(AM_V_GEN)$(srcdir)/create-function.py --delete --gg-execute-static=$(builddir)/../frontend/gg-execute-static --gg-s3-download=$(builddir)/../frontend/gg-s3-download --toolchain-path=$(TOOLCHAIN_PATH)
+	$(AM_V_GEN)$(srcdir)/create-function.py --delete --gg-execute-static=$(builddir)/../frontend/gg-execute-static --gg-s3-download=$(builddir)/../frontend/gg-s3-download-static --toolchain-path=$(TOOLCHAIN_PATH)

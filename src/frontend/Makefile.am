@@ -15,10 +15,10 @@ BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
                gg-execute gg-run gg-thunkgraph gg-thunksummary gg-s3-upload \
-               gg-init lambda-invoker
+               gg-s3-download gg-init lambda-invoker
 
 if BUILD_STATIC_BINS
-  bin_PROGRAMS += gg-execute-static gg-s3-download
+  bin_PROGRAMS += gg-execute-static gg-s3-download-static
 endif
 
 gg_trace_SOURCES = gg-trace.cc
@@ -60,9 +60,12 @@ gg_s3_upload_SOURCES = gg-s3-upload.cc
 gg_s3_upload_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 gg_s3_download_SOURCES = gg-s3-download.cc
-gg_s3_download_CXXFLAGS = $(PICKY_CXXFLAGS)
-gg_s3_download_LDADD = $(GG_LDADD) $(SSL_LIBS) -ldl -lz
-gg_s3_download_LDFLAGS = -static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+gg_s3_download_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
+
+gg_s3_download_static_SOURCES = gg-s3-download.cc
+gg_s3_download_static_CXXFLAGS = $(PICKY_CXXFLAGS)
+gg_s3_download_static_LDADD = $(GG_LDADD) $(SSL_LIBS) -ldl -lz
+gg_s3_download_static_LDFLAGS = -static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 
 lambda_invoker_SOURCES = lambda-invoker.cc
 lambda_invoker_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)

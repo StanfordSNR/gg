@@ -12,5 +12,6 @@ gg-thunkgraph
 gg-thunksummary
 gg-s3-upload
 gg-s3-download
+gg-s3-download-static
 gg-init
 lambda-invoker
