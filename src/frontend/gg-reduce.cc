@@ -252,7 +252,6 @@ void Reductor::process_execution_response( ConnectionContextType & connection,
   gg::cache::insert( response.thunk_hash, response.output_hash );
   execution_finalize( response.thunk_hash, response.output_hash );
 
-  remote_jobs_.erase( response.thunk_hash );
   remote_cleanup_queue_.push_back( response.thunk_hash );
   finished_jobs_++;
 
@@ -487,6 +486,7 @@ string Reductor::reduce()
         break;
       }
 
+      remote_jobs_.erase( hash );
       remote_cleanup_queue_.pop_front();
     }
 
@@ -506,6 +506,15 @@ void Reductor::upload_dependencies() const
   vector<S3::UploadRequest> upload_requests;
 
   for ( const string & dep : dep_graph_.order_zero_dependencies() ) {
+    if ( gg::remote::is_available( dep ) ) {
+      continue;
+    }
+
+    upload_requests.push_back( { gg::paths::blob_path( dep ), dep,
+                                 digest::gghash_to_hex( dep ) } );
+  }
+
+  for ( const string & dep : dep_graph_.executable_dependencies() ) {
     if ( gg::remote::is_available( dep ) ) {
       continue;
     }
