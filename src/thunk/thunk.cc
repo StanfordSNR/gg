@@ -8,6 +8,9 @@
 #include <unordered_map>
 #include <algorithm>
 #include <numeric>
+#include <cajun/json/reader.h>
+#include <cajun/json/writer.h>
+#include <cajun/json/elements.h>
 
 #include "system_runner.hh"
 #include "thunk_writer.hh"
@@ -19,6 +22,7 @@
 using namespace std;
 using namespace gg;
 using namespace gg::thunk;
+using namespace CryptoPP;
 
 Thunk::Thunk( const string & outfile, const Function & function,
               const vector<InFile> & infiles )
@@ -105,6 +109,46 @@ int Thunk::execute( const string & thunk_hash ) const
   }
 
   return retval;
+}
+
+std::string Thunk::execution_payload( const std::string & thunk_hash,
+                                      const bool timelog ) const
+{
+  string base64_thunk;
+
+  StringSource s( ThunkWriter::serialize_thunk( *this ), true,
+                new Base64Encoder( new StringSink( base64_thunk ), false ) );
+
+  json::Object lambda_event;
+  lambda_event[ "thunk_hash" ] = json::String( thunk_hash );
+  lambda_event[ "s3_bucket" ] = json::String( gg::remote::s3_bucket() );
+  lambda_event[ "s3_region" ] = json::String( gg::remote::s3_region() );
+  lambda_event[ "thunk_data" ] = json::String( base64_thunk );
+
+  if ( timelog ) {
+    lambda_event[ "timelog" ] = json::Boolean( true );
+  }
+
+  json::Array lambda_event_infiles;
+
+  for ( const InFile & infile : infiles_ ) {
+    if ( infile.type() == InFile::Type::DUMMY_DIRECTORY ) {
+      continue;
+    }
+
+    json::Object event_infile;
+    event_infile[ "hash" ] = json::String( infile.content_hash() );
+    event_infile[ "size" ] = json::Number( infile.size() );
+    event_infile[ "executable" ] = json::Boolean(  infile.type() == InFile::Type::EXECUTABLE );
+
+    lambda_event_infiles.Insert( event_infile );
+  }
+
+  lambda_event[ "infiles" ] = lambda_event_infiles;
+
+  ostringstream oss;
+  json::Writer::Write( lambda_event, oss );
+  return oss.str();
 }
 
 size_t Thunk::compute_order() const
