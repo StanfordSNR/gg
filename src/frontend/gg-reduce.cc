@@ -60,7 +60,7 @@ private:
     ExecutionEnvironment environment;
   };
 
-  const string thunk_hash_;
+  const vector<string> target_hashes_;
   size_t max_jobs_;
 
   SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT };
@@ -89,9 +89,9 @@ private:
   size_t running_jobs() const { return remote_jobs_.size() + local_jobs_.size(); }
 
 public:
-  Reductor( const string & thunk_hash, const size_t max_jobs = 8 );
+  Reductor( const vector<string> & target_hashes, const size_t max_jobs = 8 );
 
-  string reduce();
+  vector<string> reduce();
   void upload_dependencies() const;
   void print_status() const;
 };
@@ -125,14 +125,20 @@ void Reductor::print_status() const
   }
 }
 
-Reductor::Reductor( const string & thunk_hash, const size_t max_jobs )
-  : thunk_hash_( thunk_hash ), max_jobs_( max_jobs )
+Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs )
+  : target_hashes_( target_hashes ), max_jobs_( max_jobs )
 {
   signals_.set_as_mask();
+  unordered_set<string> all_o1_deps;
 
-  dep_graph_.add_thunk( thunk_hash_ );
-  unordered_set<string> o1_deps = dep_graph_.order_one_dependencies( thunk_hash_ );
-  job_queue_.insert( job_queue_.end(), o1_deps.begin(), o1_deps.end() );
+  for ( const string & hash : target_hashes_ ) {
+    dep_graph_.add_thunk( hash );
+
+    unordered_set<string> thunk_o1_deps = dep_graph_.order_one_dependencies( hash );
+    all_o1_deps.insert( thunk_o1_deps.begin(), thunk_o1_deps.end() );
+  }
+
+  job_queue_.insert( job_queue_.end(), all_o1_deps.begin(), all_o1_deps.end() );
 
   if ( lambda_execution ) {
     lambda_conn_manager_.initialize( AWSCredentials(), gg::remote::s3_region() );
@@ -259,7 +265,7 @@ void Reductor::process_execution_response( ConnectionContextType & connection,
   connection.state = ConnectionContextType::State::closed;
 }
 
-string Reductor::reduce()
+vector<string> Reductor::reduce()
 {
   SignalFD signal_fd( signals_ );
 
@@ -492,12 +498,18 @@ string Reductor::reduce()
     }
 
     if ( poll_result.result == Poller::Result::Type::Exit ) {
-      const string final_hash = dep_graph_.updated_hash( thunk_hash_ );
-      const Optional<ReductionResult> answer = gg::cache::check( final_hash );
-      if ( not answer.initialized() ) {
-        throw runtime_error( "internal error: final answer not found" );
+      vector<string> final_hashes;
+
+      for ( const string & target_hash : target_hashes_ ) {
+        const string final_hash = dep_graph_.updated_hash( target_hash );
+        const Optional<ReductionResult> answer = gg::cache::check( final_hash );
+        if ( not answer.initialized() ) {
+          throw runtime_error( "internal error: final answer not found for " + target_hash );
+        }
+        final_hashes.emplace_back( answer->hash );
       }
-      return answer->hash;
+
+      return final_hashes;
     }
   }
 }
@@ -568,64 +580,77 @@ int main( int argc, char * argv[] )
     gg::models::init();
 
     size_t max_jobs = thread::hardware_concurrency();
-    string thunk_filename { argv[ 1 ] };
-    const roost::path thunk_path = roost::canonical( thunk_filename );
-
     if ( getenv( "GG_MAXJOBS" ) != nullptr ) {
       max_jobs = stoul( safe_getenv( "GG_MAXJOBS" ) );
     }
 
-    string thunk_hash;
+    // string thunk_filename { argv[ 1 ] };
+    // const roost::path thunk_path = roost::canonical( thunk_filename );
 
-    /* first check if this file is actually a placeholder */
-    Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( thunk_path.string() );
+    vector<string> target_filenames;
+    vector<string> target_hashes;
 
-    if ( not placeholder.initialized() ) {
-      ThunkReader thunk_reader { thunk_path.string() };
+    for ( int i = 1; i < argc; i++ ) {
+      target_filenames.emplace_back( argv[ i ] );
+    }
 
-      if( not thunk_reader.is_thunk() ) {
-        /* not a placeholder and not a thunk. Our work is done here. */
-        return EXIT_SUCCESS;
+    for ( const string & target_filename : target_filenames ) {
+      string thunk_hash;
+
+      /* first check if this file is actually a placeholder */
+      Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( target_filename );
+
+      if ( not placeholder.initialized() ) {
+        ThunkReader thunk_reader { target_filename };
+
+        if( not thunk_reader.is_thunk() ) {
+          throw runtime_error( "not a thunk: " + target_filename );
+        }
+        else {
+          thunk_hash = InFile::compute_hash( target_filename );
+        }
       }
       else {
-        thunk_hash = InFile::compute_hash( thunk_path.string() );
+        thunk_hash = placeholder->content_hash();
       }
-    }
-    else {
-      thunk_hash = placeholder->content_hash();
+
+      target_hashes.emplace_back( move( thunk_hash ) );
     }
 
-    Reductor reductor { thunk_hash, max_jobs };
+    Reductor reductor { target_hashes, max_jobs };
 
     if ( lambda_execution or ggremote_execution ) {
       reductor.upload_dependencies();
     }
 
-    string reduced_hash = reductor.reduce();
-
+    vector<string> reduced_hashes = reductor.reduce();
     cerr << endl;
 
     if ( lambda_execution or ggremote_execution ) {
       /* we need to fetch the output from S3 */
-      cerr << "Downloading output file... ";
+      vector<S3::DownloadRequest> download_requests;
+      for ( const string & hash : reduced_hashes ) {
+        download_requests.push_back( { hash, gg::paths::blob_path( hash ) } );
+      }
 
+      cerr << "Downloading output files... ";
       auto download_time = time_it<chrono::milliseconds>(
-        [&reduced_hash]()
+        [&download_requests]()
         {
           S3ClientConfig s3_config;
           s3_config.region = gg::remote::s3_region();
 
           S3Client s3_client { s3_config };
-          s3_client.download_file(
-            gg::remote::s3_bucket(), reduced_hash, gg::paths::blob_path( reduced_hash )
-          );
+          s3_client.download_files( gg::remote::s3_bucket(), download_requests );
         }
       );
 
       cerr << "done (" << download_time.count() << " ms)." << endl;
     }
 
-    roost::copy_then_rename( gg::paths::blob_path( reduced_hash ), thunk_path );
+    for ( size_t i = 0; i < reduced_hashes.size(); i++ ) {
+      roost::copy_then_rename( gg::paths::blob_path( reduced_hashes[ i ] ), target_filenames[ i ] );
+    }
 
     return EXIT_SUCCESS;
   }
