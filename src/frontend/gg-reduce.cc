@@ -11,6 +11,7 @@
 #include <list>
 #include <vector>
 #include <iomanip>
+#include <thread>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -566,7 +567,7 @@ int main( int argc, char * argv[] )
 
     gg::models::init();
 
-    size_t max_jobs = sysconf( _SC_NPROCESSORS_ONLN );
+    size_t max_jobs = thread::hardware_concurrency();
     string thunk_filename { argv[ 1 ] };
     const roost::path thunk_path = roost::canonical( thunk_filename );
 
