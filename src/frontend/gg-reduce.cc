@@ -533,7 +533,7 @@ void Reductor::upload_dependencies() const
   }
 
   const string plural = upload_requests.size() == 1 ? "" : "s";
-  cerr << "Uploading " << upload_requests.size() << " file" << plural << "... ";
+  cerr << "\u2197 Uploading " << upload_requests.size() << " file" << plural << "... ";
 
   auto upload_time = time_it<chrono::milliseconds>(
     [&upload_requests]()
@@ -633,7 +633,7 @@ int main( int argc, char * argv[] )
         download_requests.push_back( { hash, gg::paths::blob_path( hash ) } );
       }
 
-      cerr << "Downloading output files... ";
+      cerr << "\u2198 Downloading output files... ";
       auto download_time = time_it<chrono::milliseconds>(
         [&download_requests]()
         {
