@@ -43,6 +43,9 @@ def fetch_dependencies(infiles, cleanup_first=True):
     infile_hashes.add(GGInfo.thunk_hash)
 
     if cleanup_first:
+        # remove temp execution directories
+        os.system("rm -rf /tmp/thunk-execute.*")
+
         for x in os.listdir(blob_path):
             if x not in infile_hashes:
                 os.remove(os.path.join(blob_path, x))
