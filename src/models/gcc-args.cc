@@ -52,6 +52,8 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   constexpr GCCOptionData gcc_options_data[] = {
     { GCCOption::x,  "x",  required_argument, false, ' ' },
 
+    { GCCOption::dM, "dM", no_argument, false, 'x' },
+
     { GCCOption::E,  "E",  no_argument, false, 'X' },
     { GCCOption::S,  "S",  no_argument, false, 'X' },
     { GCCOption::c,  "c",  no_argument, false, 'X' },
@@ -132,7 +134,12 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       Language file_lang = current_language;
 
       if ( file_lang == Language::NONE ) {
-        file_lang = GCCModelGenerator::filename_to_language( input_file );
+        if ( input_file == "-" and last_stage_.initialized() and *last_stage_ == PREPROCESS ) {
+          file_lang = Language::C;
+        }
+        else {
+          file_lang = GCCModelGenerator::filename_to_language( input_file );
+        }
       }
 
       add_input( input_file, file_lang );

@@ -72,6 +72,8 @@ enum class GCCOption
   mskip_rax_setup, mtune, march,
 
   print_file_name,
+
+  dM,
 };
 
 struct GCCOptionData;

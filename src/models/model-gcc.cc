@@ -298,18 +298,14 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
     exec_original_gcc();
   }
 
-  if ( arguments_.option_argument( GCCOption::print_file_name ).initialized() ) {
+  if ( arguments_.option_argument( GCCOption::print_file_name ).initialized() or
+       arguments_.option_argument( GCCOption::dM ).initialized() ) {
     // just run gcc for this
-    cerr << "\u2570\u257c print-file-name option is present, executing gcc..." << endl;
+    cerr << "\u2570\u257c special option is present, executing gcc..." << endl;
     exec_original_gcc();
   }
 
   for ( const InputFile & input : arguments_.input_files() ) {
-    if ( input.name == "-" ) {
-      cerr << "\u2570\u257c input is stdin, executing gcc..." << endl;
-      exec_original_gcc();
-    }
-
     if ( input.source_language == Language::ASSEMBLER_WITH_CPP and
          has_include_or_incbin( input.name ) ) {
       cerr << "\u2570\u257c assembler file has .include or .incbin directive, executing gcc..." << endl;
