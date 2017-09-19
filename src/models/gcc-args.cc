@@ -267,6 +267,9 @@ void GCCArguments::process_W_option( const string & optarg )
           return; /* don't need to add the original argument */
         }
       }
+      else if ( startswith( suboptarg, "-D" ) ) {
+        accepted = true;
+      }
 
       break;
 
