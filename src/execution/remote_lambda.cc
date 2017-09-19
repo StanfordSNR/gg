@@ -41,7 +41,7 @@ SSLConnectionContext & ExecutionConnectionManager::new_connection( const Thunk &
     throw runtime_error( "hash already exists" );
   }
 
-  HTTPRequest request = generate_request( thunk, hash, true );
+  HTTPRequest request = generate_request( thunk, hash, false );
 
   TCPSocket sock;
   sock.set_blocking( false );

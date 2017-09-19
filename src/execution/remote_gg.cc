@@ -42,7 +42,7 @@ ConnectionContext & ExecutionConnectionManager::new_connection( const Thunk & th
     throw runtime_error( "hash already exists" );
   }
 
-  HTTPRequest request = generate_request( thunk, hash, true );
+  HTTPRequest request = generate_request( thunk, hash, false );
 
   TCPSocket socket;
   socket.set_blocking( false );
