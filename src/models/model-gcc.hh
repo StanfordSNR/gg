@@ -54,7 +54,7 @@ enum class OperationMode
 enum class GCCOption
 {
   x = 1000,
-  g, O, D, U, f,
+  g, O, D, U, f, w,
   o,
   E, S, c, C,
   M, MD, MP, MT, MF, MMD,
@@ -73,7 +73,7 @@ enum class GCCOption
 
   print_file_name,
 
-  dM,
+  dM, rdynamic,
 };
 
 struct GCCOptionData;

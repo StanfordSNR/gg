@@ -52,7 +52,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   constexpr GCCOptionData gcc_options_data[] = {
     { GCCOption::x,  "x",  required_argument, false, ' ' },
 
-    { GCCOption::dM, "dM", no_argument, false, 'x' },
+    { GCCOption::dM, "dM", no_argument, false, 'X' },
 
     { GCCOption::E,  "E",  no_argument, false, 'X' },
     { GCCOption::S,  "S",  no_argument, false, 'X' },
@@ -60,6 +60,8 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
 
     { GCCOption::s,  "s",  no_argument, false, 'X' },
     { GCCOption::C,  "C",  no_argument, false, 'X' },
+
+    { GCCOption::w,  "w",  no_argument, false, 'X' },
 
     /* -M options */
     { GCCOption::M,   "M",  no_argument, false, 'X' },
@@ -81,6 +83,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::dashstatic, "static",   no_argument, false, 'X' },
     { GCCOption::mfentry,    "mfentry",  no_argument, false, 'X' },
     { GCCOption::gdwarf_4,   "gdwarf-4", no_argument, false, 'X' },
+    { GCCOption::rdynamic,   "rdynamic", no_argument, false, 'X' },
 
     { GCCOption::mno_sse,           "mno-sse",           no_argument, false, 'X' },
     { GCCOption::mno_mmx,           "mno-mmx",           no_argument, false, 'X' },
