@@ -13,6 +13,8 @@
 using namespace std;
 using namespace gg::thunk;
 
+const int PLUGIN_FLAG = 1000;
+
 /* this function is based on ar source code */
 Thunk generate_thunk( int argc, char * argv[] )
 {
@@ -23,6 +25,7 @@ Thunk generate_thunk( int argc, char * argv[] )
   vector<string> original_args = gg::models::args_to_vector( argc, argv );
 
   struct option long_options[] = {
+    { "plugin", required_argument, nullptr, PLUGIN_FLAG },
     { 0, 0, 0, 0 },
   };
 
@@ -37,7 +40,7 @@ Thunk generate_thunk( int argc, char * argv[] )
   vector<char *> new_argv;
   vector<vector<char>> argv_data;
 
-  if ( argc > 1 and argv[ 1 ][ 0 ] ) {
+  if ( argc > 1 and argv[ 1 ][ 0 ] != '-' ) {
     int new_argc;
     char * const * in; /* cursor into original argv */
     const char * letter; /* cursor into old option letters */
@@ -60,6 +63,8 @@ Thunk generate_thunk( int argc, char * argv[] )
     argc = new_argc;
     argv = &new_argv[ 0 ];
   }
+
+  vector<InFile> infiles;
 
   optind = 1; /* reset getopt */
   opterr = 0; /* turn off error messages */
@@ -98,11 +103,14 @@ Thunk generate_thunk( int argc, char * argv[] )
     case 'm':
       members_infile = false;
       break;
+
+    case PLUGIN_FLAG:
+      infiles.emplace_back( optarg );
+      break;
     }
   }
 
   string outfile;
-  vector<InFile> infiles;
 
   infiles.push_back( program_infiles.at( AR ) );
 
@@ -131,7 +139,7 @@ Thunk generate_thunk( int argc, char * argv[] )
 int main( int argc, char * argv[] )
 {
   gg::models::init();
-  
+
   Thunk thunk = generate_thunk( argc, argv );
   thunk.store();
 
