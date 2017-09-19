@@ -13,7 +13,9 @@ import base64
 import shutil
 
 import lambda_function.function as lambdafunc
-from lambda_function.ggpaths import GGPaths
+from lambda_function.ggpaths import GGPaths, GG_DIR, make_gg_dirs
+
+toolchain_path = None
 
 def gghash(filename, block_size=65536):
     sha256 = hashlib.sha256()
@@ -26,12 +28,24 @@ def gghash(filename, block_size=65536):
 
     return "{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).decode('ascii').replace('=','').replace('-', '.'), size)
 
+def prepare_toolchain(tpath):
+    for tbin in os.listdir(tpath):
+        bin_path = os.path.join(tpath, tbin)
+        bin_hash = gghash(bin_path)
+        shutil.copy(bin_path, GGPaths.blob_path(bin_hash))
+
 class GGRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
+        if self.path == '/clearall':
+            shutil.rmtree(GG_DIR, ignore_errors=True)
+            self.send_response(200)
+            self.end_headers()
+            make_gg_dirs()
+            prepare_toolchain(toolchain_path)
+            return
+
         request_data = self.rfile.read(int(self.headers['content-length']))
         event = json.loads(request_data.decode('utf-8'))
-
-        print(event['thunk_hash'])
 
         try:
             output = lambdafunc.handler(event, {})
@@ -46,8 +60,6 @@ class GGRequestHandler(http.server.BaseHTTPRequestHandler):
         self.send_header('Content-Length', len(output_data))
         self.end_headers()
 
-        print(output_data)
-
         self.wfile.write(output_data)
 
 class GGServer(socketserver.ForkingMixIn, http.server.HTTPServer):
@@ -61,12 +73,6 @@ def main(port):
     gg_server = GGServer(('', port), GGRequestHandler)
     gg_server.serve_forever()
 
-def prepare_toolchain(toolchain_path):
-    for tbin in os.listdir(toolchain_path):
-        bin_path = os.path.join(toolchain_path, tbin)
-        bin_hash = gghash(bin_path)
-        shutil.copy(bin_path, GGPaths.blob_path(bin_hash))
-
 if __name__ == '__main__':
     if len(sys.argv) == 0:
         os.abort()
@@ -76,7 +82,10 @@ if __name__ == '__main__':
         sys.exit(1)
 
     print('Preparing toolchain... ', end='')
-    prepare_toolchain(sys.argv[2])
+    toolchain_path = sys.argv[2]
+    prepare_toolchain(toolchain_path)
     print('done.')
+
+    print('GG_DIR is', GG_DIR)
 
     main(int(sys.argv[1]))

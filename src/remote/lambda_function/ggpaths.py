@@ -46,5 +46,8 @@ class GGCache:
         with open(rpath, "w") as fout:
             fout.write(new_hash)
 
-os.makedirs(GGPaths.blobs, exist_ok=True)
-os.makedirs(GGPaths.reductions, exist_ok=True)
+def make_gg_dirs():
+    os.makedirs(GGPaths.blobs, exist_ok=True)
+    os.makedirs(GGPaths.reductions, exist_ok=True)
+
+make_gg_dirs()
