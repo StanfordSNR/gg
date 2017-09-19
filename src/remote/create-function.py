@@ -53,7 +53,7 @@ def create_lambda_package(output, function_execs, gg_execute_static, gg_s3_downl
         "gg-s3-download": gg_s3_download,
         "function.py": "lambda_function/function.py",
         "ggpaths.py": "lambda_function/ggpaths.py",
-        "common.py": "common.py"
+        "common.py": "lambda_function/common.py"
     }
 
     for exe in function_execs:
