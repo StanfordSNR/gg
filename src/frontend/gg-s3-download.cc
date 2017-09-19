@@ -46,12 +46,7 @@ int main( int argc, char * const argv[] )
   client_config.region = s3_region;
 
   S3Client s3_client { client_config };
-  s3_client.download_files( s3_bucket, files,
-    [] ( const S3::DownloadRequest & request )
-    {
-      cout << "Download done: " + request.filename.string() + "\n";
-    }
-  );
+  s3_client.download_files( s3_bucket, files );
 
   return EXIT_SUCCESS;
 }
