@@ -20,8 +20,9 @@ HTTPRequest ExecutionConnectionManager::generate_request( const Thunk & thunk,
 {
   string payload = thunk.execution_payload( thunk_hash, timelog );
   HTTPRequest request;
-  request.set_first_line( "POST /execute HTTP/1.1" );
+  request.set_first_line( "POST /cgi-bin/run.cgi HTTP/1.1" );
   request.add_header( HTTPHeader{ "Content-Length", to_string( payload.size() ) } );
+  request.add_header( HTTPHeader{ "Host", "gg-run-server" } );
   request.done_with_headers();
 
   request.read_in_body( payload );
