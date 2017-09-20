@@ -62,7 +62,7 @@ class GGRequestHandler(http.server.BaseHTTPRequestHandler):
 
         self.wfile.write(output_data)
 
-class GGServer(socketserver.ForkingMixIn, http.server.HTTPServer):
+class GGServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     pass
 
 def usage(argv0):
