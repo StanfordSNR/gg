@@ -28,17 +28,18 @@ from ggpaths import GGPaths, GGCache
 from common import is_executable, make_executable, run_command
 
 class GGInfo:
-    s3_bucket = None
-    s3_region = None
-    thunk_hash = None
-    infiles = []
+    def __init__(self):
+        self.s3_bucket = None
+        self.s3_region = None
+        self.thunk_hash = None
+        self.infiles = []
 
-def fetch_dependencies(infiles, cleanup_first=True):
+def fetch_dependencies(gginfo, infiles, cleanup_first=True):
     download_list = []
 
     blob_path = GGPaths.blobs
     infile_hashes = {x['hash'] for x in infiles}
-    infile_hashes.add(GGInfo.thunk_hash)
+    infile_hashes.add(gginfo.thunk_hash)
 
     if cleanup_first:
         # remove temp execution directories
@@ -55,8 +56,8 @@ def fetch_dependencies(infiles, cleanup_first=True):
 
         download_list += [infile['hash']]
 
-    s3_ip = socket.gethostbyname('{}.s3.amazonaws.com'.format(GGInfo.s3_bucket))
-    p = sub.Popen(['gg-s3-download', GGInfo.s3_region, GGInfo.s3_bucket, s3_ip], stdout=sub.PIPE, stdin=sub.PIPE, stderr=sub.PIPE)
+    s3_ip = socket.gethostbyname('{}.s3.amazonaws.com'.format(gginfo.s3_bucket))
+    p = sub.Popen(['gg-s3-download', gginfo.s3_region, gginfo.s3_bucket, s3_ip], stdout=sub.PIPE, stdin=sub.PIPE, stderr=sub.PIPE)
     out, err = p.communicate(input="\n".join(download_list).encode('ascii'))
 
     if p.returncode != 0:
@@ -80,17 +81,19 @@ class TimeLog:
         self.prev = now
 
 def handler(event, context):
-    GGInfo.thunk_hash = event['thunk_hash']
-    GGInfo.s3_bucket = event['s3_bucket']
-    GGInfo.s3_region = event['s3_region']
-    GGInfo.infiles = event['infiles']
+    gginfo = GGInfo()
+
+    gginfo.thunk_hash = event['thunk_hash']
+    gginfo.s3_bucket = event['s3_bucket']
+    gginfo.s3_region = event['s3_region']
+    gginfo.infiles = event['infiles']
 
     enable_timelog = event.get('timelog', False)
     timelogger = TimeLog(enabled=enable_timelog)
 
     thunk_data = b64decode(event['thunk_data'])
 
-    with open(GGPaths.blob_path(GGInfo.thunk_hash), "wb") as fout:
+    with open(GGPaths.blob_path(gginfo.thunk_hash), "wb") as fout:
         fout.write(thunk_data)
 
     timelogger.add_point("write thunk to disk")
@@ -109,18 +112,18 @@ def handler(event, context):
     timelogger.add_point("copy executables to ggdir")
 
     # only clean up the gg directory if running on Lambda.
-    if not fetch_dependencies(GGInfo.infiles, not GG_RUNNER):
+    if not fetch_dependencies(gginfo, gginfo.infiles, not GG_RUNNER):
         return {
             'errorType': 'GG-FetchDependenciesFailed'
         }
 
-    for infile in GGInfo.infiles:
+    for infile in gginfo.infiles:
         if infile['executable']:
             make_executable(GGPaths.blob_path(infile['hash']))
 
     timelogger.add_point("fetching the dependencies")
 
-    return_code, output = run_command(["gg-execute-static", GGInfo.thunk_hash])
+    return_code, output = run_command(["gg-execute-static", gginfo.thunk_hash])
 
     if return_code:
         return {
@@ -129,7 +132,7 @@ def handler(event, context):
 
     timelogger.add_point("gg-execute")
 
-    result = GGCache.check(GGInfo.thunk_hash)
+    result = GGCache.check(gginfo.thunk_hash)
 
     if not result:
         return {
@@ -141,20 +144,20 @@ def handler(event, context):
     timelogger.add_point("check the outfile")
 
     s3_client = boto3.client('s3')
-    s3_client.upload_file(GGPaths.blob_path(result), GGInfo.s3_bucket, result)
+    s3_client.upload_file(GGPaths.blob_path(result), gginfo.s3_bucket, result)
 
     s3_client.put_object_acl(
         ACL='public-read',
-        Bucket=GGInfo.s3_bucket,
+        Bucket=gginfo.s3_bucket,
         Key=result
     )
 
     s3_client.put_object_tagging(
-        Bucket=GGInfo.s3_bucket,
+        Bucket=gginfo.s3_bucket,
         Key=result,
         Tagging={
             'TagSet': [
-                { 'Key': 'gg:reduced_from', 'Value': GGInfo.thunk_hash },
+                { 'Key': 'gg:reduced_from', 'Value': gginfo.thunk_hash },
                 { 'Key': 'gg:executable', 'Value': 'true' if executable else 'false' }
             ]
         }
@@ -165,15 +168,15 @@ def handler(event, context):
     if enable_timelog:
         s3_client.put_object(
             ACL='public-read',
-            Bucket=GGInfo.s3_bucket,
-            Key="runlogs/{}".format(GGInfo.thunk_hash),
+            Bucket=gginfo.s3_bucket,
+            Key="runlogs/{}".format(gginfo.thunk_hash),
             Body=str({'output_hash': result,
                       'started': timelogger.start,
                       'timelog': timelogger.points}).encode('utf-8')
         )
 
     return {
-        'thunk_hash': GGInfo.thunk_hash,
+        'thunk_hash': gginfo.thunk_hash,
         'output_hash': result,
         'output_size': os.path.getsize(GGPaths.blob_path(result)),
         'executable_output': executable
