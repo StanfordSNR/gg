@@ -27,8 +27,6 @@ from base64 import b64decode
 from ggpaths import GGPaths, GGCache
 from common import is_executable, make_executable, run_command
 
-s3_client = boto3.client('s3')
-
 class GGInfo:
     s3_bucket = None
     s3_region = None
@@ -66,8 +64,6 @@ def fetch_dependencies(infiles, cleanup_first=True):
 
     return True
 
-EXECUTABLES_DIR = os.path.join(curdir, 'executables')
-
 class TimeLog:
     def __init__(self, enabled=True):
         self.enabled = enabled
@@ -99,10 +95,12 @@ def handler(event, context):
 
     timelogger.add_point("write thunk to disk")
 
-    if os.path.exists(EXECUTABLES_DIR):
-        for exe in os.listdir(EXECUTABLES_DIR):
+    executables_dir = os.path.join(curdir, 'executables')
+
+    if os.path.exists(executables_dir):
+        for exe in os.listdir(executables_dir):
             blob_path = GGPaths.blob_path(exe)
-            exe_path = os.path.join(EXECUTABLES_DIR, exe)
+            exe_path = os.path.join(executables_dir, exe)
 
             if not os.path.exists(blob_path):
                 shutil.copy(exe_path, blob_path)
@@ -142,6 +140,7 @@ def handler(event, context):
 
     timelogger.add_point("check the outfile")
 
+    s3_client = boto3.client('s3')
     s3_client.upload_file(GGPaths.blob_path(result), GGInfo.s3_bucket, result)
 
     s3_client.put_object_acl(

@@ -253,7 +253,7 @@ void Reductor::process_execution_response( ConnectionContextType & connection,
 
   if ( response.thunk_hash != thunk_hash ) {
     cerr << http_response.str() << endl;
-    throw runtime_error( "expected output for " + thunk_hash + ", got output for" + response.output_hash );
+    throw runtime_error( "expected output for " + thunk_hash + ", got output for " + response.thunk_hash );
   }
 
   gg::cache::insert( response.thunk_hash, response.output_hash );
@@ -419,7 +419,6 @@ vector<string> Reductor::reduce()
 
                     if ( connection.last_write == connection.request_str.cend() ) {
                       connection.something_to_write = false;
-                      return ResultType::Cancel;
                     }
 
                     return ResultType::Continue;
@@ -441,8 +440,6 @@ vector<string> Reductor::reduce()
                       if ( is_finished() ) {
                         return ResultType::Exit;
                       }
-
-                      return ResultType::Cancel;
                     }
 
                     return ResultType::Continue;
@@ -498,6 +495,10 @@ vector<string> Reductor::reduce()
     }
 
     if ( poll_result.result == Poller::Result::Type::Exit ) {
+      if ( not is_finished() ) {
+        throw runtime_error( "poller failure happened, job is not finished" );
+      }
+
       vector<string> final_hashes;
 
       for ( const string & target_hash : target_hashes_ ) {
