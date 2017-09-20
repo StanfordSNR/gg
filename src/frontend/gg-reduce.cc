@@ -69,7 +69,7 @@ private:
   unordered_map<string, JobInfo> remote_jobs_ {};
   list<ChildProcess> local_jobs_ {};
   deque<string> job_queue_ {};
-  deque<string> remote_cleanup_queue_ {};
+  deque<pair<string, ExecutionEnvironment>> remote_cleanup_queue_ {};
 
   size_t finished_jobs_ { 0 };
 
@@ -259,7 +259,8 @@ void Reductor::process_execution_response( ConnectionContextType & connection,
   gg::cache::insert( response.thunk_hash, response.output_hash );
   execution_finalize( response.thunk_hash, response.output_hash );
 
-  remote_cleanup_queue_.push_back( response.thunk_hash );
+  remote_cleanup_queue_.push_back( make_pair( response.thunk_hash, remote_jobs_.at( thunk_hash ).environment ) );
+  remote_jobs_.erase( thunk_hash );
   finished_jobs_++;
 
   connection.state = ConnectionContextType::State::closed;
@@ -470,8 +471,8 @@ vector<string> Reductor::reduce()
 
     /* let's cleanup closed connections */
     while ( not remote_cleanup_queue_.empty() ) {
-      const string & hash = remote_cleanup_queue_.front();
-      const ExecutionEnvironment exec_env = remote_jobs_.at( hash ).environment;
+      const string & hash = remote_cleanup_queue_.front().first;
+      const ExecutionEnvironment exec_env = remote_cleanup_queue_.front().second;
 
       switch ( exec_env ) {
       case ExecutionEnvironment::LAMBDA:
@@ -493,7 +494,6 @@ vector<string> Reductor::reduce()
         break;
       }
 
-      remote_jobs_.erase( hash );
       remote_cleanup_queue_.pop_front();
     }
 
