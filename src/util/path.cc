@@ -393,6 +393,14 @@ namespace roost {
     CheckSystemCall( "chmod", ::chmod( pathn.string().c_str(), mode ) );
   }
 
+  void make_executable( const path & pathn )
+  {
+    struct stat file_info;
+    CheckSystemCall( "stat " + pathn.string(),
+                     stat( pathn.string().c_str(), &file_info ) );
+    chmod( pathn, file_info.st_mode | S_IXUSR );
+  }
+
   string readlink( const path & pathn )
   {
     char result[ PATH_MAX ];
