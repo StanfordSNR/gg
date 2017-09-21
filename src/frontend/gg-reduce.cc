@@ -651,6 +651,9 @@ int main( int argc, char * argv[] )
 
     for ( size_t i = 0; i < reduced_hashes.size(); i++ ) {
       roost::copy_then_rename( gg::paths::blob_path( reduced_hashes[ i ] ), target_filenames[ i ] );
+
+      /* HACK this is a just a dirty hack... it's not always right */
+      roost::make_executable( target_filenames[ i ] );
     }
 
     return EXIT_SUCCESS;
