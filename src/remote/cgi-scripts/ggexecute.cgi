@@ -3,8 +3,8 @@
 import os
 
 SERVER_GG_DIR = '/var/www/_gg'
-os.environ['GG_RUNNER'] = '1'
 os.environ['GG_DIR'] = SERVER_GG_DIR
+os.environ['GG_RUNNER'] = '1'
 
 import cgi
 import sys

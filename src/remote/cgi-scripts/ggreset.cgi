@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 import os
+
+SERVER_GG_DIR = '/var/www/_gg'
+os.environ['GG_DIR'] = SERVER_GG_DIR
 os.environ['GG_RUNNER'] = '1'
 
 import cgi
@@ -9,13 +12,42 @@ import time
 import json
 import base64
 import shutil
+import hashlib
 
 import function as lambdafunc
 from ggpaths import GGPaths, GG_DIR, make_gg_dirs
 
-print('Content-Type: text/plain')
-print()
-print(GG_DIR)
+def gghash(filename, block_size=65536):
+    sha256 = hashlib.sha256()
+    size = 0
+
+    with open(filename, 'rb') as f:
+        for block in iter(lambda: f.read(block_size), b''):
+            size += len(block)
+            sha256.update(block)
+
+    return "{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).decode('ascii').replace('=','').replace('-', '.'), size)
+
+def prepare_toolchain(tpath):
+    for tbin in os.listdir(tpath):
+        bin_path = os.path.join(tpath, tbin)
+        bin_hash = gghash(bin_path)
+        shutil.copy(bin_path, GGPaths.blob_path(bin_hash))
+
+toolchain_path = None
+
+with open("config") as fin:
+    for line in fin:
+        line = line.strip()
+        line = line.split('=')
+        if line[0] == 'TOOLCHAIN_PATH':
+            toolchain_path = line[1]
+            break;
 
 shutil.rmtree(GG_DIR, ignore_errors=True)
 make_gg_dirs()
+prepare_toolchain(toolchain_path)
+
+print('Content-Type: text/plain')
+print()
+print(GG_DIR)
