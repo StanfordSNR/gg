@@ -2,8 +2,13 @@
 
 import os
 
-SERVER_GG_DIR = '/var/www/_gg'
-os.environ['GG_DIR'] = SERVER_GG_DIR
+with open("config") as fin:
+    for line in fin:
+        line = line.strip()
+        line = line.split('=')
+        os.environ[line[0]] = line[1]
+
+os.environ['GG_DIR'] = os.environ['SERVER_GG_DIR']
 os.environ['GG_RUNNER'] = '1'
 
 import cgi
@@ -14,12 +19,6 @@ import base64
 
 import function as lambdafunc
 from ggpaths import GGPaths, GG_DIR, make_gg_dirs
-
-with open("config") as fin:
-    for line in fin:
-        line = line.strip()
-        line = line.split('=')
-        os.environ[line[0]] = line[1]
 
 request_data = sys.stdin.read()
 event = json.loads(request_data)

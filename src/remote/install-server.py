@@ -7,7 +7,7 @@ import base64
 import hashlib
 import shutil
 
-SERVER_GG_DIR = '/var/www/_gg'
+SERVER_GG_DIR = '/var/www/tmpfs/_gg'
 os.environ['GG_DIR'] = SERVER_GG_DIR
 
 from lambda_function.ggpaths import GGPaths, GG_DIR, make_gg_dirs
@@ -76,4 +76,5 @@ if __name__ == '__main__':
         for key in ['AWS_SECRET_ACCESS_KEY', 'AWS_ACCESS_KEY_ID']:
             fout.write('%s=%s\n' % (key, os.environ[key]))
         fout.write('TOOLCHAIN_PATH=%s' % toolchain_path)
+        fout.write('SERVER_GG_DIR=%s' % SERVER_GG_DIR)
     print('done.')

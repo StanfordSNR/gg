@@ -2,8 +2,14 @@
 
 import os
 
-SERVER_GG_DIR = '/var/www/_gg'
-os.environ['GG_DIR'] = SERVER_GG_DIR
+with open("config") as fin:
+    for line in fin:
+        line = line.strip()
+        line = line.split('=')
+        os.environ[line[0]] = line[1]
+
+toolchain_path = os.environ['TOOLCHAIN_PATH']
+os.environ['GG_DIR'] = os.environ['SERVER_GG_DIR']
 os.environ['GG_RUNNER'] = '1'
 
 import cgi
@@ -33,16 +39,6 @@ def prepare_toolchain(tpath):
         bin_path = os.path.join(tpath, tbin)
         bin_hash = gghash(bin_path)
         shutil.copy(bin_path, GGPaths.blob_path(bin_hash))
-
-toolchain_path = None
-
-with open("config") as fin:
-    for line in fin:
-        line = line.strip()
-        line = line.split('=')
-        if line[0] == 'TOOLCHAIN_PATH':
-            toolchain_path = line[1]
-            break;
 
 shutil.rmtree(GG_DIR, ignore_errors=True)
 make_gg_dirs()
