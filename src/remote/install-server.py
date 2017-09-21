@@ -75,6 +75,6 @@ if __name__ == '__main__':
     with open(os.path.join(lambda_root, 'config'), "w") as fout:
         for key in ['AWS_SECRET_ACCESS_KEY', 'AWS_ACCESS_KEY_ID']:
             fout.write('%s=%s\n' % (key, os.environ[key]))
-        fout.write('TOOLCHAIN_PATH=%s' % toolchain_path)
+        fout.write('TOOLCHAIN_PATH=%s\n' % toolchain_path)
         fout.write('SERVER_GG_DIR=%s' % SERVER_GG_DIR)
     print('done.')
