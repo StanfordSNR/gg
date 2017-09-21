@@ -99,6 +99,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::dumpversion,       "dumpversion",       no_argument, false, 'X' },
 
     { GCCOption::mskip_rax_setup,   "mskip-rax-setup",   no_argument, false, 'X' },
+    { GCCOption::msse4_2,           "msse4.2",           no_argument, false, 'X' },
 
     { GCCOption::include, "include", required_argument, false, ' ' },
     { GCCOption::param,   "param",   required_argument, true,  ' ' },
