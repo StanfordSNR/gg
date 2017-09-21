@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+
+SERVER_GG_DIR = '/var/www/_gg'
 os.environ['GG_RUNNER'] = '1'
+os.environ['GG_DIR'] = SERVER_GG_DIR
 
 import cgi
 import sys

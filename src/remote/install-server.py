@@ -7,7 +7,8 @@ import base64
 import hashlib
 import shutil
 
-os.environ['GG_DIR'] = '/tmp/_gg'
+SERVER_GG_DIR = '/var/www/_gg'
+os.environ['GG_DIR'] = SERVER_GG_DIR
 
 from lambda_function.ggpaths import GGPaths, GG_DIR, make_gg_dirs
 
@@ -67,7 +68,7 @@ if __name__ == '__main__':
     print('done.')
 
     print('Fixing up permissions for GG_DIR... ', end='')
-    os.system('chown -R www-data:www-data /tmp/_gg')
+    os.system('chown -R www-data:www-data {}'.format(SERVER_GG_DIR))
     print('done.')
 
     print('Creating environment file... ', end='')
