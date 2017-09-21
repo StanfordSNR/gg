@@ -96,6 +96,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::mno_fp_ret_in_387, "mno-fp-ret-in-387", no_argument, false, 'X' },
     { GCCOption::mno_red_zone,      "mno-red-zone",      no_argument, false, 'X' },
     { GCCOption::msoft_float,       "msoft-float",       no_argument, false, 'X' },
+    { GCCOption::dumpversion,       "dumpversion",       no_argument, false, 'X' },
 
     { GCCOption::mskip_rax_setup,   "mskip-rax-setup",   no_argument, false, 'X' },
 
