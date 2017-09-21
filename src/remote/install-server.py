@@ -52,6 +52,7 @@ if __name__ == '__main__':
     print('done.')
 
     lambda_root = os.path.join(cgi_bin_path, 'gg')
+    shutil.rmtree(lambda_root)
 
     print('Copying Lambda package to cgi-bin... ', end='')
     shutil.copytree('lambda_function/', lambda_root)
@@ -75,6 +76,6 @@ if __name__ == '__main__':
     with open(os.path.join(lambda_root, 'config'), "w") as fout:
         for key in ['AWS_SECRET_ACCESS_KEY', 'AWS_ACCESS_KEY_ID']:
             fout.write('%s=%s\n' % (key, os.environ[key]))
-        fout.write('TOOLCHAIN_PATH=%s\n' % toolchain_path)
+        fout.write('TOOLCHAIN_PATH=%s\n' % os.path.abspath(toolchain_path))
         fout.write('SERVER_GG_DIR=%s' % SERVER_GG_DIR)
     print('done.')
