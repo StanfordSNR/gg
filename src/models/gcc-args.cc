@@ -16,6 +16,10 @@ struct GCCOptionData
   char arg_separator;
 };
 
+bool startswith( const string & str, const string & prefix ) {
+  return str.compare( 0, prefix.size(), prefix ) == 0;
+}
+
 template <typename E>
 constexpr auto to_underlying( E e ) noexcept
 {
@@ -47,7 +51,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   optind = 1;
   opterr = 0;
 
-  constexpr const char * gcc_optstring = "-l:B:o:gO::D:U:f:I:W::L:";
+  constexpr const char * gcc_optstring = "-l:B:o:gO::D:U:f:I:W::L:i:";
 
   constexpr GCCOptionData gcc_options_data[] = {
     { GCCOption::x,  "x",  required_argument, false, ' ' },
@@ -62,6 +66,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
     { GCCOption::C,  "C",  no_argument, false, 'X' },
 
     { GCCOption::w,  "w",  no_argument, false, 'X' },
+    { GCCOption::v,  "v",  no_argument, false, 'X' },
 
     /* -M options */
     { GCCOption::M,   "M",  no_argument, false, 'X' },
@@ -159,6 +164,16 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       add_input( optarg, Language::SHARED_LIBRARY );
       break;
 
+    case 'i':
+      if ( startswith( optarg, "system" ) ) {
+        string optarg_str { optarg };
+        include_dirs_.push_back( optarg_str.substr( strlen( "system" ) ) );
+      }
+      else {
+        flag_processed = false;
+      }
+      break;
+
     case 'o':
       output_ = optarg;
       break;
@@ -245,10 +260,6 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
   for ( InputFile & input : input_files_ ) {
     input.index += args_.size() + ( output_.empty() ? 0 : 2 );
   }
-}
-
-bool startswith( const string & str, const string & prefix ) {
-  return str.compare( 0, prefix.size(), prefix ) == 0;
 }
 
 void GCCArguments::process_W_option( const string & optarg )
