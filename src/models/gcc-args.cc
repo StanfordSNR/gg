@@ -190,7 +190,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       library_dirs_.emplace_back( optarg );
       break;
 
-    case 'g': add_option( GCCOption::g, "g" ); break;
+    case 'g': /* add_option( GCCOption::g, "g" ); */ break;
     case 'O': add_option( GCCOption::O, "O", optarg, '\0' ); break;
     case 'D': add_option( GCCOption::D, "D", optarg, '\0' ); break;
     case 'U': add_option( GCCOption::U, "U", optarg, '\0' ); break;

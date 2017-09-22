@@ -119,6 +119,9 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
     infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
   }
 
+  /* XXX always strip! */
+  all_args.push_back( "-s" );
+
   infiles.emplace_back( gcc_install_path, "", InFile::Type::DUMMY_DIRECTORY );
 
   for ( const string & infile : arguments_.extra_infiles( LINK ) ) {

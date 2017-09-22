@@ -5,7 +5,7 @@ cd ${TEST_TMPDIR}
 export PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
 
 OUTPUT=curhello
-GCC_ARGS="$DATADIR/curhello.o -lncurses"
+GCC_ARGS="$DATADIR/curhello.o -lncurses -s"
 
 # Run with GCC
 PATH=${TOOLCHAIN_PATH}:$PATH gcc ${GCC_ARGS} -o ${OUTPUT}.gold -pie -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/x86_64-linux-gnu -L/usr/lib -L/lib/x86_64-linux-gnu -L/lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib -L/usr/lib -L/lib -L/usr/lib -Wl,-rpath-link,/lib/x86_64-linux-gnu -B/usr/lib/gcc
