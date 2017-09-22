@@ -117,6 +117,8 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
 
     { GCCOption::mpreferred_stack_boundary, "mpreferred-stack-boundary", required_argument, false, '=' },
 
+    { GCCOption::mno_tls_direct_seg_refs,   "mno-tls-direct-seg-refs",   no_argument, false, 'X' },
+
     { GCCOption::mregparm, "mregparm", required_argument, false, '=' },
 
     { GCCOption::print_file_name, "print-file-name", required_argument, false, '=' },
