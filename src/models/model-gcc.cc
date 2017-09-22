@@ -287,9 +287,11 @@ void print_gcc_command( const string & command_str )
    cerr << endl;
 }
 
+const bool force_strip = ( getenv( "GG_GCC_FORCE_STRIP" ) != nullptr );
+
 GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
                                       int argc, char ** argv )
-  : operation_mode_( operation_mode ), arguments_( argc, argv )
+  : operation_mode_( operation_mode ), arguments_( argc, argv, force_strip )
 {
   exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
 

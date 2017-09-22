@@ -119,8 +119,10 @@ private:
   bool no_stdlib_ { false };
   bool no_stdinc_ { false };
 
+  const bool force_strip_ { false };
+
 public:
-  GCCArguments( const int argc, char ** argv );
+  GCCArguments( const int argc, char ** argv, const bool force_strip = false );
 
   void add_option( const GCCOption option, const std::string & optstr,
                    const char * optargx = nullptr, const char arg_separator = 'X',
@@ -147,6 +149,8 @@ public:
   Optional<std::string> option_argument( const GCCOption option ) const;
 
   void print_args() const;
+
+  bool force_strip() const { return force_strip_; }
 };
 
 class GCCModelGenerator

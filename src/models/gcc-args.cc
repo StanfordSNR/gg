@@ -46,7 +46,8 @@ struct getopt_options
   option list[ N + 1 ];
 };
 
-GCCArguments::GCCArguments( const int argc, char ** argv )
+GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip )
+  : force_strip_( force_strip )
 {
   optind = 1;
   opterr = 0;
@@ -190,7 +191,12 @@ GCCArguments::GCCArguments( const int argc, char ** argv )
       library_dirs_.emplace_back( optarg );
       break;
 
-    case 'g': /* add_option( GCCOption::g, "g" ); */ break;
+    case 'g':
+      if ( not force_strip_ ) {
+        add_option( GCCOption::g, "g" );
+      }
+      break;
+
     case 'O': add_option( GCCOption::O, "O", optarg, '\0' ); break;
     case 'D': add_option( GCCOption::D, "D", optarg, '\0' ); break;
     case 'U': add_option( GCCOption::U, "U", optarg, '\0' ); break;
