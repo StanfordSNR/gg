@@ -23,7 +23,8 @@ vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile>
 
   size_t last_index = SIZE_MAX;
   for ( auto it = link_inputs.rbegin(); it != link_inputs.rend(); it++ ) {
-    if ( it->language == Language::SHARED_LIBRARY ) {
+    if ( it->language == Language::SHARED_LIBRARY or
+         it->language == Language::SHARED_OBJECT ) {
       continue;
     }
 
@@ -65,6 +66,7 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
 
   for ( auto const & link_input : link_inputs ) {
     if ( link_input.language == Language::OBJECT or
+         link_input.language == Language::SHARED_OBJECT or
          link_input.language == Language::ARCHIVE_LIBRARY ) {
       infiles.push_back( link_input.infile.content_hash().empty()
                          ? link_input.name
@@ -84,6 +86,7 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
   for ( const InputFile & input : link_inputs ) {
     switch ( input.language ) {
     case Language::OBJECT:
+    case Language::SHARED_OBJECT:
     case Language::ARCHIVE_LIBRARY:
       args.push_back( input.name );
       break;

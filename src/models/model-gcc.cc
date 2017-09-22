@@ -58,6 +58,7 @@ bool is_non_object_input( const InputFile & input )
   case Language::SHARED_LIBRARY:
   case Language::ARCHIVE_LIBRARY:
   case Language::OBJECT:
+  case Language::SHARED_OBJECT:
     return false;
 
   default: return true;

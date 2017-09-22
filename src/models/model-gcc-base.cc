@@ -26,7 +26,7 @@ const unordered_map<string, Language> ext_to_lang = {
   { "S",   Language::ASSEMBLER_WITH_CPP },
   { "sx",  Language::ASSEMBLER_WITH_CPP },
   { "o",   Language::OBJECT },
-  { "so",  Language::OBJECT },
+  { "so",  Language::SHARED_OBJECT },
   { "lo",  Language::OBJECT },
   { "a",   Language::ARCHIVE_LIBRARY },
 };
@@ -126,6 +126,7 @@ GCCStage GCCModelGenerator::language_to_stage( const Language lang )
     return ASSEMBLE;
 
   case Language::OBJECT:
+  case Language::SHARED_OBJECT:
     return LINK;
 
   default: throw runtime_error( "unknown language" );
