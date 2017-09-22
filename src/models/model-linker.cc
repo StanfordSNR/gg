@@ -13,6 +13,8 @@
 using namespace std;
 using namespace gg::thunk;
 
+const bool include_gompspec = ( getenv( "GG_GCC_OPENMP_SUPPORT" ) != nullptr );
+
 vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile> & link_inputs,
                                                          const vector<string> & gcc_args )
 {
@@ -127,6 +129,23 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
 
   for ( const string & infile : arguments_.extra_infiles( LINK ) ) {
     infiles.emplace_back( infile );
+  }
+
+  if ( include_gompspec ) {
+    /* let's look for libgomp.spec in library search path */
+    bool found = false;
+    for ( const string & dir : gcc_library_path ) {
+      const roost::path spec_path = roost::path( dir ) / "libgomp.spec";
+      if ( roost::exists( spec_path ) ) {
+        infiles.emplace_back( spec_path.string() );
+        found = true;
+        break;
+      }
+    }
+
+    if ( not found ) {
+      throw runtime_error( "could not find file libgomp.spec" );
+    }
   }
 
   return { output, gcc_function( operation_mode_, all_args, envars_ ), infiles };
