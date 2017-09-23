@@ -84,7 +84,7 @@ Language GCCModelGenerator::filename_to_language( const std::string & path )
   regex_match( path, match, so_pattern );
 
   if ( match.size() > 0 ) {
-    return Language::OBJECT;
+    return Language::SHARED_OBJECT;
   }
 
   throw runtime_error( "unknown file extension: " + path );
