@@ -42,6 +42,7 @@
 #include "optional.hh"
 #include "units.hh"
 #include "timeit.hh"
+#include "status_bar.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -65,85 +66,6 @@ enum class ExecutionEnvironment { GG_RUNNER, LAMBDA };
 #define COLOR_CYAN    "\033[36m"
 #define BOLD          "\033[1m"
 #define COLOR_RESET   "\033[0m"
-#define HIDE_CURSOR   "\033[25l"
-#define SHOW_CURSOR   "\033[25h"
-
-class StatusBar
-{
-private:
-  string text_ {};
-  winsize window_size_ {};
-  StatusBar();
-
-  void init();
-  void remove();
-
-public:
-  ~StatusBar();
-
-  StatusBar( const StatusBar & ) = delete;
-  void operator=( const StatusBar & ) = delete;
-
-  static StatusBar & get();
-
-  static void redraw();
-  static void set_text( const string & text );
-};
-
-StatusBar::StatusBar()
-{
-  init();
-}
-
-StatusBar::~StatusBar()
-{
-  remove();
-}
-
-StatusBar & StatusBar::get()
-{
-  static StatusBar status_bar;
-  return status_bar;
-}
-
-void StatusBar::init()
-{
-  ioctl( STDOUT_FILENO, TIOCGWINSZ, &window_size_ );
-
-  ostringstream oss;
-  oss << "\x0A\0337\033[1;" << window_size_.ws_row - 1 << "r\033["
-      << window_size_.ws_row << ";1H\033[K\0338\xc2\x8D";
-
-  cout << oss.str() << flush;
-}
-
-void StatusBar::remove()
-{
-  set_text( "" );
-  cout << "\0337\033[1;" << window_size_.ws_row << "r\0338" << flush;
-}
-
-void StatusBar::redraw()
-{
-  get().remove();
-  get().init();
-  get().set_text( get().text_ );
-}
-
-void StatusBar::set_text( const string & text )
-{
-  StatusBar & status_bar = get();
-  status_bar.text_ = text;
-
-  ostringstream oss;
-  oss << HIDE_CURSOR
-      << "\0337\033[" << status_bar.window_size_.ws_row << ";1H\033[K"
-      << status_bar.text_
-      << "\033[K\0338"
-      << SHOW_CURSOR;
-
-  cout << oss.str() << flush;
-}
 
 class Reductor
 {
