@@ -166,6 +166,7 @@ public:
 void Reductor::print_status() const
 {
   static time_t last_display = 0;
+  const static string color_reset = COLOR_RESET"\033[48;5;18m";
 
   time_t this_display = time( nullptr );
 
@@ -174,13 +175,13 @@ void Reductor::print_status() const
 
     ostringstream data;
 
-    data << "\033[44m"
+    data << color_reset
          << "[" << setw( 3 ) << std::right   << ceil( 100 * finished_jobs_ / dep_graph_.size() ) << "%]"
-         << " in queue: "    << setw( 5 ) << std::left << job_queue_.size()
-         << " remote: "      << setw( 5 ) << std::left << remote_jobs_.size()
-         << " local: "       << setw( 5 ) << std::left << local_jobs_.size()
-         << " done: "        << setw( 5 ) << std::left << finished_jobs_
-         << " total: "       << dep_graph_.size();
+         << " in queue: "    << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size()   << color_reset
+         << " remote: "      << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << color_reset
+         << " local: "       << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size()  << color_reset
+         << " done: "        << COLOR_GREEN  << setw( 5 ) << std::left << finished_jobs_      << color_reset
+         << " total: "       << COLOR_BLUE   << dep_graph_.size();
 
     StatusBar::get().set_text( data.str() );
   }
