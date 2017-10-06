@@ -55,14 +55,16 @@ const bool ggremote_execution = ( getenv( "GG_REMOTE" ) != NULL );
 
 enum class ExecutionEnvironment { GG_RUNNER, LAMBDA };
 
-#define COLOR_RED    "\033[1;31m"
-#define COLOR_GREEN  "\033[1;32m"
-#define COLOR_YELLOW "\033[1;33m"
-#define COLOR_BLUE   "\033[1;34m"
-#define COLOR_CYAN   "\033[1;36m"
-#define COLOR_RESET  "\033[0m"
-#define HIDE_CURSOR  "\033[25l"
-#define SHOW_CURSOR  "\033[25h"
+#define COLOR_DEFAULT "\033[39m"
+#define COLOR_RED     "\033[31m"
+#define COLOR_GREEN   "\033[32m"
+#define COLOR_YELLOW  "\033[33m"
+#define COLOR_BLUE    "\033[34m"
+#define COLOR_CYAN    "\033[36m"
+#define BOLD          "\033[1m"
+#define COLOR_RESET   "\033[0m"
+#define HIDE_CURSOR   "\033[25l"
+#define SHOW_CURSOR   "\033[25h"
 
 class StatusBar
 {
@@ -166,7 +168,7 @@ public:
 void Reductor::print_status() const
 {
   static time_t last_display = 0;
-  const static string color_reset = COLOR_RESET"\033[48;5;18m";
+  const static string color_reset = COLOR_RESET"\033[48;5;236m";
 
   time_t this_display = time( nullptr );
 
@@ -176,12 +178,12 @@ void Reductor::print_status() const
     ostringstream data;
 
     data << color_reset
-         << "[" << setw( 3 ) << std::right   << ceil( 100 * finished_jobs_ / dep_graph_.size() ) << "%]"
-         << " in queue: "    << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size()   << color_reset
-         << " remote: "      << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << color_reset
-         << " local: "       << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size()  << color_reset
-         << " done: "        << COLOR_GREEN  << setw( 5 ) << std::left << finished_jobs_      << color_reset
-         << " total: "       << COLOR_BLUE   << dep_graph_.size();
+         << "[" << setw( 3 ) << std::right    << ceil( 100 * finished_jobs_ / dep_graph_.size() ) << "%]"
+         << " in queue: "    << BOLD << COLOR_YELLOW  << setw( 5 ) << std::left << job_queue_.size()   << color_reset
+         << " remote: "      << BOLD << COLOR_RED     << setw( 5 ) << std::left << remote_jobs_.size() << color_reset
+         << " local: "       << BOLD << COLOR_RED     << setw( 5 ) << std::left << local_jobs_.size()  << color_reset
+         << " done: "        << BOLD << COLOR_GREEN   << setw( 5 ) << std::left << finished_jobs_      << color_reset
+         << " total: "       << BOLD << COLOR_DEFAULT << dep_graph_.size();
 
     StatusBar::get().set_text( data.str() );
   }
