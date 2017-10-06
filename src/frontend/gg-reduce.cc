@@ -717,7 +717,6 @@ int main( int argc, char * argv[] )
     }
 
     vector<string> reduced_hashes = reductor.reduce();
-    cerr << endl;
 
     if ( lambda_execution or ggremote_execution ) {
       /* we need to fetch the output from S3 */
