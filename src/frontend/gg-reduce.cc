@@ -2,9 +2,11 @@
 
 #include <unistd.h>
 #include <cstring>
+#include <cstdio>
 #include <cmath>
 #include <getopt.h>
 #include <iostream>
+#include <sstream>
 #include <unordered_set>
 #include <algorithm>
 #include <deque>
@@ -12,6 +14,7 @@
 #include <vector>
 #include <iomanip>
 #include <thread>
+#include <sys/ioctl.h>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -51,6 +54,70 @@ const bool lambda_execution = ( getenv( "GG_LAMBDA" ) != NULL );
 const bool ggremote_execution = ( getenv( "GG_REMOTE" ) != NULL );
 
 enum class ExecutionEnvironment { GG_RUNNER, LAMBDA };
+
+#define COLOR_RED    "\033[1;31m"
+#define COLOR_GREEN  "\033[1;32m"
+#define COLOR_YELLOW "\033[1;33m"
+#define COLOR_BLUE   "\033[1;34m"
+#define COLOR_CYAN   "\033[1;36m"
+#define COLOR_RESET  "\033[0m"
+#define HIDE_CURSOR  "\033[25l"
+#define SHOW_CURSOR  "\033[25h"
+
+class StatusBar
+{
+private:
+  string text_ {};
+  winsize window_size_ {};
+  StatusBar();
+
+public:
+  ~StatusBar();
+
+  StatusBar( const StatusBar & ) = delete;
+  void operator=( const StatusBar & ) = delete;
+
+  static StatusBar & get();
+
+  void set_text( const string & text );
+};
+
+StatusBar::StatusBar()
+{
+  ioctl( STDOUT_FILENO, TIOCGWINSZ, &window_size_ );
+
+  ostringstream oss;
+  oss << "\x0A\0337\033[1;" << window_size_.ws_row - 1 << "r\033["
+      << window_size_.ws_row << ";1H\033[K\0338\xc2\x8D";
+
+  cout << oss.str() << flush;
+
+  set_text( "[  0%]" );
+}
+
+StatusBar & StatusBar::get()
+{
+  static StatusBar status_bar;
+  return status_bar;
+}
+
+void StatusBar::set_text( const string & text )
+{
+  text_ = text;
+
+  ostringstream oss;
+  oss << HIDE_CURSOR
+      << "\0337\033[" << window_size_.ws_row << ";1H\033[K" << text_ << "\0338"
+      << SHOW_CURSOR;
+
+  cout << oss.str() << flush;
+}
+
+StatusBar::~StatusBar()
+{
+  set_text( "" );
+  cout << "\0337\033[1;" << window_size_.ws_row << "r\0338" << flush;
+}
 
 class Reductor
 {
@@ -96,15 +163,6 @@ public:
   void print_status() const;
 };
 
-#define COLOR_RED    "\033[1;31m"
-#define COLOR_GREEN  "\033[1;32m"
-#define COLOR_YELLOW "\033[1;33m"
-#define COLOR_BLUE   "\033[1;34m"
-#define COLOR_CYAN   "\033[1;36m"
-#define COLOR_RESET  "\033[0m"
-#define HIDE_CURSOR  "\033[25l"
-#define SHOW_CURSOR  "\033[25h"
-
 void Reductor::print_status() const
 {
   static time_t last_display = 0;
@@ -114,14 +172,16 @@ void Reductor::print_status() const
   if ( this_display != last_display ) {
     last_display = this_display;
 
-    cerr << HIDE_CURSOR << "\r"
-         << "[" << setw( 3 ) << std::right << ceil( 100 * finished_jobs_ / dep_graph_.size() ) << "%]"
+    ostringstream data;
+
+    data << "[" << setw( 3 ) << std::right   << ceil( 100 * finished_jobs_ / dep_graph_.size() ) << "%]"
          << " in queue: "    << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
          << " remote: "      << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << COLOR_RESET
          << " local: "       << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size() << COLOR_RESET
          << " done: "        << COLOR_GREEN  << setw( 5 ) << std::left << finished_jobs_ << COLOR_RESET
-         << " total: "       << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET
-         << SHOW_CURSOR;
+         << " total: "       << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET;
+
+    StatusBar::get().set_text( data.str() );
   }
 }
 
@@ -577,6 +637,8 @@ int main( int argc, char * argv[] )
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
+
+    StatusBar::get();
 
     gg::models::init();
 
