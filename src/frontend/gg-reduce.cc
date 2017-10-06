@@ -94,8 +94,6 @@ StatusBar::StatusBar()
       << window_size_.ws_row << ";1H\033[K\0338\xc2\x8D";
 
   cout << oss.str() << flush;
-
-  set_text( "[  0%]" );
 }
 
 StatusBar & StatusBar::get()
