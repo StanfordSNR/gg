@@ -14,6 +14,7 @@
 #include <vector>
 #include <iomanip>
 #include <thread>
+#include <csignal>
 #include <sys/ioctl.h>
 
 #include "exception.hh"
@@ -81,6 +82,7 @@ public:
   void operator=( const StatusBar & ) = delete;
 
   static StatusBar & get();
+  static void redraw();
 
   void set_text( const string & text );
 };
@@ -108,7 +110,9 @@ void StatusBar::set_text( const string & text )
 
   ostringstream oss;
   oss << HIDE_CURSOR
-      << "\0337\033[" << window_size_.ws_row << ";1H\033[K" << text_ << "\033[K\0338"
+      << "\0337\033[" << window_size_.ws_row << ";1H\033[K"
+      << text_
+      << "\033[K\0338"
       << SHOW_CURSOR;
 
   cout << oss.str() << flush;

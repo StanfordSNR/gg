@@ -35,7 +35,7 @@ model_strip_LDADD = $(BASE_LDADD)
 model_ld_SOURCES = model-ld.cc model-linker-base.cc model-gcc-base.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_ld_LDADD = $(BASE_LDADD)
 
-EXTRA_DIST = generate-toolchain-header.py
+EXTRA_DIST = generate-toolchain-header.py wrappers
 CLEANFILES = toolchain.hh toolchain.cc
 
 toolchain.cc toolchain.hh: generate-toolchain-header.py $(TOOLCHAIN_PATH)/*
