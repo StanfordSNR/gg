@@ -49,6 +49,7 @@ using namespace PollerShortNames;
 using ReductionResult = gg::cache::ReductionResult;
 using SSLConnectionState = SSLConnectionContext::State;
 
+bool status_bar = false;
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const bool lambda_execution = ( getenv( "GG_LAMBDA" ) != NULL );
 const bool ggremote_execution = ( getenv( "GG_REMOTE" ) != NULL );
@@ -167,6 +168,10 @@ public:
 
 void Reductor::print_status() const
 {
+  if ( not status_bar ) {
+    return;
+  }
+
   static time_t last_display = 0;
   const static string color_reset = COLOR_RESET"\033[48;5;236m";
 
@@ -642,7 +647,28 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    StatusBar::get();
+    struct option long_options[] = {
+      { "status", no_argument, nullptr, 's' },
+      { nullptr, 0, nullptr, 0 },
+    };
+
+    while ( true ) {
+      const int opt = getopt_long( argc, argv, "s", long_options, NULL );
+
+      if ( opt == -1 ) {
+        break;
+      }
+
+      switch ( opt ) {
+      case 's':
+        status_bar = true;
+        StatusBar::get();
+        break;
+
+      default:
+        throw runtime_error( "invalid option" );
+      }
+    }
 
     gg::models::init();
 
@@ -657,7 +683,7 @@ int main( int argc, char * argv[] )
     vector<string> target_filenames;
     vector<string> target_hashes;
 
-    for ( int i = 1; i < argc; i++ ) {
+    for ( int i = optind; i < argc; i++ ) {
       target_filenames.emplace_back( argv[ i ] );
     }
 
