@@ -7,7 +7,7 @@ gg-mock
 gg-reduce
 gg-execute
 gg-execute-static
-gg-run
+gg-infer
 gg-thunkgraph
 gg-thunksummary
 gg-s3-upload

@@ -14,7 +14,7 @@ GG_LDADD = ../execution/libggexecution.a ../thunk/libthunk.a \
 BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
-               gg-execute gg-run gg-thunkgraph gg-thunksummary gg-s3-upload \
+               gg-execute gg-infer gg-thunkgraph gg-thunksummary gg-s3-upload \
                gg-s3-download gg-init lambda-invoker
 
 if BUILD_STATIC_BINS
@@ -50,8 +50,8 @@ gg_reduce_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 gg_mock_SOURCES = gg-mock.cc
 gg_mock_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
-gg_run_SOURCES = gg-run.cc
-gg_run_LDADD = $(BASE_LDADD)
+gg_infer_SOURCES = gg-infer.cc
+gg_infer_LDADD = $(BASE_LDADD)
 
 gg_init_SOURCES = gg-init.cc
 gg_init_LDADD = $(BASE_LDADD)

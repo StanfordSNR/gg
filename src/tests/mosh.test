@@ -8,5 +8,5 @@ cp -R $DATADIR/mosh .
 cd mosh
 
 ./autogen.sh && ./configure
-make CC="model-gcc gcc" CXX="model-gcc g++" AR="model-ar" RANLIB="model-ranlib"
+gg-infer make
 ./src/frontend/mosh-server

@@ -9,6 +9,6 @@ cd hello
 
 autoreconf -fi
 ./configure --prefix=$(readlink -f .)
-make install CC="model-gcc gcc" AR="model-ar" RANLIB="model-ranlib"
+gg-infer make install
 GG_SANDBOXED=1 gg-reduce bin/hello
 ./bin/hello
