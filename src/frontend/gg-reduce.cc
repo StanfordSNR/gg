@@ -75,6 +75,9 @@ private:
   winsize window_size_ {};
   StatusBar();
 
+  void init();
+  void remove();
+
 public:
   ~StatusBar();
 
@@ -82,12 +85,28 @@ public:
   void operator=( const StatusBar & ) = delete;
 
   static StatusBar & get();
-  static void redraw();
 
-  void set_text( const string & text );
+  static void redraw();
+  static void set_text( const string & text );
 };
 
 StatusBar::StatusBar()
+{
+  init();
+}
+
+StatusBar::~StatusBar()
+{
+  remove();
+}
+
+StatusBar & StatusBar::get()
+{
+  static StatusBar status_bar;
+  return status_bar;
+}
+
+void StatusBar::init()
 {
   ioctl( STDOUT_FILENO, TIOCGWINSZ, &window_size_ );
 
@@ -98,30 +117,32 @@ StatusBar::StatusBar()
   cout << oss.str() << flush;
 }
 
-StatusBar & StatusBar::get()
+void StatusBar::remove()
 {
-  static StatusBar status_bar;
-  return status_bar;
+  set_text( "" );
+  cout << "\0337\033[1;" << window_size_.ws_row << "r\0338" << flush;
+}
+
+void StatusBar::redraw()
+{
+  get().remove();
+  get().init();
+  get().set_text( get().text_ );
 }
 
 void StatusBar::set_text( const string & text )
 {
-  text_ = text;
+  StatusBar & status_bar = get();
+  status_bar.text_ = text;
 
   ostringstream oss;
   oss << HIDE_CURSOR
-      << "\0337\033[" << window_size_.ws_row << ";1H\033[K"
-      << text_
+      << "\0337\033[" << status_bar.window_size_.ws_row << ";1H\033[K"
+      << status_bar.text_
       << "\033[K\0338"
       << SHOW_CURSOR;
 
   cout << oss.str() << flush;
-}
-
-StatusBar::~StatusBar()
-{
-  set_text( "" );
-  cout << "\0337\033[1;" << window_size_.ws_row << "r\0338" << flush;
 }
 
 class Reductor
@@ -135,7 +156,7 @@ private:
   const vector<string> target_hashes_;
   size_t max_jobs_;
 
-  SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT };
+  SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT, SIGWINCH };
   Poller poller_ {};
 
   unordered_map<string, JobInfo> remote_jobs_ {};
@@ -192,7 +213,7 @@ void Reductor::print_status() const
          << " done: "        << BOLD << COLOR_GREEN   << setw( 5 ) << std::left << finished_jobs_      << color_reset
          << " total: "       << BOLD << COLOR_DEFAULT << dep_graph_.size();
 
-    StatusBar::get().set_text( data.str() );
+    StatusBar::set_text( data.str() );
   }
 }
 
@@ -295,6 +316,12 @@ Result Reductor::handle_signal( const signalfd_siginfo & sig )
   case SIGQUIT:
   case SIGINT:
     throw runtime_error( "interrupted by signal" );
+
+  case SIGWINCH:
+    if ( status_bar ) {
+      StatusBar::redraw();
+    }
+    break;
 
   default:
     throw runtime_error( "unknown signal" );
@@ -664,7 +691,6 @@ int main( int argc, char * argv[] )
       switch ( opt ) {
       case 's':
         status_bar = true;
-        StatusBar::get();
         break;
 
       default:
