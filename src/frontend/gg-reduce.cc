@@ -107,7 +107,7 @@ void StatusBar::set_text( const string & text )
 
   ostringstream oss;
   oss << HIDE_CURSOR
-      << "\0337\033[" << window_size_.ws_row << ";1H\033[K" << text_ << "\0338"
+      << "\0337\033[" << window_size_.ws_row << ";1H\033[K" << text_ << "\033[K\0338"
       << SHOW_CURSOR;
 
   cout << oss.str() << flush;
@@ -174,12 +174,13 @@ void Reductor::print_status() const
 
     ostringstream data;
 
-    data << "[" << setw( 3 ) << std::right   << ceil( 100 * finished_jobs_ / dep_graph_.size() ) << "%]"
-         << " in queue: "    << COLOR_YELLOW << setw( 5 ) << std::left << job_queue_.size() << COLOR_RESET
-         << " remote: "      << COLOR_RED    << setw( 5 ) << std::left << remote_jobs_.size() << COLOR_RESET
-         << " local: "       << COLOR_CYAN   << setw( 5 ) << std::left << local_jobs_.size() << COLOR_RESET
-         << " done: "        << COLOR_GREEN  << setw( 5 ) << std::left << finished_jobs_ << COLOR_RESET
-         << " total: "       << COLOR_BLUE   << dep_graph_.size() << COLOR_RESET;
+    data << "\033[44m"
+         << "[" << setw( 3 ) << std::right   << ceil( 100 * finished_jobs_ / dep_graph_.size() ) << "%]"
+         << " in queue: "    << setw( 5 ) << std::left << job_queue_.size()
+         << " remote: "      << setw( 5 ) << std::left << remote_jobs_.size()
+         << " local: "       << setw( 5 ) << std::left << local_jobs_.size()
+         << " done: "        << setw( 5 ) << std::left << finished_jobs_
+         << " total: "       << dep_graph_.size();
 
     StatusBar::get().set_text( data.str() );
   }
