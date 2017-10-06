@@ -14,6 +14,7 @@ AM_TESTS_ENVIRONMENT = \
   export TMPDIR_ROOT=$(abs_builddir)/test_temp; \
   mkdir -p $$TMPDIR_ROOT; \
   export abs_builddir=$(abs_builddir); \
+  export abs_srcdir=$(abs_srcdir); \
 	export DATADIR=$(abs_builddir)/test_vectors; \
   export TOOLCHAIN_PATH=$(TOOLCHAIN_PATH); \
   export TEST_TMPDIR=`mktemp -d $$TMPDIR_ROOT/test.XXXXXX`; \
