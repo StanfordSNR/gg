@@ -12,14 +12,11 @@ using namespace PollerShortNames;
 using ReductionResult = gg::cache::ReductionResult;
 using SSLConnectionState = SSLConnectionContext::State;
 
-ExecutionLoop::ExecutionLoop( function<void( const HTTPResponse & )> remote_callback,
-                              function<void( const std::string &, const std::string & )> local_callback)
+ExecutionLoop::ExecutionLoop()
   : signals_( { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT } ),
     signal_fd_( signals_ ),
     poller_(), child_processes_(), connection_contexts_(),
-    ssl_connection_contexts_(),
-    remote_finish_callback( remote_callback ),
-    local_finish_callback( local_callback )
+    ssl_connection_contexts_()
 {
   signals_.set_as_mask();
 
@@ -32,14 +29,15 @@ ExecutionLoop::ExecutionLoop( function<void( const HTTPResponse & )> remote_call
   );
 }
 
-template <typename... Targs>
-void ExecutionLoop::add_child_process( Targs && ... Fargs )
+void ExecutionLoop::add_child_process( const string & tag, LocalCallbackFunc callback,
+                                       std::function<int()> && child_procedure )
 {
-  child_processes_.emplace_back( std::forward<Targs>( Fargs )... );
+  child_processes_.emplace_back( callback, ChildProcess( tag, move( child_procedure ) ) );
 }
 
-void ExecutionLoop::add_connection( const string & tag, TCPSocket && socket,
-                                    const HTTPRequest & request )
+template<>
+void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callback,
+                                    TCPSocket && socket, const HTTPRequest & request )
 {
   /* XXX not thread-safe */
   connection_contexts_.emplace( piecewise_construct,
@@ -75,12 +73,12 @@ void ExecutionLoop::add_connection( const string & tag, TCPSocket && socket,
   poller_.add_action(
     Poller::Action(
       connection.socket, Direction::In,
-      [&connection, this] ()
+      [&connection, tag, callback] ()
       {
         connection.responses.parse( connection.socket.read() );
 
         if ( not connection.responses.empty() ) {
-          remote_finish_callback( connection.responses.front() );
+          callback( tag, connection.responses.front() );
         }
 
         return ResultType::Continue;
@@ -90,8 +88,9 @@ void ExecutionLoop::add_connection( const string & tag, TCPSocket && socket,
   );
 }
 
-void ExecutionLoop::add_connection( const string & tag, SecureSocket && socket,
-                                    HTTPRequest && request )
+template<>
+void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callback,
+                                    SecureSocket && socket, const HTTPRequest & request )
 {
   /* XXX not thread-safe */
   ssl_connection_contexts_.emplace( piecewise_construct,
@@ -134,7 +133,7 @@ void ExecutionLoop::add_connection( const string & tag, SecureSocket && socket,
   poller_.add_action(
     Poller::Action(
       connection.socket, Direction::In,
-      [&connection, this]()
+      [&connection, tag, callback]()
       {
         if ( not connection.connected() ) {
           connection.continue_SSL_connect();
@@ -148,7 +147,7 @@ void ExecutionLoop::add_connection( const string & tag, SecureSocket && socket,
         }
 
         if ( not connection.responses.empty() ) {
-          remote_finish_callback( connection.responses.front() );
+          callback( tag, connection.responses.front() );
         }
 
         return ResultType::Continue;
@@ -170,7 +169,7 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
   switch ( sig.ssi_signo ) {
   case SIGCONT:
     for ( auto & child : child_processes_ ) {
-      child.resume();
+      child.second.resume();
     }
     break;
 
@@ -180,7 +179,7 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
     }
 
     for ( auto it = child_processes_.begin(); it != child_processes_.end(); it++ ) {
-      ChildProcess & child = *it;
+      ChildProcess & child = it->second;
 
       if ( child.terminated() or ( not child.waitable() ) ) {
         continue;
@@ -193,16 +192,7 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
           child.throw_exception();
         }
 
-        /* Update the dependency graph now that we know this process ended
-        with exit code 0. */
-        const string & thunk_hash = child.name();
-        Optional<ReductionResult> result = gg::cache::check( thunk_hash );
-
-        if ( not result.initialized() or result->order != 0 ) {
-          throw runtime_error( "could not find the reduction entry" );
-        }
-
-        local_finish_callback( thunk_hash, result->hash );
+        it->first( child.name() );
 
         it = child_processes_.erase( it );
         it--;

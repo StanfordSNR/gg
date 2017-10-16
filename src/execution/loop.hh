@@ -18,32 +18,30 @@
 
 class ExecutionLoop
 {
+public:
+  typedef std::function<void( const std::string & )> LocalCallbackFunc;
+  typedef std::function<void( const std::string &, const HTTPResponse & )> RemoteCallbackFunc;
+
 private:
   SignalMask signals_;
   SignalFD signal_fd_;
 
   Poller poller_;
-  std::list<ChildProcess> child_processes_;
+  std::list<std::pair<LocalCallbackFunc, ChildProcess>> child_processes_;
   std::unordered_map<std::string, ConnectionContext> connection_contexts_;
   std::unordered_map<std::string, SSLConnectionContext> ssl_connection_contexts_;
 
   Poller::Action::Result handle_signal( const signalfd_siginfo & );
 
-  std::function<void( const HTTPResponse & )> remote_finish_callback;
-  std::function<void( const std::string &, const std::string & )> local_finish_callback;
-
 public:
-  ExecutionLoop( std::function<void( const HTTPResponse & )> remote_callback,
-                 std::function<void( const std::string &, const std::string & )> local_callback );
+  ExecutionLoop();
 
-  template <typename... Targs>
-  void add_child_process( Targs && ... Fargs );
+  void add_child_process( const std::string & tag, LocalCallbackFunc callback,
+                          std::function<int()> && child_procedure );
 
-  void add_connection( const std::string & tag, TCPSocket && socket,
-                       const HTTPRequest & request );
-
-  void add_connection( const std::string & tag, SecureSocket && socket,
-                       HTTPRequest && request );
+  template<class SocketType>
+  void add_connection( const std::string & tag, RemoteCallbackFunc callback,
+                       SocketType && socket, const HTTPRequest & request );
 
   void loop_once();
 };
