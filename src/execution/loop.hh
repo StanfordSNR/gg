@@ -13,12 +13,15 @@
 #include "connection_context.hh"
 #include "signalfd.hh"
 #include "child_process.hh"
+#include "signalfd.hh"
 #include "poller.hh"
 
 class ExecutionLoop
 {
 private:
   SignalMask signals_;
+  SignalFD signal_fd_;
+
   Poller poller_;
   std::list<ChildProcess> child_processes_;
   std::unordered_map<std::string, ConnectionContext> connection_contexts_;

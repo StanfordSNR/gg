@@ -15,12 +15,21 @@ using SSLConnectionState = SSLConnectionContext::State;
 ExecutionLoop::ExecutionLoop( function<void( const HTTPResponse & )> remote_callback,
                               function<void( const std::string &, const std::string & )> local_callback)
   : signals_( { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT } ),
+    signal_fd_( signals_ ),
     poller_(), child_processes_(), connection_contexts_(),
     ssl_connection_contexts_(),
     remote_finish_callback( remote_callback ),
     local_finish_callback( local_callback )
 {
   signals_.set_as_mask();
+
+  poller_.add_action(
+    Poller::Action(
+      signal_fd_.fd(), Direction::In,
+      [&]() { return handle_signal( signal_fd_.read_signal() ); },
+      [&]() { return child_processes_.size() > 0; }
+    )
+  );
 }
 
 template <typename... Targs>
