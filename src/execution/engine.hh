@@ -6,6 +6,8 @@
 #include <string>
 #include <functional>
 
+#include "thunk.hh"
+
 class ExecutionEngine
 {
 public:
@@ -13,7 +15,6 @@ public:
 
 private:
   ExecutionLoop & exec_loop_
-
   std::function<void( const std::string &, const std::string )> callback_;
 
 public:
@@ -21,7 +22,9 @@ public:
     : exec_loop_( loop ), callback_( callback )
   {}
 
-  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk );
+  virtual void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk ) = 0;
+
+  virtual ~ExecutionEngine() {}
 };
 
 #endif ENGINE_HH
