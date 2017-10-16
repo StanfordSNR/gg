@@ -12,10 +12,13 @@ using namespace PollerShortNames;
 using ReductionResult = gg::cache::ReductionResult;
 using SSLConnectionState = SSLConnectionContext::State;
 
-ExecutionLoop::ExecutionLoop()
+ExecutionLoop::ExecutionLoop( function<void( const HTTPResponse & )> remote_callback,
+                              function<void( const std::string &, const std::string & )> local_callback)
   : signals_( { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT } ),
     poller_(), child_processes_(), connection_contexts_(),
-    ssl_connection_contexts_()
+    ssl_connection_contexts_(),
+    remote_finish_callback( remote_callback ),
+    local_finish_callback( local_callback )
 {
   signals_.set_as_mask();
 }

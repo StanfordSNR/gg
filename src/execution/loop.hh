@@ -26,11 +26,12 @@ private:
 
   Poller::Action::Result handle_signal( const signalfd_siginfo & );
 
-  std::function<void( const HTTPResponse & )> remote_finish_callback {};
-  std::function<void( const std::string &, const std::string & )> local_finish_callback {};
+  std::function<void( const HTTPResponse & )> remote_finish_callback;
+  std::function<void( const std::string &, const std::string & )> local_finish_callback;
 
 public:
-  ExecutionLoop();
+  ExecutionLoop( std::function<void( const HTTPResponse & )> remote_callback,
+                 std::function<void( const std::string &, const std::string & )> local_callback );
 
   template <typename... Targs>
   void add_child_process( Targs && ... Fargs );
