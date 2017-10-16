@@ -17,7 +17,8 @@
 class S3
 {
 public:
-  static std::string endpoint( const std::string & bucket );
+  static std::string endpoint( const std::string & region,
+                               const std::string & bucket );
 
   struct UploadRequest
   {

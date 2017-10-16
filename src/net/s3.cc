@@ -19,9 +19,9 @@ using namespace std;
 
 const static std::string UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD";
 
-std::string S3::endpoint( const std::string & bucket )
+std::string S3::endpoint( const string & region, const string & bucket )
 {
-  return bucket + ".s3.amazonaws.com";
+  return bucket + ".s3-" + region + ".amazonaws.com";
 }
 
 S3PutRequest::S3PutRequest( const AWSCredentials & credentials,
@@ -31,7 +31,7 @@ S3PutRequest::S3PutRequest( const AWSCredentials & credentials,
   : AWSRequest( credentials, region, "PUT /" + object + " HTTP/1.1", contents )
 {
   headers_[ "x-amz-acl" ] = "public-read";
-  headers_[ "host" ] = S3::endpoint( bucket );
+  headers_[ "host" ] = S3::endpoint( region, bucket );
   headers_[ "content-length" ] = to_string( contents.length() );
 
   if ( credentials.session_token().initialized() ) {
@@ -49,7 +49,7 @@ S3GetRequest::S3GetRequest( const AWSCredentials & credentials,
                             const string & object )
   : AWSRequest( credentials, region, "GET /" + object + " HTTP/1.1", {} )
 {
-  headers_[ "host" ] = S3::endpoint( bucket );
+  headers_[ "host" ] = S3::endpoint( region, bucket );
 
   if ( credentials.session_token().initialized() ) {
     headers_[ "x-amz-security-token" ] = *credentials.session_token();
@@ -75,7 +75,7 @@ S3Client::S3Client( const S3ClientConfig & config )
 void S3Client::download_file( const string & bucket, const string & object,
                               const roost::path & filename )
 {
-  const string endpoint = S3::endpoint( bucket );
+  const string endpoint = S3::endpoint( config_.region, bucket );
   const Address s3_address { endpoint, "https" };
 
   SSLContext ssl_context;
@@ -108,7 +108,7 @@ void S3Client::upload_files( const string & bucket,
                              const vector<S3::UploadRequest> & upload_requests,
                              const function<void( const S3::UploadRequest & )> & success_callback )
 {
-  const string endpoint = S3::endpoint( bucket );
+  const string endpoint = S3::endpoint( config_.region, bucket );
   const Address s3_address { endpoint, "https" };
 
   const size_t thread_count = config_.max_threads;
@@ -183,7 +183,7 @@ void S3Client::download_files( const std::string & bucket,
                                const std::vector<S3::DownloadRequest> & download_requests,
                                const std::function<void( const S3::DownloadRequest & )> & success_callback )
 {
-  const string endpoint = ( config_.endpoint.length() > 0 ) ? endpoint : S3::endpoint( bucket );
+  const string endpoint = ( config_.endpoint.length() > 0 ) ? endpoint : S3::endpoint( config_.region, bucket );
   const Address s3_address { endpoint, "https" };
 
   const size_t thread_count = config_.max_threads;
