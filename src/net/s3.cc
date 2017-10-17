@@ -21,7 +21,12 @@ const static std::string UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD";
 
 std::string S3::endpoint( const string & region, const string & bucket )
 {
-  return bucket + ".s3-" + region + ".amazonaws.com";
+  if ( region == "us-east-1" ) {
+    return bucket + ".s3.amazonaws.com";
+  }
+  else {
+    return bucket + ".s3-" + region + ".amazonaws.com";
+  }
 }
 
 S3PutRequest::S3PutRequest( const AWSCredentials & credentials,
