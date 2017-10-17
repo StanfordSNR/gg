@@ -6,6 +6,7 @@
 #include <string>
 #include <functional>
 
+#include "loop.hh"
 #include "thunk.hh"
 
 class ExecutionEngine
@@ -13,8 +14,8 @@ class ExecutionEngine
 public:
   typedef std::function<void( const std::string &, const std::string )> CallbackFunc;
 
-private:
-  ExecutionLoop & exec_loop_
+protected:
+  ExecutionLoop & exec_loop_; /* XXX */
   std::function<void( const std::string &, const std::string )> callback_;
 
 public:
@@ -27,4 +28,4 @@ public:
   virtual ~ExecutionEngine() {}
 };
 
-#endif ENGINE_HH
+#endif /* ENGINE_HH */

@@ -11,4 +11,6 @@ libggexecution_a_SOURCES = remote_response.hh remote_response.cc \
                            connection_context.hh connection_context.cc \
                            remote_lambda.hh remote_lambda.cc \
                            remote_gg.hh remote_gg.cc \
-                           loop.hh loop.cc
+                           loop.hh loop.cc \
+                           engine.hh \
+                           engine_local.hh engine_local.cc                          
