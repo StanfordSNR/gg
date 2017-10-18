@@ -83,6 +83,7 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
         connection.responses.parse( connection.socket.read() );
 
         if ( not connection.responses.empty() ) {
+          connection.state = ConnectionContext::State::closed;
           callback( tag, connection.responses.front() );
         }
 
@@ -152,6 +153,7 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
         }
 
         if ( not connection.responses.empty() ) {
+          connection.state = SSLConnectionContext::State::closed;
           callback( tag, connection.responses.front() );
         }
 
