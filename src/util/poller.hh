@@ -7,7 +7,7 @@
 #include <vector>
 #include <cassert>
 #include <list>
-
+#include <set>
 #include <poll.h>
 
 #include "file_descriptor.hh"
@@ -19,7 +19,7 @@ public:
   {
     struct Result
     {
-      enum class Type { Continue, Exit, Cancel } result;
+      enum class Type { Continue, Exit, Cancel, CancelAll } result;
       unsigned int exit_status;
       Result( const Type & s_result = Type::Continue, const unsigned int & s_status = EXIT_SUCCESS )
         : result( s_result ), exit_status( s_status ) {}
@@ -60,8 +60,8 @@ public:
   void add_action( Action action );
   Result poll( const int timeout_ms );
 
-  /* remove all actions for file descriptor `fd_num` */
-  void remove_actions( const int fd_num );
+  /* remove all actions for file descriptors in `fd_nums` */
+  void remove_actions( const std::set<int> fd_nums );
 };
 
 namespace PollerShortNames {

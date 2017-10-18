@@ -59,6 +59,8 @@ Poller::Result Poller::poll( const int timeout_ms )
   it_action = actions_.begin();
   it_pollfd = pollfds_.begin();
 
+  set<int> fds_to_remove;
+
   for ( ; it_action != actions_.end() and it_pollfd != pollfds_.end()
         ; it_action++, it_pollfd++ ) {
     if ( it_pollfd->revents & (POLLERR | POLLHUP | POLLNVAL) ) {
@@ -89,6 +91,10 @@ Poller::Result Poller::poll( const int timeout_ms )
         it_action->active = false;
         break;
 
+      case ResultType::CancelAll:
+        fds_to_remove.insert( it_action->fd.fd_num() );
+        break;
+
       case ResultType::Continue:
         break;
       }
@@ -99,16 +105,22 @@ Poller::Result Poller::poll( const int timeout_ms )
     }
   }
 
+  remove_actions( fds_to_remove );
+
   return Result::Type::Success;
 }
 
-void Poller::remove_actions( const int fd_num )
+void Poller::remove_actions( const set<int> fd_nums )
 {
+  if ( fd_nums.size() == 0 ) {
+    return;
+  }
+
   auto it_action = actions_.begin();
   auto it_pollfd = pollfds_.begin();
 
   while ( it_action != actions_.end() and it_pollfd != pollfds_.end() ) {
-    if ( it_action->fd.fd_num() == fd_num ) {
+    if ( fd_nums.count( it_action->fd.fd_num() ) ) {
       it_action = actions_.erase( it_action );
       it_pollfd = pollfds_.erase( it_pollfd );
     }
