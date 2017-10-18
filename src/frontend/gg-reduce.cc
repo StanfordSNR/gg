@@ -101,7 +101,7 @@ public:
 
 void Reductor::print_status() const
 {
-  /*if ( not status_bar ) {
+  if ( not status_bar ) {
     return;
   }
 
@@ -117,14 +117,18 @@ void Reductor::print_status() const
 
     data << color_reset
          << "[" << setw( 3 ) << std::right    << ceil( 100 * finished_jobs_ / dep_graph_.size() ) << "%]"
-         << " in queue: "    << BOLD << COLOR_YELLOW  << setw( 5 ) << std::left << job_queue_.size()   << color_reset
-         << " remote: "      << BOLD << COLOR_RED     << setw( 5 ) << std::left << remote_jobs_.size() << color_reset
-         << " local: "       << BOLD << COLOR_RED     << setw( 5 ) << std::left << local_jobs_.size()  << color_reset
-         << " done: "        << BOLD << COLOR_GREEN   << setw( 5 ) << std::left << finished_jobs_      << color_reset
-         << " total: "       << BOLD << COLOR_DEFAULT << dep_graph_.size();
+         << " in queue: "    << BOLD << COLOR_YELLOW  << setw( 5 ) << std::left << job_queue_.size()   << color_reset;
+
+    for ( auto & ee : exec_engines_ ) {
+      data << " " << ee->label() << ": " << BOLD << COLOR_RED << setw( 5 )
+           << std::left << ee->job_count() << color_reset;
+    }
+
+    data << " done: "  << BOLD << COLOR_GREEN << setw( 5 ) << std::left << finished_jobs_ << color_reset
+         << " total: " << BOLD << COLOR_DEFAULT << dep_graph_.size();
 
     StatusBar::set_text( data.str() );
-  }*/
+  }
 }
 
 Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs )
@@ -181,6 +185,7 @@ bool Reductor::is_finished() const
 
 void Reductor::execution_finalize( const string & old_hash, const string & new_hash )
 {
+  finished_jobs_++;
   unordered_set<string> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
   job_queue_.insert( job_queue_.end(), new_o1s.begin(), new_o1s.end() );
 }
