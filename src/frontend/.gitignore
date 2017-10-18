@@ -2,9 +2,9 @@ gg-trace
 gg-gcc
 gg-sandbox
 gg-describe
-gg-reduce-and-run
+gg-force-and-run
 gg-mock
-gg-reduce
+gg-force
 gg-execute
 gg-execute-static
 gg-infer

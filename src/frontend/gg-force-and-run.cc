@@ -32,8 +32,8 @@ int main( int argc, char * argv[] )
     const string thunk_filename = argv[ 1 ];
     const roost::path thunk_path = roost::canonical( thunk_filename );
 
-    vector<string> args = { "gg-reduce", thunk_filename };
-    run( "gg-reduce", args, {}, true, true );
+    vector<string> args = { "gg-force", thunk_filename };
+    run( "gg-force", args, {}, true, true );
     CheckSystemCall( "execv", execv( thunk_path.string().c_str(), ++argv ) );
   }
   catch ( const exception &  e ) {

@@ -11,5 +11,5 @@ cd hello
 autoreconf -fi
 ./configure --prefix=$(readlink -f .)
 gg-infer make install
-GG_SANDBOXED=1 gg-reduce bin/hello
+GG_SANDBOXED=1 gg-force bin/hello
 ./bin/hello

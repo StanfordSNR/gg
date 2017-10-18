@@ -14,7 +14,7 @@ GG_LDADD = ../execution/libggexecution.a ../thunk/libthunk.a \
 
 BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS)
 
-bin_PROGRAMS = gg-trace gg-describe gg-reduce-and-run gg-reduce gg-mock \
+bin_PROGRAMS = gg-trace gg-describe gg-force-and-run gg-force gg-mock \
                gg-execute gg-infer gg-thunkgraph gg-thunksummary gg-s3-upload \
                gg-s3-download gg-init lambda-invoker
 
@@ -34,8 +34,8 @@ gg_thunkgraph_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 gg_thunksummary_SOURCES = gg-thunksummary.cc
 gg_thunksummary_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
-gg_reduce_and_run_SOURCES = gg-reduce-and-run.cc
-gg_reduce_and_run_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+gg_force_and_run_SOURCES = gg-force-and-run.cc
+gg_force_and_run_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_execute_SOURCES = gg-execute.cc
 gg_execute_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
@@ -45,8 +45,8 @@ gg_execute_static_CXXFLAGS = $(PICKY_CXXFLAGS) -static
 gg_execute_static_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) -ldl -lz
 gg_execute_static_LDFLAGS = -static -s
 
-gg_reduce_SOURCES = gg-reduce.cc
-gg_reduce_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
+gg_force_SOURCES = gg-force.cc
+gg_force_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 gg_mock_SOURCES = gg-mock.cc
 gg_mock_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)

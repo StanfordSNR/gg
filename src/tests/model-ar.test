@@ -15,6 +15,6 @@ ar crD ${OUTPUT}.gold f1.txt f2.txt f3.txt
 
 model-ar crD ${OUTPUT} f1.txt f2.txt f3.txt
 
-GG_SANDBOXED=1 gg-reduce ${OUTPUT}
+GG_SANDBOXED=1 gg-force ${OUTPUT}
 
 diff ${OUTPUT} ${OUTPUT}.gold

@@ -12,6 +12,6 @@ ${TOOLCHAIN_PATH}/strip ${OUTPUT}.gold
 cp --no-preserve=mode,ownership ${INPUT} ${OUTPUT}
 model-strip ${OUTPUT}
 
-GG_SANDBOXED=1 gg-reduce ${OUTPUT}
+GG_SANDBOXED=1 gg-force ${OUTPUT}
 
 diff ${OUTPUT} ${OUTPUT}.gold

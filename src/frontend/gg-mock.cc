@@ -82,8 +82,8 @@ int main( int argc, char * argv[] )
                     if ( ThunkPlaceholder::is_placeholder( FileDescriptor { fd_num } ) ) {
                       /* (4) it's a thunk placeholder! let's force it */
                       tcb.pause = true;
-                      ChildProcess reducer { "gg-reduce " + open_path,
-                          [&](){ return ezexec( "gg-reduce", { "gg-reduce", open_path },
+                      ChildProcess reducer { "gg-force " + open_path,
+                          [&](){ return ezexec( "gg-force", { "gg-force", open_path },
                                                 {}, true, true ); } };
                       const pid_t reducer_pid = reducer.pid();
                       flock.add_child_process( move( reducer ) );
