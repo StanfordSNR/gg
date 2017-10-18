@@ -9,8 +9,8 @@ noinst_LIBRARIES = libggexecution.a
 
 libggexecution_a_SOURCES = remote_response.hh remote_response.cc \
                            connection_context.hh connection_context.cc \
-                           remote_gg.hh remote_gg.cc \
                            loop.hh loop.cc \
                            engine.hh \
                            engine_local.hh engine_local.cc \
-                           engine_lambda.hh engine_lambda.cc
+                           engine_lambda.hh engine_lambda.cc \
+                           engine_gg.hh engine_gg.cc
