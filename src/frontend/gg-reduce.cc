@@ -80,12 +80,11 @@ private:
   const vector<string> target_hashes_;
   size_t max_jobs_;
 
-  SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT, SIGWINCH };
   ExecutionLoop exec_loop_ {};
+  deque<string> job_queue_ {};
 
   LocalExecutionEngine local_exec_engine_;
 
-  deque<string> job_queue_ {};
   unordered_map<string, JobInfo> remote_jobs_ {};
   deque<pair<string, ExecutionEnvironment>> remote_cleanup_queue_ {};
 
@@ -149,7 +148,6 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs 
       { execution_finalize( old_hash, new_hash ); }
     )
 {
-  signals_.set_as_mask();
   unordered_set<string> all_o1_deps;
 
   for ( const string & hash : target_hashes_ ) {
