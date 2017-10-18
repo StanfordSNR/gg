@@ -42,7 +42,7 @@ void ExecutionLoop::add_child_process( const string & tag, LocalCallbackFunc cal
 
 template<>
 void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callback,
-                                    TCPSocket && socket, const HTTPRequest & request )
+                                    TCPSocket & socket, const HTTPRequest & request )
 {
   /* XXX not thread-safe */
   connection_contexts_.emplace( piecewise_construct,
@@ -78,13 +78,15 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
   poller_.add_action(
     Poller::Action(
       connection.socket, Direction::In,
-      [&connection, tag, callback] ()
+      [&connection, tag, callback, this] ()
       {
         connection.responses.parse( connection.socket.read() );
 
         if ( not connection.responses.empty() ) {
           connection.state = ConnectionContext::State::closed;
           callback( tag, connection.responses.front() );
+          connection_contexts_.erase( tag );
+          return ResultType::CancelAll;
         }
 
         return ResultType::Continue;
@@ -96,7 +98,7 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
 
 template<>
 void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callback,
-                                    SecureSocket && socket, const HTTPRequest & request )
+                                    SecureSocket & socket, const HTTPRequest & request )
 {
   /* XXX not thread-safe */
   ssl_connection_contexts_.emplace( piecewise_construct,
@@ -139,7 +141,7 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
   poller_.add_action(
     Poller::Action(
       connection.socket, Direction::In,
-      [&connection, tag, callback]()
+      [&connection, tag, callback, this]()
       {
         if ( not connection.connected() ) {
           connection.continue_SSL_connect();
@@ -155,6 +157,8 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
         if ( not connection.responses.empty() ) {
           connection.state = SSLConnectionContext::State::closed;
           callback( tag, connection.responses.front() );
+          ssl_connection_contexts_.erase( tag );
+          return ResultType::CancelAll;
         }
 
         return ResultType::Continue;

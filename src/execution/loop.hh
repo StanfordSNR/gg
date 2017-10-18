@@ -41,7 +41,7 @@ public:
 
   template<class SocketType>
   void add_connection( const std::string & tag, RemoteCallbackFunc callback,
-                       SocketType && socket, const HTTPRequest & request );
+                       SocketType & socket, const HTTPRequest & request );
 
   Poller::Result loop_once();
 };
