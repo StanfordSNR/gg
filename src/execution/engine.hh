@@ -12,11 +12,11 @@
 class ExecutionEngine
 {
 public:
-  typedef std::function<void( const std::string &, const std::string & )> CallbackFunc;
+  typedef std::function<void( const std::string &, const std::string &, const float )> CallbackFunc;
 
 protected:
   ExecutionLoop & exec_loop_; /* XXX */
-  std::function<void( const std::string &, const std::string & )> callback_;
+  CallbackFunc callback_;
 
 public:
   ExecutionEngine( ExecutionLoop & loop, CallbackFunc callback )

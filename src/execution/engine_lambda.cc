@@ -3,6 +3,7 @@
 #include "engine_lambda.hh"
 
 #include <stdexcept>
+#include <cmath>
 
 #include "ggpaths.hh"
 #include "optional.hh"
@@ -69,10 +70,15 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
       }
 
       gg::cache::insert( response.thunk_hash, response.output_hash );
-      callback_( response.thunk_hash, response.output_hash );
+      callback_( response.thunk_hash, response.output_hash,
+                 compute_cost( start_times_.at( thunk_hash ) ) );
+
+      start_times_.erase( thunk_hash );
     },
     lambda_socket, request
   );
+
+  start_times_.insert( { hash, chrono::steady_clock::now() } );
 
   running_jobs_++;
 }
@@ -85,4 +91,15 @@ size_t AWSLambdaExecutionEngine::job_count() const
 bool AWSLambdaExecutionEngine::can_execute( const gg::thunk::Thunk & thunk ) const
 {
   return thunk.infiles_size() < 100_MiB;
+}
+
+float AWSLambdaExecutionEngine::compute_cost( const chrono::steady_clock::time_point & begin,
+                                              const chrono::steady_clock::time_point & end )
+{
+  const static float unit_cost = 2.501e-6;
+
+  chrono::duration<float, std::milli> total_ms = end - begin;
+  float total = ceil( total_ms.count() / 100 );
+
+  return unit_cost * total;
 }

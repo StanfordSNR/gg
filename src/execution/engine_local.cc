@@ -25,7 +25,7 @@ void LocalExecutionEngine::force_thunk( const string & hash,
         throw runtime_error( "could not find the reduction entry" );
       }
 
-      callback_( hash, result->hash );
+      callback_( hash, result->hash, 0 );
     },
     [hash]()
     {

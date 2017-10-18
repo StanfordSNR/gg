@@ -82,8 +82,8 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
   job_queue_.insert( job_queue_.end(), all_o1_deps.begin(), all_o1_deps.end() );
 
   auto completion_callback =
-    [this] ( const string & old_hash, const string & new_hash )
-    { execution_finalize( old_hash, new_hash ); };
+    [this] ( const string & old_hash, const string & new_hash, const float cost )
+    { execution_finalize( old_hash, new_hash, cost ); };
 
   for ( auto ee : execution_environments ) {
     switch ( ee ) {

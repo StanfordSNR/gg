@@ -15,4 +15,4 @@ TimeUnit time_it( const function<void()> & f )
   return chrono::duration_cast<TimeUnit>( end - begin );
 }
 
-template std::chrono::milliseconds time_it( const std::function<void()> & f );
+template chrono::milliseconds time_it( const function<void()> & f );

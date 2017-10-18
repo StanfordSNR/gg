@@ -72,7 +72,7 @@ void GGExecutionEngine::force_thunk( const string & hash,
       }
 
       gg::cache::insert( response.thunk_hash, response.output_hash );
-      callback_( response.thunk_hash, response.output_hash );
+      callback_( response.thunk_hash, response.output_hash, 0 );
     },
     socket, request
   );
