@@ -17,6 +17,10 @@ public:
 
   void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk ) override;
   size_t job_count() const override;
+
+  bool is_remote() const override { return false; }
+  std::string label() const override { return "local"; }
+  bool can_execute( const gg::thunk::Thunk & ) const override { return true; }
 };
 
 #endif /* ENGINE_LOCAL_HH */

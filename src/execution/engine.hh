@@ -26,6 +26,10 @@ public:
   virtual void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk ) = 0;
   virtual size_t job_count() const = 0;
 
+  virtual bool is_remote() const = 0;
+  virtual std::string label() const = 0;
+  virtual bool can_execute( const gg::thunk::Thunk & thunk ) const = 0;
+
   virtual ~ExecutionEngine() {}
 };
 

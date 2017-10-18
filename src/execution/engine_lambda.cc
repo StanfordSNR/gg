@@ -9,6 +9,7 @@
 #include "system_runner.hh"
 #include "http_response.hh"
 #include "remote_response.hh"
+#include "units.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -79,4 +80,9 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
 size_t AWSLambdaExecutionEngine::job_count() const
 {
   return running_jobs_;
+}
+
+bool AWSLambdaExecutionEngine::can_execute( const gg::thunk::Thunk & thunk ) const
+{
+  return thunk.infiles_size() < 100_MiB;
 }
