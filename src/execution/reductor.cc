@@ -137,9 +137,13 @@ bool Reductor::is_finished() const
     ( running_jobs() == 0 ) and ( job_queue_.size() == 0 );
 }
 
-void Reductor::execution_finalize( const string & old_hash, const string & new_hash )
+void Reductor::execution_finalize( const string & old_hash,
+                                   const string & new_hash,
+                                   const float cost )
 {
   finished_jobs_++;
+  estimated_cost_ += cost;
+
   unordered_set<string> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
   job_queue_.insert( job_queue_.end(), new_o1s.begin(), new_o1s.end() );
 }

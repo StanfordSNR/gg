@@ -25,12 +25,14 @@ private:
 
   std::deque<std::string> job_queue_ {};
   size_t finished_jobs_ { 0 };
+  float estimated_cost_ { 0.0 };
 
   ExecutionLoop exec_loop_ {};
   std::vector<std::unique_ptr<ExecutionEngine>> exec_engines_ {};
 
   void execution_finalize( const std::string & old_hash,
-                           const std::string & new_hash );
+                           const std::string & new_hash,
+                           const float cost = 0.0 );
 
   size_t running_jobs() const;
   bool is_finished() const;
