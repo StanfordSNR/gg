@@ -7,6 +7,7 @@
 #include <getopt.h>
 #include <iostream>
 #include <sstream>
+#include <memory>
 #include <unordered_set>
 #include <algorithm>
 #include <deque>
@@ -14,6 +15,7 @@
 #include <vector>
 #include <iomanip>
 #include <thread>
+#include <numeric>
 #include <csignal>
 #include <sys/ioctl.h>
 
@@ -36,15 +38,15 @@
 #include "s3.hh"
 #include "digest.hh"
 #include "remote_response.hh"
-#include "remote_lambda.hh"
-#include "remote_gg.hh"
 #include "secure_socket.hh"
 #include "optional.hh"
 #include "units.hh"
 #include "timeit.hh"
 #include "status_bar.hh"
 #include "loop.hh"
+#include "engine.hh"
 #include "engine_local.hh"
+#include "engine_lambda.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -72,37 +74,22 @@ enum class ExecutionEnvironment { GG_RUNNER, LAMBDA };
 class Reductor
 {
 private:
-  struct JobInfo
-  {
-    ExecutionEnvironment environment;
-  };
-
   const vector<string> target_hashes_;
   size_t max_jobs_;
 
   ExecutionLoop exec_loop_ {};
   deque<string> job_queue_ {};
 
-  LocalExecutionEngine local_exec_engine_;
-
-  unordered_map<string, JobInfo> remote_jobs_ {};
-  deque<pair<string, ExecutionEnvironment>> remote_cleanup_queue_ {};
+  vector<unique_ptr<ExecutionEngine>> exec_engines_;
 
   size_t finished_jobs_ { 0 };
 
   DependencyGraph dep_graph_ {};
 
-  Optional<lambda::ExecutionConnectionManager> lambda_conn_manager_ {};
-  Optional<ggremote::ExecutionConnectionManager> gg_conn_manager_ {};
-
-  template<class ConnectionContextType>
-  void process_execution_response( ConnectionContextType & connection,
-                                   const string & thunk_hash );
-
   void execution_finalize( const string & old_hash, const string & new_hash );
 
+  size_t running_jobs() const;
   bool is_finished() const;
-  size_t running_jobs() const { return local_exec_engine_.job_count(); }
 
 public:
   Reductor( const vector<string> & target_hashes, const size_t max_jobs = 8 );
@@ -141,12 +128,7 @@ void Reductor::print_status() const
 }
 
 Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs )
-  : target_hashes_( target_hashes ), max_jobs_( max_jobs ),
-    local_exec_engine_(
-      exec_loop_,
-      [this] ( const string & old_hash, const string & new_hash )
-      { execution_finalize( old_hash, new_hash ); }
-    )
+  : target_hashes_( target_hashes ), max_jobs_( max_jobs ), exec_engines_()
 {
   unordered_set<string> all_o1_deps;
 
@@ -159,59 +141,48 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs 
 
   job_queue_.insert( job_queue_.end(), all_o1_deps.begin(), all_o1_deps.end() );
 
+  auto completion_callback =
+    [this] ( const string & old_hash, const string & new_hash )
+    { execution_finalize( old_hash, new_hash ); };
+
   if ( lambda_execution ) {
-    lambda_conn_manager_.initialize( AWSCredentials(), gg::remote::s3_region() );
+    exec_engines_.emplace_back(
+      make_unique<AWSLambdaExecutionEngine>(
+        AWSCredentials(), gg::remote::s3_region(), exec_loop_, completion_callback
+      )
+    );
   }
 
-  if ( ggremote_execution ) {
-    auto runner_server = gg::remote::runner_server();
-    gg_conn_manager_.initialize( runner_server.first, runner_server.second );
+  if ( not lambda_execution ) {
+    exec_engines_.emplace_back(
+      make_unique<LocalExecutionEngine>( exec_loop_, completion_callback )
+    );
   }
+
+  if ( exec_engines_.size() == 0 ) {
+    throw runtime_error( "no execution engines are available" );
+  }
+}
+
+size_t Reductor::running_jobs() const
+{
+  return accumulate(
+    exec_engines_.begin(), exec_engines_.end(), 0,
+    []( int a, const unique_ptr<ExecutionEngine> & b )
+    { return a + b->job_count(); }
+  );
 }
 
 bool Reductor::is_finished() const
 {
-  return ( local_exec_engine_.job_count() == 0 ) and ( job_queue_.size() == 0 );
+  return
+    ( running_jobs() == 0 ) and ( job_queue_.size() == 0 );
 }
 
 void Reductor::execution_finalize( const string & old_hash, const string & new_hash )
 {
   unordered_set<string> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
   job_queue_.insert( job_queue_.end(), new_o1s.begin(), new_o1s.end() );
-}
-
-template<class ConnectionContextType>
-void Reductor::process_execution_response( ConnectionContextType & connection,
-                                           const string & thunk_hash )
-{
-  assert( not connection.responses.empty() );
-
-  const HTTPResponse & http_response = connection.responses.front();
-
-  if ( http_response.status_code() != "200" ) {
-    job_queue_.push_back( thunk_hash );
-    throw runtime_error( "HTTP failure: " + http_response.status_code() );
-  }
-
-  RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
-
-  if ( response.type != RemoteResponse::Type::SUCCESS ) {
-    throw runtime_error( "execution failed." );
-  }
-
-  if ( response.thunk_hash != thunk_hash ) {
-    cerr << http_response.str() << endl;
-    throw runtime_error( "expected output for " + thunk_hash + ", got output for " + response.thunk_hash );
-  }
-
-  gg::cache::insert( response.thunk_hash, response.output_hash );
-  execution_finalize( response.thunk_hash, response.output_hash );
-
-  remote_cleanup_queue_.push_back( make_pair( response.thunk_hash, remote_jobs_.at( thunk_hash ).environment ) );
-  remote_jobs_.erase( thunk_hash );
-  finished_jobs_++;
-
-  connection.state = ConnectionContextType::State::closed;
 }
 
 vector<string> Reductor::reduce()
@@ -228,7 +199,7 @@ vector<string> Reductor::reduce()
       }
       else {
         const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
-        local_exec_engine_.force_thunk( thunk_hash, thunk );
+        exec_engines_[ 0 ]->force_thunk( thunk_hash, thunk );
       }
 
       job_queue_.pop_front();
