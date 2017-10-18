@@ -22,7 +22,6 @@
 #include "exception.hh"
 #include "thunk.hh"
 #include "thunk_reader.hh"
-#include "child_process.hh"
 #include "sandbox.hh"
 #include "path.hh"
 #include "temp_file.hh"
@@ -30,10 +29,7 @@
 #include "thunk_writer.hh"
 #include "ggpaths.hh"
 #include "placeholder.hh"
-#include "system_runner.hh"
 #include "graph.hh"
-#include "poller.hh"
-#include "signalfd.hh"
 #include "util.hh"
 #include "s3.hh"
 #include "digest.hh"
@@ -47,6 +43,7 @@
 #include "engine.hh"
 #include "engine_local.hh"
 #include "engine_lambda.hh"
+#include "engine_gg.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -157,7 +154,17 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs 
     );
   }
 
-  if ( not lambda_execution ) {
+  if ( ggremote_execution ) {
+    auto runner_server = gg::remote::runner_server();
+
+    exec_engines_.emplace_back(
+      make_unique<GGExecutionEngine>(
+        runner_server.first, runner_server.second, exec_loop_, completion_callback
+      )
+    );
+  }
+
+  if ( not ( lambda_execution or ggremote_execution ) ) {
     exec_engines_.emplace_back(
       make_unique<LocalExecutionEngine>( exec_loop_, completion_callback )
     );
@@ -204,7 +211,20 @@ vector<string> Reductor::reduce()
       }
       else {
         const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
-        exec_engines_[ 0 ]->force_thunk( thunk_hash, thunk );
+
+        bool executed = false;
+
+        for ( auto & exec_engine : exec_engines_ ) {
+          if ( exec_engine->can_execute( thunk ) ) {
+            exec_engines_[ 0 ]->force_thunk( thunk_hash, thunk );
+            executed = true;
+            break;
+          }
+        }
+
+        if ( not executed ) {
+          throw runtime_error( "no execution engine could execute " + thunk_hash );
+        }
       }
 
       job_queue_.pop_front();
