@@ -43,6 +43,8 @@
 #include "units.hh"
 #include "timeit.hh"
 #include "status_bar.hh"
+#include "loop.hh"
+#include "engine_local.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -79,11 +81,12 @@ private:
   size_t max_jobs_;
 
   SignalMask signals_ { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT, SIGWINCH };
-  Poller poller_ {};
+  ExecutionLoop exec_loop_ {};
 
-  unordered_map<string, JobInfo> remote_jobs_ {};
-  list<ChildProcess> local_jobs_ {};
+  LocalExecutionEngine local_exec_engine_;
+
   deque<string> job_queue_ {};
+  unordered_map<string, JobInfo> remote_jobs_ {};
   deque<pair<string, ExecutionEnvironment>> remote_cleanup_queue_ {};
 
   size_t finished_jobs_ { 0 };
@@ -98,10 +101,9 @@ private:
                                    const string & thunk_hash );
 
   void execution_finalize( const string & old_hash, const string & new_hash );
-  Result handle_signal( const signalfd_siginfo & sig );
 
   bool is_finished() const;
-  size_t running_jobs() const { return remote_jobs_.size() + local_jobs_.size(); }
+  size_t running_jobs() const { return local_exec_engine_.job_count(); }
 
 public:
   Reductor( const vector<string> & target_hashes, const size_t max_jobs = 8 );
@@ -113,7 +115,7 @@ public:
 
 void Reductor::print_status() const
 {
-  if ( not status_bar ) {
+  /*if ( not status_bar ) {
     return;
   }
 
@@ -136,11 +138,16 @@ void Reductor::print_status() const
          << " total: "       << BOLD << COLOR_DEFAULT << dep_graph_.size();
 
     StatusBar::set_text( data.str() );
-  }
+  }*/
 }
 
 Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs )
-  : target_hashes_( target_hashes ), max_jobs_( max_jobs )
+  : target_hashes_( target_hashes ), max_jobs_( max_jobs ),
+    local_exec_engine_(
+      exec_loop_,
+      [this] ( const string & old_hash, const string & new_hash )
+      { execution_finalize( old_hash, new_hash ); }
+    )
 {
   signals_.set_as_mask();
   unordered_set<string> all_o1_deps;
@@ -166,90 +173,13 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs 
 
 bool Reductor::is_finished() const
 {
-  return ( remote_jobs_.size() == 0 ) and
-         ( local_jobs_.size() == 0 ) and
-         ( job_queue_.size() == 0 );
+  return ( local_exec_engine_.job_count() == 0 ) and ( job_queue_.size() == 0 );
 }
 
 void Reductor::execution_finalize( const string & old_hash, const string & new_hash )
 {
   unordered_set<string> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
   job_queue_.insert( job_queue_.end(), new_o1s.begin(), new_o1s.end() );
-}
-
-Result Reductor::handle_signal( const signalfd_siginfo & sig )
-{
-  switch ( sig.ssi_signo ) {
-  case SIGCONT:
-    for ( auto & child : local_jobs_ ) {
-      child.resume();
-    }
-    break;
-
-  case SIGCHLD:
-    if ( local_jobs_.empty() ) {
-      throw runtime_error( "received SIGCHLD without any managed children" );
-    }
-
-    for ( auto it = local_jobs_.begin(); it != local_jobs_.end(); it++ ) {
-      ChildProcess & child = *it;
-
-      if ( child.terminated() or ( not child.waitable() ) ) {
-        continue;
-      }
-
-      child.wait( true );
-
-      if ( child.terminated() ) {
-        if ( child.exit_status() != 0 ) {
-          child.throw_exception();
-        }
-
-        /* Update the dependency graph now that we know this process ended
-        with exit code 0. */
-        const string & thunk_hash = child.name();
-        Optional<ReductionResult> result = gg::cache::check( thunk_hash );
-
-        if ( not result.initialized() or result->order != 0 ) {
-          throw runtime_error( "could not find the reduction entry" );
-        }
-
-        execution_finalize( thunk_hash, result->hash );
-
-        finished_jobs_++;
-        it = local_jobs_.erase( it );
-        it--;
-
-
-        if ( is_finished() ) {
-          return ResultType::Exit;
-        }
-      }
-      else if ( not child.running() ) {
-        /* suspend parent too */
-        CheckSystemCall( "raise", raise( SIGSTOP ) );
-      }
-    }
-
-    break;
-
-  case SIGHUP:
-  case SIGTERM:
-  case SIGQUIT:
-  case SIGINT:
-    throw runtime_error( "interrupted by signal" );
-
-  case SIGWINCH:
-    if ( status_bar ) {
-      StatusBar::redraw();
-    }
-    break;
-
-  default:
-    throw runtime_error( "unknown signal" );
-  }
-
-  return ResultType::Continue;
 }
 
 template<class ConnectionContextType>
@@ -288,16 +218,6 @@ void Reductor::process_execution_response( ConnectionContextType & connection,
 
 vector<string> Reductor::reduce()
 {
-  SignalFD signal_fd( signals_ );
-
-  poller_.add_action(
-    Poller::Action(
-      signal_fd.fd(), Direction::In,
-      [&]() { return handle_signal( signal_fd.read_signal() ); },
-      [&]() { return running_jobs() > 0; }
-    )
-  );
-
   while ( true ) {
     while ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
       const string & thunk_hash = job_queue_.front();
@@ -310,173 +230,7 @@ vector<string> Reductor::reduce()
       }
       else {
         const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
-
-        if ( not ( ggremote_execution or lambda_execution ) ) {
-          /* for local execution, we just fork and run gg-execute. */
-          local_jobs_.emplace_back(
-            thunk_hash,
-            [thunk_hash]()
-            {
-              vector<string> command { "gg-execute", thunk_hash };
-              return ezexec( command[ 0 ], command, {}, true, true );
-            }
-          );
-        }
-        else {
-          ExecutionEnvironment target_environment;
-
-          if ( lambda_execution and thunk.infiles_size() < 100_MiB ) {
-            /* If we can run on Lambda, always run on Lambda. */
-            target_environment = ExecutionEnvironment::LAMBDA;
-          }
-          else if ( ggremote_execution ) {
-            /* Well, either Lambda execution is off, or the infiles are >100MiB,
-            so we execution on the overflow machine. */
-            target_environment = ExecutionEnvironment::GG_RUNNER;
-          }
-          else {
-            throw runtime_error( "thunk doesn't fit on \u03bb: " + thunk_hash );
-          }
-
-          switch ( target_environment ) {
-          case ExecutionEnvironment::LAMBDA:
-            {
-              /* create new socket */
-              SSLConnectionContext & connection = lambda_conn_manager_->new_connection( thunk, thunk_hash );
-
-              /* what to do when socket is writeable */
-              poller_.add_action(
-                Poller::Action(
-                  connection.socket, Direction::Out,
-                  [thunk_hash, &connection]()
-                  {
-                    /* did it connect successfully? */
-                    if ( not connection.connected() ) {
-                      connection.continue_SSL_connect();
-                    }
-                    else if ( connection.state == SSLConnectionState::needs_ssl_write_to_write or
-                         ( connection.state == SSLConnectionState::ready and connection.something_to_write ) ) {
-                      connection.continue_SSL_write();
-                    }
-                    else if ( connection.state == SSLConnectionState::needs_ssl_write_to_read ) {
-                      connection.continue_SSL_read();
-                    }
-
-                    return ResultType::Continue;
-                  },
-                  [&connection]()
-                  {
-                    return ( connection.state == SSLConnectionState::needs_connect ) or
-                           ( connection.state == SSLConnectionState::needs_ssl_write_to_connect ) or
-                           ( connection.state == SSLConnectionState::needs_ssl_write_to_write ) or
-                           ( connection.state == SSLConnectionState::needs_ssl_write_to_read ) or
-                           ( connection.state == SSLConnectionState::ready and connection.something_to_write );
-                  }
-                )
-              );
-
-              /* what to do when socket is readable */
-              poller_.add_action(
-                Poller::Action(
-                  connection.socket, Direction::In,
-                  [thunk_hash, &connection, this]()
-                  {
-                    if ( not connection.connected() ) {
-                      connection.continue_SSL_connect();
-                    }
-                    else if ( connection.state == SSLConnectionState::needs_ssl_read_to_write ) {
-                      connection.continue_SSL_write();
-                    }
-                    else if ( connection.state == SSLConnectionState::needs_ssl_read_to_read or
-                              connection.state == SSLConnectionState::ready ) {
-                      connection.continue_SSL_read();
-                    }
-
-                    if ( not connection.responses.empty() ) {
-                      process_execution_response( connection, thunk_hash );
-
-                      if ( is_finished() ) {
-                        return ResultType::Exit;
-                      }
-                    }
-
-                    return ResultType::Continue;
-                  },
-                  [&connection]()
-                  {
-                    return ( connection.state == SSLConnectionState::needs_connect ) or
-                           ( connection.state == SSLConnectionState::needs_ssl_read_to_connect ) or
-                           ( connection.state == SSLConnectionState::needs_ssl_read_to_write ) or
-                           ( connection.state == SSLConnectionState::needs_ssl_read_to_read ) or
-                           ( connection.state == SSLConnectionState::ready );
-                  }
-                )
-              );
-
-              remote_jobs_.insert( { thunk_hash, { ExecutionEnvironment::LAMBDA } } );
-            }
-
-            break;
-            /* end of case ExecutionEnvironment::LAMBDA */
-
-          case ExecutionEnvironment::GG_RUNNER:
-            {
-              ConnectionContext & connection = gg_conn_manager_->new_connection( thunk, thunk_hash );
-
-              poller_.add_action(
-                Poller::Action(
-                  connection.socket, Direction::Out,
-                  [thunk_hash, &connection] ()
-                  {
-                    connection.socket.verify_no_errors();
-
-                    if ( connection.state == ConnectionContext::State::needs_connect ) {
-                      connection.state = ConnectionContext::State::ready;
-                    }
-
-                    connection.last_write = connection.socket.write( connection.last_write,
-                                                                     connection.request_str.cend() );
-
-                    if ( connection.last_write == connection.request_str.cend() ) {
-                      connection.something_to_write = false;
-                    }
-
-                    return ResultType::Continue;
-                  },
-                  [&connection] { return connection.something_to_write; }
-                )
-              );
-
-              poller_.add_action(
-                Poller::Action(
-                  connection.socket, Direction::In,
-                  [thunk_hash, &connection, this] ()
-                  {
-                    connection.responses.parse( connection.socket.read() );
-
-                    if ( not connection.responses.empty() ) {
-                      process_execution_response( connection, thunk_hash );
-
-                      if ( is_finished() ) {
-                        return ResultType::Exit;
-                      }
-                    }
-
-                    return ResultType::Continue;
-                  },
-                  [&connection]() { return connection.ready(); }
-                )
-              );
-
-              remote_jobs_.insert( { thunk_hash, { ExecutionEnvironment::GG_RUNNER } } );
-            }
-
-            break;
-            /* end of case ExecutionEnvironment::GG_RUNNER */
-          }
-
-
-        }
+        local_exec_engine_.force_thunk( thunk_hash, thunk );
       }
 
       job_queue_.pop_front();
@@ -484,35 +238,7 @@ vector<string> Reductor::reduce()
 
     print_status();
 
-    const auto poll_result = poller_.poll( -1 );
-
-    /* let's cleanup closed connections */
-    while ( not remote_cleanup_queue_.empty() ) {
-      const string & hash = remote_cleanup_queue_.front().first;
-      const ExecutionEnvironment exec_env = remote_cleanup_queue_.front().second;
-
-      switch ( exec_env ) {
-      case ExecutionEnvironment::LAMBDA:
-        {
-          const auto & connection = lambda_conn_manager_->connection_context( hash );
-          poller_.remove_actions( connection.socket.fd_num() );
-          lambda_conn_manager_->remove_connection( hash );
-        }
-
-        break;
-
-      case ExecutionEnvironment::GG_RUNNER:
-        {
-          const auto & connection = gg_conn_manager_->connection_context( hash );
-          poller_.remove_actions( connection.socket.fd_num() );
-          gg_conn_manager_->remove_connection( hash );
-        }
-
-        break;
-      }
-
-      remote_cleanup_queue_.pop_front();
-    }
+    const auto poll_result = exec_loop_.loop_once();
 
     if ( poll_result.result == Poller::Result::Type::Exit ) {
       if ( not is_finished() ) {

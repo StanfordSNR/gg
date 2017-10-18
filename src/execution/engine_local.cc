@@ -11,24 +11,33 @@
 using namespace std;
 using namespace gg::thunk;
 
-void LocalExecutionEngine::callback( const string & hash )
-{
-  Optional<gg::cache::ReductionResult> result = gg::cache::check( hash );
-
-  if ( not result.initialized() or result->order != 0 ) {
-    throw runtime_error( "could not find the reduction entry" );
-  }
-}
-
 void LocalExecutionEngine::force_thunk( const string & hash,
                                         const Thunk & /* thunk */ )
 {
   exec_loop_.add_child_process( hash,
-    &LocalExecutionEngine::callback,
+    [this] ( const string & hash )
+    {
+      running_jobs_--; /* XXX not thread-safe */
+
+      Optional<gg::cache::ReductionResult> result = gg::cache::check( hash );
+
+      if ( not result.initialized() or result->order != 0 ) {
+        throw runtime_error( "could not find the reduction entry" );
+      }
+
+      callback_( hash, result->hash );
+    },
     [hash]()
     {
       vector<string> command { "gg-execute", hash };
       return ezexec( command[ 0 ], command, {}, true, true );
     }
   );
+
+  running_jobs_++;
+}
+
+size_t LocalExecutionEngine::job_count() const
+{
+  return running_jobs_;
 }

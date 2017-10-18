@@ -7,10 +7,16 @@
 
 class LocalExecutionEngine : public ExecutionEngine
 {
-public:
-  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk ) override;
+private:
+  size_t running_jobs_ { 0 };
 
-  static void callback( const std::string & hash );
+public:
+  LocalExecutionEngine( ExecutionLoop & loop, CallbackFunc callback )
+    : ExecutionEngine( loop, callback )
+  {}
+
+  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk ) override;
+  size_t job_count() const override;
 };
 
 #endif /* ENGINE_LOCAL_HH */

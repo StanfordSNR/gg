@@ -29,6 +29,11 @@ ExecutionLoop::ExecutionLoop()
   );
 }
 
+Poller::Result ExecutionLoop::loop_once()
+{
+  return poller_.poll( -1 );
+}
+
 void ExecutionLoop::add_child_process( const string & tag, LocalCallbackFunc callback,
                                        std::function<int()> && child_procedure )
 {

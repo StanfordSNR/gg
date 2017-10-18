@@ -12,11 +12,11 @@
 class ExecutionEngine
 {
 public:
-  typedef std::function<void( const std::string &, const std::string )> CallbackFunc;
+  typedef std::function<void( const std::string &, const std::string & )> CallbackFunc;
 
 protected:
   ExecutionLoop & exec_loop_; /* XXX */
-  std::function<void( const std::string &, const std::string )> callback_;
+  std::function<void( const std::string &, const std::string & )> callback_;
 
 public:
   ExecutionEngine( ExecutionLoop & loop, CallbackFunc callback )
@@ -24,6 +24,7 @@ public:
   {}
 
   virtual void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk ) = 0;
+  virtual size_t job_count() const = 0;
 
   virtual ~ExecutionEngine() {}
 };

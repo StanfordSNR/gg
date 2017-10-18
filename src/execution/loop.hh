@@ -43,7 +43,7 @@ public:
   void add_connection( const std::string & tag, RemoteCallbackFunc callback,
                        SocketType && socket, const HTTPRequest & request );
 
-  void loop_once();
+  Poller::Result loop_once();
 };
 
 #endif /* LOOP_HH */
