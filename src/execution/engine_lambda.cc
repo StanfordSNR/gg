@@ -50,6 +50,8 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
     hash,
     [this] ( const string & thunk_hash, const HTTPResponse & http_response )
     {
+      running_jobs_--;
+
       if ( http_response.status_code() != "200" ) {
         throw runtime_error( "HTTP failure: " + http_response.status_code() );
       }
