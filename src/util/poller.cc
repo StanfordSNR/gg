@@ -71,17 +71,7 @@ Poller::Result Poller::poll( const int timeout_ms )
     if ( it_pollfd->revents & it_pollfd->events ) {
       /* we only want to call callback if revents includes
         the event we asked for */
-      const auto count_before = it_action->service_count();
-
-      const auto starting_time = chrono::system_clock::now();
       auto result = it_action->callback();
-      const auto ending_time = chrono::system_clock::now();
-
-      const int ms_for_callback = chrono::duration_cast<chrono::milliseconds>( ending_time - starting_time ).count();
-
-      if ( ms_for_callback > 10 ) {
-        cerr << "callback took " + to_string( ms_for_callback ) + " ms, blocking likely";
-      }
 
       switch ( result.result ) {
       case ResultType::Exit:
@@ -92,15 +82,11 @@ Poller::Result Poller::poll( const int timeout_ms )
         break;
 
       case ResultType::CancelAll:
-        fds_to_remove.insert( it_action->fd.fd_num() );
+        fds_to_remove.insert( it_pollfd->fd );
         break;
 
       case ResultType::Continue:
         break;
-      }
-
-      if ( count_before == it_action->service_count() ) {
-        throw runtime_error( "Poller: busy wait detected: callback did not read/write fd" );
       }
     }
   }
@@ -120,7 +106,7 @@ void Poller::remove_actions( const set<int> fd_nums )
   auto it_pollfd = pollfds_.begin();
 
   while ( it_action != actions_.end() and it_pollfd != pollfds_.end() ) {
-    if ( fd_nums.count( it_action->fd.fd_num() ) ) {
+    if ( fd_nums.count( it_pollfd->fd ) ) {
       it_action = actions_.erase( it_action );
       it_pollfd = pollfds_.erase( it_pollfd );
     }
