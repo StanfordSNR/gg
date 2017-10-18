@@ -1,5 +1,5 @@
-AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util -I$(srcdir)/../trace \
-              -I$(srcdir)/../sandbox -I$(srcdir)/../net \
+AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util -I$(srcdir)/../tui \
+              -I$(srcdir)/../trace -I$(srcdir)/../sandbox -I$(srcdir)/../net \
               -I$(srcdir)/../thunk $(CXX14_FLAGS) $(PROTOBUF_CFLAGS) \
               $(SSL_CFLAGS) $(SSL_CFLAGS) $(CRYPTO_CFLAGS)
 
@@ -13,4 +13,5 @@ libggexecution_a_SOURCES = remote_response.hh remote_response.cc \
                            engine.hh \
                            engine_local.hh engine_local.cc \
                            engine_lambda.hh engine_lambda.cc \
-                           engine_gg.hh engine_gg.cc
+                           engine_gg.hh engine_gg.cc \
+                           reductor.hh reductor.cc
