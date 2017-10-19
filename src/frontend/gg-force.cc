@@ -65,6 +65,7 @@ int main( int argc, char * argv[] )
       switch ( opt ) {
       case 's':
         status_bar = true;
+        StatusBar::get();
         break;
 
       default:

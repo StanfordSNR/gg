@@ -61,7 +61,7 @@ void Reductor::print_status() const
          << finished_jobs_ << color_reset
          << " total: " << BOLD << COLOR_DEFAULT << dep_graph_.size();
 
-    data << " cost: " << BOLD << COLOR_CYAN << '$' << setw( 8 ) << fixed
+    data << "  |  cost: " << BOLD << COLOR_CYAN << '$' << setw( 8 ) << fixed
          << setprecision( 2 ) << estimated_cost_;
 
     StatusBar::set_text( data.str() );

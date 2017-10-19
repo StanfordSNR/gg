@@ -48,7 +48,7 @@ Poller::Result Poller::poll( const int timeout_ms )
 
   /* Quit if no member in pollfds_ has a non-zero direction */
   if ( not accumulate( pollfds_.begin(), pollfds_.end(), false,
-             [] ( bool acc, pollfd x ) { return acc or x.events; } ) ) {
+                       [] ( bool acc, pollfd x ) { return acc or x.events; } ) ) {
     return Result::Type::Exit;
   }
 
