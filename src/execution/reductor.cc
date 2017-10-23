@@ -170,7 +170,7 @@ vector<string> Reductor::reduce()
 
         for ( auto & exec_engine : exec_engines_ ) {
           if ( exec_engine->can_execute( thunk ) ) {
-            exec_engines_[ 0 ]->force_thunk( thunk_hash, thunk );
+            exec_engine->force_thunk( thunk_hash, thunk );
             executed = true;
             break;
           }
