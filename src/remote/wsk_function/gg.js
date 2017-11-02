@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+
+var path = require( 'path' );
+var fs = require( 'fs' );
+
+var gg_dir;
+var blobs_dir;
+var reductions_dir;
+
+exports.init = function() {
+  gg_dir = process.env[ 'GG_DIR' ];
+
+  if ( !gg_dir ) {
+    throw new Error( "GG_DIR environment variable not set" );
+  }
+
+  if ( !path.isAbsolute( gg_dir ) ) {
+    throw new Error( "GG_DIR must be an absolute path" );
+  }
+
+  blobs_dir = path.join( gg_dir, 'blobs' );
+  reductions_dir = path.join( gg_dir, 'reductions' );
+
+  [ gg_dir, blobs_dir, reductions_dir ].forEach( ( dir ) => {
+    try {
+      fs.mkdirSync( dir );
+    }
+    catch (  err ) {
+      if ( !( err instanceof Error && err.code == 'EEXIST' ) ) { throw err; }
+    }
+  } );
+
+  return this;
+}
+
+exports.blob_path = function( hash ) {
+  if ( !blobs_dir ) {
+    init();
+  }
+
+  return path.join( blobs_dir, hash );
+}
+
+exports.reduction_path = function( hash ) {
+  if ( !reductions_dir ) {
+    init();
+  }
+
+  return path.join( reductions_dir, hash );
+}
+
+exports.object_url = function( bucket, key ) {
+  return 'https://' + bucket + '.s3.amazonaws.com/' + key;
+}
