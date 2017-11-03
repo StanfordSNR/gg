@@ -52,3 +52,27 @@ exports.reduction_path = function( hash ) {
 exports.object_url = function( bucket, key ) {
   return 'https://' + bucket + '.s3.amazonaws.com/' + key;
 }
+
+exports.make_executable = function( filepath ) {
+  var stat_data = fs.statSync( filepath );
+  fs.chmodSync( filepath, 0755 );
+}
+
+exports.check_cache = function( hash ) {
+  try {
+    var data = fs.readFileSync( this.reduction_path( hash ), { 'encoding': 'utf-8' } );
+    return data.split( " " )[ 0 ];
+  }
+  catch ( err ) {
+    console.log( err );
+    return null;
+  }
+}
+
+exports.get_blobs_dir = function() {
+  if ( !blobs_dir ) {
+    init();
+  }
+
+  return blobs_dir;
+}
