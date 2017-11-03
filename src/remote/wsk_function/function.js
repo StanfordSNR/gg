@@ -138,7 +138,7 @@ function handler( args )
     }
   } );
 
-  setup_environment( args )
+  return setup_environment( args )
     .then( ( result ) => {
       return fetch_dependencies( args );
     } )

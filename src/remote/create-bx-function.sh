@@ -5,8 +5,9 @@
 
 # step 1: create zip package
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 1 ]; then
     echo "usage: $0 <gg-execute-static>"
+    exit 1
 fi
 
 GG_EXECUTE=$(readlink -f $1)
@@ -14,9 +15,10 @@ GG_EXECUTE=$(readlink -f $1)
 pushd wsk_function/
 cp ${GG_EXECUTE} gg-execute-static
 zip -r ../wskfunction.zip .
+rm gg-execute-static
 popd
 
-# step 2: isntalling the function
+# step 2: installing the function
 bx wsk action create gg-function wskfunction.zip --kind nodejs:6 --logsize 10 \
                                                  --memory 512 --timeout 300000
 
