@@ -24,7 +24,7 @@ int ezexec( const string & filename, const vector<string> & args,
     throw runtime_error( "ezexec: empty args" );
   }
 
-  if ( geteuid() == 0 or getegid() == 0 ) {
+  /* if ( geteuid() == 0 or getegid() == 0 ) {
     if ( environ ) {
       throw runtime_error( "BUG: root's env not cleared" );
     }
@@ -32,7 +32,7 @@ int ezexec( const string & filename, const vector<string> & args,
     if ( path_search ) {
       throw runtime_error( "BUG: root should not search PATH" );
     }
-  }
+  } */
 
   /* copy the arguments to mutable structures */
   vector<char *> argv;
