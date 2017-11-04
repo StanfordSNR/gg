@@ -43,7 +43,12 @@ int main( int argc, char * argv[] )
       allowed_files_1,
       []()
       {
-        close( open( "/dev/null", O_RDONLY ) );
+        /* Previously it was open( "/dev/null", O_RDONLY ), but
+        the test stopped working on Ubuntu 17.10, because the syscall
+        was read as openat. I never realized why, so I changed it!
+        And this only happen for this case and the other opens are
+        totally fine. */
+        execl( "/dev/null", "/dev/null" );
         return 0;
       }
     );
