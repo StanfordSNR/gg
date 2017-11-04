@@ -104,6 +104,12 @@ namespace gg {
       return cache_path;
     }
 
+    roost::path temp()
+    {
+      const static roost::path cache_path = get_inner_directory( "temp" );
+      return cache_path;
+    }
+
     roost::path blob_path( const string & hash )
     {
       return blobs() / hash;

@@ -18,8 +18,8 @@ using namespace gg::thunk;
 using ReductionResult = gg::cache::ReductionResult;
 
 const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
-const string temp_dir_template = "/tmp/thunk-execute";
-const string temp_file_template = "/tmp/thunk-file";
+const string temp_dir_template = ( gg::paths::temp() / "thunk-execute" ).string();
+const string temp_file_template = ( gg::paths::temp() / "thunk-file" ).string();
 
 string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
 {
