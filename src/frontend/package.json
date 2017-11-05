@@ -1,0 +1,11 @@
+{
+  "name": "gg-kkv-tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "kkv-upload.js",
+  "dependencies": {
+    "kv-store": "^1.7.0",
+    "readline": "^1.3.0"
+  },
+  "author": "Sadjad Fouladi <sadjad@cs.stanford.edu>"
+}
