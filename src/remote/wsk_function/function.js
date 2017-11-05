@@ -15,6 +15,7 @@ function setup_environment( args )
     var gg_dir = '_gg';
     process.env[ 'PATH' ] = __dirname + ':' + process.env[ 'PATH' ];
     process.env[ 'GG_DIR' ] = path.resolve( gg_dir );
+    process.env[ 'GG_SANDBOXED' ] = '1'; /* sandboxed execution */
 
     gg.make_executable( path.join( __dirname, 'gg-execute-static' ) );
 
@@ -119,7 +120,7 @@ function upload_output( args )
       'Body': outfile
     }, ( err, data ) => {
       if ( err ) {
-        throw new Error( 'outfile upload failed' );
+        reject( 'outfile upload failed' );
       }
 
       resolve( args );
@@ -148,7 +149,14 @@ function handler( args )
     .then( ( result ) => {
       console.log( 'output: ' + args.output_hash );
       return upload_output( args );
-    } );
+    } )
+    .then( result => ( {
+      'thunk_hash': args.thunk_hash,
+      'output_hash': args.output_hash,
+      'output_size': fs.statSync( gg.blob_path( args.output_hash ) ).size,
+      'executable_output': false,
+    } ) )
+    .catch( reason => ( { 'error': reason } ) );
 }
 
 exports.main = handler;
