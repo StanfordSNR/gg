@@ -53,3 +53,11 @@ string digest::gghash_to_hex( const string & input )
     throw runtime_error( "invalid gghash: " + input );
   }
 }
+
+string base64::encode( const string & input )
+{
+  string output;
+  StringSource s( input, true,
+                  new Base64Encoder( new StringSink( output ), false ) );
+  return output;
+}

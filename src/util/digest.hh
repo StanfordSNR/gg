@@ -12,4 +12,9 @@ namespace digest
   std::string gghash_to_hex( const std::string & input );
 }
 
+namespace base64
+{
+  std::string encode( const std::string & input );
+}
+
 #endif /* DIGEST_HH */
