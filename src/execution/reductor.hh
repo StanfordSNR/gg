@@ -13,6 +13,7 @@
 #include "graph.hh"
 
 enum class ExecutionEnvironment { LOCAL, GG_RUNNER, LAMBDA, OPENWHISK };
+enum class StorageBackend { S3, KKV };
 
 class Reductor
 {
@@ -44,7 +45,7 @@ public:
             const bool status_bar = false );
 
   std::vector<std::string> reduce();
-  void upload_dependencies() const;
+  void upload_dependencies( const StorageBackend storage_backend = StorageBackend::S3 ) const;
   void print_status() const;
 };
 

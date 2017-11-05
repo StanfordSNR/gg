@@ -20,6 +20,7 @@
 #include "ggpaths.hh"
 #include "path.hh"
 #include "digest.hh"
+#include "system_runner.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -222,7 +223,7 @@ vector<string> Reductor::reduce()
   }
 }
 
-void Reductor::upload_dependencies() const
+void Reductor::upload_dependencies( const StorageBackend storage_backend ) const
 {
   vector<S3::UploadRequest> upload_requests;
 
@@ -253,17 +254,31 @@ void Reductor::upload_dependencies() const
   cerr << "\u2197 Uploading " << upload_requests.size() << " file" << plural << "... ";
 
   auto upload_time = time_it<chrono::milliseconds>(
-    [&upload_requests]()
+    [&upload_requests, storage_backend]()
     {
-      S3ClientConfig s3_config;
-      s3_config.region = gg::remote::s3_region();
+      if ( storage_backend == StorageBackend::S3 ) {
+        S3ClientConfig s3_config;
+        s3_config.region = gg::remote::s3_region();
 
-      S3Client s3_client { s3_config };
-      s3_client.upload_files(
-        gg::remote::s3_bucket(), upload_requests,
-        [] ( const S3::UploadRequest & upload_request )
-        { gg::remote::set_available( upload_request.object_key ); }
-      );
+        S3Client s3_client { s3_config };
+        s3_client.upload_files(
+          gg::remote::s3_bucket(), upload_requests,
+          [] ( const S3::UploadRequest & upload_request )
+          { gg::remote::set_available( upload_request.object_key ); }
+        );
+      }
+      else if ( storage_backend == StorageBackend::KKV ) {
+        ostringstream upload_oss;
+
+        for ( const auto & req : upload_requests ) {
+          upload_oss << req.object_key << " " << req.filename.string() << endl;
+        }
+
+        run_with_input( "kkv-upload", { "kkv-upload" }, upload_oss.str() );
+      }
+      else {
+        throw runtime_error( "unsupported storage backend" );
+      }
     }
   );
 
