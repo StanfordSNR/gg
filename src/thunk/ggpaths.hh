@@ -37,6 +37,9 @@ namespace gg {
     std::string s3_region();
 
     std::pair<std::string, uint16_t> runner_server();
+
+    std::string wsk_endpoint();
+    std::string wsk_auth();
   }
 
   namespace cache {

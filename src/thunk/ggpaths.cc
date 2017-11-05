@@ -179,6 +179,24 @@ namespace gg {
 
       return { data.at( 0 ), stoul( data.at( 1 ) ) };
     }
+
+    string wsk_endpoint()
+    {
+      const static string endpoint = safe_getenv( "WSK_ENDPOINT" );
+      if ( endpoint.length() == 0 ) {
+        throw runtime_error( "WSK_ENDPOINT environment variable not set" );
+      }
+      return endpoint;
+    }
+
+    string wsk_auth()
+    {
+      const static string  auth = safe_getenv( "WSK_AUTH" );
+      if ( auth.length() == 0 ) {
+        throw runtime_error( "WSK_AUTH environment variable not set" );
+      }
+      return auth;
+    }
   }
 
   namespace cache {
