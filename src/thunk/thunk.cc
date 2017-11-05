@@ -111,8 +111,9 @@ int Thunk::execute( const string & thunk_hash ) const
   return retval;
 }
 
-std::string Thunk::execution_payload( const std::string & thunk_hash,
-                                      const bool timelog ) const
+string Thunk::execution_payload( const string & thunk_hash,
+                                 const bool timelog,
+                                 const unordered_map<string, string> & extra ) const
 {
   string base64_thunk;
 
@@ -124,6 +125,10 @@ std::string Thunk::execution_payload( const std::string & thunk_hash,
   lambda_event[ "s3_bucket" ] = json::String( gg::remote::s3_bucket() );
   lambda_event[ "s3_region" ] = json::String( gg::remote::s3_region() );
   lambda_event[ "thunk_data" ] = json::String( base64_thunk );
+
+  for ( const auto & item : extra ) {
+    lambda_event[ item.first ] = json::String( item.second );
+  }
 
   if ( timelog ) {
     lambda_event[ "timelog" ] = json::Boolean( true );
@@ -276,7 +281,7 @@ string Thunk::filename_to_hash( const string & filename ) const
 }
 
 unordered_map<string, Permissions>
-Thunk::get_allowed_files( const std::string & thunk_hash ) const
+Thunk::get_allowed_files( const string & thunk_hash ) const
 {
   unordered_map<string, Permissions> allowed_files;
 
