@@ -12,6 +12,7 @@
 #include "exception.hh"
 #include "engine_local.hh"
 #include "engine_lambda.hh"
+#include "engine_wsk.hh"
 #include "engine_gg.hh"
 #include "status_bar.hh"
 #include "s3.hh"
@@ -93,6 +94,16 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     case ExecutionEnvironment::LOCAL:
       exec_engines_.emplace_back(
         make_unique<LocalExecutionEngine>( exec_loop_, completion_callback )
+      );
+
+      break;
+
+    case ExecutionEnvironment::OPENWHISK:
+      exec_engines_.emplace_back(
+        make_unique<OpenWhiskExecutionEngine>(
+          gg::remote::wsk_endpoint(), gg::remote::wsk_auth(), exec_loop_,
+          completion_callback
+        )
       );
 
       break;

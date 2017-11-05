@@ -31,6 +31,7 @@ void usage( const char * argv0 )
        << "  GG_SANDBOXED => if set, forces the thunks in a sandbox" << endl
        << "  GG_MAXJOBS   => maximum number of jobs to run in parallel" << endl
        << "  GG_REMOTE    => execute the thunks on AWS Lambda" << endl
+       << "  GG_WHISK     => execute the thunks on OpenWhisk" << endl
        << endl;
 }
 
@@ -48,6 +49,7 @@ int main( int argc, char * argv[] )
 
     const bool lambda_execution = ( getenv( "GG_LAMBDA" ) != NULL );
     const bool ggremote_execution = ( getenv( "GG_REMOTE" ) != NULL );
+    const bool wsk_execution = ( getenv( "GG_WHISK" ) != NULL );
     bool status_bar = false;
 
     struct option long_options[] = {
@@ -111,6 +113,10 @@ int main( int argc, char * argv[] )
     }
 
     vector<ExecutionEnvironment> execution_environments;
+
+    if ( wsk_execution ) {
+      execution_environments.push_back( ExecutionEnvironment::OPENWHISK );
+    }
 
     if ( lambda_execution ) {
       execution_environments.push_back( ExecutionEnvironment::LAMBDA );

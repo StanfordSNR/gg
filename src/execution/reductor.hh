@@ -12,7 +12,7 @@
 #include "engine.hh"
 #include "graph.hh"
 
-enum class ExecutionEnvironment { LOCAL, GG_RUNNER, LAMBDA };
+enum class ExecutionEnvironment { LOCAL, GG_RUNNER, LAMBDA, OPENWHISK };
 
 class Reductor
 {
