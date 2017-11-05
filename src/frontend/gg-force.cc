@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <sstream>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -18,6 +19,7 @@
 #include "timeit.hh"
 #include "status_bar.hh"
 #include "reductor.hh"
+#include "system_runner.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -126,19 +128,23 @@ int main( int argc, char * argv[] )
       execution_environments.push_back( ExecutionEnvironment::GG_RUNNER );
     }
 
-    if ( not ( lambda_execution or ggremote_execution ) ) {
+    if ( not ( lambda_execution or ggremote_execution or wsk_execution ) ) {
       execution_environments.push_back( ExecutionEnvironment::LOCAL );
     }
 
     Reductor reductor { target_hashes, max_jobs, execution_environments, status_bar };
 
     if ( lambda_execution or ggremote_execution ) {
-      reductor.upload_dependencies();
+      reductor.upload_dependencies( StorageBackend::S3 );
+    }
+
+    if ( wsk_execution ) {
+      reductor.upload_dependencies( StorageBackend::KKV );
     }
 
     vector<string> reduced_hashes = reductor.reduce();
 
-    if ( lambda_execution or ggremote_execution ) {
+    if ( lambda_execution or ggremote_execution or wsk_execution ) {
       /* we need to fetch the output from S3 */
       vector<S3::DownloadRequest> download_requests;
       for ( const string & hash : reduced_hashes ) {
@@ -147,13 +153,24 @@ int main( int argc, char * argv[] )
 
       cerr << "\u2198 Downloading output files... ";
       auto download_time = time_it<chrono::milliseconds>(
-        [&download_requests]()
+        [&]()
         {
-          S3ClientConfig s3_config;
-          s3_config.region = gg::remote::s3_region();
+          if ( ggremote_execution or lambda_execution ) {
+            S3ClientConfig s3_config;
+            s3_config.region = gg::remote::s3_region();
 
-          S3Client s3_client { s3_config };
-          s3_client.download_files( gg::remote::s3_bucket(), download_requests );
+            S3Client s3_client { s3_config };
+            s3_client.download_files( gg::remote::s3_bucket(), download_requests );
+          }
+          else {
+            ostringstream download_oss;
+
+            for ( const auto & req : download_requests ) {
+              download_oss << req.object_key << " " << req.filename.string() << endl;
+            }
+
+            run_with_input( "kkv-download", { "kkv-download" }, download_oss.str() );
+          }
         }
       );
 
