@@ -124,6 +124,32 @@ string run( const string & filename, const vector<string> & args,
   return output;
 }
 
+void run_with_input( const string & filename,
+                     const vector<string> & args,
+                     const string & input )
+{
+  pair<FileDescriptor, FileDescriptor> pipe { make_pipe() };
+
+  ChildProcess command_process( args[ 0 ],
+    [&]()
+    {
+      CheckSystemCall( "dup2", dup2( pipe.first.fd_num(), STDIN_FILENO ) );
+      return ezexec( filename, args, {}, true, true );
+    }
+  );
+
+  pipe.second.write( input );
+  pipe.second.close();
+
+  while ( !command_process.terminated() ) {
+    command_process.wait();
+  }
+
+  if ( command_process.exit_status() != 0 ) {
+    command_process.throw_exception();
+  }
+}
+
 string command_str( const vector<string> & command,
                     const vector<string> & environment )
 {

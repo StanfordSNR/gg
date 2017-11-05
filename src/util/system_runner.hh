@@ -20,6 +20,10 @@ std::string run( const std::string & filename,
                  const bool read_stdout_until_eof = false,
                  const bool suppress_errors = false );
 
+void run_with_input( const std::string & filename,
+                     const std::vector<std::string> & args,
+                     const std::string & input );
+
 std::string command_str( const std::vector<std::string> & command,
                          const std::vector<std::string> & environment );
 
