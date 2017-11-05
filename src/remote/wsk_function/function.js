@@ -5,7 +5,7 @@ var path = require( 'path' );
 var http = require( 'http' );
 var https = require( 'https' );
 var child_process = require( 'child_process' );
-var AWS = require( 'aws-sdk' );
+var KV_Store = require( 'kv-store' ).KV_Store;
 
 var gg = require( './gg.js' );
 
@@ -68,27 +68,30 @@ function fetch_dependencies( args )
   var donwload_promises = [];
 
   return Promise.all( download_list.map( ( infile ) => {
-    return new Promise( ( resolve, reject ) => {
-      var file = fs.createWriteStream( gg.blob_path( infile.hash ) );
-      var request = https.get( gg.object_url( args.s3_bucket, infile.hash ), ( response ) => {
-        response.pipe( file );
+    return Promise.resolve()
+      .then( () => args.kvstore.get( infile.hash ) )
+      .then( ( data ) => {
+        return new Promise( ( resolve, reject ) => {
+          fs.writeFile( gg.blob_path( infile.hash ), data, ( err ) => {
+            if ( err ) {
+              reject( err );
+              return;
+            }
 
-        file.on( 'finish', () => {
-          file.close();
+            if ( infile.executable ) {
+              gg.make_executable( gg.blob_path( infile.hash ) );
+            }
 
-          if ( infile.executable ) {
-            gg.make_executable( gg.blob_path( infile.hash ) );
-          }
+            const stats = fs.statSync( gg.blob_path( infile.hash ) );
+            if ( stats.size != infile.size ) {
+              reject( 'infile size mismatch: ' + infile.hash );
+              return;
+            }
 
-          const stats = fs.statSync( gg.blob_path( infile.hash ) );
-          if ( stats.size != infile.size ) {
-            throw new Error( 'infile size mismatch: ' + infile.hash );
-          }
-
-          resolve( infile.hash )
-        } ).on( 'error', ( e ) => { throw err; } );
+            resolve( infile.hash );
+          } );
+        } );
       } );
-    } )
   } ) );
 }
 
@@ -110,22 +113,20 @@ function execute_thunk( args )
 
 function upload_output( args )
 {
-  return new Promise( ( resolve, reject ) => {
-    var outfile = fs.createReadStream( gg.blob_path( args.output_hash ) );
-
-    var s3 = new AWS.S3();
-    s3.upload( {
-      'Bucket': args.s3_bucket,
-      'Key': args.output_hash,
-      'Body': outfile
-    }, ( err, data ) => {
-      if ( err ) {
-        reject( 'outfile upload failed' );
-      }
-
-      resolve( args );
-    } );
-  } );
+  return Promise.resolve()
+    .then( () => {
+      return new Promise( ( resolve, reject ) => {
+        fs.readFile( gg.blob_path( args.output_hash ), ( err, data ) => {
+          if ( err ) {
+            reject( err );
+          }
+          else {
+            resolve( data );
+          }
+        } )
+      } );
+    } )
+    .then( ( data ) => args.kvstore.put( args.output_hash, data ) );
 }
 
 function handler( args )
@@ -133,13 +134,18 @@ function handler( args )
   console.log( 'gg handler function started.' );
 
   [ 'thunk_data', 'thunk_hash', 's3_bucket', 's3_region',
-    'infiles' ].forEach( ( element ) => {
+    'infiles', 'kkv_host', 'kkv_username',
+    'kkv_password' ].forEach( ( element ) => {
     if ( !( element in args ) ) {
       throw new Error( 'argument "' + element + '" is missing' );
     }
   } );
 
   return setup_environment( args )
+    .then( ( result ) => {
+      args.kvstore = new KV_Store( kkv_host, kkv_username, kkv_password );
+      return args.kvstore.init();
+    } )
     .then( ( result ) => {
       return fetch_dependencies( args );
     } )

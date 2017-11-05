@@ -30,7 +30,7 @@ function download_files( file_list )
               reject( err );
               return;
             }
-            resolve()
+            resolve();
           } );
         } );
       } );
