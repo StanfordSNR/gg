@@ -16,12 +16,24 @@ var kkv_password = process.env[ 'KKV_PASSWORD' ];
 
 var kvstore = new KV_Store( kkv_host, kkv_username, kkv_password );
 
-function upload_files( file_list )
+function download_files( file_list )
 {
-  process.stdout.write( 'uploading ' + file_list.length + ' file(s)...' );
+  process.stdout.write( 'downloading ' + file_list.length + ' file(s)...' );
 
   return Promise.all( file_list.map( ( entry ) => {
-    return kvstore.put( entry.key, fs.readFileSync( entry.file_path ) );
+    return Promise.resolve()
+      .then( () => kvstore.get( entry.key ) )
+      .then( ( data ) => {
+        return new Promise( ( resolve, reject ) => {
+          fs.writeFile( entry.file_path, data, ( err ) => {
+            if ( err ) {
+              reject( err );
+              return;
+            }
+            resolve()
+          } );
+        } );
+      } );
   } ) );
 }
 
@@ -39,11 +51,11 @@ Promise.resolve()
     rl.on( 'line', ( input ) => {
       console.log( 'received: ' + input );
 
-      if ( !input.trim().length ) {
+      var data = input.trim().split( ' ' );
+
+      if ( data.length != 2 ) {
         return;
       }
-
-      var data = input.trim().split( ' ' );
 
       files.push( {
         'key': data[ 0 ],
@@ -53,7 +65,7 @@ Promise.resolve()
 
     return new Promise( ( resolve, reject ) => {
       rl.on( 'close', () => {
-        upload_files( files )
+        download_files( files )
           .then( () => {
             resolve();
           } );
