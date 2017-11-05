@@ -40,6 +40,10 @@ namespace gg {
 
     std::string wsk_endpoint();
     std::string wsk_auth();
+
+    std::string kkv_host();
+    std::string kkv_username();
+    std::string kkv_password();
   }
 
   namespace cache {

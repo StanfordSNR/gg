@@ -191,11 +191,38 @@ namespace gg {
 
     string wsk_auth()
     {
-      const static string  auth = safe_getenv( "WSK_AUTH" );
+      const static string auth = safe_getenv( "WSK_AUTH" );
       if ( auth.length() == 0 ) {
         throw runtime_error( "WSK_AUTH environment variable not set" );
       }
       return auth;
+    }
+
+    string kkv_host()
+    {
+      const static string host = safe_getenv( "KKV_HOST" );
+      if ( host.length() == 0 ) {
+        throw runtime_error( "KKV_HOST environment variable not set" );
+      }
+      return host;
+    }
+
+    string kkv_username()
+    {
+      const static string username = safe_getenv( "KKV_USERNAME" );
+      if ( username.length() == 0 ) {
+        throw runtime_error( "KKV_USERNAME environment variable not set" );
+      }
+      return username;
+    }
+
+    string kkv_password()
+    {
+      const static string password = safe_getenv( "KKV_PASSWORD" );
+      if ( password.length() == 0 ) {
+        throw runtime_error( "KKV_PASSWORD environment variable not set" );
+      }
+      return password;
     }
   }
 
