@@ -37,8 +37,6 @@ Promise.resolve()
     var files = []
 
     rl.on( 'line', ( input ) => {
-      console.log( 'received: ' + input );
-
       if ( !input.trim().length ) {
         return;
       }

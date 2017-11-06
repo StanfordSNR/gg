@@ -49,8 +49,6 @@ Promise.resolve()
     var files = []
 
     rl.on( 'line', ( input ) => {
-      console.log( 'received: ' + input );
-
       var data = input.trim().split( ' ' );
 
       if ( data.length != 2 ) {
