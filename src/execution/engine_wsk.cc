@@ -12,6 +12,7 @@
 #include "http_response.hh"
 #include "remote_response.hh"
 #include "units.hh"
+#include "digest.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -44,8 +45,9 @@ HTTPRequest OpenWhiskExecutionEngine::generate_request( const Thunk & thunk,
   HTTPRequest request;
   request.set_first_line( "POST " + path_ + "?blocking=true&result=true HTTP/1.1" );
   request.add_header( HTTPHeader{ "Content-Length", to_string( payload.size() ) } );
+  request.add_header( HTTPHeader{ "Content-Type", "application/json" } );
   request.add_header( HTTPHeader{ "Host", hostname_ } );
-  request.add_header( HTTPHeader{ "Authorization", auth_ } );
+  request.add_header( HTTPHeader{ "Authorization", "Basic " + base64::encode( auth_ ) } );
   request.done_with_headers();
 
   request.read_in_body( payload );
@@ -58,6 +60,8 @@ void OpenWhiskExecutionEngine::force_thunk( const string & hash,
                                             const Thunk & thunk )
 {
   HTTPRequest request = generate_request( thunk, hash );
+
+  cerr << "Request: " << request.str() << endl;
 
   TCPSocket sock;
   sock.set_blocking( false );
@@ -79,6 +83,8 @@ void OpenWhiskExecutionEngine::force_thunk( const string & hash,
     [this] ( const string & thunk_hash, const HTTPResponse & http_response )
     {
       running_jobs_--;
+
+      cerr << "Response: " << http_response.str() << endl;
 
       if ( http_response.status_code() != "200" ) {
         throw runtime_error( "HTTP failure: " + http_response.status_code() );
