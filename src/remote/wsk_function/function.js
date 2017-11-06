@@ -143,26 +143,42 @@ function handler( args )
 
   return setup_environment( args )
     .then( ( result ) => {
-      args.kvstore = new KV_Store( kkv_host, kkv_username, kkv_password );
+      console.log( 'connecting to k-v store...' )
+      args.kvstore = new KV_Store( args.kkv_host, args.kkv_username, args.kkv_password );
       return args.kvstore.init();
     } )
     .then( ( result ) => {
+      console.log( 'fetching dependencies...' );
       return fetch_dependencies( args );
     } )
     .then( ( result ) => {
+      console.log( 'executing the thunk...' );
       return execute_thunk( args );
     } )
     .then( ( result ) => {
       console.log( 'output: ' + args.output_hash );
       return upload_output( args );
     } )
+    .then( () => args.kvstore.close() )
     .then( result => ( {
       'thunk_hash': args.thunk_hash,
       'output_hash': args.output_hash,
       'output_size': fs.statSync( gg.blob_path( args.output_hash ) ).size,
       'executable_output': false,
     } ) )
-    .catch( reason => ( { 'error': reason } ) );
+    .catch( reason => {
+      args.kvstore.close();
+      return { 'error': reason };
+    } );
 }
 
 exports.main = handler;
+
+if ( require.main == module ) {
+  var args = JSON.parse( fs.readFileSync( "/home/sadjad/temp/wsk/request.json" ) );
+  handler( args ).then( () => {
+    console.log( 'done.' );
+  }, ( reason ) => {
+    console.log( 'failed: ' + reason );
+  } );
+}
