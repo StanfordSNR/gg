@@ -5,6 +5,6 @@
   "author": "Sadjad Fouladi <sadjad@cs.stanford.edu>",
   "dependencies": {
     "aws-sdk": "^2.143.0",
-    "kv-store": "file://../../kvstore"
+    "kv-store": "../../kvstore"
   }
 }
