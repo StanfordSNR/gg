@@ -1,0 +1,15 @@
+{
+  "name": "kv-store",
+  "version": "1.7.0",
+  "description": "A simple SQL-backed key-value store.",
+  "main": "kv-store.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kalev Alpernas <kalev.alp@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "mysql": "^2.14.1"
+  }
+}
