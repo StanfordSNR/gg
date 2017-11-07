@@ -7,8 +7,8 @@ var gg_dir;
 var blobs_dir;
 var reductions_dir;
 
-exports.init = function() {
-  gg_dir = process.env[ 'GG_DIR' ];
+exports.init = function( gg_directory ) {
+  gg_dir = gg_directory;
 
   if ( !gg_dir ) {
     throw new Error( "GG_DIR environment variable not set" );

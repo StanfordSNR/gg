@@ -2,8 +2,6 @@
 
 var fs = require( 'fs' );
 var path = require( 'path' );
-var http = require( 'http' );
-var https = require( 'https' );
 var child_process = require( 'child_process' );
 var KV_Store = require( 'kv-store' ).KV_Store;
 
@@ -13,20 +11,22 @@ function setup_environment( args )
 {
   return new Promise( ( resolve, reject ) => {
     var gg_dir = '_gg';
-    process.env[ 'PATH' ] = __dirname + ':' + process.env[ 'PATH' ];
-    process.env[ 'GG_DIR' ] = path.resolve( gg_dir );
-    process.env[ 'GG_SANDBOXED' ] = '1'; /* sandboxed execution */
 
-    gg.make_executable( path.join( __dirname, 'gg-execute-static' ) );
+    args.execute_env = {
+      'GG_DIR': path.resolve( gg_dir ),
+      'GG_SANDBOXED': '1',
+    };
+
+    args.gg_execute_path = path.join( __dirname, 'gg-execute-static' );
+    gg.make_executable( gg_execute_path );
 
     fs.mkdir( gg_dir, 0o777, ( err ) => {
       if ( err && err.code !== 'EEXIST' ) {
-        reject( err );
-        return;
+        return reject( err );
       }
 
       /* after the GG_DIR is set, we're ready to init gg module */
-      gg.init();
+      gg.init( args.execute_env.GG_DIR );
 
       var thunk_data = Buffer.from( args[ 'thunk_data' ], 'base64' );
       fs.writeFileSync( gg.blob_path( args[ 'thunk_hash' ] ), thunk_data );
@@ -98,7 +98,9 @@ function fetch_dependencies( args )
 function execute_thunk( args )
 {
   return new Promise( ( resolve, reject ) => {
-    child_process.execSync( 'gg-execute-static ' + args.thunk_hash );
+    child_process.execSync( args.gg_execute_path + ' ' + args.thunk_hash, {
+      'env': args.execute_env
+    } );
     var output_hash = gg.check_cache( args.thunk_hash );
 
     if ( !output_hash ) {
@@ -133,7 +135,7 @@ function handler( args )
 {
   console.log( 'gg handler function started.' );
 
-  [ 'thunk_data', 'thunk_hash', 's3_bucket', 's3_region',
+  [ 'thunk_data', 'thunk_hash',
     'infiles', 'kkv_host', 'kkv_username',
     'kkv_password' ].forEach( ( element ) => {
     if ( !( element in args ) ) {
