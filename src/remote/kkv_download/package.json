@@ -1,0 +1,11 @@
+{
+  "name": "kkv-download",
+  "version": "1.0.0",
+  "description": "",
+  "main": "function.js",
+  "author": "Sadjad Fouladi <sadjad@cs.stanford.edu>",
+  "dependencies": {
+    "aws-sdk": "^2.147.0",
+    "kv-store": "../../kvstore"
+  }
+}
