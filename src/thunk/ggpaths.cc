@@ -232,6 +232,27 @@ namespace gg {
       }
       return password;
     }
+
+    string trpz_username()
+    {
+      const static string username = safe_getenv( "TRPZ_USERNAME" );
+      if ( username.length() == 0 ) {
+        throw runtime_error( "TRPZ_USERNAME environment variable not set" );
+      }
+      return username;
+    }
+
+    string trpz_password()
+    {
+      const static string password = safe_getenv( "TRPZ_PASSWORD" );
+      if ( password.length() == 0 ) {
+        throw runtime_error( "TRPZ_PASSWORD environment variable not set" );
+      }
+      return password;
+    }
+
+
+
   }
 
   namespace cache {

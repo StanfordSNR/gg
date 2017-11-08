@@ -46,6 +46,9 @@ namespace gg {
     std::string kkv_host();
     std::string kkv_username();
     std::string kkv_password();
+
+    std::string trpz_username();
+    std::string trpz_password();
   }
 
   namespace cache {
