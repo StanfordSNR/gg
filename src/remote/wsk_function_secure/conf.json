@@ -1,0 +1,14 @@
+{
+  "unsecLambda" : "function.js",
+  "secLambda" : "secure-function.js",
+  "usingPO" : true,
+  "processEnv" : [],
+  "labels" : {
+    "bottom" : ["userA", "userB"],
+    "userA": ["top"],
+    "userB": ["top"]
+  },
+  "host": "kkv.cmbfdu0stu5z.us-west-2.rds.amazonaws.com",
+  "user": "admin",
+  "pass": "PBTJLSLCXGCTBPLC"
+}

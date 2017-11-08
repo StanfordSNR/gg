@@ -1,0 +1,9 @@
+{
+  "name": "gg-function",
+  "version": "1.0.0",
+  "main": "secure-function.js",
+  "author": "Sadjad Fouladi <sadjad@cs.stanford.edu>",
+  "dependencies": {
+    "openwhisk-shim": "file:../../../third_party/trapeze/src/openwhisk-shim"
+  }
+}
