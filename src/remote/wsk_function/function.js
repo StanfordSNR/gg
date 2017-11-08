@@ -18,7 +18,7 @@ function setup_environment( args )
     };
 
     args.gg_execute_path = path.join( __dirname, 'gg-execute-static' );
-    gg.make_executable( gg_execute_path );
+    gg.make_executable( args.gg_execute_path );
 
     fs.mkdir( gg_dir, 0o777, ( err ) => {
       if ( err && err.code !== 'EEXIST' ) {

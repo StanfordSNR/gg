@@ -29,7 +29,7 @@ function invoke_kkv_download( files )
 
   return new Promise( ( resolve, reject ) => {
     request.post( {
-      'url': endpoint,
+      'url': endpoint + '?blocking=true&result=true',
       'body': args,
       'json': true,
       'auth': {
@@ -37,7 +37,8 @@ function invoke_kkv_download( files )
         'password': auth_data.split( ':' )[ 1 ]
       }
     }, ( err, response, body ) => {
-      if ( err || response.code != 200 ) {
+      console.log( body );
+      if ( err || response.statusCode != 200 ) {
         return reject( err );
       }
 
@@ -79,6 +80,5 @@ Promise.resolve()
   } )
   .catch( ( reason ) => {
     console.log( reason );
-    kvstore.close();
     process.exit( 1 );
   } );

@@ -2,7 +2,7 @@
 
 var fs = require( 'fs' );
 var readline = require( 'readline' );
-var KV_Store = require( 'kv-store' ).KV_Store;
+var request = require( 'request' );
 
 [ 'KKV_HOST', 'KKV_USERNAME', 'KKV_PASSWORD' ].forEach( ( envar ) => {
   if ( !process.env[ envar ]  ) {
@@ -24,7 +24,7 @@ function invoke_kkv_upload( files )
 
   return new Promise( ( resolve, reject ) => {
     request.post( {
-      'url': endpoint,
+      'url': endpoint + '?blocking=true&result=true',
       'body': args,
       'json': true,
       'auth': {
@@ -32,7 +32,9 @@ function invoke_kkv_upload( files )
         'password': auth_data.split( ':' )[ 1 ]
       }
     }, ( err, response, body ) => {
-      if ( err || response.code != 200 ) {
+      if ( err || response.statusCode != 200 ) {
+        console.log( response.statusCode );
+        console.error( body );
         return reject( err );
       }
 
@@ -42,7 +44,6 @@ function invoke_kkv_upload( files )
 }
 
 Promise.resolve()
-  .then( () => kvstore.init() )
   .then( () => {
     var rl = readline.createInterface({
       input: process.stdin,
@@ -67,7 +68,7 @@ Promise.resolve()
 
     return new Promise( ( resolve, reject ) => {
       rl.on( 'close', () => {
-        upload_files( files )
+        invoke_kkv_upload( files )
           .then( () => {
             resolve();
           } );
@@ -76,6 +77,5 @@ Promise.resolve()
   } )
   .catch( ( reason ) => {
     console.log( reason );
-    kvstore.close();
     process.exit( 1 );
   } );

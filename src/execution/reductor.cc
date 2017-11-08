@@ -228,7 +228,7 @@ void Reductor::upload_dependencies( const StorageBackend storage_backend ) const
   vector<S3::UploadRequest> upload_requests;
 
   for ( const string & dep : dep_graph_.order_zero_dependencies() ) {
-    if ( gg::remote::is_available( dep ) ) {
+    if ( gg::remote::is_available( dep ) and storage_backend != StorageBackend::KKV ) {
       continue;
     }
 
@@ -237,7 +237,7 @@ void Reductor::upload_dependencies( const StorageBackend storage_backend ) const
   }
 
   for ( const string & dep : dep_graph_.executable_dependencies() ) {
-    if ( gg::remote::is_available( dep ) ) {
+    if ( gg::remote::is_available( dep ) and storage_backend != StorageBackend::KKV ) {
       continue;
     }
 

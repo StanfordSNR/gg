@@ -56,6 +56,9 @@ if ( require.main == module ) {
     ]
   };
 
+  console.log( JSON.stringify( args ) );
+  return;
+
   handler( args )
     .then( () => {
       console.log( 'success.' );
