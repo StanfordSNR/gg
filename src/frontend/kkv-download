@@ -12,10 +12,6 @@ var request = require( 'request' );
   }
 } );
 
-var kkv_host = process.env[ 'KKV_HOST' ];
-var kkv_username = process.env[ 'KKV_USERNAME' ];
-var kkv_password = process.env[ 'KKV_PASSWORD' ];
-
 function invoke_kkv_download( files )
 {
   var args = {
@@ -31,20 +27,22 @@ function invoke_kkv_download( files )
   var endpoint = process.env[ 'WSK_KKV_DOWNLOAD_ENDPOINT' ];
   var auth_data = process.env[ 'WSK_AUTH' ];
 
-  request.post( {
-    'url': endpoint,
-    'headers': {
-      'Content-Type': 'application/json',
-    },
-    'auth': {
-      'username': auth_data.split( ':' )[ 0 ],
-      'password': auth_data.split( ':' )[ 1 ]
-    }
-  }, ( err, response, body ) => {
-    if ( err || response.code != 200 ) {
-      console.error( 'kkv-download failed.' );
-      process.exit( 1 );
-    }
+  return new Promise( ( resolve, reject ) => {
+    request.post( {
+      'url': endpoint,
+      'body': args,
+      'json': true,
+      'auth': {
+        'username': auth_data.split( ':' )[ 0 ],
+        'password': auth_data.split( ':' )[ 1 ]
+      }
+    }, ( err, response, body ) => {
+      if ( err || response.code != 200 ) {
+        return reject( err );
+      }
+
+      resolve();
+    } );
   } );
 }
 
@@ -79,7 +77,6 @@ Promise.resolve()
       } );
     } );
   } )
-  .then( () => kvstore.close() )
   .catch( ( reason ) => {
     console.log( reason );
     kvstore.close();

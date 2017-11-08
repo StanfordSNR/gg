@@ -36,6 +36,8 @@ namespace gg {
     std::string s3_bucket();
     std::string s3_region();
 
+    std::string object_url( const std::string & hash );
+
     std::pair<std::string, uint16_t> runner_server();
 
     std::string wsk_endpoint();

@@ -271,7 +271,7 @@ void Reductor::upload_dependencies( const StorageBackend storage_backend ) const
         ostringstream upload_oss;
 
         for ( const auto & req : upload_requests ) {
-          upload_oss << req.object_key << " " << req.filename.string() << endl;
+          upload_oss << req.object_key << " " << gg::remote::object_url( req.object_key ) << endl;
         }
 
         run_with_input( "kkv-upload", { "kkv-upload" }, upload_oss.str() );

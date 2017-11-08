@@ -6,6 +6,7 @@
 #include <sys/fcntl.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sstream>
 
 #include "util.hh"
 #include "file_descriptor.hh"
@@ -167,6 +168,13 @@ namespace gg {
         throw runtime_error( "GG_S3_REGION environment variable not set" );
       }
       return bucket;
+    }
+
+    string object_url( const string & hash )
+    {
+      ostringstream oss;
+      oss << "https://" << s3_bucket() << ".s3.amazonaws.com/" << hash;
+      return oss.str();
     }
 
     pair<string, uint16_t> runner_server()

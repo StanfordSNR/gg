@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-var https = require( 'https' );
 var AWS = require( 'aws-sdk' );
 var KV_Store = require( 'kv-store' ).KV_Store;
 

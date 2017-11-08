@@ -134,11 +134,13 @@ int main( int argc, char * argv[] )
 
     Reductor reductor { target_hashes, max_jobs, execution_environments, status_bar };
 
-    if ( lambda_execution or ggremote_execution ) {
+    if ( lambda_execution or ggremote_execution or wsk_execution ) {
+      /* In case of a remote execution, we always upload to S3 */
       reductor.upload_dependencies( StorageBackend::S3 );
     }
 
     if ( wsk_execution ) {
+      /* This is an extra step to copy the files from S3 to KKV */
       reductor.upload_dependencies( StorageBackend::KKV );
     }
 
@@ -155,22 +157,21 @@ int main( int argc, char * argv[] )
       auto download_time = time_it<chrono::milliseconds>(
         [&]()
         {
-          if ( ggremote_execution or lambda_execution ) {
-            S3ClientConfig s3_config;
-            s3_config.region = gg::remote::s3_region();
-
-            S3Client s3_client { s3_config };
-            s3_client.download_files( gg::remote::s3_bucket(), download_requests );
-          }
-          else {
+          if ( wsk_execution ) {
             ostringstream download_oss;
 
             for ( const auto & req : download_requests ) {
-              download_oss << req.object_key << " " << req.filename.string() << endl;
+              download_oss << req.object_key << endl;
             }
 
             run_with_input( "kkv-download", { "kkv-download" }, download_oss.str() );
           }
+
+          S3ClientConfig s3_config;
+          s3_config.region = gg::remote::s3_region();
+
+          S3Client s3_client { s3_config };
+          s3_client.download_files( gg::remote::s3_bucket(), download_requests );
         }
       );
 
