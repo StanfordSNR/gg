@@ -141,7 +141,7 @@ int main( int argc, char * argv[] )
 
     if ( wsk_execution ) {
       /* This is an extra step to copy the files from S3 to KKV */
-      // reductor.upload_dependencies( StorageBackend::KKV );
+      reductor.upload_dependencies( StorageBackend::KKV );
     }
 
     vector<string> reduced_hashes = reductor.reduce();
