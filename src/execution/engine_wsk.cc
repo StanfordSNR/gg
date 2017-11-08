@@ -38,6 +38,8 @@ HTTPRequest OpenWhiskExecutionEngine::generate_request( const Thunk & thunk,
     { "kkv_host", gg::remote::kkv_host() },
     { "kkv_username", gg::remote::kkv_username() },
     { "kkv_password", gg::remote::kkv_password() },
+    { "user", gg::remote::trpz_username() },
+    { "pass", gg::remote::trpz_password() },
   };
 
   string payload = thunk.execution_payload( thunk_hash, false, extra );
