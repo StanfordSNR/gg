@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var AWS = require( 'aws-sdk' );
 var KV_Store = require( 'kv-store' ).KV_Store;
 
@@ -34,6 +32,7 @@ function handler( args )
   AWS.config.secretAccessKey = args.aws_secret_key;
 
   return Promise.resolve()
+    .then( () => args.kvstore.init() )
     .then( () => {
       return download_all( args );
     } )
