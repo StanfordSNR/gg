@@ -5,7 +5,8 @@
   "main": "kkv-upload.js",
   "dependencies": {
     "kv-store": "../kvstore",
-    "readline": "^1.3.0"
+    "readline": "^1.3.0",
+    "request": "^2.83.0"
   },
   "author": "Sadjad Fouladi <sadjad@cs.stanford.edu>"
 }

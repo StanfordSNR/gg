@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
-var fs = require( 'fs' );
 var readline = require( 'readline' );
-var KV_Store = require( 'kv-store' ).KV_Store;
+var https = require( 'https' );
+var request = require( 'request' );
 
-[ 'KKV_HOST', 'KKV_USERNAME', 'KKV_PASSWORD' ].forEach( ( envar ) => {
+[ 'KKV_HOST', 'KKV_USERNAME', 'KKV_PASSWORD',
+  'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY',
+  'GG_S3_BUCKET', 'WSK_KKV_DOWNLOAD_ENDPOINT' ].forEach( ( envar ) => {
   if ( !process.env[ envar ]  ) {
     throw new Error( envar + ' environment variable not found.' );
   }
@@ -14,31 +16,39 @@ var kkv_host = process.env[ 'KKV_HOST' ];
 var kkv_username = process.env[ 'KKV_USERNAME' ];
 var kkv_password = process.env[ 'KKV_PASSWORD' ];
 
-var kvstore = new KV_Store( kkv_host, kkv_username, kkv_password );
-
-function download_files( file_list )
+function invoke_kkv_download( files )
 {
-  process.stdout.write( 'downloading ' + file_list.length + ' file(s)...' );
+  var args = {
+    'files': files,
+    'kkv_host': process.env[ 'KKV_HOST' ],
+    'kkv_username': process.env[ 'KKV_USERNAME' ],
+    'kkv_password': process.env[ 'KKV_PASSWORD' ],
+    'aws_access_key': process.env[ 'AWS_ACCESS_KEY_ID' ],
+    'aws_secret_key': process.env[ 'AWS_SECRET_ACCESS_KEY' ],
+    's3_bucket': process.env[ 'GG_S3_BUCKET' ]
+  };
 
-  return Promise.all( file_list.map( ( entry ) => {
-    return Promise.resolve()
-      .then( () => kvstore.get( entry.key ) )
-      .then( ( data ) => {
-        return new Promise( ( resolve, reject ) => {
-          fs.writeFile( entry.file_path, data, ( err ) => {
-            if ( err ) {
-              reject( err );
-              return;
-            }
-            resolve();
-          } );
-        } );
-      } );
-  } ) );
+  var endpoint = process.env[ 'WSK_KKV_DOWNLOAD_ENDPOINT' ];
+  var auth_data = process.env[ 'WSK_AUTH' ];
+
+  request.post( {
+    'url': endpoint,
+    'headers': {
+      'Content-Type': 'application/json',
+    },
+    'auth': {
+      'username': auth_data.split( ':' )[ 0 ],
+      'password': auth_data.split( ':' )[ 1 ]
+    }
+  }, ( err, response, body ) => {
+    if ( err || response.code != 200 ) {
+      console.error( 'kkv-download failed.' );
+      process.exit( 1 );
+    }
+  } );
 }
 
 Promise.resolve()
-  .then( () => kvstore.init() )
   .then( () => {
     var rl = readline.createInterface({
       input: process.stdin,
@@ -49,21 +59,20 @@ Promise.resolve()
     var files = []
 
     rl.on( 'line', ( input ) => {
-      var data = input.trim().split( ' ' );
+      var data = input.trim();
 
-      if ( data.length != 2 ) {
+      if ( !data.length ) {
         return;
       }
 
       files.push( {
-        'key': data[ 0 ],
-        'file_path': data[ 1 ]
+        'key': data,
       } );
     } );
 
     return new Promise( ( resolve, reject ) => {
       rl.on( 'close', () => {
-        download_files( files )
+        invoke_kkv_download( files )
           .then( () => {
             resolve();
           } );
