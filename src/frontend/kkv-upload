@@ -17,6 +17,8 @@ function invoke_kkv_upload( files )
     'kkv_host': process.env[ 'KKV_HOST' ],
     'kkv_username': process.env[ 'KKV_USERNAME' ],
     'kkv_password': process.env[ 'KKV_PASSWORD' ],
+    'user': process.env[ 'TRPZ_USERNAME' ],
+    'pass': process.env[ 'TRPZ_PASSWORD' ]
   };
 
   var endpoint = process.env[ 'WSK_KKV_UPLOAD_ENDPOINT' ];
