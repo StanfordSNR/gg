@@ -10,7 +10,6 @@ function download_all( args )
       } )
       .then( ( data ) => {
         var s3 = new AWS.S3();
-
         return new Promise( ( resolve, reject ) => {
           s3.upload( {
             'Bucket': args.s3_bucket,
@@ -31,10 +30,13 @@ function download_all( args )
 function handler( args )
 {
   args.kvstore = new KV_Store( args.kkv_host, args.kkv_username,
-                               args.kkv_password );
+                               args.kkv_password, true );
 
-  AWS.config.accessKeyId = args.aws_access_key;
-  AWS.config.secretAccessKey = args.aws_secret_key;
+  console.log( args );
+  AWS.configCredentials( args.aws_access_key, args.aws_secret_key ); 
+
+  /* AWS.config.accessKeyId = args.aws_access_key;
+  AWS.config.secretAccessKey = args.aws_secret_key; */
 
   return Promise.resolve()
     .then( () => args.kvstore.init() )
@@ -64,6 +66,9 @@ if ( require.main == module ) {
       }
     ]
   };
+
+  console.log( args );
+  return 0;
 
   handler( args )
     .then( () => {
