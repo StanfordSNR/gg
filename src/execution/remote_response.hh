@@ -6,6 +6,8 @@
 #include <string>
 #include <sys/types.h>
 
+#include "optional.hh"
+
 class RemoteResponse
 {
 private:
@@ -24,6 +26,13 @@ public:
   std::string output_hash;
   off_t output_size;
   bool is_executable;
+
+  struct OpenWhiskData {
+    size_t duration {};
+    std::string fn_name {};
+  };
+
+  Optional<OpenWhiskData> wsk_data { false };
 
   static RemoteResponse parse_message( const std::string & message,
                                        const bool wsk = false );

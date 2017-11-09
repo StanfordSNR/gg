@@ -20,6 +20,9 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message,
   json::Reader::Read( response_json, iss );
 
   if ( wsk_output ) {
+    response.wsk_data.initialize();
+    response.wsk_data->duration = static_cast<json::Number>( response_json[ "duration" ] );
+    response.wsk_data->fn_name = static_cast<json::String>( response_json[ "name" ] );
     response_json = response_json[ "response" ][ "result" ];
   }
 
