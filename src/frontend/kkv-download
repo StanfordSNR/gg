@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
+var fs = require( 'fs' );
 var readline = require( 'readline' );
 var https = require( 'https' );
 var request = require( 'request' );
+
+var timelog_file = process.env[ 'WSK_TIMELOG' ] + '.download';
 
 [ 'KKV_HOST', 'KKV_USERNAME', 'KKV_PASSWORD',
   'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY',
@@ -31,7 +34,7 @@ function invoke_kkv_download( files )
 
   return new Promise( ( resolve, reject ) => {
     request.post( {
-      'url': endpoint + '?blocking=true&result=true',
+      'url': endpoint + '?blocking=true',
       'body': args,
       'json': true,
       'auth': {
@@ -39,10 +42,11 @@ function invoke_kkv_download( files )
         'password': auth_data.split( ':' )[ 1 ]
       }
     }, ( err, response, body ) => {
-      console.log( body );
       if ( err || response.statusCode != 200 ) {
         return reject( err );
       }
+
+      fs.writeFileSync( timelog_file, body.name + "," + body.duration + "\n", { flag: 'a' } );
 
       resolve();
     } );

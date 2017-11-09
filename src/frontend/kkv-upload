@@ -50,7 +50,7 @@ function invoke_kkv_upload( files )
           return reject( err );
         }
 
-        fs.writeFileSync( timelog_file, body.name + "," + body.duration, { flag: 'a' }  );
+        fs.writeFileSync( timelog_file, body.name + "," + body.duration + "\n", { flag: 'a' }  );
         resolve();
       } );
     } );
