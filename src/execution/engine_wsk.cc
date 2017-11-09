@@ -45,7 +45,7 @@ HTTPRequest OpenWhiskExecutionEngine::generate_request( const Thunk & thunk,
   string payload = thunk.execution_payload( thunk_hash, false, extra );
 
   HTTPRequest request;
-  request.set_first_line( "POST " + path_ + "?blocking=true&result=true HTTP/1.0" );
+  request.set_first_line( "POST " + path_ + "?blocking=true HTTP/1.0" );
   request.add_header( HTTPHeader{ "Host", hostname_ } );
   request.add_header( HTTPHeader{ "Content-Type", "application/json" } );
   request.add_header( HTTPHeader{ "Content-Length", to_string( payload.size() ) } );
@@ -89,7 +89,7 @@ void OpenWhiskExecutionEngine::force_thunk( const string & hash,
         throw runtime_error( "HTTP failure: " + http_response.status_code() );
       }
 
-      RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
+      RemoteResponse response = RemoteResponse::parse_message( http_response.body(), true );
 
       if ( response.type != RemoteResponse::Type::SUCCESS ) {
         throw runtime_error( "execution failed." );

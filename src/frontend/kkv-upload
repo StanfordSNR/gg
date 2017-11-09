@@ -13,7 +13,6 @@ var request = require( 'request' );
 function invoke_kkv_upload( files )
 {
   var args = {
-    'files': files,
     'kkv_host': process.env[ 'KKV_HOST' ],
     'kkv_username': process.env[ 'KKV_USERNAME' ],
     'kkv_password': process.env[ 'KKV_PASSWORD' ],
@@ -24,25 +23,36 @@ function invoke_kkv_upload( files )
   var endpoint = process.env[ 'WSK_KKV_UPLOAD_ENDPOINT' ];
   var auth_data = process.env[ 'WSK_AUTH' ];
 
-  return new Promise( ( resolve, reject ) => {
-    request.post( {
-      'url': endpoint + '?blocking=true&result=true',
-      'body': args,
-      'json': true,
-      'auth': {
-        'username': auth_data.split( ':' )[ 0 ],
-        'password': auth_data.split( ':' )[ 1 ]
-      }
-    }, ( err, response, body ) => {
-      if ( err || response.statusCode != 200 ) {
-        console.log( response.statusCode );
-        console.error( body );
-        return reject( err );
-      }
+  const MAX_UPLOADER_LAMBDAS = 40;
+  var lambda_count = ( files.length < MAX_UPLOADER_LAMBDAS ) ? files.length : MAX_UPLOADER_LAMBDAS;
+  var file_per_lambda = Math.ceil( files.length / lambda_count );
 
-      resolve();
+  return Promise.all( [...Array(lambda_count).keys()].map( ( lambda_index ) => {
+    return new Promise( ( resolve, reject ) => {
+      var this_files = files.slice( lambda_index * file_per_lambda, ( lambda_index + 1 ) * file_per_lambda );
+      var new_args = Object.assign( {}, args );
+      new_args.files = this_files;
+      //console.log( this_files.length );
+
+      request.post( {
+        'url': endpoint + '?blocking=true&result=true',
+        'body': new_args,
+        'json': true,
+        'auth': {
+          'username': auth_data.split( ':' )[ 0 ],
+          'password': auth_data.split( ':' )[ 1 ]
+        }
+      }, ( err, response, body ) => {
+        if ( err || response.statusCode != 200 ) {
+          console.log( response.statusCode );
+          console.error( body );
+          return reject( err );
+        }
+
+        resolve();
+      } );
     } );
-  } );
+  } ) );
 }
 
 Promise.resolve()

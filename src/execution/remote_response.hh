@@ -25,7 +25,8 @@ public:
   off_t output_size;
   bool is_executable;
 
-  static RemoteResponse parse_message( const std::string & message );
+  static RemoteResponse parse_message( const std::string & message,
+                                       const bool wsk = false );
 };
 
 #endif /* REMOTE_RESPONSE_HH */

@@ -10,13 +10,18 @@
 
 using namespace std;
 
-RemoteResponse RemoteResponse::parse_message( const std::string & message )
+RemoteResponse RemoteResponse::parse_message( const std::string & message,
+                                              const bool wsk_output )
 {
   RemoteResponse response;
 
   istringstream iss { message };
   json::Object response_json;
   json::Reader::Read( response_json, iss );
+
+  if ( wsk_output ) {
+    response_json = response_json[ "response" ][ "result" ];
+  }
 
   auto error_type_it = response_json.Find( "errorType" );
   if ( error_type_it != response_json.End() ) {
