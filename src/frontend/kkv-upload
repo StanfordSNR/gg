@@ -4,6 +4,8 @@ var fs = require( 'fs' );
 var readline = require( 'readline' );
 var request = require( 'request' );
 
+var timelog_file = process.env[ 'WSK_TIMELOG' ] + '.upload';
+
 [ 'KKV_HOST', 'KKV_USERNAME', 'KKV_PASSWORD' ].forEach( ( envar ) => {
   if ( !process.env[ envar ]  ) {
     throw new Error( envar + ' environment variable not found.' );
@@ -23,9 +25,8 @@ function invoke_kkv_upload( files )
   var endpoint = process.env[ 'WSK_KKV_UPLOAD_ENDPOINT' ];
   var auth_data = process.env[ 'WSK_AUTH' ];
 
-  const MAX_UPLOADER_LAMBDAS = 40;
-  var lambda_count = ( files.length < MAX_UPLOADER_LAMBDAS ) ? files.length : MAX_UPLOADER_LAMBDAS;
-  var file_per_lambda = Math.ceil( files.length / lambda_count );
+  var file_per_lambda = 20;
+  var lambda_count = Math.ceil( files.length / file_per_lambda ); 
 
   return Promise.all( [...Array(lambda_count).keys()].map( ( lambda_index ) => {
     return new Promise( ( resolve, reject ) => {
@@ -35,7 +36,7 @@ function invoke_kkv_upload( files )
       //console.log( this_files.length );
 
       request.post( {
-        'url': endpoint + '?blocking=true&result=true',
+        'url': endpoint + '?blocking=true',
         'body': new_args,
         'json': true,
         'auth': {
@@ -49,6 +50,7 @@ function invoke_kkv_upload( files )
           return reject( err );
         }
 
+        fs.writeFileSync( timelog_file, body.name + "," + body.duration, { flag: 'a' }  );
         resolve();
       } );
     } );
