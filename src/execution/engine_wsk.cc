@@ -100,6 +100,10 @@ void OpenWhiskExecutionEngine::force_thunk( const string & hash,
         throw runtime_error( "expected output for " + thunk_hash + ", got output for " + response.thunk_hash );
       }
 
+      if ( fout_timelog_.initialized() ) {
+        ( *fout_timelog_ ) << response.wsk_data->fn_name << "," << response.wsk_data->duration << endl;
+      }
+
       gg::cache::insert( response.thunk_hash, response.output_hash );
       callback_( response.thunk_hash, response.output_hash,
                  compute_cost( start_times_.at( thunk_hash ) ) );

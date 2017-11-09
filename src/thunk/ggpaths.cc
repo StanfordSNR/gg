@@ -206,6 +206,13 @@ namespace gg {
       return auth;
     }
 
+    string wsk_timelog()
+    {
+      const static string timelog = safe_getenv_or( "WSK_TIMELOG", "" );
+      return timelog;
+    }
+
+
     string kkv_host()
     {
       const static string host = safe_getenv( "KKV_HOST" );

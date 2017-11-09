@@ -42,6 +42,7 @@ namespace gg {
 
     std::string wsk_endpoint();
     std::string wsk_auth();
+    std::string wsk_timelog();
 
     std::string kkv_host();
     std::string kkv_username();

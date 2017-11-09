@@ -102,7 +102,8 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     case ExecutionEnvironment::OPENWHISK:
       exec_engines_.emplace_back(
         make_unique<OpenWhiskExecutionEngine>(
-          gg::remote::wsk_endpoint(), gg::remote::wsk_auth(), exec_loop_,
+          gg::remote::wsk_endpoint(), gg::remote::wsk_auth(), 
+          gg::remote::wsk_timelog(), exec_loop_,
           completion_callback
         )
       );
