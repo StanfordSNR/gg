@@ -27,13 +27,13 @@ zip -r ../kkvupload.zip .
 popd
 
 # step 2: installing the function
-bx wsk action create gg-function wskfunction.zip --kind nodejs:6 --logsize 10 \
+bx wsk action create gg-function-unsecured wskfunction.zip --kind nodejs:6 --logsize 10 \
                                                  --memory 512 --timeout 300000
 
-bx wsk action create gg-kkv-download kkvdownload.zip --kind nodejs:6 --logsize 10 \
+bx wsk action create gg-kkv-download-unsecured kkvdownload.zip --kind nodejs:6 --logsize 10 \
                                                      --memory 512 --timeout 300000
 
-bx wsk action create gg-kkv-upload kkvupload.zip --kind nodejs:6 --logsize 10 \
+bx wsk action create gg-kkv-upload-unsecured kkvupload.zip --kind nodejs:6 --logsize 10 \
                                                  --memory 512 --timeout 300000
 
 rm wskfunction.zip

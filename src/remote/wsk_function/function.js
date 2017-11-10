@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var fs = require( 'fs' );
 var path = require( 'path' );
 var child_process = require( 'child_process' );
@@ -13,12 +11,18 @@ function setup_environment( args )
     var gg_dir = '_gg';
 
     args.execute_env = {
-      'GG_DIR': path.resolve( gg_dir ),
+      'GG_DIR': path.resolve( path.join( __dirname, gg_dir ) ),
       'GG_SANDBOXED': '1',
     };
 
     args.gg_execute_path = path.join( __dirname, 'gg-execute-static' );
+
+    console.log( args ); 
+    console.log( __dirname ); 
+
     gg.make_executable( args.gg_execute_path );
+
+    console.log( 'chomd done!' );
 
     fs.mkdir( gg_dir, 0o777, ( err ) => {
       if ( err && err.code !== 'EEXIST' ) {
@@ -28,11 +32,19 @@ function setup_environment( args )
       /* after the GG_DIR is set, we're ready to init gg module */
       gg.init( args.execute_env.GG_DIR );
 
+      console.log( 'gg module initialized' ); 
+
       var thunk_data = Buffer.from( args[ 'thunk_data' ], 'base64' );
       fs.writeFileSync( gg.blob_path( args[ 'thunk_hash' ] ), thunk_data );
 
+      console.log( 'thunk is written to the disk. ');
+
       cleanup( args );
+
+      console.log( 'cleanup is done.' );
+
       resolve( args );
+
     } );
   } );
 }
@@ -176,11 +188,3 @@ function handler( args )
 
 exports.main = handler;
 
-if ( require.main == module ) {
-  var args = JSON.parse( fs.readFileSync( "/home/sadjad/temp/wsk/request.json" ) );
-  handler( args ).then( () => {
-    console.log( 'done.' );
-  }, ( reason ) => {
-    console.log( 'failed: ' + reason );
-  } );
-}
