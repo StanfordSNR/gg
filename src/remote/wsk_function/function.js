@@ -117,7 +117,7 @@ function execute_thunk( args )
     } );
 
     var end = process.hrtime( start );
-    args.execution_time = Math.ceil( ( 1e9 * start[ 0 ] + start[ 1 ] ) / 1e6 );
+    args.execution_time = Math.ceil( ( 1e9 * end[ 0 ] + end[ 1 ] ) / 1e6 );
 
     var output_hash = gg.check_cache( args.thunk_hash );
 
