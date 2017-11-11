@@ -5,6 +5,7 @@ var readline = require( 'readline' );
 var request = require( 'request' );
 
 var timelog_file = process.env[ 'WSK_TIMELOG' ] + '.upload';
+fs.writeFileSync( timelog_file, "", { flag: 'w' } );
 
 [ 'KKV_HOST', 'KKV_USERNAME', 'KKV_PASSWORD' ].forEach( ( envar ) => {
   if ( !process.env[ envar ]  ) {
