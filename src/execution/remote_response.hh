@@ -26,6 +26,7 @@ public:
   std::string output_hash;
   off_t output_size;
   bool is_executable;
+  size_t thunk_exec_time { 0 };
 
   struct OpenWhiskData {
     size_t duration {};

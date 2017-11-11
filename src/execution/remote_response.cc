@@ -24,6 +24,8 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message,
     response.wsk_data->duration = static_cast<json::Number>( response_json[ "duration" ] );
     response.wsk_data->fn_name = static_cast<json::String>( response_json[ "name" ] );
     response_json = response_json[ "response" ][ "result" ];
+
+    response.thunk_exec_time = static_cast<json::Number>( response_json[ "thunk_exec_time" ] );
   }
 
   auto error_type_it = response_json.Find( "errorType" );
