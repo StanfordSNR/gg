@@ -9,6 +9,6 @@
   "author": "Sadjad Fouladi <sadjad@cs.stanford.edu>",
   "license": "ISC",
   "dependencies": {
-    "kv-store": "../../kvstore"
+    "kv-store": "file:../../../third_party/trapeze/src/kv-store"
   }
 }

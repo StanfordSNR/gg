@@ -31,7 +31,7 @@ function download_all( args )
 function handler( args )
 {
   args.kvstore = new KV_Store( args.kkv_host, args.kkv_username,
-                               args.kkv_password );
+                               args.kkv_password, true );
 
   AWS.config.accessKeyId = args.aws_access_key;
   AWS.config.secretAccessKey = args.aws_secret_key;

@@ -6,6 +6,6 @@
   "author": "Sadjad Fouladi <sadjad@cs.stanford.edu>",
   "dependencies": {
     "aws-sdk": "^2.147.0",
-    "kv-store": "../../kvstore"
+    "kv-store": "file:../../../third_party/trapeze/src/kv-store"
   }
 }

@@ -17,8 +17,8 @@ function setup_environment( args )
 
     args.gg_execute_path = path.join( __dirname, 'gg-execute-static' );
 
-    console.log( args ); 
-    console.log( __dirname ); 
+    console.log( args );
+    console.log( __dirname );
 
     gg.make_executable( args.gg_execute_path );
 
@@ -32,7 +32,7 @@ function setup_environment( args )
       /* after the GG_DIR is set, we're ready to init gg module */
       gg.init( args.execute_env.GG_DIR );
 
-      console.log( 'gg module initialized' ); 
+      console.log( 'gg module initialized' );
 
       var thunk_data = Buffer.from( args[ 'thunk_data' ], 'base64' );
       fs.writeFileSync( gg.blob_path( args[ 'thunk_hash' ] ), thunk_data );
@@ -158,7 +158,7 @@ function handler( args )
   return setup_environment( args )
     .then( ( result ) => {
       console.log( 'connecting to k-v store...' )
-      args.kvstore = new KV_Store( args.kkv_host, args.kkv_username, args.kkv_password );
+      args.kvstore = new KV_Store( args.kkv_host, args.kkv_username, args.kkv_password, true );
       return args.kvstore.init();
     } )
     .then( ( result ) => {
@@ -187,4 +187,3 @@ function handler( args )
 }
 
 exports.main = handler;
-
