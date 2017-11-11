@@ -101,7 +101,7 @@ void OpenWhiskExecutionEngine::force_thunk( const string & hash,
       }
 
       if ( fout_timelog_.initialized() ) {
-        ( *fout_timelog_ ) << response.wsk_data->fn_name << "," << response.wsk_data->duration << endl;
+        ( *fout_timelog_ ) << response.wsk_data->fn_name << "," << response.wsk_data->duration << "," << response.thunk_exec_time << endl;
       }
 
       gg::cache::insert( response.thunk_hash, response.output_hash );
