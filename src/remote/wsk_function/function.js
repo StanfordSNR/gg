@@ -110,9 +110,15 @@ function fetch_dependencies( args )
 function execute_thunk( args )
 {
   return new Promise( ( resolve, reject ) => {
+    var start = process.hrtime();
+
     child_process.execSync( args.gg_execute_path + ' ' + args.thunk_hash, {
       'env': args.execute_env
     } );
+
+    var end = process.hrtime( start );
+    args.execution_time = Math.ceil( ( 1e9 * start[ 0 ] + start[ 1 ] ) / 1e6 );
+
     var output_hash = gg.check_cache( args.thunk_hash );
 
     if ( !output_hash ) {
@@ -179,6 +185,7 @@ function handler( args )
       'output_hash': args.output_hash,
       'output_size': fs.statSync( gg.blob_path( args.output_hash ) ).size,
       'executable_output': false,
+      'thunk_exec_time': args.execution_time,
     } ) )
     .catch( reason => {
       args.kvstore.close();

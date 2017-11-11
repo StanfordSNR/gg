@@ -17,8 +17,8 @@ function setup_environment( args )
 
     args.gg_execute_path = path.join( __dirname, 'gg-execute-static' );
 
-    console.log( args ); 
-    console.log( __dirname ); 
+    console.log( args );
+    console.log( __dirname );
 
     gg.make_executable( args.gg_execute_path );
 
@@ -32,7 +32,7 @@ function setup_environment( args )
       /* after the GG_DIR is set, we're ready to init gg module */
       gg.init( args.execute_env.GG_DIR );
 
-      console.log( 'gg module initialized' ); 
+      console.log( 'gg module initialized' );
 
       var thunk_data = Buffer.from( args[ 'thunk_data' ], 'base64' );
       fs.writeFileSync( gg.blob_path( args[ 'thunk_hash' ] ), thunk_data );
@@ -110,9 +110,15 @@ function fetch_dependencies( args )
 function execute_thunk( args )
 {
   return new Promise( ( resolve, reject ) => {
+    var start = process.hrtime();
+
     child_process.execSync( args.gg_execute_path + ' ' + args.thunk_hash, {
       'env': args.execute_env
     } );
+
+    var end = process.hrtime( start );
+    args.execution_time = Math.ceil( ( 1e9 * start[ 0 ] + start[ 1 ] ) / 1e6 );
+
     var output_hash = gg.check_cache( args.thunk_hash );
 
     if ( !output_hash ) {
@@ -179,6 +185,7 @@ function handler( args )
       'output_hash': args.output_hash,
       'output_size': fs.statSync( gg.blob_path( args.output_hash ) ).size,
       'executable_output': false,
+      'thunk_exec_time': args.execution_time,
     } ) )
     .catch( reason => {
       args.kvstore.close();
@@ -187,4 +194,3 @@ function handler( args )
 }
 
 exports.main = handler;
-
