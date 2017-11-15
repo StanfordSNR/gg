@@ -43,7 +43,10 @@ int main( int argc, char * argv[] )
       allowed_files_1,
       []()
       {
-        close( open( "/dev/null", O_RDONLY ) );
+        /* XXX before, this was actually open( "/dev/null" ), but for
+          some unknown reason, it was compiled to openat( -100, "/dev/null")
+          in Ubuntu 17.10. Weird, right? */
+        execl( "/dev/null", "/dev/null" );
         return 0;
       }
     );
