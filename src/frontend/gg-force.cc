@@ -134,7 +134,7 @@ int main( int argc, char * argv[] )
 
     if ( lambda_execution or ggremote_execution ) {
       /* we need to fetch the output from S3 */
-      vector<S3::DownloadRequest> download_requests;
+      vector<storage::GetRequest> download_requests;
       for ( const string & hash : reduced_hashes ) {
         download_requests.push_back( { hash, gg::paths::blob_path( hash ) } );
       }

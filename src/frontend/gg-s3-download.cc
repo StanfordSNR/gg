@@ -35,7 +35,7 @@ int main( int argc, char * const argv[] )
     s3_endpoint = argv[ 3 ];
   }
 
-  vector<S3::DownloadRequest> files;
+  vector<storage::GetRequest> files;
 
   string object_key;
   while ( cin >> object_key ) {

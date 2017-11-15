@@ -16,6 +16,7 @@
 #include "temp_file.hh"
 
 using namespace std;
+using namespace storage;
 
 const static std::string UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD";
 
@@ -111,8 +112,8 @@ void S3Client::download_file( const string & bucket, const string & object,
 }
 
 void S3Client::upload_files( const string & bucket,
-                             const vector<S3::UploadRequest> & upload_requests,
-                             const function<void( const S3::UploadRequest & )> & success_callback )
+                             const vector<PutRequest> & upload_requests,
+                             const function<void( const PutRequest & )> & success_callback )
 {
   const string endpoint = S3::endpoint( config_.region, bucket );
   const Address s3_address { endpoint, "https" };
@@ -186,8 +187,8 @@ void S3Client::upload_files( const string & bucket,
 }
 
 void S3Client::download_files( const std::string & bucket,
-                               const std::vector<S3::DownloadRequest> & download_requests,
-                               const std::function<void( const S3::DownloadRequest & )> & success_callback )
+                               const std::vector<storage::GetRequest> & download_requests,
+                               const std::function<void( const storage::GetRequest & )> & success_callback )
 {
   const string endpoint = ( config_.endpoint.length() > 0 ) ? endpoint : S3::endpoint( config_.region, bucket );
   const Address s3_address { endpoint, "https" };

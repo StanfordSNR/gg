@@ -13,25 +13,13 @@
 #include "http_request.hh"
 #include "path.hh"
 #include "optional.hh"
+#include "storage_requests.hh"
 
 class S3
 {
 public:
   static std::string endpoint( const std::string & region,
                                const std::string & bucket );
-
-  struct UploadRequest
-  {
-    roost::path filename;
-    std::string object_key;
-    Optional<std::string> content_hash;
-  };
-
-  struct DownloadRequest
-  {
-    std::string object_key;
-    roost::path filename;
-  };
 };
 
 class S3PutRequest : public AWSRequest
@@ -74,14 +62,14 @@ public:
                       const roost::path & filename );
 
   void upload_files( const std::string & bucket,
-                     const std::vector<S3::UploadRequest> & upload_requests,
-                     const std::function<void( const S3::UploadRequest & )> & success_callback
-                       = []( const S3::UploadRequest & ){} );
+                     const std::vector<storage::PutRequest> & upload_requests,
+                     const std::function<void( const storage::PutRequest & )> & success_callback
+                       = []( const storage::PutRequest & ){} );
 
   void download_files( const std::string & bucket,
-                       const std::vector<S3::DownloadRequest> & download_requests,
-                       const std::function<void( const S3::DownloadRequest & )> & success_callback
-                         = []( const S3::DownloadRequest & ){} );
+                       const std::vector<storage::GetRequest> & download_requests,
+                       const std::function<void( const storage::GetRequest & )> & success_callback
+                         = []( const storage::GetRequest & ){} );
 };
 
 #endif /* S3_HH */

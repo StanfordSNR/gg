@@ -213,7 +213,7 @@ vector<string> Reductor::reduce()
 
 void Reductor::upload_dependencies() const
 {
-  vector<S3::UploadRequest> upload_requests;
+  vector<storage::PutRequest> upload_requests;
 
   for ( const string & dep : dep_graph_.order_zero_dependencies() ) {
     if ( gg::remote::is_available( dep ) ) {
@@ -250,7 +250,7 @@ void Reductor::upload_dependencies() const
       S3Client s3_client { {}, s3_config };
       s3_client.upload_files(
         gg::remote::s3_bucket(), upload_requests,
-        [] ( const S3::UploadRequest & upload_request )
+        [] ( const storage::PutRequest & upload_request )
         { gg::remote::set_available( upload_request.object_key ); }
       );
     }

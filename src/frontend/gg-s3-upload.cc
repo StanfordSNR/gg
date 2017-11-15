@@ -11,7 +11,7 @@ using namespace std;
 
 int main()
 {
-  vector<S3::UploadRequest> files;
+  vector<storage::PutRequest> files;
 
   string filename;
   while ( cin >> filename ) {
@@ -20,7 +20,7 @@ int main()
 
   S3Client s3_client { {} };
   s3_client.upload_files( "ggfunbucket", files,
-    [] ( const S3::UploadRequest & request )
+    [] ( const storage::PutRequest & request )
     {
       cout << "Upload done: " + request.filename.string() + "\n";
     }
