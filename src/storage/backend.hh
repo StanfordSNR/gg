@@ -4,15 +4,40 @@
 #define STORAGE_BACKEND_HH
 
 #include <vector>
+#include <string>
+#include <functional>
+
+#include "path.hh"
+#include "optional.hh"
+
+struct PutRequest
+{
+  roost::path filename;
+  std::string object_key;
+  Optional<std::string> content_hash;
+};
+
+struct GetRequest
+{
+  std::string object_key;
+  roost::path filename;
+};
 
 class StorageBackend
 {
 public:
-  virtual void put( const PutRequest & request );
-  virtual void put( const std::vector<PutRequest> & requests );
+  typedef std::function<void( const PutRequest & )> PutCallback;
+  typedef std::function<void( const GetRequest & )> GetCallback;
 
-  virtual void get( const GetRequest & request );
-  virtual void get( const std::vector<GetRequest> & requests );
+  virtual void put( const PutRequest & request ) = 0;
+  virtual void put( const std::vector<PutRequest> & requests,
+                    const PutCallback & success_callback ) = 0;
+
+  virtual void get( const GetRequest & request ) = 0;
+  virtual void get( const std::vector<GetRequest> & requests,
+                    const GetCallback & success_callback ) = 0;
+
+  virtual ~StorageBackend() {}
 };
 
 #endif /* STORAGE_BACKEND_HH */
