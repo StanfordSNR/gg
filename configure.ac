@@ -83,6 +83,7 @@ AC_CONFIG_FILES([Makefile
                  src/trace/Makefile
                  src/sandbox/Makefile
                  src/models/Makefile
+                 src/storage/Makefile
                  src/execution/Makefile
                  src/frontend/Makefile
                  src/remote/Makefile
