@@ -18,6 +18,8 @@
 #include "timeit.hh"
 #include "status_bar.hh"
 #include "reductor.hh"
+#include "backend_s3.hh"
+#include "backend_local.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -111,6 +113,7 @@ int main( int argc, char * argv[] )
     }
 
     vector<ExecutionEnvironment> execution_environments;
+    unique_ptr<StorageBackend> storage_backend;
 
     if ( lambda_execution ) {
       execution_environments.push_back( ExecutionEnvironment::LAMBDA );
@@ -124,7 +127,17 @@ int main( int argc, char * argv[] )
       execution_environments.push_back( ExecutionEnvironment::LOCAL );
     }
 
-    Reductor reductor { target_hashes, max_jobs, execution_environments, status_bar };
+    if ( lambda_execution or ggremote_execution ) {
+      storage_backend = make_unique<S3StorageBackend>( AWSCredentials {},
+                                                       gg::remote::s3_bucket(),
+                                                       gg::remote::s3_region() );
+    }
+    else {
+      storage_backend = make_unique<LocalStorageBackend>();
+    }
+
+    Reductor reductor { target_hashes, max_jobs, execution_environments,
+                        move( storage_backend ), status_bar };
 
     if ( lambda_execution or ggremote_execution ) {
       reductor.upload_dependencies();

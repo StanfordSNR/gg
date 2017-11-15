@@ -1,12 +1,13 @@
 AM_CPPFLAGS = -I../protobufs -I$(srcdir)/../util -I$(srcdir)/../tui \
               -I$(srcdir)/../net -I$(srcdir)/../trace -I$(srcdir)/../thunk \
               -I$(srcdir)/../sandbox -I$(srcdir)/../models \
-              -I$(srcdir)/../execution \
+              -I$(srcdir)/../storage -I$(srcdir)/../execution \
               $(CXX14_FLAGS) $(PROTOBUF_CFLAGS) $(SSL_CFLAGS)
 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
-GG_LDADD = ../execution/libggexecution.a ../thunk/libthunk.a \
+GG_LDADD = ../execution/libggexecution.a ../storage/libggstorage.a \
+           ../thunk/libthunk.a \
            ../sandbox/libggsandbox.a \
            ../trace/libggtrace.a ../trace/libggsyscalltable.a \
            ../protobufs/libggprotobufs.a ../net/libggnet.a ../tui/libggtui.a \

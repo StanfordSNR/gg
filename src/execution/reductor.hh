@@ -11,6 +11,7 @@
 #include "loop.hh"
 #include "engine.hh"
 #include "graph.hh"
+#include "backend.hh"
 
 enum class ExecutionEnvironment { LOCAL, GG_RUNNER, LAMBDA };
 
@@ -30,6 +31,8 @@ private:
   ExecutionLoop exec_loop_ {};
   std::vector<std::unique_ptr<ExecutionEngine>> exec_engines_ {};
 
+  std::unique_ptr<StorageBackend> storage_backend_;
+
   void execution_finalize( const std::string & old_hash,
                            const std::string & new_hash,
                            const float cost = 0.0 );
@@ -41,6 +44,7 @@ public:
   Reductor( const std::vector<std::string> & target_hashes,
             const size_t max_jobs,
             const std::vector<ExecutionEnvironment> & execution_environments,
+            std::unique_ptr<StorageBackend> && storage_backend,
             const bool status_bar = false );
 
   std::vector<std::string> reduce();

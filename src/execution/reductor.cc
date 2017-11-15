@@ -70,8 +70,10 @@ void Reductor::print_status() const
 
 Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
                     const vector<ExecutionEnvironment> & execution_environments,
+                    std::unique_ptr<StorageBackend> && storage_backend,
                     const bool status_bar )
-  : target_hashes_( target_hashes ), max_jobs_( max_jobs ), status_bar_( status_bar )
+  : target_hashes_( target_hashes ), max_jobs_( max_jobs ),
+    status_bar_( status_bar ), storage_backend_( move( storage_backend ) )
 {
   unordered_set<string> all_o1_deps;
 
