@@ -215,6 +215,10 @@ vector<string> Reductor::reduce()
 
 void Reductor::upload_dependencies() const
 {
+  if ( storage_backend_ == nullptr ) {
+    return;
+  }
+
   vector<storage::PutRequest> upload_requests;
 
   for ( const string & dep : dep_graph_.order_zero_dependencies() ) {
@@ -244,14 +248,10 @@ void Reductor::upload_dependencies() const
   cerr << "\u2197 Uploading " << upload_requests.size() << " file" << plural << "... ";
 
   auto upload_time = time_it<chrono::milliseconds>(
-    [&upload_requests]()
+    [&upload_requests, this]()
     {
-      S3ClientConfig s3_config;
-      s3_config.region = gg::remote::s3_region();
-
-      S3Client s3_client { {}, s3_config };
-      s3_client.upload_files(
-        gg::remote::s3_bucket(), upload_requests,
+      storage_backend_->put(
+        upload_requests,
         [] ( const storage::PutRequest & upload_request )
         { gg::remote::set_available( upload_request.object_key ); }
       );

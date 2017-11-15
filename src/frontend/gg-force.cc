@@ -132,9 +132,6 @@ int main( int argc, char * argv[] )
                                                        gg::remote::s3_bucket(),
                                                        gg::remote::s3_region() );
     }
-    else {
-      storage_backend = make_unique<LocalStorageBackend>();
-    }
 
     Reductor reductor { target_hashes, max_jobs, execution_environments,
                         move( storage_backend ), status_bar };
