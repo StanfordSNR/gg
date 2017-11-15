@@ -66,7 +66,8 @@ private:
   S3ClientConfig config_;
 
 public:
-  S3Client( const S3ClientConfig & config = {} );
+  S3Client( const AWSCredentials & credentials,
+            const S3ClientConfig & config = {} );
 
   void download_file( const std::string & bucket,
                       const std::string & object,

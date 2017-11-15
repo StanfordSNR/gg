@@ -146,7 +146,7 @@ int main( int argc, char * argv[] )
           S3ClientConfig s3_config;
           s3_config.region = gg::remote::s3_region();
 
-          S3Client s3_client { s3_config };
+          S3Client s3_client { {}, s3_config };
           s3_client.download_files( gg::remote::s3_bucket(), download_requests );
         }
       );

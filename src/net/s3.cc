@@ -73,8 +73,9 @@ TCPSocket tcp_connection( const Address & address )
   return sock;
 }
 
-S3Client::S3Client( const S3ClientConfig & config )
-  : credentials_(), config_( config )
+S3Client::S3Client( const AWSCredentials & credentials,
+                    const S3ClientConfig & config )
+  : credentials_( credentials ), config_( config )
 {}
 
 void S3Client::download_file( const string & bucket, const string & object,

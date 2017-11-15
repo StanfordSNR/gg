@@ -18,7 +18,7 @@ int main()
     files.push_back( { filename, roost::rbasename( filename ).string(), "" } );
   }
 
-  S3Client s3_client;
+  S3Client s3_client { {} };
   s3_client.upload_files( "ggfunbucket", files,
     [] ( const S3::UploadRequest & request )
     {

@@ -247,7 +247,7 @@ void Reductor::upload_dependencies() const
       S3ClientConfig s3_config;
       s3_config.region = gg::remote::s3_region();
 
-      S3Client s3_client { s3_config };
+      S3Client s3_client { {}, s3_config };
       s3_client.upload_files(
         gg::remote::s3_bucket(), upload_requests,
         [] ( const S3::UploadRequest & upload_request )

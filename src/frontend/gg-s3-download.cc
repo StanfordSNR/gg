@@ -45,7 +45,7 @@ int main( int argc, char * const argv[] )
   S3ClientConfig client_config;
   client_config.region = s3_region;
 
-  S3Client s3_client { client_config };
+  S3Client s3_client { {}, client_config };
   s3_client.download_files( s3_bucket, files );
 
   return EXIT_SUCCESS;
