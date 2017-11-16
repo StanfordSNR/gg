@@ -11,20 +11,10 @@ S3StorageBackend::S3StorageBackend( const AWSCredentials & credentials,
   : client_( credentials, { s3_region } ), bucket_( s3_bucket )
 {}
 
-void S3StorageBackend::put( const PutRequest & request )
-{
-  put( { request } );
-}
-
 void S3StorageBackend::put( const std::vector<PutRequest> & requests,
                             const PutCallback & success_callback )
 {
   client_.upload_files( bucket_, requests, success_callback );
-}
-
-void S3StorageBackend::get( const GetRequest & request )
-{
-  get( { request } );
 }
 
 void S3StorageBackend::get( const std::vector<GetRequest> & requests,

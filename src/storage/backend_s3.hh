@@ -18,11 +18,9 @@ public:
                     const std::string & s3_bucket,
                     const std::string & s3_region );
 
-  void put( const storage::PutRequest & request ) override;
   void put( const std::vector<storage::PutRequest> & requests,
             const PutCallback & success_callback = []( const storage::PutRequest & ){} ) override;
 
-  void get( const storage::GetRequest & request ) override;
   void get( const std::vector<storage::GetRequest> & requests,
             const GetCallback & success_callback = []( const storage::GetRequest & ){} ) override;
 
