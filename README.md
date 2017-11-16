@@ -46,9 +46,9 @@ sudo make install
 
 To use `gg`, the following environment variables must be set:
 
-- `GG_MODELPATH` => absolute path to `<gg-source-dir>/src/models/wrappers`
+- `GG_MODELPATH` => **absolute path** to `<gg-source-dir>/src/models/wrappers`
 - `GG_S3_BUCKET` => S3 bucket that is going to be used for remote execution
-- `GG_S3_REGION` => the region in which that S3 bucket lives
+- `GG_S3_REGION` => the region in which S3 bucket lives
 - `GG_LAMBDA_ROLE` => the role that will be assigned to the executed Lambda
 functions. Must have *AmazonS3FullAccess* and *AWSLambdaBasicExecutionRole*
 permissions.
