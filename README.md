@@ -42,6 +42,8 @@ sudo make install
 
 ## Usage
 
+### Environment Variables
+
 To use `gg`, the following environment variables must be set:
 
 - `GG_MODELPATH` => absolute path to `<gg-source-dir>/src/models/wrappers`
@@ -51,6 +53,16 @@ To use `gg`, the following environment variables must be set:
 functions. Must have *AmazonS3FullAccess* and *AWSLambdaBasicExecutionRole*
 permissions.
 - `WS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` => your AWS access key
+
+### Installing the Functions
+
+After setting the environment variables, you need to install `gg` functions on
+AWS Lambda. To do so:
+
+~~~
+cd src/remote/
+make ggfunctions
+~~~
 
 ### Example
 
@@ -70,7 +82,12 @@ sudo apt-get install -y automake libtool g++ protobuf-compiler libprotobuf-dev \
                         zlib1g-dev libio-pty-perl libssl-dev pkg-config
 ~~~
 
-Inside the `mosh` directory:
+Inside the `mosh` directory, first you need to prepare `mosh` to build:
+
+~~~
+./autogen.sh
+./configure
+~~~
 
 ~~~
 gg-init # create .gg directory
