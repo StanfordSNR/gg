@@ -136,33 +136,9 @@ int main( int argc, char * argv[] )
     Reductor reductor { target_hashes, max_jobs, execution_environments,
                         move( storage_backend ), status_bar };
 
-    if ( lambda_execution or ggremote_execution ) {
-      reductor.upload_dependencies();
-    }
-
+    reductor.upload_dependencies();
     vector<string> reduced_hashes = reductor.reduce();
-
-    if ( lambda_execution or ggremote_execution ) {
-      /* we need to fetch the output from S3 */
-      vector<storage::GetRequest> download_requests;
-      for ( const string & hash : reduced_hashes ) {
-        download_requests.push_back( { hash, gg::paths::blob_path( hash ) } );
-      }
-
-      cerr << "\u2198 Downloading output files... ";
-      auto download_time = time_it<chrono::milliseconds>(
-        [&download_requests]()
-        {
-          S3ClientConfig s3_config;
-          s3_config.region = gg::remote::s3_region();
-
-          S3Client s3_client { {}, s3_config };
-          s3_client.download_files( gg::remote::s3_bucket(), download_requests );
-        }
-      );
-
-      cerr << "done (" << download_time.count() << " ms)." << endl;
-    }
+    reductor.download_targets( reduced_hashes );
 
     for ( size_t i = 0; i < reduced_hashes.size(); i++ ) {
       roost::copy_then_rename( gg::paths::blob_path( reduced_hashes[ i ] ), target_filenames[ i ] );

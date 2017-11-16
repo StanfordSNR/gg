@@ -260,3 +260,25 @@ void Reductor::upload_dependencies() const
 
   cerr << "done (" << upload_time.count() << " ms)." << endl;
 }
+
+void Reductor::download_targets( const vector<string> hashes ) const
+{
+  if ( storage_backend_ == nullptr ) {
+    return;
+  }
+
+  vector<storage::GetRequest> download_requests;
+  for ( const string & hash : hashes ) {
+    download_requests.push_back( { hash, gg::paths::blob_path( hash ) } );
+  }
+
+  cerr << "\u2198 Downloading output files... ";
+  auto download_time = time_it<chrono::milliseconds>(
+    [&download_requests, this]()
+    {
+      storage_backend_->get( download_requests );
+    }
+  );
+
+  cerr << "done (" << download_time.count() << " ms)." << endl;
+}
