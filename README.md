@@ -46,10 +46,10 @@ sudo make install
 
 To use `gg`, the following environment variables must be set:
 
-- `GG_MODELPATH` => **absolute path** to `<gg-source-dir>/src/models/wrappers`
-- `GG_S3_BUCKET` => S3 bucket that is going to be used for remote execution
-- `GG_S3_REGION` => the region in which S3 bucket lives
-- `GG_LAMBDA_ROLE` => the role that will be assigned to the executed Lambda
+- `GG_MODELPATH` => **absolute path** to `<gg-source-dir>/src/models/wrappers`.
+- `GG_S3_BUCKET` => S3 bucket that is going to be used for remote execution (e.g. `gg-fun-bucket`).
+- `GG_S3_REGION` => the region in which S3 bucket lives (e.g. `us-west-2`).
+- `GG_LAMBDA_ROLE` => the role that will be assigned to the executed Lambda.
 functions. Must have *AmazonS3FullAccess* and *AWSLambdaBasicExecutionRole*
 permissions.
 - `WS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` => your AWS access key
@@ -88,6 +88,8 @@ Inside the `mosh` directory, first you need to prepare `mosh` to build:
 ./autogen.sh
 ./configure
 ~~~
+
+Then,
 
 ~~~
 gg-init # create .gg directory
