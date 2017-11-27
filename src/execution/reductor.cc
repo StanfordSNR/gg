@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cmath>
 #include <numeric>
+#include <chrono>
 
 #include "optional.hh"
 #include "exception.hh"
@@ -22,6 +23,7 @@
 
 using namespace std;
 using namespace gg::thunk;
+using namespace std::chrono;
 
 using ReductionResult = gg::cache::ReductionResult;
 
@@ -36,12 +38,12 @@ using ReductionResult = gg::cache::ReductionResult;
 
 void Reductor::print_status() const
 {
-  static time_t last_display = 0;
+  static time_point<steady_clock> last_display = steady_clock::now();
   const static string color_reset = COLOR_RESET"\033[48;5;236m";
 
-  time_t this_display = time( nullptr );
+  auto this_display = steady_clock::now();
 
-  if ( this_display != last_display ) {
+  if ( duration_cast<milliseconds>( this_display - last_display ).count() > 10 ) {
     last_display = this_display;
 
     ostringstream data;
