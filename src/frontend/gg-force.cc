@@ -26,12 +26,13 @@ using namespace gg::thunk;
 
 void usage( const char * argv0 )
 {
-  cerr << argv0 << " THUNK [execution args]" << endl
+  cerr << "Usage: " << argv0 << " [options] THUNKS..." << endl
+       << endl
+       << "Options:" << endl
+       << " -j, --jobs    maximum number of jobs to run in parallel" << endl
        << endl
        << "Useful environment variables:" << endl
-       << "  GG_DIR       => absolute path to gg directory" << endl
        << "  GG_SANDBOXED => if set, forces the thunks in a sandbox" << endl
-       << "  GG_MAXJOBS   => maximum number of jobs to run in parallel" << endl
        << "  GG_REMOTE    => execute the thunks on AWS Lambda" << endl
        << endl;
 }
@@ -50,10 +51,12 @@ int main( int argc, char * argv[] )
 
     const bool lambda_execution = ( getenv( "GG_LAMBDA" ) != NULL );
     const bool ggremote_execution = ( getenv( "GG_REMOTE" ) != NULL );
+    size_t max_jobs = thread::hardware_concurrency();
     bool status_bar = false;
 
     struct option long_options[] = {
       { "status", no_argument, nullptr, 's' },
+      { "jobs", no_argument, nullptr, 'j' },
       { nullptr, 0, nullptr, 0 },
     };
 
@@ -70,17 +73,16 @@ int main( int argc, char * argv[] )
         StatusBar::get();
         break;
 
+      case 'j':
+        max_jobs = stoul( optarg );
+
+        break;
       default:
         throw runtime_error( "invalid option" );
       }
     }
 
     gg::models::init();
-
-    size_t max_jobs = thread::hardware_concurrency();
-    if ( getenv( "GG_MAXJOBS" ) != nullptr ) {
-      max_jobs = stoul( safe_getenv( "GG_MAXJOBS" ) );
-    }
 
     vector<string> target_filenames;
     vector<string> target_hashes;
