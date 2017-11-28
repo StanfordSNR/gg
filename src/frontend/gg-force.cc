@@ -56,12 +56,12 @@ int main( int argc, char * argv[] )
 
     struct option long_options[] = {
       { "status", no_argument, nullptr, 's' },
-      { "jobs", no_argument, nullptr, 'j' },
+      { "jobs", required_argument, nullptr, 'j' },
       { nullptr, 0, nullptr, 0 },
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "s", long_options, NULL );
+      const int opt = getopt_long( argc, argv, "sj:", long_options, NULL );
 
       if ( opt == -1 ) {
         break;
@@ -75,6 +75,7 @@ int main( int argc, char * argv[] )
 
       case 'j':
         max_jobs = stoul( optarg );
+        break;
 
         break;
       default:
