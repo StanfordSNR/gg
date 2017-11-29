@@ -164,8 +164,7 @@ vector<string> Reductor::reduce()
       /* don't bother executing gg-execute if it's in the cache */
       Optional<ReductionResult> cache_entry = gg::cache::check( thunk_hash );
       if ( cache_entry.initialized() ) {
-        unordered_set<string> new_o1s = dep_graph_.force_thunk( thunk_hash, cache_entry->hash );
-        job_queue_.insert( job_queue_.end(), new_o1s.begin(), new_o1s.end() );
+        execution_finalize( thunk_hash, cache_entry->hash, 0 );
       }
       else {
         const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
