@@ -12,9 +12,10 @@ using namespace std;
 using namespace gg::thunk;
 
 void LocalExecutionEngine::force_thunk( const string & hash,
-                                        const Thunk & /* thunk */ )
+                                        const Thunk & /* thunk */,
+                                        ExecutionLoop & exec_loop )
 {
-  exec_loop_.add_child_process( hash,
+  exec_loop.add_child_process( hash,
     [this] ( const string & hash )
     {
       running_jobs_--; /* XXX not thread-safe */

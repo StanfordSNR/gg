@@ -32,7 +32,8 @@ HTTPRequest GGExecutionEngine::generate_request( const Thunk & thunk,
 }
 
 void GGExecutionEngine::force_thunk( const string & hash,
-                                     const Thunk & thunk )
+                                     const Thunk & thunk,
+                                     ExecutionLoop & exec_loop )
 {
   HTTPRequest request = generate_request( thunk, hash, false );
 
@@ -50,7 +51,7 @@ void GGExecutionEngine::force_thunk( const string & hash,
     }
   }
 
-  exec_loop_.add_connection(
+  exec_loop.add_connection(
     hash,
     [this] ( const string & thunk_hash, const HTTPResponse & http_response )
     {

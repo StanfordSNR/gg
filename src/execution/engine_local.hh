@@ -11,11 +11,9 @@ private:
   size_t running_jobs_ { 0 };
 
 public:
-  LocalExecutionEngine( ExecutionLoop & loop, CallbackFunc callback )
-    : ExecutionEngine( loop, callback )
-  {}
+  using ExecutionEngine::ExecutionEngine;
 
-  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk ) override;
+  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk, ExecutionLoop & exec_loop ) override;
   size_t job_count() const override;
 
   bool is_remote() const override { return false; }

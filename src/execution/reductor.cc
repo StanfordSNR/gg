@@ -96,7 +96,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     switch ( ee ) {
     case ExecutionEnvironment::LOCAL:
       exec_engines_.emplace_back(
-        make_unique<LocalExecutionEngine>( exec_loop_, completion_callback )
+        make_unique<LocalExecutionEngine>( completion_callback )
       );
 
       break;
@@ -104,7 +104,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     case ExecutionEnvironment::LAMBDA:
       exec_engines_.emplace_back(
         make_unique<AWSLambdaExecutionEngine>(
-          AWSCredentials(), gg::remote::s3_region(), exec_loop_, completion_callback
+          AWSCredentials(), gg::remote::s3_region(), completion_callback
         )
       );
 
@@ -116,7 +116,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
 
         exec_engines_.emplace_back(
           make_unique<GGExecutionEngine>(
-            runner_server.first, runner_server.second, exec_loop_, completion_callback
+            runner_server.first, runner_server.second, completion_callback
           )
         );
       }
@@ -173,7 +173,7 @@ vector<string> Reductor::reduce()
 
         for ( auto & exec_engine : exec_engines_ ) {
           if ( exec_engine->can_execute( thunk ) ) {
-            exec_engine->force_thunk( thunk_hash, thunk );
+            exec_engine->force_thunk( thunk_hash, thunk, exec_loop_ );
             executed = true;
             break;
           }

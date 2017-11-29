@@ -20,11 +20,11 @@ private:
 
 public:
   GGExecutionEngine( const std::string & address, const uint16_t port,
-                     ExecutionLoop & loop, CallbackFunc callback )
-    : ExecutionEngine( loop, callback ), address_( address, port )
+                     CallbackFunc callback )
+    : ExecutionEngine( callback ), address_( address, port )
   {}
 
-  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk ) override;
+  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk, ExecutionLoop & exec_loop ) override;
   size_t job_count() const override;
 
   bool is_remote() const { return true; }

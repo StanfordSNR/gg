@@ -33,13 +33,13 @@ private:
 public:
   AWSLambdaExecutionEngine( const AWSCredentials & credentials,
                             const std::string & region,
-                            ExecutionLoop & loop, CallbackFunc callback )
-    : ExecutionEngine( loop, callback ), credentials_( credentials ),
+                            CallbackFunc callback )
+    : ExecutionEngine( callback ), credentials_( credentials ),
       region_( region ),
       address_( LambdaInvocationRequest::endpoint( region_ ), "https" )
   {}
 
-  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk ) override;
+  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk, ExecutionLoop & exec_loop ) override;
   size_t job_count() const override;
 
   bool is_remote() const { return true; }

@@ -29,7 +29,8 @@ HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk,
 }
 
 void AWSLambdaExecutionEngine::force_thunk( const string & hash,
-                                            const Thunk & thunk )
+                                            const Thunk & thunk,
+                                            ExecutionLoop & exec_loop )
 {
   HTTPRequest request = generate_request( thunk, hash, false );
 
@@ -48,7 +49,7 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
 
   SecureSocket lambda_socket = ssl_context_.new_secure_socket( move( sock ) );
 
-  exec_loop_.add_connection(
+  exec_loop.add_connection(
     hash,
     [this] ( const string & thunk_hash, const HTTPResponse & http_response )
     {
