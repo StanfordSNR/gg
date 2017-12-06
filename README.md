@@ -1,6 +1,6 @@
 # gg [![Build Status](https://travis-ci.org/StanfordSNR/gg.svg?branch=master)](https://travis-ci.org/StanfordSNR/gg)
 
-![](https://s3-us-west-2.amazonaws.com/stanfordsnr/gg.jpg)
+![](https://s3-us-west-2.amazonaws.com/stanfordsnr/gg-xkcd.jpg)
 
 ## Build directions
 
