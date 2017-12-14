@@ -22,6 +22,8 @@ namespace gg {
     static const std::string BEGIN_REPLACE = "__GG_BEGIN_REPLACE__";
     static const std::string END_REPLACE = "__GG_END_REPLACE__";
 
+    static const std::string GG_HASH_REPLACE = "@@GG_HASH@@";
+
     class InFile
     {
     public:
