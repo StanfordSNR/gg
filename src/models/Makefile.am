@@ -16,7 +16,8 @@ BASE_LDADD = ../thunk/libthunk.a \
 
 bin_PROGRAMS = model-gcc model-ar model-ranlib model-strip model-ld
 
-COMMON_TOOLCHAIN_SOURCES = toolchain.hh toolchain.cc model-gcc.hh
+COMMON_TOOLCHAIN_SOURCES = cli_description.hh cli_description.cc \
+                           toolchain.hh toolchain.cc model-gcc.hh
 
 model_gcc_SOURCES = model-gcc.cc model-gcc-base.cc  model-preprocessor.cc \
                     model-linker.cc model-linker-base.cc gcc-args.cc \
