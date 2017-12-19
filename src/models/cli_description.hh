@@ -7,6 +7,8 @@
 #include <vector>
 #include <limits>
 
+#include "optional.hh"
+
 /* See also: http://docopt.org/ */
 
 /* An example for a description string:
@@ -15,8 +17,11 @@
 
 struct CLIOption
 {
-  char short_opt { '\0' };
-  std::string long_opt { "" };
+  int value { 0 };
+
+  Optional<char> short_opt {};
+  Optional<std::string> long_opt {};
+
   bool outfile { false };
 };
 
@@ -26,10 +31,15 @@ private:
   std::string target_bin_ {};
   std::vector<CLIOption> options_ {};
   std::vector<size_t> infile_args_ {};
-  size_t outfile_arg_ { std::numeric_limits<size_t>::max() };
+  Optional<size_t> outfile_arg_ { false };
 
 public:
   CLIDescription( const std::string & description );
+
+  const std::string & target_bin() const { return target_bin_; }
+  const std::vector<CLIOption> & options() const { return options_; }
+  const std::vector<size_t> & infile_args() const { return infile_args_; }
+  const Optional<size_t> & outfile_arg() const { return outfile_arg_; }
 };
 
 #endif /* CLI_DESCRIPTION_HH */

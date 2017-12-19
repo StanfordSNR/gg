@@ -17,7 +17,7 @@ CLIDescription::CLIDescription( const string & description )
   }
 
   size_t arg_ind = 0;
-  size_t opt_ind = 1000;
+  size_t opt_val = 1000;
 
   for ( size_t i = 0; i < tokens.size(); i++ ) {
     const string & token = tokens[ i ];
@@ -33,15 +33,16 @@ CLIDescription::CLIDescription( const string & description )
       }
 
       CLIOption option;
-      option.short_opt = opt_ind++;
+      option.value = opt_val++;
       option.outfile = ( segments[ 1 ] == "@outfile" );
 
       for ( auto & optname : split( segments[ 0 ], "," ) ) {
         if ( optname.compare( 0, 2, "--" ) == 0 ) {
-          option.long_opt = optname.substr( 2 );
+          option.long_opt.reset( optname.substr( 2 ) );
         }
         else if ( optname[ 0 ] == '-' and optname.length() > 1 ) {
-          option.short_opt = optname[ 1 ];
+          option.value = static_cast<int>( optname[ 1 ] );
+          option.short_opt.reset( optname[ 1 ] );
         }
         else {
           throw runtime_error( "invalid option specification" );
@@ -54,7 +55,7 @@ CLIDescription::CLIDescription( const string & description )
       infile_args_.push_back( arg_ind++ );
     }
     else if ( token == "@outfile" ) {
-      outfile_arg_ = arg_ind++;
+      outfile_arg_.reset( arg_ind++ );
     }
     else {
       throw runtime_error( "unexpected token in description" );
