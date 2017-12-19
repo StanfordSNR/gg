@@ -12,7 +12,7 @@ CLIDescription::CLIDescription( const string & description )
 {
   vector<string> tokens = split( description, " " );
 
-  if ( tokens.size() > 0 ) {
+  if ( tokens.size() == 0 ) {
     throw runtime_error( "invalid description" );
   }
 

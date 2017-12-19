@@ -67,7 +67,7 @@ Thunk generate_thunk( const CLIDescription & cli_description,
 
   return {
     outfile,
-    { roost::rbasename( cli_description.target_bin() ).string(), args, {} },
+    { cli_description.target_bin(), args, {} },
     infiles
   };
 }
