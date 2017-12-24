@@ -65,6 +65,8 @@ Thunk generate_thunk( const CLIDescription & cli_description,
     outfile = argv[ optind + *cli_description.outfile_arg() ];
   }
 
+  infiles.emplace_back( "", cli_description.target_bin() );
+
   return {
     outfile,
     { cli_description.target_bin(), args, {} },
