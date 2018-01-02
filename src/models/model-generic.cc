@@ -52,6 +52,8 @@ Thunk generate_thunk( const CLIDescription & cli_description,
         }
         else {
           infiles.emplace_back( "", optarg );
+          InFile & this_infile = infiles.back();
+          args[ ( optind - 1 ) - 1 ] = gg::thunk::GG_HASH_REPLACE + this_infile.content_hash();
         }
       }
     }
@@ -59,6 +61,8 @@ Thunk generate_thunk( const CLIDescription & cli_description,
 
   for ( const size_t idx : cli_description.infile_args() ) {
     infiles.emplace_back( "", argv[ optind + idx ] );
+    InFile & this_infile = infiles.back();
+    args[ ( optind + idx ) - 1 ] = gg::thunk::GG_HASH_REPLACE + this_infile.content_hash();
   }
 
   if ( cli_description.outfile_arg().initialized() ) {
