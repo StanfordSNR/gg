@@ -69,11 +69,12 @@ Thunk generate_thunk( const CLIDescription & cli_description,
     outfile = argv[ optind + *cli_description.outfile_arg() ];
   }
 
-  infiles.emplace_back( "", cli_description.target_bin() );
+  infiles.emplace_back( roost::rbasename( cli_description.target_bin() ).string(),
+                        cli_description.target_bin() );
 
   return {
     outfile,
-    { cli_description.target_bin(), args, {} },
+    { infiles.back().filename(), args, {}, infiles.back().content_hash() },
     infiles
   };
 }

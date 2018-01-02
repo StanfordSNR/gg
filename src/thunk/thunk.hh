@@ -92,8 +92,10 @@ namespace gg {
     public:
       Function( const std::string & exe, const std::vector<std::string> & cmd,
                 const std::vector<std::string> & envars );
+
       Function( const std::string & exe, const std::vector<std::string> & cmd,
                 const std::vector<std::string> & envars, const std::string & hash );
+
       Function( const gg::protobuf::Function & func_proto );
 
       const std::string & exe() const { return exe_; }
