@@ -64,7 +64,11 @@ InFile::InFile( const string & filename, const string & real_filename,
   : filename_( roost::path( filename ).lexically_normal().string() ),
     real_filename_( real_filename ), content_hash_( hash ), order_( order ),
     size_( size ), type_( type )
-{}
+{
+  if ( filename.length() == 0 ) {
+    filename_ = "";
+  }
+}
 
 InFile::InFile( const protobuf::InFile & infile_proto )
   : filename_( infile_proto.filename() ), real_filename_( filename_ ),
