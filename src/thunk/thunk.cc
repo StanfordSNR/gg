@@ -251,6 +251,8 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
 {
   bool found = false;
 
+  /* First, update the infile entry... */
+
   for ( size_t i = 0; i < infiles_.size(); i++ ) {
     if ( infiles_[ i ].content_hash() == old_hash ) {
       InFile new_infile { infiles_[ i ].filename(), infiles_[ i ].real_filename(),
@@ -264,6 +266,24 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
 
   if ( not found ) {
     throw runtime_error( "infile doesn't exist: " + old_hash );
+  }
+
+  /* Second, let's see if we need to update any argument... */
+  vector<string> func_args = function_.args();
+  const string source_arg = GG_HASH_REPLACE + old_hash;
+  const string target_arg = GG_HASH_REPLACE + new_hash;
+
+  bool changed_args = false;
+
+  for ( size_t i = 0; i < func_args.size(); i++ ) {
+    if ( func_args[ i ] == source_arg ) {
+      func_args[ i ] = target_arg;
+      changed_args = true;
+    }
+  }
+
+  if ( changed_args ) {
+    function_ = Function { function_.exe(), func_args, function_.envars(), function_.hash() };
   }
 }
 
