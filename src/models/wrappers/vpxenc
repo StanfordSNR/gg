@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ -z ${EXCAMERA_BIN_DIR+x} ]
+then
+  echo "EXCAMERA_BIN_DIR is not set."
+  exit 1
+fi
+
+model-generic "${EXCAMERA_BIN_DIR}/vpxenc -o,--output=@outfile @infile" "$@"
