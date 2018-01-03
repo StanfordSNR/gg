@@ -47,10 +47,10 @@ Thunk generate_thunk( const CLIDescription & cli_description,
   while ( ( opt = getopt_long( argc, argv, optstring.c_str(), long_options.data(), NULL ) ) != -1 ) {
     for ( const CLIOption & option : cli_description.options() ) {
       if ( option.value == opt ) {
-        if ( option.outfile ) {
+        if ( option.type == CLIOption::Type::OutFile ) {
           outfile = optarg;
         }
-        else {
+        else if ( option.type == CLIOption::Type::InFile ) {
           infiles.emplace_back( "", optarg );
           InFile & this_infile = infiles.back();
           args[ ( optind - 1 ) - 1 ] = gg::thunk::GG_HASH_REPLACE + this_infile.content_hash();

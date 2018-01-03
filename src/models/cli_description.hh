@@ -22,7 +22,7 @@ struct CLIOption
   Optional<char> short_opt {};
   Optional<std::string> long_opt {};
 
-  bool outfile { false };
+  enum class Type { DoNotCare, InFile, OutFile } type { Type::DoNotCare };
 };
 
 class CLIDescription

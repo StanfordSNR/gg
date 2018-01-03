@@ -34,7 +34,16 @@ CLIDescription::CLIDescription( const string & description )
 
       CLIOption option;
       option.value = opt_val++;
-      option.outfile = ( segments[ 1 ] == "@outfile" );
+
+      if ( segments[ 1 ] == "@outfile" ) {
+        option.type = CLIOption::Type::OutFile;
+      }
+      else if ( segments[ 1 ] == "@infile" ) {
+        option.type = CLIOption::Type::InFile;
+      }
+      else {
+        option.type = CLIOption::Type::DoNotCare;
+      }
 
       for ( auto & optname : split( segments[ 0 ], "," ) ) {
         if ( optname.compare( 0, 2, "--" ) == 0 ) {
