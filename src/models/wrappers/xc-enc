@@ -1,0 +1,3 @@
+#!/bin/bash
+source excamera-vars.sh
+model-generic "${EXCAMERA_BIN_DIR}/$0 -o,--output=@oufile -I,--input-state=@infile -p,--pred-ivf=@infile -S,--pred-state=@infile @infile" "$@"
