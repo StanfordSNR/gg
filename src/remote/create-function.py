@@ -14,6 +14,8 @@ BASE_FILE = "lambda_function/packages.zip"
 PACKAGE_GG_DIR = "_gg"
 
 functions = [
+    [], # the generic function
+
     ["gcc", "cc1"],
     ["gcc", "as"],
     ["gcc", "collect2", "ld"],
@@ -122,9 +124,12 @@ def main():
         function_execs = [(gghash(f[1]), f[1]) for f in function_execs]
         hashes = [f[0] for f in function_execs]
 
-        function_name = "{prefix}{exechash}".format(
-            prefix="gg-", exechash=executable_hash(hashes)
-        )
+        if len(function_execs) == 0:
+            function_name = "gg-function-generic"
+        else:
+            function_name = "{prefix}{exechash}".format(
+                prefix="gg-", exechash=executable_hash(hashes)
+            )
 
         function_file = "{}.zip".format(function_name)
         create_lambda_package(function_file, function_execs, args.gg_execute_static, args.gg_s3_download)

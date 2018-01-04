@@ -25,7 +25,7 @@ HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk,
     function_name = "gg-" + thunk.executable_hash();
   }
   else {
-    function_name = "gg-function";
+    function_name = "gg-function-generic";
   }
 
   return LambdaInvocationRequest(
