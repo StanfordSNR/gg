@@ -77,7 +77,6 @@ int main( int argc, char * argv[] )
         max_jobs = stoul( optarg );
         break;
 
-        break;
       default:
         throw runtime_error( "invalid option" );
       }

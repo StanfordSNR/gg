@@ -19,7 +19,14 @@ HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk,
                                                         const string & thunk_hash,
                                                         const bool timelog )
 {
-  const string function_name = "gg-" + thunk.executable_hash();
+  string function_name;
+
+  if ( getenv( "GG_GENERIC_FUNCTION" ) == nullptr ) {
+    function_name = "gg-" + thunk.executable_hash();
+  }
+  else {
+    function_name = "gg-function";
+  }
 
   return LambdaInvocationRequest(
     credentials_, region_, function_name, thunk.execution_payload( thunk_hash, timelog ),
