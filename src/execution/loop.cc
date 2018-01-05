@@ -24,7 +24,9 @@ ExecutionLoop::ExecutionLoop()
     Poller::Action(
       signal_fd_.fd(), Direction::In,
       [&]() { return handle_signal( signal_fd_.read_signal() ); },
-      [&]() { return child_processes_.size() > 0; }
+      [&]() { return ( child_processes_.size() > 0 or
+                       connection_contexts_.size() > 0 or
+                       ssl_connection_contexts_.size() > 0 ); }
     )
   );
 }
