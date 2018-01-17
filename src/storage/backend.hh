@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <memory>
 
 #include "path.hh"
 #include "optional.hh"
@@ -13,6 +14,16 @@
 
 typedef std::function<void( const storage::PutRequest & )> PutCallback;
 typedef std::function<void( const storage::GetRequest & )> GetCallback;
+
+struct StorageEndpoint
+{
+  std::string protocol {};
+  std::string username {};
+  std::string password {};
+  std::string host {};
+  Optional<uint16_t> port { 0 };
+  std::string path {};
+};
 
 class StorageBackend
 {
@@ -22,6 +33,8 @@ public:
 
   virtual void get( const std::vector<storage::GetRequest> & requests,
                     const GetCallback & success_callback = []( const storage::GetRequest & ){} ) = 0;
+
+  static std::unique_ptr<StorageBackend> create_backend( const std::string & uri );
 
   virtual ~StorageBackend() {}
 };
