@@ -70,7 +70,8 @@ Thunk generate_thunk( const CLIDescription & cli_description,
   }
 
   infiles.emplace_back( roost::rbasename( cli_description.target_bin() ).string(),
-                        cli_description.target_bin() );
+                        cli_description.target_bin(),
+                        InFile::Type::EXECUTABLE );
 
   return {
     outfile,
