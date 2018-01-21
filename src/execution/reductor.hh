@@ -49,7 +49,7 @@ public:
 
   std::vector<std::string> reduce();
   void upload_dependencies() const;
-  void download_targets( const std::vector<std::string> hashes ) const;
+  void download_targets( const std::vector<std::string> & hashes ) const;
   void print_status() const;
 };
 

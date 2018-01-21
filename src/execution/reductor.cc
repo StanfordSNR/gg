@@ -262,7 +262,7 @@ void Reductor::upload_dependencies() const
   cerr << "done (" << upload_time.count() << " ms)." << endl;
 }
 
-void Reductor::download_targets( const vector<string> hashes ) const
+void Reductor::download_targets( const vector<string> & hashes ) const
 {
   if ( storage_backend_ == nullptr ) {
     return;
