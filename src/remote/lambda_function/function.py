@@ -127,6 +127,7 @@ def handler(event, context):
 
     if return_code:
         return {
+            'output': output,
             'errorType': 'GG-ExecutionFailed',
         }
 
@@ -136,6 +137,7 @@ def handler(event, context):
 
     if not result:
         return {
+            'output': output,
             'errorType': 'GG-ExecutionFailed'
         }
 
