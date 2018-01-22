@@ -68,20 +68,28 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
 
       RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
 
-      if ( response.status != JobStatus::Success ) {
-        throw runtime_error( "execution failed." );
-      }
-
       if ( response.thunk_hash != thunk_hash ) {
         cerr << http_response.str() << endl;
-        throw runtime_error( "expected output for " + thunk_hash + ", got output for " + response.thunk_hash );
+        throw runtime_error( "expected output for " +
+                             thunk_hash + ", got output for " +
+                             response.thunk_hash );
       }
 
-      gg::cache::insert( response.thunk_hash, response.output_hash );
-      success_callback_( response.thunk_hash, response.output_hash,
-                         compute_cost( start_times_.at( thunk_hash ) ) );
+      switch ( response.status ) {
+      case JobStatus::Success:
+        gg::cache::insert( response.thunk_hash, response.output_hash );
+        success_callback_( response.thunk_hash, response.output_hash,
+                           compute_cost( start_times_.at( thunk_hash ) ) );
 
-      start_times_.erase( thunk_hash );
+        start_times_.erase( thunk_hash );
+
+        break;
+
+      case JobStatus::RateLimit:
+      case JobStatus::InvocationFailure:
+      case JobStatus::ExecutionFailure:
+        throw runtime_error( "execution failed." );
+      }
     },
     lambda_socket, request
   );
