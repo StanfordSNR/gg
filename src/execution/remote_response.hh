@@ -6,6 +6,8 @@
 #include <string>
 #include <sys/types.h>
 
+#include "optional.hh"
+
 enum class JobStatus
 {
   Success,
@@ -25,6 +27,8 @@ public:
   std::string output_hash;
   off_t output_size;
   bool is_executable;
+
+  Optional<std::string> output;
 
   static RemoteResponse parse_message( const std::string & message );
 };

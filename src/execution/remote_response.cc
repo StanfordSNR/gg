@@ -33,6 +33,11 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
     }
   }
 
+  auto output_it = response_json.Find( "output" );
+  if ( output_it != response_json.End() ) {
+    response.output.reset( static_cast<json::String>( output_it->element ) );
+  }
+
   response.status = JobStatus::Success;
   response.thunk_hash = static_cast<json::String>( response_json[ "thunk_hash" ] );
   response.output_hash = static_cast<json::String>( response_json[ "output_hash" ] );
@@ -43,5 +48,6 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
 }
 
 RemoteResponse::RemoteResponse()
-  : status(), thunk_hash(), output_hash(), output_size(), is_executable()
+  : status(), thunk_hash(), output_hash(), output_size(),
+    is_executable(), output( false )
 {}
