@@ -63,7 +63,15 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
       running_jobs_--;
 
       if ( http_response.status_code() != "200" ) {
-        throw runtime_error( "HTTP failure: " + http_response.status_code() );
+        if ( http_response.status_code() == "429" or
+             ( http_response.status_code() == "500" and
+               http_response.has_header( "x-amzn-ErrorType" ) and
+               http_response.get_header_value( "x-amzn-ErrorType" ) == "ServiceException" ) ) {
+          return failure_callback_( thunk_hash, JobStatus::RateLimit );
+        }
+        else {
+          return failure_callback_( thunk_hash, JobStatus::InvocationFailure );
+        }
       }
 
       RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
@@ -94,7 +102,7 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
 
       case JobStatus::RateLimit:
       case JobStatus::InvocationFailure:
-        throw runtime_error( "execution failed." );
+        failure_callback_( thunk_hash, response.status );
       }
     },
     lambda_socket, request

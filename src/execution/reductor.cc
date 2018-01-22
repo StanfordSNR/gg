@@ -93,8 +93,21 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     { execution_finalize( old_hash, new_hash, cost ); };
 
   auto failure_callback =
-    [this] ( const string & /* old_hash */, const JobStatus /* failure_reason */ )
-    { throw runtime_error( "execution failed: " ); /* TODO */ };
+    [this] ( const string & old_hash, const JobStatus failure_reason )
+    {
+      switch ( failure_reason ) {
+      case JobStatus::InvocationFailure:
+        throw runtime_error( "invocation failed: " + old_hash );
+        
+      case JobStatus::RateLimit:
+        throw runtime_error( "rate limited: " + old_hash );
+
+      default:
+        throw runtime_error( "execution failed for an unknown reason: " + old_hash );
+
+      }
+
+    };
 
   for ( auto ee : execution_environments ) {
     switch ( ee ) {
