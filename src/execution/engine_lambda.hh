@@ -33,9 +33,10 @@ private:
 public:
   AWSLambdaExecutionEngine( const AWSCredentials & credentials,
                             const std::string & region,
-                            CallbackFunc callback )
-    : ExecutionEngine( callback ), credentials_( credentials ),
-      region_( region ),
+                            SuccessCallbackFunc success_callback,
+                            FailureCallbackFunc failure_callback )
+    : ExecutionEngine( success_callback, failure_callback ),
+      credentials_( credentials ), region_( region ),
       address_( LambdaInvocationRequest::endpoint( region_ ), "https" )
   {}
 

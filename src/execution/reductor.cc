@@ -88,15 +88,19 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
 
   job_queue_.insert( job_queue_.end(), all_o1_deps.begin(), all_o1_deps.end() );
 
-  auto completion_callback =
+  auto success_callback =
     [this] ( const string & old_hash, const string & new_hash, const float cost )
     { execution_finalize( old_hash, new_hash, cost ); };
+
+  auto failure_callback =
+    [this] ( const string & /* old_hash */, const FailureReason /* failure_reason */ )
+    { throw runtime_error( "execution failed: " ); /* TODO */ };
 
   for ( auto ee : execution_environments ) {
     switch ( ee ) {
     case ExecutionEnvironment::LOCAL:
       exec_engines_.emplace_back(
-        make_unique<LocalExecutionEngine>( completion_callback )
+        make_unique<LocalExecutionEngine>( success_callback, failure_callback )
       );
 
       break;
@@ -104,7 +108,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     case ExecutionEnvironment::LAMBDA:
       exec_engines_.emplace_back(
         make_unique<AWSLambdaExecutionEngine>(
-          AWSCredentials(), gg::remote::s3_region(), completion_callback
+          AWSCredentials(), gg::remote::s3_region(), success_callback, failure_callback
         )
       );
 
@@ -116,7 +120,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
 
         exec_engines_.emplace_back(
           make_unique<GGExecutionEngine>(
-            runner_server.first, runner_server.second, completion_callback
+            runner_server.first, runner_server.second, success_callback, failure_callback
           )
         );
       }

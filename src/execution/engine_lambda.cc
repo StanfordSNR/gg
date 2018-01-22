@@ -78,8 +78,8 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
       }
 
       gg::cache::insert( response.thunk_hash, response.output_hash );
-      callback_( response.thunk_hash, response.output_hash,
-                 compute_cost( start_times_.at( thunk_hash ) ) );
+      success_callback_( response.thunk_hash, response.output_hash,
+                         compute_cost( start_times_.at( thunk_hash ) ) );
 
       start_times_.erase( thunk_hash );
     },
