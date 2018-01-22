@@ -18,6 +18,11 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
   json::Object response_json;
   json::Reader::Read( response_json, iss );
 
+  auto output_it = response_json.Find( "output" );
+  if ( output_it != response_json.End() ) {
+    response.output.reset( static_cast<json::String>( output_it->element ) );
+  }
+
   auto error_type_it = response_json.Find( "errorType" );
   if ( error_type_it != response_json.End() ) {
     /* Something happened */
@@ -31,11 +36,6 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
       cerr << message << endl;
       throw runtime_error( "unknown error type: " + error_type );
     }
-  }
-
-  auto output_it = response_json.Find( "output" );
-  if ( output_it != response_json.End() ) {
-    response.output.reset( static_cast<json::String>( output_it->element ) );
   }
 
   response.status = JobStatus::Success;
