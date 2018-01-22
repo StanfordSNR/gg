@@ -24,7 +24,7 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
     string error_type = static_cast<json::String>( error_type_it->element );
 
     if ( error_type == "GG-ExecutionFailed" ) {
-      response.type = Type::EXECUTION_FAILURE;
+      response.status = JobStatus::ExecutionFailure;
       return response;
     }
     else {
@@ -33,7 +33,7 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
     }
   }
 
-  response.type = Type::SUCCESS;
+  response.status = JobStatus::Success;
   response.thunk_hash = static_cast<json::String>( response_json[ "thunk_hash" ] );
   response.output_hash = static_cast<json::String>( response_json[ "output_hash" ] );
   response.output_size = static_cast<json::Number>( response_json[ "output_size" ] );
@@ -43,5 +43,5 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
 }
 
 RemoteResponse::RemoteResponse()
-  : type(), thunk_hash(), output_hash(), output_size(), is_executable()
+  : status(), thunk_hash(), output_hash(), output_size(), is_executable()
 {}

@@ -6,20 +6,21 @@
 #include <string>
 #include <sys/types.h>
 
+enum class JobStatus
+{
+  Success,
+  RateLimit,
+  InvocationFailure,
+  ExecutionFailure
+};
+
 class RemoteResponse
 {
 private:
   RemoteResponse();
 
 public:
-  enum class Type
-  {
-    SUCCESS,
-    EXECUTION_FAILURE,
-    LAMBDA_FAILURE,
-    RATE_LIMIT
-  } type;
-
+  JobStatus status;
   std::string thunk_hash;
   std::string output_hash;
   off_t output_size;

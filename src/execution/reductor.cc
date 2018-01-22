@@ -93,7 +93,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     { execution_finalize( old_hash, new_hash, cost ); };
 
   auto failure_callback =
-    [this] ( const string & /* old_hash */, const FailureReason /* failure_reason */ )
+    [this] ( const string & /* old_hash */, const JobStatus /* failure_reason */ )
     { throw runtime_error( "execution failed: " ); /* TODO */ };
 
   for ( auto ee : execution_environments ) {

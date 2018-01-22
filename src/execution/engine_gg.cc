@@ -63,7 +63,7 @@ void GGExecutionEngine::force_thunk( const string & hash,
 
       RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
 
-      if ( response.type != RemoteResponse::Type::SUCCESS ) {
+      if ( response.status != JobStatus::Success ) {
         throw runtime_error( "execution failed." );
       }
 

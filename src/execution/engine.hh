@@ -8,13 +8,7 @@
 
 #include "loop.hh"
 #include "thunk.hh"
-
-enum class FailureReason
-{
-  RateLimit,
-  ExecutionFailed,
-  InvocationFailed
-};
+#include "remote_response.hh"
 
 class ExecutionEngine
 {
@@ -27,7 +21,7 @@ public:
 
   /* failure_callback( source_hash, failure_reason ) */
   typedef std::function<void( const std::string &,
-                              const FailureReason )>
+                              const JobStatus )>
           FailureCallbackFunc;
 
 protected:
