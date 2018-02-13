@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 #include <sys/fcntl.h>
+#include <getopt.h>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -12,6 +14,7 @@
 #include "temp_file.hh"
 #include "temp_dir.hh"
 #include "thunk_reader.hh"
+#include "backend.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -110,8 +113,19 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
 
 void usage( const char * argv0 )
 {
-  cerr << argv0 << " THUNK-HASH" << endl;
+  cerr << "Usage: " << argv0 << "[options] THUNK-HASH" << endl
+       << endl
+       << "Options: " << endl
+       << " -g, --get-dependencies  Fetch the missing dependencies from the remote storage" << endl
+       << " -p, --put-output        Upload the output to the remote storage" << endl
+       << endl;
 }
+
+void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
+                         const Thunk & thunk );
+
+void upload_output( unique_ptr<StorageBackend> & storage_backend,
+                    const string & output_hash );
 
 int main( int argc, char * argv[] )
 {
@@ -125,6 +139,32 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
+    bool get_dependencies = false;
+    bool put_output = false;
+    unique_ptr<StorageBackend> storage_backend;
+
+    const option command_line_options[] = {
+      { "get-dependencies", no_argument, nullptr, 'g' },
+      { "put-output",       no_argument, nullptr, 'p' },
+      { nullptr, 0, nullptr, 0 },
+    };
+
+    while ( true ) {
+      const int opt = getopt_long( argc, argv, "gp", command_line_options, nullptr );
+
+      if ( opt == -1 ) {
+        break;
+      }
+
+      switch ( opt ) {
+      case 'g': get_dependencies = true; break;
+      case 'p': put_output = true; break;
+
+      default:
+        throw runtime_error( "invalid option: " + string { argv[ optind - 1 ] } );
+      }
+    }
+
     gg::models::init();
 
     string thunk_hash { argv[ 1 ] };
@@ -135,6 +175,8 @@ int main( int argc, char * argv[] )
     FileDescriptor raw_thunk { CheckSystemCall( "open( " + thunk_path + " )",
                                                 open( thunk_path.c_str(), O_RDONLY ) ) };
     raw_thunk.block_for_exclusive_lock();
+
+    if ( get_dependencies or put_output ) {}
 
     ThunkReader thunk_reader { thunk_path };
     Thunk thunk = thunk_reader.read_thunk();
