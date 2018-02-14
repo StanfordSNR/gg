@@ -106,7 +106,6 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
         throw runtime_error( "execution failed for an unknown reason: " + old_hash );
 
       }
-
     };
 
   for ( auto ee : execution_environments ) {

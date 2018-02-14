@@ -49,10 +49,9 @@ def gghash(filename, block_size=65536):
 
     return "{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).decode('ascii').replace('=','').replace('-', '.'), size)
 
-def create_lambda_package(output, function_execs, gg_execute_static, gg_s3_download):
+def create_lambda_package(output, function_execs, gg_execute_static):
     PACKAGE_FILES = {
         "gg-execute-static": gg_execute_static,
-        "gg-s3-download": gg_s3_download,
         "function.py": "lambda_function/function.py",
         "ggpaths.py": "lambda_function/ggpaths.py",
         "common.py": "lambda_function/common.py"
@@ -101,20 +100,15 @@ def main():
     parser.add_argument('--delete', dest='delete', action='store_true', default=False)
     parser.add_argument('--role', dest='role', action='store',
                         default=os.environ.get('GG_LAMBDA_ROLE'))
-    parser.add_argument('--region', dest='region', default=os.environ.get('GG_S3_REGION'), action='store')
+    parser.add_argument('--region', dest='region', default=os.environ.get('AWS_REGION'), action='store')
     parser.add_argument('--gg-execute-static', dest='gg_execute_static',
                         default=shutil.which("gg-execute-static"))
-    parser.add_argument('--gg-s3-download', dest='gg_s3_download',
-                        default=shutil.which("gg-s3-download"))
     parser.add_argument('--toolchain-path', dest='toolchain_path', required=True)
 
     args = parser.parse_args()
 
     if not args.gg_execute_static:
         raise Exception("Cannot find gg-execute-static")
-
-    if not args.gg_s3_download:
-        raise Exception("Cannot find gg-s3-download")
 
     if not args.role:
         raise Exception("Please provide function role (or set GG_LAMBDA_ROLE).")
@@ -132,7 +126,7 @@ def main():
             )
 
         function_file = "{}.zip".format(function_name)
-        create_lambda_package(function_file, function_execs, args.gg_execute_static, args.gg_s3_download)
+        create_lambda_package(function_file, function_execs, args.gg_execute_static)
         print("Installing lambda function {}... ".format(function_name), end='')
         install_lambda_package(function_file, function_name, args.role, args.region,
                                delete=args.delete)

@@ -132,23 +132,6 @@ std::string Thunk::execution_payload( const std::string & thunk_hash,
     lambda_event[ "timelog" ] = json::Boolean( true );
   }
 
-  json::Array lambda_event_infiles;
-
-  for ( const InFile & infile : infiles_ ) {
-    if ( infile.type() == InFile::Type::DUMMY_DIRECTORY ) {
-      continue;
-    }
-
-    json::Object event_infile;
-    event_infile[ "hash" ] = json::String( infile.content_hash() );
-    event_infile[ "size" ] = json::Number( infile.size() );
-    event_infile[ "executable" ] = json::Boolean(  infile.type() == InFile::Type::EXECUTABLE );
-
-    lambda_event_infiles.Insert( event_infile );
-  }
-
-  lambda_event[ "infiles" ] = lambda_event_infiles;
-
   ostringstream oss;
   json::Writer::Write( lambda_event, oss );
   return oss.str();
