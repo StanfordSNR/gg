@@ -6,6 +6,7 @@
 #include <sys/fcntl.h>
 #include <getopt.h>
 #include <vector>
+#include <unordered_set>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -114,14 +115,21 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
   return outfile_hash;
 }
 
-void usage( const char * argv0 )
+void do_cleanup( const Thunk & thunk, const std::string & thunk_hash )
 {
-  cerr << "Usage: " << argv0 << "[options] THUNK-HASH" << endl
-       << endl
-       << "Options: " << endl
-       << " -g, --get-dependencies  Fetch the missing dependencies from the remote storage" << endl
-       << " -p, --put-output        Upload the output to the remote storage" << endl
-       << endl;
+  unordered_set<string> infile_hashes;
+
+  infile_hashes.emplace( thunk_hash );
+  for ( const InFile & infile : thunk.infiles() ) {
+    infile_hashes.emplace( infile.content_hash() );
+  }
+
+  for ( const string & blob : roost::list_directory( gg::paths::blobs() ) ) {
+    const roost::path path = gg::paths::blob_path( blob );
+    if ( ( not roost::is_directory( path ) ) and infile_hashes.count( blob ) == 0 ) {
+      roost::remove( path );
+    }
+  }
 }
 
 void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
@@ -153,6 +161,17 @@ void upload_output( unique_ptr<StorageBackend> & storage_backend,
                             digest::gghash_to_hex( output_hash ) } } );
 }
 
+void usage( const char * argv0 )
+{
+  cerr << "Usage: " << argv0 << "[options] THUNK-HASH" << endl
+  << endl
+  << "Options: " << endl
+  << " -g, --get-dependencies  Fetch the missing dependencies from the remote storage" << endl
+  << " -p, --put-output        Upload the output to the remote storage" << endl
+  << " -C, --cleanup           Remove unnecessary blobs in .gg dir" << endl
+  << endl;
+}
+
 int main( int argc, char * argv[] )
 {
   try {
@@ -167,16 +186,18 @@ int main( int argc, char * argv[] )
 
     bool get_dependencies = false;
     bool put_output = false;
+    bool cleanup = false;
     unique_ptr<StorageBackend> storage_backend;
 
     const option command_line_options[] = {
       { "get-dependencies", no_argument, nullptr, 'g' },
       { "put-output",       no_argument, nullptr, 'p' },
+      { "cleanup",          no_argument, nullptr, 'C' },
       { nullptr, 0, nullptr, 0 },
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "gp", command_line_options, nullptr );
+      const int opt = getopt_long( argc, argv, "gpc", command_line_options, nullptr );
 
       if ( opt == -1 ) {
         break;
@@ -185,6 +206,7 @@ int main( int argc, char * argv[] )
       switch ( opt ) {
       case 'g': get_dependencies = true; break;
       case 'p': put_output = true; break;
+      case 'C': cleanup = true; break;
 
       default:
         throw runtime_error( "invalid option: " + string { argv[ optind - 1 ] } );
@@ -207,6 +229,10 @@ int main( int argc, char * argv[] )
 
     if ( get_dependencies or put_output ) {
       storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
+    }
+
+    if ( cleanup ) {
+      do_cleanup( thunk, thunk_hash );
     }
 
     if ( get_dependencies ) {
