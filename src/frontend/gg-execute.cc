@@ -138,14 +138,19 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
   vector<storage::GetRequest> download_items;
 
   for ( const InFile & infile : thunk.infiles() ) {
+    if ( infile.type() == InFile::Type::DUMMY_DIRECTORY ) continue;
+
     const auto target_path = gg::paths::blob_path( infile.content_hash() );
 
-    if ( not roost::exists( target_path ) ) {
+    if ( not roost::exists( target_path )
+         or roost::file_size( target_path ) != infile.size() ) {
       download_items.push_back( { infile.content_hash(), target_path } );
     }
   }
 
-  storage_backend->get( download_items );
+  if ( download_items.size() > 0 ) {
+    storage_backend->get( download_items );
+  }
 
   for ( const InFile & infile : thunk.infiles() ) {
     if ( infile.type() == InFile::Type::EXECUTABLE ) {
