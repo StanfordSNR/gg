@@ -17,7 +17,7 @@ using namespace std;
 unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
 {
   const static regex uri_regex {
-    R"RAWSTR(((s3)://)?(([^:\n\r]+):([^@\n\r]+)@)?(([^:/\n\r]+):?(\d*))/?([^?\n\r]+)?\??([^#\n\r]*)?#?([^\n\r]*))RAWSTR" };
+    R"RAWSTR(((sx3)://)?(([^:\n\r]+):([^@\n\r]+)@)?(([^:/\n\r]+):?(\d*))/?([^?\n\r]+)?\??([^#\n\r]*)?#?([^\n\r]*))RAWSTR" };
 
   smatch uri_match_result;
 
@@ -62,6 +62,9 @@ unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
     return make_unique<S3StorageBackend>( credentials, endpoint.host,
                                           endpoint.options.count( "region" ) ? endpoint.options[ "region" ]
                                                                              : "us-east-1" );
+  }
+  else {
+    throw runtime_error( "unknown storage backend" );
   }
 
   return {};
