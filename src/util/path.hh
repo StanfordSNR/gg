@@ -55,6 +55,7 @@ namespace roost {
   bool remove_at( const Directory & directory, const path & pathn,
                   const bool is_directory = false );
   void remove_directory( const path & pathn );
+  vector<string> list_directory( const path & pathn );
   void rename( const path & oldpath, const path & newpath );
   void chmod( const path & pathn, mode_t mode );
   std::string readlink( const path & pathn );

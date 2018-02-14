@@ -356,6 +356,24 @@ namespace roost {
     remove( pathn );
   }
 
+  vector<string> list_directory( const path & pathn )
+  {
+    shared_ptr<DIR> dir { opendir( pathn.string().c_str() ), closedir };
+    struct dirent * entry = NULL;
+
+    if ( not dir ) {
+      throw runtime_error( "cannot open directory: " + pathn.string() );
+    }
+
+    vector<string> output;
+
+    while ( ( entry = readdir( dir.get() ) ) != NULL ) {
+      output.emplace_back( entry->d_name );
+    }
+
+    return output;
+  }
+
   void rename( const path & oldpath, const path & newpath )
   {
     CheckSystemCall( "rename", ::rename( oldpath.string().c_str(),
