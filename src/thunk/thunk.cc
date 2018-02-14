@@ -125,9 +125,8 @@ std::string Thunk::execution_payload( const std::string & thunk_hash,
 
   json::Object lambda_event;
   lambda_event[ "thunk_hash" ] = json::String( thunk_hash );
-  lambda_event[ "s3_bucket" ] = json::String( gg::remote::s3_bucket() );
-  lambda_event[ "s3_region" ] = json::String( gg::remote::s3_region() );
   lambda_event[ "thunk_data" ] = json::String( base64_thunk );
+  lambda_event[ "storage_backend" ] = json::String( gg::remote::storage_backend_uri() );
 
   if ( timelog ) {
     lambda_event[ "timelog" ] = json::Boolean( true );

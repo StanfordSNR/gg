@@ -98,7 +98,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
       switch ( failure_reason ) {
       case JobStatus::InvocationFailure:
         throw runtime_error( "invocation failed: " + old_hash );
-        
+
       case JobStatus::RateLimit:
         throw runtime_error( "rate limited: " + old_hash );
 
@@ -121,7 +121,8 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     case ExecutionEnvironment::LAMBDA:
       exec_engines_.emplace_back(
         make_unique<AWSLambdaExecutionEngine>(
-          AWSCredentials(), gg::remote::s3_region(), success_callback, failure_callback
+          AWSCredentials(), AWS::region(), success_callback,
+          failure_callback
         )
       );
 
@@ -133,7 +134,8 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
 
         exec_engines_.emplace_back(
           make_unique<GGExecutionEngine>(
-            runner_server.first, runner_server.second, success_callback, failure_callback
+            runner_server.first, runner_server.second, success_callback,
+            failure_callback
           )
         );
       }

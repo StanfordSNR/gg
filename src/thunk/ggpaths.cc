@@ -163,6 +163,15 @@ namespace gg {
       return bucket;
     }
 
+    std::string storage_backend_uri()
+    {
+      const static string uri = safe_getenv( "GG_STORAGE_URI" );
+      if ( uri.length() == 0 ) {
+        throw runtime_error( "GG_STORAGE_URI environment variable not set" );
+      }
+      return uri;
+    }
+
     pair<string, uint16_t> runner_server()
     {
       const static string address = safe_getenv( "GG_RUNNER_SERVER" );

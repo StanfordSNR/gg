@@ -31,8 +31,7 @@ namespace gg {
     bool is_available( const std::string & hash );
     void set_available( const std::string & hash );
 
-    std::string s3_bucket();
-    std::string s3_region();
+    std::string storage_backend_uri();
 
     std::pair<std::string, uint16_t> runner_server();
   }

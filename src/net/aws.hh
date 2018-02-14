@@ -9,6 +9,13 @@
 
 #include "optional.hh"
 #include "http_request.hh"
+#include "util.hh"
+
+class AWS
+{
+public:
+  static std::string region() { return safe_getenv( "AWS_REGION" ); }
+};
 
 class AWSCredentials
 {

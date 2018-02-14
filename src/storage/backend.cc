@@ -10,6 +10,7 @@
 #include "backend_s3.hh"
 #include "optional.hh"
 #include "ggpaths.hh"
+#include "tokenize.hh"
 
 using namespace std;
 
@@ -32,6 +33,20 @@ unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
     if ( uri_match_result[ 8 ].length() ) {
       endpoint.port.reset ( stoul( uri_match_result[ 8 ] ) );
     }
+
+    if ( uri_match_result[ 10 ].length() ) {
+      for ( const string & token : split( uri_match_result[ 10 ], "&" ) ) {
+        if ( token.length() == 0 ) continue;
+
+        string::size_type eq_pos = token.find( '=' );
+        if ( eq_pos != string::npos ) {
+          endpoint.options[ token.substr( 0, eq_pos ) ] = token.substr( eq_pos + 1 );
+        }
+        else {
+          endpoint.options[ token ] = {};
+        }
+      }
+    }
   }
   else {
     throw runtime_error( "malformed storage uri" );
@@ -44,7 +59,9 @@ unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
       credentials = AWSCredentials { endpoint.username, endpoint.password };
     }
 
-    return make_unique<S3StorageBackend>( credentials, endpoint.host, gg::remote::s3_region() );
+    return make_unique<S3StorageBackend>( credentials, endpoint.host,
+                                          endpoint.options.count( "region" ) ? endpoint.options[ "region" ]
+                                                                             : "us-east-1" );
   }
 
   return {};

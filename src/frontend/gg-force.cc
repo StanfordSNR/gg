@@ -130,9 +130,7 @@ int main( int argc, char * argv[] )
     }
 
     if ( lambda_execution or ggremote_execution ) {
-      storage_backend = make_unique<S3StorageBackend>( AWSCredentials {},
-                                                       gg::remote::s3_bucket(),
-                                                       gg::remote::s3_region() );
+      storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
     }
 
     Reductor reductor { target_hashes, max_jobs, execution_environments,

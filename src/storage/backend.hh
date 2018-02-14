@@ -7,6 +7,7 @@
 #include <string>
 #include <functional>
 #include <memory>
+#include <unordered_map>
 
 #include "path.hh"
 #include "optional.hh"
@@ -23,6 +24,8 @@ struct StorageEndpoint
   std::string host {};
   Optional<uint16_t> port { 0 };
   std::string path {};
+
+  std::unordered_map<std::string, std::string> options {};
 };
 
 class StorageBackend
