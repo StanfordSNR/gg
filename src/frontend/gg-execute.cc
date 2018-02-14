@@ -17,6 +17,7 @@
 #include "thunk_reader.hh"
 #include "backend.hh"
 #include "storage_requests.hh"
+#include "digest.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -146,7 +147,11 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
 }
 
 void upload_output( unique_ptr<StorageBackend> & storage_backend,
-                    const string & output_hash );
+                    const string & output_hash )
+{
+  storage_backend->put( { { gg::paths::blob_path( output_hash ), output_hash,
+                            digest::gghash_to_hex( output_hash ) } } );
+}
 
 int main( int argc, char * argv[] )
 {
@@ -212,7 +217,7 @@ int main( int argc, char * argv[] )
     gg::cache::insert( thunk_hash, output_hash );
 
     if ( put_output ) {
-      /* TODO */
+      upload_output( storage_backend, output_hash );
     }
 
     return EXIT_SUCCESS;
