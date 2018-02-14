@@ -5,6 +5,7 @@
 #include <memory>
 #include <sys/fcntl.h>
 #include <getopt.h>
+#include <vector>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -15,6 +16,7 @@
 #include "temp_dir.hh"
 #include "thunk_reader.hh"
 #include "backend.hh"
+#include "storage_requests.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -122,7 +124,26 @@ void usage( const char * argv0 )
 }
 
 void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
-                         const Thunk & thunk );
+                         const Thunk & thunk )
+{
+  vector<storage::GetRequest> download_items;
+
+  for ( const InFile & infile : thunk.infiles() ) {
+    const auto target_path = gg::paths::blob_path( infile.content_hash() );
+
+    if ( not roost::exists( target_path ) ) {
+      download_items.push_back( { infile.content_hash(), target_path } );
+    }
+  }
+
+  storage_backend->get( download_items );
+
+  for ( const InFile & infile : thunk.infiles() ) {
+    if ( infile.type() == InFile::Type::EXECUTABLE ) {
+      roost::make_executable( gg::paths::blob_path( infile.content_hash() ) );
+    }
+  }
+}
 
 void upload_output( unique_ptr<StorageBackend> & storage_backend,
                     const string & output_hash );
@@ -167,7 +188,7 @@ int main( int argc, char * argv[] )
 
     gg::models::init();
 
-    string thunk_hash { argv[ 1 ] };
+    string thunk_hash { argv[ optind ] };
 
     /* take out an advisory lock on the thunk, in case
        other gg-execute processes are running at the same time */
@@ -176,12 +197,23 @@ int main( int argc, char * argv[] )
                                                 open( thunk_path.c_str(), O_RDONLY ) ) };
     raw_thunk.block_for_exclusive_lock();
 
-    if ( get_dependencies or put_output ) {}
-
     ThunkReader thunk_reader { thunk_path };
     Thunk thunk = thunk_reader.read_thunk();
+
+    if ( get_dependencies or put_output ) {
+      storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
+    }
+
+    if ( get_dependencies ) {
+      fetch_dependencies( storage_backend, thunk );
+    }
+
     string output_hash = execute_thunk( thunk, thunk_hash );
     gg::cache::insert( thunk_hash, output_hash );
+
+    if ( put_output ) {
+      /* TODO */
+    }
 
     return EXIT_SUCCESS;
   }

@@ -17,7 +17,7 @@ using namespace std;
 unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
 {
   const static regex uri_regex {
-    R"RAWSTR(((sx3)://)?(([^:\n\r]+):([^@\n\r]+)@)?(([^:/\n\r]+):?(\d*))/?([^?\n\r]+)?\??([^#\n\r]*)?#?([^\n\r]*))RAWSTR" };
+    R"RAWSTR(((s3)://)?(([^:\n\r]+):([^@\n\r]+)@)?(([^:/\n\r]+):?(\d*))/?([^?\n\r]+)?\??([^#\n\r]*)?#?([^\n\r]*))RAWSTR" };
 
   smatch uri_match_result;
 
