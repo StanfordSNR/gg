@@ -21,11 +21,11 @@ from ggpaths import GGPaths, GGCache
 from common import is_executable, make_executable, run_command
 
 def handler(event, context):
-    thunk_hash = event['thunk_hash']
-    os.environ['GG_STORAGE_URI'] = event['storage_backend']
+    thunk_hash = event['thunkHash']
+    os.environ['GG_STORAGE_URI'] = event['storageBackend']
 
     # Write thunk to disk
-    thunk_data = b64decode(event['thunk_data'])
+    thunk_data = b64decode(event['thunkData'])
     with open(GGPaths.blob_path(thunk_hash), "wb") as fout:
         fout.write(thunk_data)
 
@@ -58,8 +58,8 @@ def handler(event, context):
     executable = is_executable(GGPaths.blob_path(result))
 
     return {
-        'thunk_hash': thunk_hash,
-        'output_hash': result,
-        'output_size': os.path.getsize(GGPaths.blob_path(result)),
-        'executable_output': executable
+        'thunkHash': thunk_hash,
+        'outputHash': result,
+        'outputSize': os.path.getsize(GGPaths.blob_path(result)),
+        'executableOutput': executable
     }

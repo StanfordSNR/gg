@@ -8,9 +8,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <numeric>
-#include <cajun/json/reader.h>
-#include <cajun/json/writer.h>
-#include <cajun/json/elements.h>
+#include <google/protobuf/util/json_util.h>
 
 #include "system_runner.hh"
 #include "thunk_writer.hh"
@@ -23,6 +21,7 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 using namespace CryptoPP;
+using namespace google::protobuf::util;
 
 Thunk::Thunk( const string & outfile, const Function & function,
               const vector<InFile> & infiles )
@@ -115,26 +114,29 @@ int Thunk::execute( const string & thunk_hash ) const
   return retval;
 }
 
-std::string Thunk::execution_payload( const std::string & thunk_hash,
-                                      const bool timelog ) const
+std::string Thunk::execution_payload( const std::string & thunk_hash ) const
 {
   string base64_thunk;
 
   StringSource s( ThunkWriter::serialize_thunk( *this ), true,
                 new Base64Encoder( new StringSink( base64_thunk ), false ) );
 
-  json::Object lambda_event;
-  lambda_event[ "thunk_hash" ] = json::String( thunk_hash );
-  lambda_event[ "thunk_data" ] = json::String( base64_thunk );
-  lambda_event[ "storage_backend" ] = json::String( gg::remote::storage_backend_uri() );
+  protobuf::ExecutionRequest execution_request;
 
-  if ( timelog ) {
-    lambda_event[ "timelog" ] = json::Boolean( true );
+  execution_request.set_thunk_hash( thunk_hash );
+  execution_request.set_thunk_data( base64_thunk );
+  execution_request.set_storage_backend( gg::remote::storage_backend_uri() );
+
+  JsonPrintOptions print_options;
+  print_options.add_whitespace = false;
+  print_options.always_print_primitive_fields = true;
+
+  string ret;
+  if ( not MessageToJsonString( execution_request, &ret ).ok() ) {
+    throw runtime_error( "cannot create the json output" );
   }
 
-  ostringstream oss;
-  json::Writer::Write( lambda_event, oss );
-  return oss.str();
+  return ret;
 }
 
 size_t Thunk::compute_order() const

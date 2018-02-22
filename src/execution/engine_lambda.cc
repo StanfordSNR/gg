@@ -16,8 +16,7 @@ using namespace std;
 using namespace gg::thunk;
 
 HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk,
-                                                        const string & thunk_hash,
-                                                        const bool timelog )
+                                                        const string & thunk_hash )
 {
   string function_name;
 
@@ -29,7 +28,7 @@ HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk,
   }
 
   return LambdaInvocationRequest(
-    credentials_, region_, function_name, thunk.execution_payload( thunk_hash, timelog ),
+    credentials_, region_, function_name, thunk.execution_payload( thunk_hash ),
     LambdaInvocationRequest::InvocationType::REQUEST_RESPONSE,
     LambdaInvocationRequest::LogType::NONE
   ).to_http_request();
@@ -39,7 +38,7 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
                                             const Thunk & thunk,
                                             ExecutionLoop & exec_loop )
 {
-  HTTPRequest request = generate_request( thunk, hash, false );
+  HTTPRequest request = generate_request( thunk, hash );
 
   TCPSocket sock;
   sock.set_blocking( false );

@@ -24,8 +24,7 @@ private:
   std::unordered_map<std::string, std::chrono::steady_clock::time_point> start_times_ {};
 
   HTTPRequest generate_request( const gg::thunk::Thunk & thunk,
-                                const std::string & thunk_hash,
-                                const bool timelog );
+                                const std::string & thunk_hash );
 
   static float compute_cost( const std::chrono::steady_clock::time_point & begin,
                              const std::chrono::steady_clock::time_point & end = std::chrono::steady_clock::now() );

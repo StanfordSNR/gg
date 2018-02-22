@@ -45,7 +45,6 @@ AS_IF([test x"$PROTOC" = x],
 # Checks for header files.
 AC_CHECK_HEADERS([keyutils.h], [], [AC_MSG_ERROR([Missing libkeyutils header file])])
 AC_CHECK_HEADERS([sys/capability.h], [], [AC_MSG_ERROR([Missing libcap header file])])
-AC_CHECK_HEADERS([cajun/json/reader.h cajun/json/reader.h cajun/json/elements.h], [], [AC_MSG_ERROR([Missing libcajun header file])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT16_T

@@ -14,7 +14,6 @@ addons:
     - gcc-7
     - g++-7
     - libcap-dev
-    - libcajun-dev
     - libkeyutils-dev
     - libncurses5-dev
     - libboost-dev

@@ -128,8 +128,7 @@ namespace gg {
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
       int execute( const std::string & thunk_hash ) const;
-      std::string execution_payload( const std::string & thunk_hash,
-                                     const bool timelog ) const;
+      std::string execution_payload( const std::string & thunk_hash ) const;
 
       const std::string & outfile() const { return outfile_; }
       const Function & function() const { return function_; }

@@ -3,46 +3,36 @@
 #include "remote_response.hh"
 
 #include <stdexcept>
+#include <google/protobuf/util/json_util.h>
 
-#include <cajun/json/reader.h>
-#include <cajun/json/writer.h>
-#include <cajun/json/elements.h>
+#include "gg.pb.h"
 
 using namespace std;
+using namespace google::protobuf::util;
 
 RemoteResponse RemoteResponse::parse_message( const std::string & message )
 {
-  RemoteResponse response;
-
-  istringstream iss { message };
-  json::Object response_json;
-  json::Reader::Read( response_json, iss );
-
-  auto output_it = response_json.Find( "output" );
-  if ( output_it != response_json.End() ) {
-    response.output.reset( static_cast<json::String>( output_it->element ) );
+  JsonParseOptions parse_options;
+  gg::protobuf::ExecutionResponse execution_response_proto;
+  if ( not JsonStringToMessage( message, &execution_response_proto ).ok() ) {
+    throw runtime_error( "could not parse json response" );
   }
 
-  auto error_type_it = response_json.Find( "errorType" );
-  if ( error_type_it != response_json.End() ) {
-    /* Something happened */
-    string error_type = static_cast<json::String>( error_type_it->element );
+  RemoteResponse response;
 
-    if ( error_type == "GG-ExecutionFailed" ) {
-      response.status = JobStatus::ExecutionFailure;
-      return response;
-    }
-    else {
-      cerr << message << endl;
-      throw runtime_error( "unknown error type: " + error_type );
-    }
+  if ( execution_response_proto.output().length() ) {
+    response.output.reset( execution_response_proto.output() );
+  }
+
+  if ( execution_response_proto.return_code() ) {
+    return response;
   }
 
   response.status = JobStatus::Success;
-  response.thunk_hash = static_cast<json::String>( response_json[ "thunk_hash" ] );
-  response.output_hash = static_cast<json::String>( response_json[ "output_hash" ] );
-  response.output_size = static_cast<json::Number>( response_json[ "output_size" ] );
-  response.is_executable = static_cast<json::Boolean>( response_json[ "executable_output" ] );
+  response.thunk_hash = execution_response_proto.thunk_hash();
+  response.output_hash = execution_response_proto.output_hash();
+  response.output_size = execution_response_proto.output_size();
+  response.is_executable = execution_response_proto.executable_output();
 
   return response;
 }

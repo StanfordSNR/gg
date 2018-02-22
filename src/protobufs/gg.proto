@@ -36,16 +36,17 @@ message LambdaInFile {
   bool executable = 2;
 }
 
-message LambdaEvent {
+message ExecutionRequest {
   string thunk_hash = 1;
-  string s3_bucket = 2;
-  repeated LambdaInFile infiles = 3;
-  string thunk_data = 4;
+  string thunk_data = 2;
+  string storage_backend = 3;
 }
 
-message RemoteResponse {
+message ExecutionResponse {
   string thunk_hash = 1;
   string output_hash = 2;
   uint64 output_size = 3;
   bool executable_output = 4;
+  uint32 return_code = 5;
+  string output = 6;
 }

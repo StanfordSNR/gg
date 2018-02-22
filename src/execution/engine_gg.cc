@@ -15,10 +15,9 @@ using namespace std;
 using namespace gg::thunk;
 
 HTTPRequest GGExecutionEngine::generate_request( const Thunk & thunk,
-                                                 const string & thunk_hash,
-                                                 const bool timelog )
+                                                 const string & thunk_hash )
 {
-  string payload = thunk.execution_payload( thunk_hash, timelog );
+  string payload = thunk.execution_payload( thunk_hash );
   HTTPRequest request;
   request.set_first_line( "POST /cgi-bin/gg/execute.cgi HTTP/1.1" );
   request.add_header( HTTPHeader{ "Content-Length", to_string( payload.size() ) } );
@@ -35,7 +34,7 @@ void GGExecutionEngine::force_thunk( const string & hash,
                                      const Thunk & thunk,
                                      ExecutionLoop & exec_loop )
 {
-  HTTPRequest request = generate_request( thunk, hash, false );
+  HTTPRequest request = generate_request( thunk, hash );
 
   TCPSocket socket;
   socket.set_blocking( false );

@@ -15,8 +15,7 @@ private:
   size_t running_jobs_ { 0 };
 
   HTTPRequest generate_request( const gg::thunk::Thunk & thunk,
-                                const std::string & thunk_hash,
-                                const bool timelog );
+                                const std::string & thunk_hash );
 
 public:
   GGExecutionEngine( const std::string & address, const uint16_t port,
