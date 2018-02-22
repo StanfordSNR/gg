@@ -51,8 +51,8 @@ def handler(event, context):
 
     if return_code or not result:
         return {
-            'output': output,
-            'errorType': 'GG-ExecutionFailed',
+            'returnCode': return_code,
+            'output': output
         }
 
     executable = is_executable(GGPaths.blob_path(result))
