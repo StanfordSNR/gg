@@ -19,6 +19,8 @@
 #include "backend.hh"
 #include "storage_requests.hh"
 #include "digest.hh"
+#include "thunkexec.hh"
+#include "util.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -78,8 +80,13 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
       process.wait();
     }
 
-    if ( process.exit_status() != 0 ) {
-      throw runtime_error( "thunk execution failed: " + thunk_hash );
+    if ( process.exit_status() ) {
+      try {
+        process.throw_exception();
+      }
+      catch ( const exception & ex ) {
+        throw_with_nested( ExecutionError {} );
+      }
     }
   }
   else {
@@ -98,7 +105,12 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
       }
     };
 
-    process.execute();
+    try {
+      process.execute();
+    }
+    catch( const exception & ex ) {
+      throw_with_nested( ExecutionError {} );
+    }
   }
 
   // GRABBING THE OUTPUT
@@ -135,35 +147,45 @@ void do_cleanup( const Thunk & thunk, const std::string & thunk_hash )
 void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
                          const Thunk & thunk )
 {
-  vector<storage::GetRequest> download_items;
+  try {
+    vector<storage::GetRequest> download_items;
 
-  for ( const InFile & infile : thunk.infiles() ) {
-    if ( infile.type() == InFile::Type::DUMMY_DIRECTORY ) continue;
+    for ( const InFile & infile : thunk.infiles() ) {
+      if ( infile.type() == InFile::Type::DUMMY_DIRECTORY ) continue;
 
-    const auto target_path = gg::paths::blob_path( infile.content_hash() );
+      const auto target_path = gg::paths::blob_path( infile.content_hash() );
 
-    if ( not roost::exists( target_path )
-         or roost::file_size( target_path ) != infile.size() ) {
-      download_items.push_back( { infile.content_hash(), target_path } );
+      if ( not roost::exists( target_path )
+           or roost::file_size( target_path ) != infile.size() ) {
+        download_items.push_back( { infile.content_hash(), target_path } );
+      }
+    }
+
+    if ( download_items.size() > 0 ) {
+      storage_backend->get( download_items );
+    }
+
+    for ( const InFile & infile : thunk.infiles() ) {
+      if ( infile.type() == InFile::Type::EXECUTABLE ) {
+        roost::make_executable( gg::paths::blob_path( infile.content_hash() ) );
+      }
     }
   }
-
-  if ( download_items.size() > 0 ) {
-    storage_backend->get( download_items );
-  }
-
-  for ( const InFile & infile : thunk.infiles() ) {
-    if ( infile.type() == InFile::Type::EXECUTABLE ) {
-      roost::make_executable( gg::paths::blob_path( infile.content_hash() ) );
-    }
+  catch ( const exception & ex ) {
+    throw_with_nested( FetchDependenciesError {} );
   }
 }
 
 void upload_output( unique_ptr<StorageBackend> & storage_backend,
                     const string & output_hash )
 {
-  storage_backend->put( { { gg::paths::blob_path( output_hash ), output_hash,
-                            digest::gghash_to_hex( output_hash ) } } );
+  try {
+    storage_backend->put( { { gg::paths::blob_path( output_hash ), output_hash,
+                          digest::gghash_to_hex( output_hash ) } } );
+  }
+  catch ( const exception & ex ) {
+    throw_with_nested( UploadOutputError {} );
+  }
 }
 
 void usage( const char * argv0 )
@@ -186,7 +208,7 @@ int main( int argc, char * argv[] )
 
     if ( argc < 2 ) {
       usage( argv[ 0 ] );
-      return EXIT_FAILURE;
+      return to_underlying( ExecuteExitCode::OperationalFailure );
     }
 
     bool get_dependencies = false;
@@ -251,10 +273,22 @@ int main( int argc, char * argv[] )
       upload_output( storage_backend, output_hash );
     }
 
-    return EXIT_SUCCESS;
+    return to_underlying( ExecuteExitCode::Success );
+  }
+  catch ( const FetchDependenciesError & e ) {
+    print_nested_exception( e );
+    return to_underlying( ExecuteExitCode::FetchDependenciesFailure );
+  }
+  catch ( const ExecutionError & e ) {
+    print_nested_exception( e );
+    return to_underlying( ExecuteExitCode::ExecutionFailure );
+  }
+  catch ( const UploadOutputError & e ) {
+    print_nested_exception( e );
+    return to_underlying( ExecuteExitCode::UploadOutputFailure );
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );
-    return EXIT_FAILURE;
+    return to_underlying( ExecuteExitCode::OperationalFailure );
   }
 }

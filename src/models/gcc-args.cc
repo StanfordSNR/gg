@@ -5,6 +5,8 @@
 #include <iostream>
 #include <getopt.h>
 
+#include "util.hh"
+
 using namespace std;
 
 struct GCCOptionData
@@ -18,12 +20,6 @@ struct GCCOptionData
 
 bool startswith( const string & str, const string & prefix ) {
   return str.compare( 0, prefix.size(), prefix ) == 0;
-}
-
-template <typename E>
-constexpr auto to_underlying( E e ) noexcept
-{
-    return static_cast<std::underlying_type_t<E>>( e );
 }
 
 template<size_t N>
