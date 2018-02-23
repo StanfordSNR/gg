@@ -17,7 +17,7 @@ class DependencyGraph
 {
 private:
   std::unordered_map<std::string, gg::thunk::Thunk> thunks_ {};
-  std::unordered_map<std::string, std::set<std::string>> referenced_thunks_ {};
+  std::unordered_map<std::string, std::unordered_set<std::string>> referenced_thunks_ {};
 
   std::unordered_map<std::string, std::string> updated_hashes_{};
   std::unordered_map<std::string, std::string> original_hashes_{};
