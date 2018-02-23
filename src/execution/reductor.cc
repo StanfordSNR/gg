@@ -96,15 +96,26 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     [this] ( const string & old_hash, const JobStatus failure_reason )
     {
       switch ( failure_reason ) {
+      case JobStatus::ExecutionFailure:
+        throw runtime_error( "execution failed: " + old_hash );
+
       case JobStatus::InvocationFailure:
         throw runtime_error( "invocation failed: " + old_hash );
 
       case JobStatus::RateLimit:
         throw runtime_error( "rate limited: " + old_hash );
 
+      case JobStatus::FetchDependenciesFailure:
+        throw runtime_error( "fetching the dependencies failed: " + old_hash );
+
+      case JobStatus::UploadOutputFailure:
+        throw runtime_error( "uploading the output failed: " + old_hash );
+
+      case JobStatus::OperationalFailure:
+        throw runtime_error( "operational failure: " + old_hash );
+
       default:
         throw runtime_error( "execution failed for an unknown reason: " + old_hash );
-
       }
     };
 

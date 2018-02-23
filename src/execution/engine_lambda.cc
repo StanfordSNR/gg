@@ -75,6 +75,11 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
 
       ExecutionResponse response = ExecutionResponse::parse_message( http_response.body() );
 
+      /* print the output, if there's any */
+      if ( response.output.length() ) {
+        cerr << response.output << endl;
+      }
+
       switch ( response.status ) {
       case JobStatus::Success:
         if ( response.thunk_hash != thunk_hash ) {
@@ -89,17 +94,7 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
                            compute_cost( start_times_.at( thunk_hash ) ) );
 
         start_times_.erase( thunk_hash );
-
         break;
-
-      case JobStatus::ExecutionFailure:
-        /* XXX all failures should be handled the same way, the Lambda
-           engine shouldn't decide what to do when something failed. */
-        if ( response.output.length() ) {
-          cerr << response.output << endl;
-        }
-
-        throw runtime_error( "Execution failed: " + thunk_hash );
 
       default: /* in case of any other failure */
         failure_callback_( thunk_hash, response.status );
