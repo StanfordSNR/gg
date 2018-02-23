@@ -82,11 +82,18 @@ unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
 {
   unordered_set<string> order_one_thunks;
 
-  const Thunk & old_thunk = thunks_.at( old_hash );
+  if ( not thunks_.count( old_hash ) ) {
+    /* we already have forced this thunk, or maybe we never had it in the first
+    place. */
+    return order_one_thunks;
+  }
 
-  if ( old_thunk.order() != 1 ) {
+  if ( thunks_.at( old_hash ).order() != 1 ) {
     throw runtime_error( "can't force thunks with order != 1" );
   }
+
+  /* we don't need this thunk anymore, so let's just delete it from memory */
+  thunks_.erase( old_hash );
 
   if ( referenced_thunks_.count( old_hash ) == 0 ) {
     // no other thunk actually referenced this thunk
@@ -106,6 +113,9 @@ unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
       order_one_thunks.insert( ref_thunk_hash );
     }
   }
+
+  /* we don't need to know the thunks that referenced this thunk either */
+  referenced_thunks_.erase( old_hash );
 
   return order_one_thunks;
 }

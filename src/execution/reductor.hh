@@ -25,6 +25,7 @@ private:
   DependencyGraph dep_graph_ {};
 
   std::deque<std::string> job_queue_ {};
+  size_t total_jobs_ { 0 };
   size_t finished_jobs_ { 0 };
   float estimated_cost_ { 0.0 };
 
@@ -33,7 +34,7 @@ private:
 
   std::unique_ptr<StorageBackend> storage_backend_;
 
-  void execution_finalize( const std::string & old_hash,
+  void finalize_execution( const std::string & old_hash,
                            const std::string & new_hash,
                            const float cost = 0.0 );
 

@@ -50,7 +50,7 @@ ThunkStats print_thunk_info( const string & hash, unsigned int indent )
 {
   const Thunk thunk { ThunkReader { gg::paths::blob_path( hash ).string() }.read_thunk() };
   const string indentation( indent, ' ' );
-  
+
   const string display_name = roost::rbasename( thunk.outfile() ).string() + " (" + shortn( hash ) + ")";
 
   ThunkStats stats;
