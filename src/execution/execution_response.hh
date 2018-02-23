@@ -4,16 +4,25 @@
 #define EXECUTION_RESPONSE_HH
 
 #include <string>
+#include <exception>
+#include <stdexcept>
 #include <sys/types.h>
 
 #include "optional.hh"
 
+class FetchDependenciesError : public std::exception {};
+class ExecutionError : public std::exception {};
+class UploadOutputError : public std::exception {};
+
 enum class JobStatus
 {
-  Success,
+  Success = 0,
   RateLimit,
   InvocationFailure,
-  ExecutionFailure
+  OperationalFailure,
+  FetchDependenciesFailure,
+  ExecutionFailure,
+  UploadOutputFailure,
 };
 
 class ExecutionResponse

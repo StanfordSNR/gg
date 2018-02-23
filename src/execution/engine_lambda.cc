@@ -93,14 +93,15 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
         break;
 
       case JobStatus::ExecutionFailure:
+        /* XXX all failures should be handled the same way, the Lambda
+           engine shouldn't decide what to do when something failed. */
         if ( response.output.initialized() ) {
           cerr << *response.output << endl;
         }
 
         throw runtime_error( "Execution failed: " + thunk_hash );
 
-      case JobStatus::RateLimit:
-      case JobStatus::InvocationFailure:
+      default: /* in case of any other failure */
         failure_callback_( thunk_hash, response.status );
       }
     },

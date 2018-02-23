@@ -14,5 +14,4 @@ libggexecution_a_SOURCES = execution_response.hh execution_response.cc \
                            engine_local.hh engine_local.cc \
                            engine_lambda.hh engine_lambda.cc \
                            engine_gg.hh engine_gg.cc \
-                           reductor.hh reductor.cc \
-                           thunkexec.hh
+                           reductor.hh reductor.cc

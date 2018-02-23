@@ -19,8 +19,8 @@
 #include "backend.hh"
 #include "storage_requests.hh"
 #include "digest.hh"
-#include "thunkexec.hh"
 #include "util.hh"
+#include "execution_response.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -208,7 +208,7 @@ int main( int argc, char * argv[] )
 
     if ( argc < 2 ) {
       usage( argv[ 0 ] );
-      return to_underlying( ExecuteExitCode::OperationalFailure );
+      return to_underlying( JobStatus::OperationalFailure );
     }
 
     bool get_dependencies = false;
@@ -273,22 +273,22 @@ int main( int argc, char * argv[] )
       upload_output( storage_backend, output_hash );
     }
 
-    return to_underlying( ExecuteExitCode::Success );
+    return to_underlying( JobStatus::Success );
   }
   catch ( const FetchDependenciesError & e ) {
     print_nested_exception( e );
-    return to_underlying( ExecuteExitCode::FetchDependenciesFailure );
+    return to_underlying( JobStatus::FetchDependenciesFailure );
   }
   catch ( const ExecutionError & e ) {
     print_nested_exception( e );
-    return to_underlying( ExecuteExitCode::ExecutionFailure );
+    return to_underlying( JobStatus::ExecutionFailure );
   }
   catch ( const UploadOutputError & e ) {
     print_nested_exception( e );
-    return to_underlying( ExecuteExitCode::UploadOutputFailure );
+    return to_underlying( JobStatus::UploadOutputFailure );
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );
-    return to_underlying( ExecuteExitCode::OperationalFailure );
+    return to_underlying( JobStatus::OperationalFailure );
   }
 }
