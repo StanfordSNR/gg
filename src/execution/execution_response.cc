@@ -15,7 +15,7 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
   JsonParseOptions parse_options;
   gg::protobuf::ExecutionResponse execution_response_proto;
   if ( not JsonStringToMessage( message, &execution_response_proto ).ok() ) {
-    throw runtime_error( "could not parse json response" );
+    throw runtime_error( "could not parse json response: " + message );
   }
 
   ExecutionResponse response;
