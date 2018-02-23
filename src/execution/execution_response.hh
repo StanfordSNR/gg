@@ -32,12 +32,12 @@ private:
 
 public:
   JobStatus status;
+
   std::string thunk_hash;
   std::string output_hash;
   off_t output_size;
   bool is_executable;
-
-  Optional<std::string> output;
+  std::string output;
 
   static ExecutionResponse parse_message( const std::string & message );
 };

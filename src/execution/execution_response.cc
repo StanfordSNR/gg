@@ -19,16 +19,13 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
   }
 
   ExecutionResponse response;
+  response.status = static_cast<JobStatus>( execution_response_proto.return_code() );
+  response.output = execution_response_proto.output();
 
-  if ( execution_response_proto.output().length() ) {
-    response.output.reset( execution_response_proto.output() );
-  }
-
-  if ( execution_response_proto.return_code() ) {
+  if ( response.status != JobStatus::Success ) {
     return response;
   }
 
-  response.status = JobStatus::Success;
   response.thunk_hash = execution_response_proto.thunk_hash();
   response.output_hash = execution_response_proto.output_hash();
   response.output_size = execution_response_proto.output_size();
@@ -39,5 +36,5 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
 
 ExecutionResponse::ExecutionResponse()
   : status(), thunk_hash(), output_hash(), output_size(),
-    is_executable(), output( false )
+    is_executable(), output()
 {}
