@@ -8,7 +8,7 @@
 
 #include "loop.hh"
 #include "thunk.hh"
-#include "remote_response.hh"
+#include "execution_response.hh"
 
 class ExecutionEngine
 {

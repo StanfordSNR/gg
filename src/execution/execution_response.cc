@@ -1,6 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "remote_response.hh"
+#include "execution_response.hh"
 
 #include <stdexcept>
 #include <google/protobuf/util/json_util.h>
@@ -10,7 +10,7 @@
 using namespace std;
 using namespace google::protobuf::util;
 
-RemoteResponse RemoteResponse::parse_message( const std::string & message )
+ExecutionResponse ExecutionResponse::parse_message( const std::string & message )
 {
   JsonParseOptions parse_options;
   gg::protobuf::ExecutionResponse execution_response_proto;
@@ -18,7 +18,7 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
     throw runtime_error( "could not parse json response" );
   }
 
-  RemoteResponse response;
+  ExecutionResponse response;
 
   if ( execution_response_proto.output().length() ) {
     response.output.reset( execution_response_proto.output() );
@@ -37,7 +37,7 @@ RemoteResponse RemoteResponse::parse_message( const std::string & message )
   return response;
 }
 
-RemoteResponse::RemoteResponse()
+ExecutionResponse::ExecutionResponse()
   : status(), thunk_hash(), output_hash(), output_size(),
     is_executable(), output( false )
 {}

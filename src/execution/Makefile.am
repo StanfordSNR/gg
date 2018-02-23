@@ -7,7 +7,7 @@ AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
 noinst_LIBRARIES = libggexecution.a
 
-libggexecution_a_SOURCES = remote_response.hh remote_response.cc \
+libggexecution_a_SOURCES = execution_response.hh execution_response.cc \
                            connection_context.hh connection_context.cc \
                            loop.hh loop.cc \
                            engine.hh \

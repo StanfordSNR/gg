@@ -9,7 +9,7 @@
 #include "optional.hh"
 #include "system_runner.hh"
 #include "http_response.hh"
-#include "remote_response.hh"
+#include "execution_response.hh"
 #include "units.hh"
 
 using namespace std;
@@ -73,7 +73,7 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
         }
       }
 
-      RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
+      ExecutionResponse response = ExecutionResponse::parse_message( http_response.body() );
 
       switch ( response.status ) {
       case JobStatus::Success:

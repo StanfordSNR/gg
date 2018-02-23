@@ -8,7 +8,7 @@
 #include "optional.hh"
 #include "system_runner.hh"
 #include "http_response.hh"
-#include "remote_response.hh"
+#include "execution_response.hh"
 #include "units.hh"
 
 using namespace std;
@@ -60,7 +60,7 @@ void GGExecutionEngine::force_thunk( const string & hash,
         throw runtime_error( "HTTP failure: " + http_response.status_code() );
       }
 
-      RemoteResponse response = RemoteResponse::parse_message( http_response.body() );
+      ExecutionResponse response = ExecutionResponse::parse_message( http_response.body() );
 
       if ( response.status != JobStatus::Success ) {
         throw runtime_error( "execution failed." );

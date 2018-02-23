@@ -1,7 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#ifndef REMOTE_RESPONSE_HH
-#define REMOTE_RESPONSE_HH
+#ifndef EXECUTION_RESPONSE_HH
+#define EXECUTION_RESPONSE_HH
 
 #include <string>
 #include <sys/types.h>
@@ -16,10 +16,10 @@ enum class JobStatus
   ExecutionFailure
 };
 
-class RemoteResponse
+class ExecutionResponse
 {
 private:
-  RemoteResponse();
+  ExecutionResponse();
 
 public:
   JobStatus status;
@@ -30,7 +30,7 @@ public:
 
   Optional<std::string> output;
 
-  static RemoteResponse parse_message( const std::string & message );
+  static ExecutionResponse parse_message( const std::string & message );
 };
 
 #endif /* REMOTE_RESPONSE_HH */
