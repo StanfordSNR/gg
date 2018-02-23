@@ -70,6 +70,11 @@ void Reductor::print_status() const
   }
 }
 
+void print_gg_error( const string & message )
+{
+  cerr << "[error] " << message << endl;
+}
+
 Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
                     const vector<ExecutionEnvironment> & execution_environments,
                     std::unique_ptr<StorageBackend> && storage_backend,
@@ -96,27 +101,38 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     [this] ( const string & old_hash, const JobStatus failure_reason )
     {
       switch ( failure_reason ) {
+      /* this is the only fatal failure */
       case JobStatus::ExecutionFailure:
         throw runtime_error( "execution failed: " + old_hash );
 
+      /* for all of the following cases, except default, we will push the failed
+      job back into the queue */
       case JobStatus::InvocationFailure:
-        throw runtime_error( "invocation failed: " + old_hash );
+        print_gg_error( "invocation failed: " + old_hash );
+        break;
 
       case JobStatus::RateLimit:
-        throw runtime_error( "rate limited: " + old_hash );
+        print_gg_error( "rate limited: " + old_hash );
+        break;
 
       case JobStatus::FetchDependenciesFailure:
-        throw runtime_error( "fetching the dependencies failed: " + old_hash );
+        print_gg_error( "fetching the dependencies failed: " + old_hash );
+        break;
 
       case JobStatus::UploadOutputFailure:
-        throw runtime_error( "uploading the output failed: " + old_hash );
+        print_gg_error( "uploading the output failed: " + old_hash );
+        break;
 
       case JobStatus::OperationalFailure:
-        throw runtime_error( "operational failure: " + old_hash );
+        print_gg_error( "operational failure: " + old_hash );
+        break;
 
       default:
         throw runtime_error( "execution failed for an unknown reason: " + old_hash );
       }
+
+      /* let's retry */
+      job_queue_.push_back( old_hash );
     };
 
   for ( auto ee : execution_environments ) {
