@@ -70,9 +70,9 @@ void Reductor::print_status() const
   }
 }
 
-void print_gg_error( const string & message )
+void print_gg_message( const string & tag, const string & message )
 {
-  cerr << "[error] " << message << endl;
+  cerr << "[" << tag << "] " << message << endl;
 }
 
 Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
@@ -112,31 +112,31 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
       /* for all of the following cases, except default, we will push the failed
       job back into the queue */
       case JobStatus::InvocationFailure:
-        print_gg_error( "invocation failed: " + old_hash );
+        print_gg_message( "warning", "invocation failed: " + old_hash );
         break;
 
       case JobStatus::RateLimit:
-        print_gg_error( "rate limited: " + old_hash );
+        print_gg_message( "warning", "rate limited: " + old_hash );
         break;
 
       case JobStatus::FetchDependenciesFailure:
-        print_gg_error( "fetching the dependencies failed: " + old_hash );
+        print_gg_message( "warning", "fetching the dependencies failed: " + old_hash );
         break;
 
       case JobStatus::UploadOutputFailure:
-        print_gg_error( "uploading the output failed: " + old_hash );
+        print_gg_message( "warning", "uploading the output failed: " + old_hash );
         break;
 
       case JobStatus::OperationalFailure:
-        print_gg_error( "operational failure: " + old_hash );
+        print_gg_message( "warning", "operational failure: " + old_hash );
         break;
 
       case JobStatus::SocketFailure:
-        print_gg_error( "socket failure: " + old_hash );
+        print_gg_message( "warning", "socket failure: " + old_hash );
         break;
 
       case JobStatus::ChildProcessFailure:
-        print_gg_error( "child process failure: " + old_hash );
+        print_gg_message( "warning", "child process failure: " + old_hash );
         break;
 
       default:
