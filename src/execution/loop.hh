@@ -24,6 +24,8 @@ public:
   typedef std::function<void( const uint64_t id /* id */,
                               const std::string & /* tag */,
                               const HTTPResponse & )> RemoteCallbackFunc;
+  typedef std::function<void( const uint64_t /* id */,
+                              const std::string & /* tag */ )> FailureCallbackFunc;
 
 private:
   uint64_t current_id_{ 0 };
@@ -43,12 +45,17 @@ public:
 
   /* the add_* functions will return a 64-bit number as a unique id */
 
-  uint64_t add_child_process( const std::string & tag, LocalCallbackFunc callback,
+  uint64_t add_child_process( const std::string & tag,
+                              LocalCallbackFunc callback,
+                              FailureCallbackFunc failure_callback,
                               std::function<int()> && child_procedure );
 
   template<class SocketType>
-  uint64_t add_connection( const std::string & tag, RemoteCallbackFunc callback,
-                           SocketType & socket, const HTTPRequest & request );
+  uint64_t add_connection( const std::string & tag,
+                           RemoteCallbackFunc callback,
+                           FailureCallbackFunc failure_callback,
+                           SocketType & socket,
+                           const HTTPRequest & request );
 
   Poller::Result loop_once();
 };

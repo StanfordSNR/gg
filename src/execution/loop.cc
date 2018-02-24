@@ -38,6 +38,7 @@ Poller::Result ExecutionLoop::loop_once()
 
 uint64_t ExecutionLoop::add_child_process( const string & tag,
                                            LocalCallbackFunc callback,
+                                           FailureCallbackFunc /* failure_callback */,
                                            std::function<int()> && child_procedure )
 {
   child_processes_.emplace_back( current_id_, callback, ChildProcess( tag, move( child_procedure ) ) );
@@ -47,6 +48,7 @@ uint64_t ExecutionLoop::add_child_process( const string & tag,
 template<>
 uint64_t ExecutionLoop::add_connection( const string & tag,
                                         RemoteCallbackFunc callback,
+                                        FailureCallbackFunc failure_callback,
                                         TCPSocket & socket,
                                         const HTTPRequest & request )
 {
@@ -75,7 +77,8 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
 
         return ResultType::Continue;
       },
-      [connection_it] { return connection_it->something_to_write; }
+      [connection_it] { return connection_it->something_to_write; },
+      [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
     )
   );
 
@@ -95,7 +98,8 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
 
         return ResultType::Continue;
       },
-      [connection_it]() { return connection_it->ready(); }
+      [connection_it]() { return connection_it->ready(); },
+      [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
     )
   );
 
@@ -105,6 +109,7 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
 template<>
 uint64_t ExecutionLoop::add_connection( const string & tag,
                                         RemoteCallbackFunc callback,
+                                        FailureCallbackFunc failure_callback,
                                         SecureSocket & socket,
                                         const HTTPRequest & request )
 {
@@ -116,19 +121,25 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
   poller_.add_action(
     Poller::Action(
       connection_it->socket, Direction::Out,
-      [connection_it]()
+      [connection_it, connection_id, tag, failure_callback]()
       {
-        /* did it connect successfully? */
-        if ( not connection_it->connected() ) {
-          connection_it->continue_SSL_connect();
+        try {
+          /* did it connect successfully? */
+          if ( not connection_it->connected() ) {
+            connection_it->continue_SSL_connect();
+          }
+          else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_write or
+                  ( connection_it->state == SSLConnectionState::ready and
+                    connection_it->something_to_write ) ) {
+            connection_it->continue_SSL_write();
+          }
+          else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_read ) {
+            connection_it->continue_SSL_read();
+          }
         }
-        else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_write or
-                ( connection_it->state == SSLConnectionState::ready and
-                  connection_it->something_to_write ) ) {
-          connection_it->continue_SSL_write();
-        }
-        else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_read ) {
-          connection_it->continue_SSL_read();
+        catch ( const ssl_error & ex ) {
+          failure_callback( connection_id, tag );
+          return ResultType::CancelAll;
         }
 
         return ResultType::Continue;
@@ -140,7 +151,8 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
                ( connection_it->state == SSLConnectionState::needs_ssl_write_to_write ) or
                ( connection_it->state == SSLConnectionState::needs_ssl_write_to_read ) or
                ( connection_it->state == SSLConnectionState::ready and connection_it->something_to_write );
-      }
+      },
+      [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
     )
   );
 
@@ -148,17 +160,23 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
   poller_.add_action(
     Poller::Action(
       connection_it->socket, Direction::In,
-      [connection_it, tag, callback, connection_id, this]()
+      [connection_it, tag, callback, failure_callback, connection_id, this]()
       {
-        if ( not connection_it->connected() ) {
-          connection_it->continue_SSL_connect();
+        try {
+          if ( not connection_it->connected() ) {
+            connection_it->continue_SSL_connect();
+          }
+          else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_write ) {
+            connection_it->continue_SSL_write();
+          }
+          else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_read or
+                    connection_it->state == SSLConnectionState::ready ) {
+            connection_it->continue_SSL_read();
+          }
         }
-        else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_write ) {
-          connection_it->continue_SSL_write();
-        }
-        else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_read or
-                  connection_it->state == SSLConnectionState::ready ) {
-          connection_it->continue_SSL_read();
+        catch ( const ssl_error & error ) {
+          failure_callback( connection_id, tag );
+          return ResultType::CancelAll;
         }
 
         if ( not connection_it->responses.empty() ) {
@@ -177,7 +195,8 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
                ( connection_it->state == SSLConnectionState::needs_ssl_read_to_write ) or
                ( connection_it->state == SSLConnectionState::needs_ssl_read_to_read ) or
                ( connection_it->state == SSLConnectionState::ready );
-      }
+      },
+      [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
     )
   );
 

@@ -101,6 +101,11 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
         failure_callback_( thunk_hash, response.status );
       }
     },
+    [this] ( const uint64_t id, const string & thunk_hash )
+    {
+      start_times_.erase( id );
+      failure_callback_( thunk_hash, JobStatus::SocketFailure );
+    },
     lambda_socket, request
   );
 

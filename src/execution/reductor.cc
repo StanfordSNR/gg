@@ -131,6 +131,14 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
         print_gg_error( "operational failure: " + old_hash );
         break;
 
+      case JobStatus::SocketFailure:
+        print_gg_error( "socket failure: " + old_hash );
+        break;
+
+      case JobStatus::ChildProcessFailure:
+        print_gg_error( "child process failure: " + old_hash );
+        break;
+
       default:
         throw runtime_error( "execution failed for an unknown reason: " + old_hash );
       }

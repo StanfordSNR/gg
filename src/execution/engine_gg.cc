@@ -75,6 +75,10 @@ void GGExecutionEngine::force_thunk( const string & hash,
       gg::cache::insert( response.thunk_hash, response.output_hash );
       success_callback_( response.thunk_hash, response.output_hash, 0 );
     },
+    [this] ( const uint64_t, const string & thunk_hash )
+    {
+      failure_callback_( thunk_hash, JobStatus::SocketFailure );
+    },
     socket, request
   );
 

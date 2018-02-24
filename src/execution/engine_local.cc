@@ -28,6 +28,10 @@ void LocalExecutionEngine::force_thunk( const string & hash,
 
       success_callback_( hash, result->hash, 0 );
     },
+    [this] ( const uint64_t, const string & thunk_hash )
+    {
+      failure_callback_( thunk_hash, JobStatus::ChildProcessFailure );
+    },
     [hash]()
     {
       vector<string> command { "gg-execute", hash };

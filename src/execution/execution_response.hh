@@ -23,6 +23,8 @@ enum class JobStatus
   FetchDependenciesFailure,
   ExecutionFailure,
   UploadOutputFailure,
+  SocketFailure,
+  ChildProcessFailure
 };
 
 class ExecutionResponse
