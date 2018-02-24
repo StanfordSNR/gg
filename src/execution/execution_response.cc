@@ -12,13 +12,16 @@ using namespace google::protobuf::util;
 
 ExecutionResponse ExecutionResponse::parse_message( const std::string & message )
 {
+  ExecutionResponse response;
+
   JsonParseOptions parse_options;
   gg::protobuf::ExecutionResponse execution_response_proto;
+  
   if ( not JsonStringToMessage( message, &execution_response_proto ).ok() ) {
-    throw runtime_error( "could not parse json response: " + message );
+    response.status = JobStatus::OperationalFailure;
+    return response;
   }
 
-  ExecutionResponse response;
   response.status = static_cast<JobStatus>( execution_response_proto.return_code() );
   response.output = execution_response_proto.output();
 
