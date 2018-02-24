@@ -52,7 +52,8 @@ void GGExecutionEngine::force_thunk( const string & hash,
 
   exec_loop.add_connection(
     hash,
-    [this] ( const string & thunk_hash, const HTTPResponse & http_response )
+    [this] ( const uint64_t, const string & thunk_hash,
+             const HTTPResponse & http_response )
     {
       running_jobs_--;
 

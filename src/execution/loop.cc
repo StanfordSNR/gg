@@ -36,17 +36,22 @@ Poller::Result ExecutionLoop::loop_once()
   return poller_.poll( -1 );
 }
 
-void ExecutionLoop::add_child_process( const string & tag, LocalCallbackFunc callback,
-                                       std::function<int()> && child_procedure )
+uint64_t ExecutionLoop::add_child_process( const string & tag,
+                                           LocalCallbackFunc callback,
+                                           std::function<int()> && child_procedure )
 {
-  child_processes_.emplace_back( callback, ChildProcess( tag, move( child_procedure ) ) );
+  child_processes_.emplace_back( current_id_, callback, ChildProcess( tag, move( child_procedure ) ) );
+  return current_id_++;
 }
 
 template<>
-void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callback,
-                                    TCPSocket & socket, const HTTPRequest & request )
+uint64_t ExecutionLoop::add_connection( const string & tag,
+                                        RemoteCallbackFunc callback,
+                                        TCPSocket & socket,
+                                        const HTTPRequest & request )
 {
   /* XXX not thread-safe */
+  const uint64_t connection_id = current_id_++;
   auto connection_it = connection_contexts_.emplace( connection_contexts_.end(),
                                                      move( socket ), request );
 
@@ -77,13 +82,13 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
   poller_.add_action(
     Poller::Action(
       connection_it->socket, Direction::In,
-      [connection_it, tag, callback, this] ()
+      [connection_it, tag, callback, connection_id, this] ()
       {
         connection_it->responses.parse( connection_it->socket.read() );
 
         if ( not connection_it->responses.empty() ) {
           connection_it->state = ConnectionContext::State::closed;
-          callback( tag, connection_it->responses.front() );
+          callback( connection_id, tag, connection_it->responses.front() );
           connection_contexts_.erase( connection_it );
           return ResultType::CancelAll;
         }
@@ -93,13 +98,18 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
       [connection_it]() { return connection_it->ready(); }
     )
   );
+
+  return connection_id;
 }
 
 template<>
-void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callback,
-                                    SecureSocket & socket, const HTTPRequest & request )
+uint64_t ExecutionLoop::add_connection( const string & tag,
+                                        RemoteCallbackFunc callback,
+                                        SecureSocket & socket,
+                                        const HTTPRequest & request )
 {
   /* XXX not thread-safe */
+  const uint64_t connection_id = current_id_++;
   auto connection_it = ssl_connection_contexts_.emplace( ssl_connection_contexts_.end(),
                                                          move( socket ), request );
 
@@ -138,7 +148,7 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
   poller_.add_action(
     Poller::Action(
       connection_it->socket, Direction::In,
-      [connection_it, tag, callback, this]()
+      [connection_it, tag, callback, connection_id, this]()
       {
         if ( not connection_it->connected() ) {
           connection_it->continue_SSL_connect();
@@ -153,7 +163,7 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
 
         if ( not connection_it->responses.empty() ) {
           connection_it->state = SSLConnectionContext::State::closed;
-          callback( tag, connection_it->responses.front() );
+          callback( connection_id, tag, connection_it->responses.front() );
           ssl_connection_contexts_.erase( connection_it );
           return ResultType::CancelAll;
         }
@@ -170,6 +180,8 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
       }
     )
   );
+
+  return connection_id;
 }
 
 Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & sig )
@@ -177,7 +189,7 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
   switch ( sig.ssi_signo ) {
   case SIGCONT:
     for ( auto & child : child_processes_ ) {
-      child.second.resume();
+      get<2>( child ).resume();
     }
     break;
 
@@ -187,7 +199,7 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
     }
 
     for ( auto it = child_processes_.begin(); it != child_processes_.end(); it++ ) {
-      ChildProcess & child = it->second;
+      ChildProcess & child = get<2>( *it );
 
       if ( child.terminated() or ( not child.waitable() ) ) {
         continue;
@@ -200,7 +212,8 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
           child.throw_exception();
         }
 
-        it->first( child.name() );
+        auto & callback = get<1>( *it );
+        callback( get<0>( *it ), child.name() );
 
         it = child_processes_.erase( it );
         it--;

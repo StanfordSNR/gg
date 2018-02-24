@@ -21,7 +21,7 @@ private:
   SSLContext ssl_context_ {};
 
   size_t running_jobs_ { 0 };
-  std::unordered_map<std::string, std::chrono::steady_clock::time_point> start_times_ {};
+  std::map<uint64_t, std::chrono::steady_clock::time_point> start_times_ {};
 
   HTTPRequest generate_request( const gg::thunk::Thunk & thunk,
                                 const std::string & thunk_hash );

@@ -19,15 +19,20 @@
 class ExecutionLoop
 {
 public:
-  typedef std::function<void( const std::string & )> LocalCallbackFunc;
-  typedef std::function<void( const std::string &, const HTTPResponse & )> RemoteCallbackFunc;
+  typedef std::function<void( const uint64_t /* id */,
+                              const std::string & /* tag */ )> LocalCallbackFunc;
+  typedef std::function<void( const uint64_t id /* id */,
+                              const std::string & /* tag */,
+                              const HTTPResponse & )> RemoteCallbackFunc;
 
 private:
+  uint64_t current_id_{ 0 };
+
   SignalMask signals_;
   SignalFD signal_fd_;
 
   Poller poller_;
-  std::list<std::pair<LocalCallbackFunc, ChildProcess>> child_processes_;
+  std::list<std::tuple<uint64_t, LocalCallbackFunc, ChildProcess>> child_processes_;
   std::list<ConnectionContext> connection_contexts_;
   std::list<SSLConnectionContext> ssl_connection_contexts_;
 
@@ -36,12 +41,14 @@ private:
 public:
   ExecutionLoop();
 
-  void add_child_process( const std::string & tag, LocalCallbackFunc callback,
-                          std::function<int()> && child_procedure );
+  /* the add_* functions will return a 64-bit number as a unique id */
+
+  uint64_t add_child_process( const std::string & tag, LocalCallbackFunc callback,
+                              std::function<int()> && child_procedure );
 
   template<class SocketType>
-  void add_connection( const std::string & tag, RemoteCallbackFunc callback,
-                       SocketType & socket, const HTTPRequest & request );
+  uint64_t add_connection( const std::string & tag, RemoteCallbackFunc callback,
+                           SocketType & socket, const HTTPRequest & request );
 
   Poller::Result loop_once();
 };

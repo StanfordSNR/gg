@@ -16,7 +16,7 @@ void LocalExecutionEngine::force_thunk( const string & hash,
                                         ExecutionLoop & exec_loop )
 {
   exec_loop.add_child_process( hash,
-    [this] ( const string & hash )
+    [this] ( const uint64_t, const string & hash )
     {
       running_jobs_--; /* XXX not thread-safe */
 

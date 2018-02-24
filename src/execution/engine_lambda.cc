@@ -55,9 +55,10 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
 
   SecureSocket lambda_socket = ssl_context_.new_secure_socket( move( sock ) );
 
-  exec_loop.add_connection(
+  uint64_t exec_id = exec_loop.add_connection(
     hash,
-    [this] ( const string & thunk_hash, const HTTPResponse & http_response )
+    [this] ( const uint64_t id, const string & thunk_hash,
+             const HTTPResponse & http_response )
     {
       running_jobs_--;
 
@@ -91,9 +92,9 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
 
         gg::cache::insert( response.thunk_hash, response.output_hash );
         success_callback_( response.thunk_hash, response.output_hash,
-                           compute_cost( start_times_.at( thunk_hash ) ) );
+                           compute_cost( start_times_.at( id ) ) );
 
-        start_times_.erase( thunk_hash );
+        start_times_.erase( id );
         break;
 
       default: /* in case of any other failure */
@@ -103,7 +104,7 @@ void AWSLambdaExecutionEngine::force_thunk( const string & hash,
     lambda_socket, request
   );
 
-  start_times_.insert( { hash, chrono::steady_clock::now() } );
+  start_times_.insert( { exec_id, chrono::steady_clock::now() } );
 
   running_jobs_++;
 }
