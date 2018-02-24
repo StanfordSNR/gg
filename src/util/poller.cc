@@ -65,7 +65,9 @@ Poller::Result Poller::poll( const int timeout_ms )
         ; it_action++, it_pollfd++ ) {
     if ( it_pollfd->revents & (POLLERR | POLLHUP | POLLNVAL) ) {
       //            throw Exception( "poll fd error" );
-      return Result::Type::Exit;
+      it_action->fderror_callback();
+      remove_actions( { it_pollfd->fd } );
+      return Result::Type::FDError;
     }
 
     if ( it_pollfd->revents & it_pollfd->events ) {
