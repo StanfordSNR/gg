@@ -11,6 +11,7 @@
 #include <unordered_set>
 #include <mutex>
 
+#include "optional.hh"
 #include "thunk.hh"
 
 class DependencyGraph
@@ -33,8 +34,9 @@ public:
 
   void add_thunk( const std::string & hash );
 
-  std::unordered_set<std::string> force_thunk( const std::string & old_hash,
-                                               const std::string & new_hash );
+  Optional<std::unordered_set<std::string>>
+  force_thunk( const std::string & old_hash,
+               const std::string & new_hash );
 
   const std::unordered_set<std::string> &
   order_zero_dependencies() const { return order_zero_dependencies_; }
@@ -49,6 +51,8 @@ public:
   get_thunk( const std::string & hash ) const { return thunks_.at( hash ); }
 
   std::string updated_hash( const std::string & original_hash ) const;
+
+  std::string original_hash( const std::string & updated_hash ) const;
 
   size_t size() const { return thunks_.size(); }
 };

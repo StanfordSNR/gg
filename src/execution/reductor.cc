@@ -79,8 +79,10 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
                     const vector<ExecutionEnvironment> & execution_environments,
                     std::unique_ptr<StorageBackend> && storage_backend,
                     const bool status_bar )
-  : target_hashes_( target_hashes ), max_jobs_( max_jobs ),
-    status_bar_( status_bar ), storage_backend_( move( storage_backend ) )
+  : target_hashes_( target_hashes ),
+    remaining_targets_( target_hashes_.begin(), target_hashes_.end() ),
+    max_jobs_( max_jobs ), status_bar_( status_bar ),
+    storage_backend_( move( storage_backend ) )
 {
   unordered_set<string> all_o1_deps;
 
@@ -187,19 +189,21 @@ size_t Reductor::running_jobs() const
 
 bool Reductor::is_finished() const
 {
-  return
-    ( running_jobs() == 0 ) and ( job_queue_.size() == 0 );
+  return remaining_targets_.size() == 0;
 }
 
 void Reductor::finalize_execution( const string & old_hash,
                                    const string & new_hash,
                                    const float cost )
 {
-  finished_jobs_++;
+  Optional<unordered_set<string>> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
   estimated_cost_ += cost;
 
-  unordered_set<string> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
-  job_queue_.insert( job_queue_.end(), new_o1s.begin(), new_o1s.end() );
+  if ( new_o1s.initialized() ) {
+    job_queue_.insert( job_queue_.end(), new_o1s->begin(), new_o1s->end() );
+    remaining_targets_.erase( dep_graph_.original_hash( old_hash ) );
+    finished_jobs_++;
+  }
 }
 
 vector<string> Reductor::reduce()
@@ -240,8 +244,9 @@ vector<string> Reductor::reduce()
 
     const auto poll_result = exec_loop_.loop_once();
 
-    if ( poll_result.result == Poller::Result::Type::Exit ) {
+    if ( is_finished() or poll_result.result == Poller::Result::Type::Exit ) {
       if ( not is_finished() ) {
+        cerr << remaining_targets_.size() << endl;
         throw runtime_error( "poller failure happened, job is not finished" );
       }
 

@@ -77,15 +77,15 @@ void DependencyGraph::update_thunk_hash( const string & old_hash,
   }
 }
 
-unordered_set<string> DependencyGraph::force_thunk( const string & old_hash,
-                                                    const string & new_hash )
+Optional<unordered_set<string>> DependencyGraph::force_thunk( const string & old_hash,
+                                                              const string & new_hash )
 {
   unordered_set<string> order_one_thunks;
 
   if ( not thunks_.count( old_hash ) ) {
     /* we already have forced this thunk, or maybe we never had it in the first
     place. */
-    return order_one_thunks;
+    return { false };
   }
 
   if ( thunks_.at( old_hash ).order() != 1 ) {
@@ -143,12 +143,22 @@ DependencyGraph::order_one_dependencies( const string & thunk_hash ) const
   return result;
 }
 
-std::string DependencyGraph::updated_hash( const std::string & original_hash ) const
+string DependencyGraph::updated_hash( const string & original_hash ) const
 {
   if ( updated_hashes_.count( original_hash ) ) {
     return updated_hashes_.at( original_hash );
   }
   else {
     return original_hash;
+  }
+}
+
+string DependencyGraph::original_hash( const string & updated_hash ) const
+{
+  if ( original_hashes_.count( updated_hash ) ) {
+    return original_hashes_.at( updated_hash );
+  }
+  else {
+    return updated_hash;
   }
 }

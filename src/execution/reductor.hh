@@ -7,6 +7,7 @@
 #include <vector>
 #include <deque>
 #include <memory>
+#include <unordered_set>
 
 #include "loop.hh"
 #include "engine.hh"
@@ -19,6 +20,7 @@ class Reductor
 {
 private:
   const std::vector<std::string> target_hashes_;
+  std::unordered_set<std::string> remaining_targets_;
   size_t max_jobs_;
   bool status_bar_;
 
