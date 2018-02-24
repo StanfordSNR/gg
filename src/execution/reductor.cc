@@ -246,7 +246,6 @@ vector<string> Reductor::reduce()
 
     if ( is_finished() or poll_result.result == Poller::Result::Type::Exit ) {
       if ( not is_finished() ) {
-        cerr << remaining_targets_.size() << endl;
         throw runtime_error( "poller failure happened, job is not finished" );
       }
 
