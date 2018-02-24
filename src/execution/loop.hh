@@ -28,8 +28,8 @@ private:
 
   Poller poller_;
   std::list<std::pair<LocalCallbackFunc, ChildProcess>> child_processes_;
-  std::unordered_map<std::string, ConnectionContext> connection_contexts_;
-  std::unordered_map<std::string, SSLConnectionContext> ssl_connection_contexts_;
+  std::list<ConnectionContext> connection_contexts_;
+  std::list<SSLConnectionContext> ssl_connection_contexts_;
 
   Poller::Action::Result handle_signal( const signalfd_siginfo & );
 

@@ -47,53 +47,50 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
                                     TCPSocket & socket, const HTTPRequest & request )
 {
   /* XXX not thread-safe */
-  connection_contexts_.emplace( piecewise_construct,
-                                forward_as_tuple( tag ),
-                                forward_as_tuple( move( socket ), request ) );
-
-  ConnectionContext & connection = connection_contexts_.at( tag );
+  auto connection_it = connection_contexts_.emplace( connection_contexts_.end(),
+                                                     move( socket ), request );
 
   poller_.add_action(
     Poller::Action(
-      connection.socket, Direction::Out,
-      [&connection] ()
+      connection_it->socket, Direction::Out,
+      [connection_it] ()
       {
-        connection.socket.verify_no_errors();
+        connection_it->socket.verify_no_errors();
 
-        if ( connection.state == ConnectionContext::State::needs_connect ) {
-          connection.state = ConnectionContext::State::ready;
+        if ( connection_it->state == ConnectionContext::State::needs_connect ) {
+          connection_it->state = ConnectionContext::State::ready;
         }
 
-        connection.last_write = connection.socket.write( connection.last_write,
-                                                         connection.request_str.cend() );
+        connection_it->last_write = connection_it->socket.write( connection_it->last_write,
+                                                                 connection_it->request_str.cend() );
 
-        if ( connection.last_write == connection.request_str.cend() ) {
-          connection.something_to_write = false;
+        if ( connection_it->last_write == connection_it->request_str.cend() ) {
+          connection_it->something_to_write = false;
         }
 
         return ResultType::Continue;
       },
-      [&connection] { return connection.something_to_write; }
+      [connection_it] { return connection_it->something_to_write; }
     )
   );
 
   poller_.add_action(
     Poller::Action(
-      connection.socket, Direction::In,
-      [&connection, tag, callback, this] ()
+      connection_it->socket, Direction::In,
+      [connection_it, tag, callback, this] ()
       {
-        connection.responses.parse( connection.socket.read() );
+        connection_it->responses.parse( connection_it->socket.read() );
 
-        if ( not connection.responses.empty() ) {
-          connection.state = ConnectionContext::State::closed;
-          callback( tag, connection.responses.front() );
-          connection_contexts_.erase( tag );
+        if ( not connection_it->responses.empty() ) {
+          connection_it->state = ConnectionContext::State::closed;
+          callback( tag, connection_it->responses.front() );
+          connection_contexts_.erase( connection_it );
           return ResultType::CancelAll;
         }
 
         return ResultType::Continue;
       },
-      [&connection]() { return connection.ready(); }
+      [connection_it]() { return connection_it->ready(); }
     )
   );
 }
@@ -103,38 +100,36 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
                                     SecureSocket & socket, const HTTPRequest & request )
 {
   /* XXX not thread-safe */
-  ssl_connection_contexts_.emplace( piecewise_construct,
-                                    forward_as_tuple( tag ),
-                                    forward_as_tuple( move( socket ), request ) );
-
-  SSLConnectionContext & connection = ssl_connection_contexts_.at( tag );
+  auto connection_it = ssl_connection_contexts_.emplace( ssl_connection_contexts_.end(),
+                                                         move( socket ), request );
 
   poller_.add_action(
     Poller::Action(
-      connection.socket, Direction::Out,
-      [&connection]()
+      connection_it->socket, Direction::Out,
+      [connection_it]()
       {
         /* did it connect successfully? */
-        if ( not connection.connected() ) {
-          connection.continue_SSL_connect();
+        if ( not connection_it->connected() ) {
+          connection_it->continue_SSL_connect();
         }
-        else if ( connection.state == SSLConnectionState::needs_ssl_write_to_write or
-             ( connection.state == SSLConnectionState::ready and connection.something_to_write ) ) {
-          connection.continue_SSL_write();
+        else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_write or
+                ( connection_it->state == SSLConnectionState::ready and
+                  connection_it->something_to_write ) ) {
+          connection_it->continue_SSL_write();
         }
-        else if ( connection.state == SSLConnectionState::needs_ssl_write_to_read ) {
-          connection.continue_SSL_read();
+        else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_read ) {
+          connection_it->continue_SSL_read();
         }
 
         return ResultType::Continue;
       },
-      [&connection]()
+      [connection_it]()
       {
-        return ( connection.state == SSLConnectionState::needs_connect ) or
-               ( connection.state == SSLConnectionState::needs_ssl_write_to_connect ) or
-               ( connection.state == SSLConnectionState::needs_ssl_write_to_write ) or
-               ( connection.state == SSLConnectionState::needs_ssl_write_to_read ) or
-               ( connection.state == SSLConnectionState::ready and connection.something_to_write );
+        return ( connection_it->state == SSLConnectionState::needs_connect ) or
+               ( connection_it->state == SSLConnectionState::needs_ssl_write_to_connect ) or
+               ( connection_it->state == SSLConnectionState::needs_ssl_write_to_write ) or
+               ( connection_it->state == SSLConnectionState::needs_ssl_write_to_read ) or
+               ( connection_it->state == SSLConnectionState::ready and connection_it->something_to_write );
       }
     )
   );
@@ -142,36 +137,36 @@ void ExecutionLoop::add_connection( const string & tag, RemoteCallbackFunc callb
   /* what to do when socket is readable */
   poller_.add_action(
     Poller::Action(
-      connection.socket, Direction::In,
-      [&connection, tag, callback, this]()
+      connection_it->socket, Direction::In,
+      [connection_it, tag, callback, this]()
       {
-        if ( not connection.connected() ) {
-          connection.continue_SSL_connect();
+        if ( not connection_it->connected() ) {
+          connection_it->continue_SSL_connect();
         }
-        else if ( connection.state == SSLConnectionState::needs_ssl_read_to_write ) {
-          connection.continue_SSL_write();
+        else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_write ) {
+          connection_it->continue_SSL_write();
         }
-        else if ( connection.state == SSLConnectionState::needs_ssl_read_to_read or
-                  connection.state == SSLConnectionState::ready ) {
-          connection.continue_SSL_read();
+        else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_read or
+                  connection_it->state == SSLConnectionState::ready ) {
+          connection_it->continue_SSL_read();
         }
 
-        if ( not connection.responses.empty() ) {
-          connection.state = SSLConnectionContext::State::closed;
-          callback( tag, connection.responses.front() );
-          ssl_connection_contexts_.erase( tag );
+        if ( not connection_it->responses.empty() ) {
+          connection_it->state = SSLConnectionContext::State::closed;
+          callback( tag, connection_it->responses.front() );
+          ssl_connection_contexts_.erase( connection_it );
           return ResultType::CancelAll;
         }
 
         return ResultType::Continue;
       },
-      [&connection]()
+      [connection_it]()
       {
-        return ( connection.state == SSLConnectionState::needs_connect ) or
-               ( connection.state == SSLConnectionState::needs_ssl_read_to_connect ) or
-               ( connection.state == SSLConnectionState::needs_ssl_read_to_write ) or
-               ( connection.state == SSLConnectionState::needs_ssl_read_to_read ) or
-               ( connection.state == SSLConnectionState::ready );
+        return ( connection_it->state == SSLConnectionState::needs_connect ) or
+               ( connection_it->state == SSLConnectionState::needs_ssl_read_to_connect ) or
+               ( connection_it->state == SSLConnectionState::needs_ssl_read_to_write ) or
+               ( connection_it->state == SSLConnectionState::needs_ssl_read_to_read ) or
+               ( connection_it->state == SSLConnectionState::ready );
       }
     )
   );
