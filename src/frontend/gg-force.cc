@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #include "exception.hh"
 #include "thunk.hh"
@@ -35,6 +37,22 @@ void usage( const char * argv0 )
        << "  GG_SANDBOXED => if set, forces the thunks in a sandbox" << endl
        << "  GG_REMOTE    => execute the thunks on AWS Lambda" << endl
        << endl;
+}
+
+void check_rlimit_nofile( const size_t max_jobs )
+{
+  struct rlimit limits;
+  CheckSystemCall( "getrlimit", getrlimit( RLIMIT_NOFILE, &limits ) );
+
+  size_t target_nofile = max_jobs * 2;
+  target_nofile = min( target_nofile, limits.rlim_max );
+
+  if ( limits.rlim_cur < target_nofile ) {
+    cerr << "Increasing the maximum number of allowed file descriptors from "
+         << limits.rlim_cur << " to " << target_nofile << ".\n";
+    limits.rlim_cur = target_nofile;
+    CheckSystemCall( "setrlimit", setrlimit( RLIMIT_NOFILE, &limits ) );
+  }
 }
 
 int main( int argc, char * argv[] )
@@ -81,6 +99,8 @@ int main( int argc, char * argv[] )
         throw runtime_error( "invalid option" );
       }
     }
+
+    check_rlimit_nofile( max_jobs );
 
     gg::models::init();
 
