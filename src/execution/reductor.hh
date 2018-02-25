@@ -27,9 +27,13 @@ private:
   DependencyGraph dep_graph_ {};
 
   std::deque<std::string> job_queue_ {};
+  std::unordered_set<std::string> running_jobs_ {};
   size_t total_jobs_ { 0 };
   size_t finished_jobs_ { 0 };
   float estimated_cost_ { 0.0 };
+
+  int base_poller_timeout_ { -1 };
+  int poller_timeout_ { -1 };
 
   ExecutionLoop exec_loop_ {};
   std::vector<std::unique_ptr<ExecutionEngine>> exec_engines_ {};
@@ -48,6 +52,7 @@ public:
             const size_t max_jobs,
             const std::vector<ExecutionEnvironment> & execution_environments,
             std::unique_ptr<StorageBackend> && storage_backend,
+            const int base_timeout = -1,
             const bool status_bar = false );
 
   std::vector<std::string> reduce();

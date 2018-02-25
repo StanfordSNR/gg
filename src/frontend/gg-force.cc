@@ -32,6 +32,8 @@ void usage( const char * argv0 )
        << endl
        << "Options:" << endl
        << " -j, --jobs    maximum number of jobs to run in parallel" << endl
+       << " -s, --status  show the status bar for the job" << endl
+       << " -T, --timeout number of seconds before duplicating running jobs" << endl
        << endl
        << "Useful environment variables:" << endl
        << "  GG_SANDBOXED => if set, forces the thunks in a sandbox" << endl
@@ -71,15 +73,17 @@ int main( int argc, char * argv[] )
     const bool ggremote_execution = ( getenv( "GG_REMOTE" ) != NULL );
     size_t max_jobs = thread::hardware_concurrency();
     bool status_bar = false;
+    int timeout = -1;
 
     struct option long_options[] = {
       { "status", no_argument, nullptr, 's' },
       { "jobs", required_argument, nullptr, 'j' },
+      { "timeout", required_argument, nullptr, 'T' },
       { nullptr, 0, nullptr, 0 },
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "sj:", long_options, NULL );
+      const int opt = getopt_long( argc, argv, "sj:T:", long_options, NULL );
 
       if ( opt == -1 ) {
         break;
@@ -93,6 +97,10 @@ int main( int argc, char * argv[] )
 
       case 'j':
         max_jobs = stoul( optarg );
+        break;
+
+      case 'T':
+        timeout = stoi( optarg );
         break;
 
       default:
@@ -153,8 +161,11 @@ int main( int argc, char * argv[] )
       storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
     }
 
-    Reductor reductor { target_hashes, max_jobs, execution_environments,
-                        move( storage_backend ), status_bar };
+    Reductor reductor { target_hashes, max_jobs,
+                        execution_environments,
+                        move( storage_backend ),
+                        ( timeout > 0 ) ? ( timeout * 1000 ) : -1,
+                        status_bar };
 
     reductor.upload_dependencies();
     vector<string> reduced_hashes = reductor.reduce();

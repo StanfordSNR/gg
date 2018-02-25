@@ -57,7 +57,7 @@ public:
                            SocketType & socket,
                            const HTTPRequest & request );
 
-  Poller::Result loop_once();
+  Poller::Result loop_once( const int timeout_ms = -1 );
 };
 
 #endif /* LOOP_HH */

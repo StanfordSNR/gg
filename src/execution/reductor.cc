@@ -78,10 +78,12 @@ void print_gg_message( const string & tag, const string & message )
 Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
                     const vector<ExecutionEnvironment> & execution_environments,
                     std::unique_ptr<StorageBackend> && storage_backend,
-                    const bool status_bar )
+                    const int base_timeout, const bool status_bar )
   : target_hashes_( target_hashes ),
     remaining_targets_( target_hashes_.begin(), target_hashes_.end() ),
     max_jobs_( max_jobs ), status_bar_( status_bar ),
+    base_poller_timeout_( base_timeout ),
+    poller_timeout_( base_timeout ),
     storage_backend_( move( storage_backend ) )
 {
   unordered_set<string> all_o1_deps;
@@ -204,6 +206,8 @@ void Reductor::finalize_execution( const string & old_hash,
                                    const string & new_hash,
                                    const float cost )
 {
+  running_jobs_.erase( old_hash );
+
   Optional<unordered_set<string>> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
   estimated_cost_ += cost;
 
@@ -228,19 +232,21 @@ vector<string> Reductor::reduce()
       else {
         const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
 
-        bool executed = false;
+        bool executing = false;
 
         for ( auto & exec_engine : exec_engines_ ) {
           if ( exec_engine->can_execute( thunk ) ) {
             exec_engine->force_thunk( thunk_hash, thunk, exec_loop_ );
-            executed = true;
+            executing = true;
             break;
           }
         }
 
-        if ( not executed ) {
+        if ( not executing ) {
           throw runtime_error( "no execution engine could execute " + thunk_hash );
         }
+
+        running_jobs_.insert( thunk_hash );
       }
 
       job_queue_.pop_front();
@@ -250,11 +256,29 @@ vector<string> Reductor::reduce()
       print_status();
     }
 
-    const auto poll_result = exec_loop_.loop_once();
+    const auto poll_result = exec_loop_.loop_once( poller_timeout_ );
+
+    if ( poll_result.result == Poller::Result::Type::Timeout
+         and base_poller_timeout_ > 0 ) {
+      /* poller has timed out. it means that during the alloted time
+      no job was finished. So, we add every running job to the queue! */
+      print_gg_message( "info", "no responses during last "
+                        + to_string( poller_timeout_ / 1000 )
+                        + "s, duplicating " + to_string( running_jobs_.size() )
+                        + " job(s)." );
+
+      job_queue_.insert( job_queue_.end(),
+                         running_jobs_.begin(), running_jobs_.end() );
+      poller_timeout_ = max( poller_timeout_ * base_poller_timeout_,
+                             poller_timeout_ );
+    }
+    else {
+      poller_timeout_ = base_poller_timeout_; /* return to the roots */
+    }
 
     if ( is_finished() or poll_result.result == Poller::Result::Type::Exit ) {
       if ( not is_finished() ) {
-        throw runtime_error( "poller failure happened, job is not finished" );
+        throw runtime_error( "unhandled poller failure happened, job is not finished" );
       }
 
       vector<string> final_hashes;

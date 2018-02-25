@@ -31,9 +31,9 @@ ExecutionLoop::ExecutionLoop()
   );
 }
 
-Poller::Result ExecutionLoop::loop_once()
+Poller::Result ExecutionLoop::loop_once( const int timeout_ms )
 {
-  return poller_.poll( -1 );
+  return poller_.poll( timeout_ms );
 }
 
 uint64_t ExecutionLoop::add_child_process( const string & tag,
