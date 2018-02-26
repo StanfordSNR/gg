@@ -287,7 +287,7 @@ int main( int argc, char * argv[] )
     print_nested_exception( e );
     return to_underlying( JobStatus::UploadOutputFailure );
   }
-  catch ( const exception &  e ) {
+  catch ( const exception & e ) {
     print_exception( argv[ 0 ], e );
     return to_underlying( JobStatus::OperationalFailure );
   }

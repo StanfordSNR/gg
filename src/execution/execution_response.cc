@@ -2,6 +2,7 @@
 
 #include "execution_response.hh"
 
+#include <iostream>
 #include <stdexcept>
 #include <google/protobuf/util/json_util.h>
 
@@ -16,8 +17,9 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
 
   JsonParseOptions parse_options;
   gg::protobuf::ExecutionResponse execution_response_proto;
-  
+
   if ( not JsonStringToMessage( message, &execution_response_proto ).ok() ) {
+    cerr << "invalid response: " << message << endl;
     response.status = JobStatus::OperationalFailure;
     return response;
   }
