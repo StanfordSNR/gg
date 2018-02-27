@@ -231,13 +231,14 @@ string Thunk::executable_hash() const
 }
 
 void Thunk::update_infile( const string & old_hash, const string & new_hash,
-                           const size_t new_order, const off_t new_size )
+                           const size_t new_order, const off_t new_size,
+                           const size_t index )
 {
   bool found = false;
 
   /* First, update the infile entry... */
 
-  for ( size_t i = 0; i < infiles_.size(); i++ ) {
+  for ( size_t i = index; i < infiles_.size(); i++ ) {
     if ( infiles_[ i ].content_hash() == old_hash ) {
       InFile new_infile { infiles_[ i ].filename(), infiles_[ i ].real_filename(),
                           new_hash, new_order, new_size, infiles_[ i ].type() };
@@ -245,6 +246,7 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
       infiles_[ i ] = new_infile;
       order_ = compute_order();
       found = true;
+      break;
     }
   }
 

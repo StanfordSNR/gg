@@ -6,6 +6,7 @@
 #include <vector>
 #include <functional>
 #include <unordered_map>
+#include <limits>
 #include <sys/types.h>
 #include <crypto++/base64.h>
 #include <crypto++/files.h>
@@ -152,7 +153,8 @@ namespace gg {
       void update_infile( const std::string & old_hash,
                           const std::string & new_hash,
                           const size_t new_order,
-                          const off_t new_size );
+                          const off_t new_size,
+                          const size_t index = 0 );
 
       size_t infiles_size( const bool include_executables = true ) const;
 
