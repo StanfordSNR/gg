@@ -21,6 +21,7 @@
 #include "digest.hh"
 #include "util.hh"
 #include "execution_response.hh"
+#include "thunk_writer.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -30,10 +31,39 @@ const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const string temp_dir_template = "/tmp/thunk-execute";
 const string temp_file_template = "/tmp/thunk-file";
 
-string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
+string execute_thunk( const Thunk & original_thunk,
+                      const string & original_hash )
 {
+  Thunk thunk = original_thunk;
+  string thunk_hash = original_hash;
+
   if ( thunk.order() != 1 ) {
-    throw runtime_error( "thunk is not executable (order != 1)" );
+    /* Let's see if we can redudce this thunk to an order one thunk by updating
+    the infiles */
+    const vector<InFile> new_infiles = thunk.infiles();
+
+    for ( size_t i = 0; i < new_infiles.size(); i++ ) {
+      if ( new_infiles[ i ].order() != 0 ) {
+        /* let's check if we have a reduction of this infile */
+        auto result = gg::cache::check( new_infiles[ i ].content_hash() );
+
+        if ( not result.initialized() or result->order != 0 ) {
+          throw runtime_error( "thunk is not order-1 and cannot be "
+                               "reduced to an order-1 thunk" );
+        }
+
+        thunk.update_infile( new_infiles[ i ].content_hash(),
+                             result->hash, result->order,
+                             gg::hash::extract_size( result->hash ), i );
+      }
+    }
+
+    thunk_hash = ThunkWriter::write_thunk( thunk );
+    cerr << "order-" << original_thunk.order() << " thunk ("
+         << original_hash << ") reduced to order-" << thunk.order()
+         << " thunk (" << thunk_hash << ")." << endl;
+
+    assert( thunk.order() == 1 );
   }
 
   /* when executing the thunk, we create a temp directory, and execute the thunk
@@ -122,6 +152,12 @@ string execute_thunk( const Thunk & thunk, const std::string & thunk_hash )
     roost::move_file( outfile, outfile_gg );
   } else {
     roost::remove( outfile );
+  }
+
+  // CREATING CACHE ENTRIES
+  gg::cache::insert( original_hash, outfile_hash );
+  if ( original_hash != thunk_hash ) {
+    gg::cache::insert( thunk_hash, outfile_hash );
   }
 
   return outfile_hash;
@@ -267,7 +303,6 @@ int main( int argc, char * argv[] )
     }
 
     string output_hash = execute_thunk( thunk, thunk_hash );
-    gg::cache::insert( thunk_hash, output_hash );
 
     if ( put_output ) {
       upload_output( storage_backend, output_hash );
