@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <regex>
 #include "path.hh"
 
 using namespace std;
@@ -20,11 +21,15 @@ ThunkPlaceholder::ThunkPlaceholder( const string & hash,
 
 void ThunkPlaceholder::write( const string & filename ) const
 {
+  regex so_pattern { ".+\\.so[\\.\\d+]+$" };
+  smatch match;
+
   /* guess placeholder type based on filename extension */
   const auto pos = filename.find_last_of( '.' );
   const string extension = filename.substr( pos + 1 );
-  if ( extension == "so" or extension == "a" or extension == "o"
-       or extension == "s" or extension == "S" ) {
+  if ( extension == "so" or extension == "a" or extension == "o" or
+       extension == "s" or extension == "S" or
+       regex_match( filename, match, so_pattern ) ) {
     write( filename, Type::LinkerScript );
   } else {
     write( filename, Type::ShellScript );
