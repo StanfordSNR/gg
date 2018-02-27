@@ -28,7 +28,7 @@ void ThunkPlaceholder::write( const string & filename ) const
   const auto pos = filename.find_last_of( '.' );
   const string extension = filename.substr( pos + 1 );
   if ( extension == "so" or extension == "a" or extension == "o" or
-       extension == "s" or extension == "S" or
+       extension == "s" or extension == "S" or extension == "sho" or
        regex_match( filename, match, so_pattern ) ) {
     write( filename, Type::LinkerScript );
   } else {
