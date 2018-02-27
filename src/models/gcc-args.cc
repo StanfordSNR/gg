@@ -99,6 +99,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     { GCCOption::mno_red_zone,      "mno-red-zone",      no_argument, false, 'X' },
     { GCCOption::msoft_float,       "msoft-float",       no_argument, false, 'X' },
     { GCCOption::dumpversion,       "dumpversion",       no_argument, false, 'X' },
+    { GCCOption::dumpmachine,       "dumpmachine",       no_argument, false, 'X' },
 
     { GCCOption::mskip_rax_setup,   "mskip-rax-setup",   no_argument, false, 'X' },
     { GCCOption::msse4_2,           "msse4.2",           no_argument, false, 'X' },

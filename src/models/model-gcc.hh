@@ -76,7 +76,7 @@ enum class GCCOption
 
   print_file_name,
 
-  dM, rdynamic, dumpversion,
+  dM, rdynamic, dumpversion, dumpmachine
 };
 
 struct GCCOptionData;

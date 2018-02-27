@@ -302,7 +302,8 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
   }
 
   if ( arguments_.option_argument( GCCOption::print_file_name ).initialized() or
-       arguments_.option_argument( GCCOption::dM ).initialized() ) {
+       arguments_.option_argument( GCCOption::dM ).initialized() or
+       arguments_.option_argument( GCCOption::dumpmachine ).initialized()  ) {
     // just run gcc for this
     cerr << "\u2570\u257c special option is present, executing gcc..." << endl;
     exec_original_gcc();
