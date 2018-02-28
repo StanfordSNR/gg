@@ -224,7 +224,7 @@ void upload_output( unique_ptr<StorageBackend> & storage_backend,
 
 void usage( const char * argv0 )
 {
-  cerr << "Usage: " << argv0 << "[options] THUNK-HASH" << endl
+  cerr << "Usage: " << argv0 << "[options] THUNK-HASH..." << endl
   << endl
   << "Options: " << endl
   << " -g, --get-dependencies  Fetch the missing dependencies from the remote storage" << endl
@@ -274,36 +274,47 @@ int main( int argc, char * argv[] )
       }
     }
 
+    vector<string> thunk_hashes;
+
+    for ( int i = optind; i < argc; i++ ) {
+      thunk_hashes.push_back( argv[ i ] );
+    }
+
+    if ( thunk_hashes.size() == 0 ) {
+      usage( argv[ 0 ] );
+      return to_underlying( JobStatus::OperationalFailure );
+    }
+
     gg::models::init();
 
-    string thunk_hash { argv[ optind ] };
+    for ( const string & thunk_hash : thunk_hashes ) {
+      /* take out an advisory lock on the thunk, in case
+         other gg-execute processes are running at the same time */
+      const string thunk_path = gg::paths::blob_path( thunk_hash ).string();
+      FileDescriptor raw_thunk { CheckSystemCall( "open( " + thunk_path + " )",
+                                                  open( thunk_path.c_str(), O_RDONLY ) ) };
+      raw_thunk.block_for_exclusive_lock();
 
-    /* take out an advisory lock on the thunk, in case
-       other gg-execute processes are running at the same time */
-    const string thunk_path = gg::paths::blob_path( thunk_hash ).string();
-    FileDescriptor raw_thunk { CheckSystemCall( "open( " + thunk_path + " )",
-                                                open( thunk_path.c_str(), O_RDONLY ) ) };
-    raw_thunk.block_for_exclusive_lock();
+      ThunkReader thunk_reader { thunk_path };
+      Thunk thunk = thunk_reader.read_thunk();
 
-    ThunkReader thunk_reader { thunk_path };
-    Thunk thunk = thunk_reader.read_thunk();
+      if ( get_dependencies or put_output ) {
+        storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
+      }
 
-    if ( get_dependencies or put_output ) {
-      storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
-    }
+      if ( cleanup ) {
+        do_cleanup( thunk );
+      }
 
-    if ( cleanup ) {
-      do_cleanup( thunk );
-    }
+      if ( get_dependencies ) {
+        fetch_dependencies( storage_backend, thunk );
+      }
 
-    if ( get_dependencies ) {
-      fetch_dependencies( storage_backend, thunk );
-    }
+      string output_hash = execute_thunk( thunk );
 
-    string output_hash = execute_thunk( thunk );
-
-    if ( put_output ) {
-      upload_output( storage_backend, output_hash );
+      if ( put_output ) {
+        upload_output( storage_backend, output_hash );
+      }
     }
 
     return to_underlying( JobStatus::Success );
