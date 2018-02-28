@@ -211,9 +211,13 @@ bool Thunk::operator==( const Thunk & other ) const
          ( order_ == other.order_ );
 }
 
-string Thunk::hash() const
+string Thunk::hash()
 {
-  return digest::sha256( ThunkWriter::serialize_thunk( *this ) );
+  if ( not hash_.initialized() ) {
+    hash_.reset( digest::sha256( ThunkWriter::serialize_thunk( *this ) ) );
+  }
+
+  return *hash_;
 }
 
 string Thunk::executable_hash() const
@@ -239,6 +243,8 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
                            const size_t new_order, const off_t new_size,
                            const size_t index )
 {
+  hash_.clear();
+
   bool found = false;
 
   /* First, update the infile entry... */

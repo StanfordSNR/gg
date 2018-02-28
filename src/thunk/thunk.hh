@@ -11,6 +11,7 @@
 #include <crypto++/base64.h>
 #include <crypto++/files.h>
 
+#include "optional.hh"
 #include "sandbox.hh"
 #include "path.hh"
 #include "gg.pb.h"
@@ -119,6 +120,8 @@ namespace gg {
       std::vector<InFile> infiles_;
       size_t order_;
 
+      Optional<std::string> hash_ {};
+
       size_t compute_order() const;
       std::string filename_to_hash( const std::string & filename ) const;
 
@@ -148,7 +151,7 @@ namespace gg {
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
 
-      std::string hash() const;
+      std::string hash();
       std::string executable_hash() const;
 
       void update_infile( const std::string & old_hash,
