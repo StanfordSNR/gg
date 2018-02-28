@@ -148,6 +148,7 @@ namespace gg {
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
 
+      std::string hash() const;
       std::string executable_hash() const;
 
       void update_infile( const std::string & old_hash,

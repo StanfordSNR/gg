@@ -211,6 +211,11 @@ bool Thunk::operator==( const Thunk & other ) const
          ( order_ == other.order_ );
 }
 
+string Thunk::hash() const
+{
+  return digest::sha256( ThunkWriter::serialize_thunk( *this ) );
+}
+
 string Thunk::executable_hash() const
 {
   vector<string> executable_hashes;
