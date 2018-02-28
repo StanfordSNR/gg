@@ -59,7 +59,7 @@ void check_rlimit_nofile( const size_t max_jobs )
 
 int main( int argc, char * argv[] )
 {
-  try {
+  //try {
     if ( argc <= 0 ) {
       abort();
     }
@@ -179,9 +179,9 @@ int main( int argc, char * argv[] )
     }
 
     return EXIT_SUCCESS;
-  }
-  catch ( const exception &  e ) {
-    print_exception( argv[ 0 ], e );
-    return EXIT_FAILURE;
-  }
+  // }
+  // catch ( const exception &  e ) {
+  //   print_exception( argv[ 0 ], e );
+  //   return EXIT_FAILURE;
+  // }
 }

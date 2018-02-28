@@ -36,17 +36,25 @@ message LambdaInFile {
   bool executable = 2;
 }
 
-message ExecutionRequest {
+message RequestItem {
   string thunk_hash = 1;
   string thunk_data = 2;
-  string storage_backend = 3;
 }
 
-message ExecutionResponse {
+message ExecutionRequest {
+  repeated RequestItem thunks = 1;
+  string storage_backend = 2;
+}
+
+message ResponseItem {
   string thunk_hash = 1;
   string output_hash = 2;
   uint64 output_size = 3;
   bool executable_output = 4;
-  uint32 return_code = 5;
-  string output = 6;
+}
+
+message ExecutionResponse {
+  repeated ResponseItem executed_thunks = 1;
+  uint32 return_code = 2;
+  string output = 3;
 }

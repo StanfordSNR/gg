@@ -21,13 +21,14 @@ from ggpaths import GGPaths, GGCache
 from common import is_executable, make_executable, run_command
 
 def handler(event, context):
-    thunk_hash = event['thunkHash']
     os.environ['GG_STORAGE_URI'] = event['storageBackend']
+    thunks = event['thunks']
 
-    # Write thunk to disk
-    thunk_data = b64decode(event['thunkData'])
-    with open(GGPaths.blob_path(thunk_hash), "wb") as fout:
-        fout.write(thunk_data)
+    # Write thunks to disk
+    for thunk_item in thunks:
+        thunk_data = b64decode(thunk_item['thunkData'])
+        with open(GGPaths.blob_path(thunk_item['thunkHash']), "wb") as fout:
+            fout.write(thunk_data)
 
     # Move executables from Lambda package to .gg directory
     executables_dir = os.path.join(curdir, 'executables')
@@ -45,21 +46,33 @@ def handler(event, context):
 
     # Execute the thunk, and upload the result
     return_code, output = run_command(["gg-execute-static",
-         "--get-dependencies", "--put-output", "--cleanup", thunk_hash])
+         "--get-dependencies", "--put-output", "--cleanup",] +
+         [x['thunkHash'] for x in thunks])
 
-    result = GGCache.check(thunk_hash)
+    result_hashes = []
 
-    if return_code or not result:
+    for thunk_item in thunks:
+        result = GGCache.check(thunk_item['thunkHash'])
+        result_hashes += [result]
+
+    if return_code or (None in result_hashes):
         return {
             'returnCode': return_code,
             'output': output
         }
 
-    executable = is_executable(GGPaths.blob_path(result))
+    executed_thunks = []
+
+    for i in range(len(thunks)):
+        executed_thunks += [{
+            'thunkHash': thunks[i]['thunkHash'],
+            'outputHash': result_hashes[i],
+            'outputSize': os.path.getsize(GGPaths.blob_path(result_hashes[i])),
+            'executableOutput': is_executable(GGPaths.blob_path(result_hashes[i]))
+        }]
 
     return {
-        'thunkHash': thunk_hash,
-        'outputHash': result,
-        'outputSize': os.path.getsize(GGPaths.blob_path(result)),
-        'executableOutput': executable
+        'returnCode': 0,
+        'output': '',
+        'executedThunks': executed_thunks
     }

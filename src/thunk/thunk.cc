@@ -114,17 +114,26 @@ int Thunk::execute() const
   return retval;
 }
 
-std::string Thunk::execution_payload( const Thunk & thunk )
+string Thunk::execution_payload( const Thunk & thunk )
 {
-  string base64_thunk;
+  return Thunk::execution_payload( vector<Thunk>{ thunk } );
+}
 
-  StringSource s( ThunkWriter::serialize_thunk( thunk ), true,
-                new Base64Encoder( new StringSink( base64_thunk ), false ) );
-
+string Thunk::execution_payload( const vector<Thunk> & thunks )
+{
   protobuf::ExecutionRequest execution_request;
 
-  execution_request.set_thunk_hash( thunk.hash() );
-  execution_request.set_thunk_data( base64_thunk );
+  for ( const Thunk & thunk : thunks ) {
+    string base64_thunk;
+    StringSource s( ThunkWriter::serialize_thunk( thunk ), true,
+                  new Base64Encoder( new StringSink( base64_thunk ), false ) );
+
+    protobuf::RequestItem request_item;
+    request_item.set_thunk_data( base64_thunk );
+    request_item.set_thunk_hash( thunk.hash() );
+    *execution_request.add_thunks() = request_item;
+  }
+
   execution_request.set_storage_backend( gg::remote::storage_backend_uri() );
 
   JsonPrintOptions print_options;

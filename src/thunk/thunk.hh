@@ -134,6 +134,7 @@ namespace gg {
       int execute() const;
 
       static std::string execution_payload( const Thunk & thunk );
+      static std::string execution_payload( const std::vector<Thunk> & thunks );
 
       const std::string & outfile() const { return outfile_; }
       const Function & function() const { return function_; }

@@ -9,6 +9,7 @@
 #include "gg.pb.h"
 
 using namespace std;
+using namespace gg;
 using namespace google::protobuf::util;
 
 ExecutionResponse ExecutionResponse::parse_message( const std::string & message )
@@ -31,10 +32,14 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
     return response;
   }
 
-  response.thunk_hash = execution_response_proto.thunk_hash();
-  response.output_hash = execution_response_proto.output_hash();
-  response.output_size = execution_response_proto.output_size();
-  response.is_executable = execution_response_proto.executable_output();
+  if ( execution_response_proto.executed_thunks_size() != 1 ) {
+    throw runtime_error( "current implementation only supports one thunk execution per response" );
+  }
+
+  response.thunk_hash = execution_response_proto.executed_thunks( 0 ).thunk_hash();
+  response.output_hash = execution_response_proto.executed_thunks( 0 ).output_hash();
+  response.output_size = execution_response_proto.executed_thunks( 0 ).output_size();
+  response.is_executable = execution_response_proto.executed_thunks( 0 ).executable_output();
 
   return response;
 }
