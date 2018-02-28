@@ -31,11 +31,9 @@ const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const string temp_dir_template = "/tmp/thunk-execute";
 const string temp_file_template = "/tmp/thunk-file";
 
-string execute_thunk( const Thunk & original_thunk,
-                      const string & original_hash )
+string execute_thunk( const Thunk & original_thunk )
 {
   Thunk thunk = original_thunk;
-  string thunk_hash = original_hash;
 
   if ( thunk.order() != 1 ) {
     /* Let's see if we can redudce this thunk to an order one thunk by updating
@@ -58,10 +56,10 @@ string execute_thunk( const Thunk & original_thunk,
       }
     }
 
-    thunk_hash = ThunkWriter::write_thunk( thunk );
+    thunk.set_hash( ThunkWriter::write_thunk( thunk ) );
     cerr << "order-" << original_thunk.order() << " thunk ("
-         << original_hash << ") reduced to order-" << thunk.order()
-         << " thunk (" << thunk_hash << ")." << endl;
+         << original_thunk.hash() << ") reduced to order-" << thunk.order()
+         << " thunk (" << thunk.hash() << ")." << endl;
 
     assert( thunk.order() == 1 );
   }
@@ -98,11 +96,11 @@ string execute_thunk( const Thunk & original_thunk,
   if ( not sandboxed ) {
     ChildProcess process {
       thunk.outfile(),
-      [thunk, thunk_hash, exec_dir_path, &outfile_dir]() {
+      [thunk, exec_dir_path, &outfile_dir]() {
         roost::create_directories( exec_dir_path );
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
         roost::create_directories( outfile_dir );
-        return thunk.execute( thunk_hash );
+        return thunk.execute();
       }
     };
 
@@ -120,13 +118,13 @@ string execute_thunk( const Thunk & original_thunk,
     }
   }
   else {
-    auto allowed_files = thunk.get_allowed_files( thunk_hash );
+    auto allowed_files = thunk.get_allowed_files();
 
     SandboxedProcess process {
-      "execute(" + thunk_hash.substr( 0, 5 ) + ")",
+      "execute(" + thunk.hash().substr( 0, 5 ) + ")",
       allowed_files,
-      [thunk, thunk_hash]() {
-        return thunk.execute( thunk_hash );
+      [thunk]() {
+        return thunk.execute();
       },
       [exec_dir_path, &outfile_dir] () {
         roost::create_directories( exec_dir_path );
@@ -155,19 +153,19 @@ string execute_thunk( const Thunk & original_thunk,
   }
 
   // CREATING CACHE ENTRIES
-  gg::cache::insert( original_hash, outfile_hash );
-  if ( original_hash != thunk_hash ) {
-    gg::cache::insert( thunk_hash, outfile_hash );
+  gg::cache::insert( original_thunk.hash(), outfile_hash );
+  if ( original_thunk.hash() != thunk.hash() ) {
+    gg::cache::insert( thunk.hash(), outfile_hash );
   }
 
   return outfile_hash;
 }
 
-void do_cleanup( const Thunk & thunk, const std::string & thunk_hash )
+void do_cleanup( const Thunk & thunk )
 {
   unordered_set<string> infile_hashes;
 
-  infile_hashes.emplace( thunk_hash );
+  infile_hashes.emplace( thunk.hash() );
   for ( const InFile & infile : thunk.infiles() ) {
     infile_hashes.emplace( infile.content_hash() );
   }
@@ -295,14 +293,14 @@ int main( int argc, char * argv[] )
     }
 
     if ( cleanup ) {
-      do_cleanup( thunk, thunk_hash );
+      do_cleanup( thunk );
     }
 
     if ( get_dependencies ) {
       fetch_dependencies( storage_backend, thunk );
     }
 
-    string output_hash = execute_thunk( thunk, thunk_hash );
+    string output_hash = execute_thunk( thunk );
 
     if ( put_output ) {
       upload_output( storage_backend, output_hash );

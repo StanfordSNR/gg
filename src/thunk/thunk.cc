@@ -40,7 +40,7 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   order_ = compute_order();
 }
 
-int Thunk::execute( const string & thunk_hash ) const
+int Thunk::execute() const
 {
   if ( order_ != 1 ) {
     throw runtime_error( "cannot execute thunk with order != 1" );
@@ -81,7 +81,7 @@ int Thunk::execute( const string & thunk_hash ) const
 
   args.insert( args.begin(), function_.exe() );
 
-  const roost::path thunk_path = gg::paths::blob_path( thunk_hash );
+  const roost::path thunk_path = gg::paths::blob_path( hash() );
 
   // preparing envp
   const vector<string> & f_envars = function_.envars();
@@ -100,7 +100,7 @@ int Thunk::execute( const string & thunk_hash ) const
   int retval;
 
   if ( verbose ) {
-    string exec_string = "+ exec(" + thunk_hash + ") {"
+    string exec_string = "+ exec(" + hash() + ") {"
                        + roost::rbasename( function_.exe() ).string()
                        + "}\n";
 
@@ -114,7 +114,7 @@ int Thunk::execute( const string & thunk_hash ) const
   return retval;
 }
 
-std::string Thunk::execution_payload( const std::string & thunk_hash ) const
+std::string Thunk::execution_payload() const
 {
   string base64_thunk;
 
@@ -123,7 +123,7 @@ std::string Thunk::execution_payload( const std::string & thunk_hash ) const
 
   protobuf::ExecutionRequest execution_request;
 
-  execution_request.set_thunk_hash( thunk_hash );
+  execution_request.set_thunk_hash( hash() );
   execution_request.set_thunk_data( base64_thunk );
   execution_request.set_storage_backend( gg::remote::storage_backend_uri() );
 
@@ -188,19 +188,19 @@ void Thunk::collect_infiles() const
   }
 }
 
-string Thunk::store( const bool create_placeholder ) const
+string Thunk::store( const bool create_placeholder )
 {
   collect_infiles();
 
-  const string thunk_hash = ThunkWriter::write_thunk( *this );
+  set_hash( ThunkWriter::write_thunk( *this ) );
 
   if ( create_placeholder ) {
-    ThunkPlaceholder placeholder { thunk_hash, order(),
-                                   roost::file_size( paths::blob_path( thunk_hash ) ) };
+    ThunkPlaceholder placeholder { hash(), order(),
+                                   roost::file_size( paths::blob_path( hash() ) ) };
     placeholder.write( outfile() );
   }
 
-  return thunk_hash;
+  return hash();
 }
 
 bool Thunk::operator==( const Thunk & other ) const
@@ -211,7 +211,7 @@ bool Thunk::operator==( const Thunk & other ) const
          ( order_ == other.order_ );
 }
 
-string Thunk::hash()
+string Thunk::hash() const
 {
   if ( not hash_.initialized() ) {
     hash_.reset( digest::sha256( ThunkWriter::serialize_thunk( *this ) ) );
@@ -297,7 +297,7 @@ string Thunk::filename_to_hash( const string & filename ) const
 }
 
 unordered_map<string, Permissions>
-Thunk::get_allowed_files( const std::string & thunk_hash ) const
+Thunk::get_allowed_files() const
 {
   unordered_map<string, Permissions> allowed_files;
 
@@ -316,7 +316,7 @@ Thunk::get_allowed_files( const std::string & thunk_hash ) const
   }
 
   allowed_files[ gg::paths::blobs().string() ] = { true, false, false };
-  allowed_files[ gg::paths::blob_path( thunk_hash ).string() ] = { true, false, false };
+  allowed_files[ gg::paths::blob_path( hash() ).string() ] = { true, false, false };
   allowed_files[ outfile() ] = { true, true, false };
 
   return allowed_files;

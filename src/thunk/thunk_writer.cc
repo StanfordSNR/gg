@@ -18,6 +18,7 @@ std::string ThunkWriter::write_thunk( const Thunk & thunk )
 {
   const string serialized_thunk = serialize_thunk( thunk );
   const string thunk_hash = digest::sha256( serialized_thunk );
+  thunk.set_hash( thunk_hash );
 
   if ( not roost::exists( paths::blob_path( thunk_hash ) ) ) {
     atomic_create( serialized_thunk, paths::blob_path( thunk_hash ) );

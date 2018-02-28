@@ -120,7 +120,7 @@ namespace gg {
       std::vector<InFile> infiles_;
       size_t order_;
 
-      Optional<std::string> hash_ {};
+      mutable Optional<std::string> hash_ {};
 
       size_t compute_order() const;
       std::string filename_to_hash( const std::string & filename ) const;
@@ -131,8 +131,8 @@ namespace gg {
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
-      int execute( const std::string & thunk_hash ) const;
-      std::string execution_payload( const std::string & thunk_hash ) const;
+      int execute() const;
+      std::string execution_payload() const;
 
       const std::string & outfile() const { return outfile_; }
       const Function & function() const { return function_; }
@@ -146,12 +146,14 @@ namespace gg {
       /* this function will collect all of the infiles in .gg directory, and
          will store two copies for the thunk, both in the working directory
          and .gg directory. It returns the hash. */
-      std::string store( const bool create_placeholder = true ) const;
+      std::string store( const bool create_placeholder = true );
 
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
 
-      std::string hash();
+      std::string hash() const;
+      void set_hash( const std::string & hash ) const { hash_.reset( hash ); }
+
       std::string executable_hash() const;
 
       void update_infile( const std::string & old_hash,
@@ -165,7 +167,7 @@ namespace gg {
       /* Returns a list of files that can be accessed while executing this
          thunk. */
       std::unordered_map<std::string, Permissions>
-      get_allowed_files( const std::string & thunk_hash ) const;
+      get_allowed_files() const;
     };
   }
 }

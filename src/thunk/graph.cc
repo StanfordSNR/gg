@@ -22,6 +22,7 @@ void DependencyGraph::add_thunk( const string & hash )
 
   ThunkReader thunk_reader { gg::paths::blob_path( hash ).string() };
   Thunk thunk = thunk_reader.read_thunk();
+  thunk.set_hash( hash );
 
   for ( const InFile & infile : thunk.infiles() ) {
     if ( infile.order() > 0 ) {

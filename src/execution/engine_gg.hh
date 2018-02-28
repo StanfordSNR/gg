@@ -14,8 +14,7 @@ private:
 
   size_t running_jobs_ { 0 };
 
-  HTTPRequest generate_request( const gg::thunk::Thunk & thunk,
-                                const std::string & thunk_hash );
+  HTTPRequest generate_request( const gg::thunk::Thunk & thunk );
 
 public:
   GGExecutionEngine( const std::string & address, const uint16_t port,
@@ -25,7 +24,8 @@ public:
       address_( address, port )
   {}
 
-  void force_thunk( const std::string & hash, const gg::thunk::Thunk & thunk, ExecutionLoop & exec_loop ) override;
+  void force_thunk( const gg::thunk::Thunk & thunk,
+                    ExecutionLoop & exec_loop ) override;
   size_t job_count() const override;
 
   bool is_remote() const { return true; }

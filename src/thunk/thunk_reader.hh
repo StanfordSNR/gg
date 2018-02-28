@@ -19,5 +19,5 @@ public:
   ThunkReader( const std::string & filename );
 
   bool is_thunk() const { return is_thunk_; }
-  gg::thunk::Thunk read_thunk();
+  gg::thunk::Thunk read_thunk( const std::string & hash = {} );
 };

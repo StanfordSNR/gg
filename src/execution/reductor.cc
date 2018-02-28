@@ -236,7 +236,7 @@ vector<string> Reductor::reduce()
 
         for ( auto & exec_engine : exec_engines_ ) {
           if ( exec_engine->can_execute( thunk ) ) {
-            exec_engine->force_thunk( thunk_hash, thunk, exec_loop_ );
+            exec_engine->force_thunk( thunk, exec_loop_ );
             executing = true;
             break;
           }

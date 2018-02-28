@@ -35,8 +35,7 @@ public:
       failure_callback_( failure_callback )
   {}
 
-  virtual void force_thunk( const std::string & hash,
-                            const gg::thunk::Thunk & thunk,
+  virtual void force_thunk( const gg::thunk::Thunk & thunk,
                             ExecutionLoop & exec_loop ) = 0;
 
   virtual size_t job_count() const = 0;

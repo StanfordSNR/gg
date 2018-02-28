@@ -13,8 +13,7 @@ private:
 public:
   using ExecutionEngine::ExecutionEngine;
 
-  void force_thunk( const std::string & hash,
-                    const gg::thunk::Thunk & thunk,
+  void force_thunk( const gg::thunk::Thunk & thunk,
                     ExecutionLoop & exec_loop ) override;
   size_t job_count() const override;
 

@@ -12,7 +12,7 @@ ThunkReader::ThunkReader( const string & filename )
     is_thunk_( MAGIC_NUMBER == deserializer_.read_string( MAGIC_NUMBER.length() ) )
 {}
 
-Thunk ThunkReader::read_thunk()
+Thunk ThunkReader::read_thunk( const std::string & hash )
 {
   protobuf::Thunk thunk_proto;
 
@@ -22,5 +22,11 @@ Thunk ThunkReader::read_thunk()
 
   deserializer_.read_protobuf( thunk_proto );
 
-  return { thunk_proto };
+  Thunk thunk { thunk_proto };
+
+  if ( hash.length() > 0 ) {
+    thunk.set_hash( hash );
+  }
+
+  return thunk;
 }
