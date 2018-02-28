@@ -16,7 +16,7 @@ using namespace gg::thunk;
 
 HTTPRequest GGExecutionEngine::generate_request( const Thunk & thunk )
 {
-  string payload = thunk.execution_payload();
+  string payload = Thunk::execution_payload( thunk );
   HTTPRequest request;
   request.set_first_line( "POST /cgi-bin/gg/execute.cgi HTTP/1.1" );
   request.add_header( HTTPHeader{ "Content-Length", to_string( payload.size() ) } );

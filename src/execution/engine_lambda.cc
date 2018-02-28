@@ -27,7 +27,8 @@ HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk )
   }
 
   return LambdaInvocationRequest(
-    credentials_, region_, function_name, thunk.execution_payload(),
+    credentials_, region_, function_name,
+    Thunk::execution_payload( thunk ),
     LambdaInvocationRequest::InvocationType::REQUEST_RESPONSE,
     LambdaInvocationRequest::LogType::NONE
   ).to_http_request();
