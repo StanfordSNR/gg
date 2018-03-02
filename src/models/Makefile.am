@@ -17,7 +17,8 @@ bin_PROGRAMS = model-gcc model-ar model-ranlib model-strip model-ld \
                model-generic
 
 COMMON_TOOLCHAIN_SOURCES = cli_description.hh cli_description.cc \
-                           toolchain.hh toolchain.cc model-gcc.hh
+                           toolchain.hh toolchain.cc model-gcc.hh \
+                           manifest.hh manifest.cc
 
 model_gcc_SOURCES = model-gcc.cc model-gcc-base.cc  model-preprocessor.cc \
                     model-linker.cc model-linker-base.cc gcc-args.cc \
