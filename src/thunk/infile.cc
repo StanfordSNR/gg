@@ -4,15 +4,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "optional.hh"
-#include "thunk.hh"
-#include "thunk_reader.hh"
-#include "digest.hh"
-#include "path.hh"
-#include "placeholder.hh"
-#include "exception.hh"
-#include "ggpaths.hh"
-#include "tokenize.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/placeholder.hh"
+#include "thunk/thunk_reader.hh"
+#include "thunk/thunk.hh"
+#include "util/digest.hh"
+#include "util/exception.hh"
+#include "util/optional.hh"
+#include "util/path.hh"
+#include "util/tokenize.hh"
 
 using namespace std;
 using namespace gg;

@@ -5,10 +5,10 @@
 #include <iostream>
 #include <google/protobuf/text_format.h>
 
-#include "exception.hh"
-#include "thunk.hh"
-#include "thunk_reader.hh"
-#include "thunk_writer.hh"
+#include "thunk/thunk_reader.hh"
+#include "thunk/thunk_writer.hh"
+#include "thunk/thunk.hh"
+#include "util/exception.hh"
 
 using namespace std;
 using namespace google::protobuf;

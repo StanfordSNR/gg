@@ -1,4 +1,7 @@
-#pragma once
+/* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+
+#ifndef AWSV4_SIG_HH
+#define AWSV4_SIG_HH
 
 #include <map>
 #include <string>
@@ -24,3 +27,5 @@ class AWSv4Sig {
                              std::map<std::string, std::string> &headers,
                              const std::string & payload_hash = {});
 };
+
+#endif /* AWSV4_SIG_HH */

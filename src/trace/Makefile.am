@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(srcdir)/../util $(CXX14_FLAGS)
+AM_CPPFLAGS = -I$(srcdir)/. -I$(builddir)/.. -I$(srcdir)/.. $(CXX14_FLAGS)
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
 noinst_LIBRARIES = libggtrace.a libggsyscalltable.a

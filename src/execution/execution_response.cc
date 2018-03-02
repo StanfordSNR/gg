@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <google/protobuf/util/json_util.h>
 
-#include "gg.pb.h"
+#include "protobufs/gg.pb.h"
 
 using namespace std;
 using namespace gg;

@@ -5,10 +5,10 @@
 #include <getopt.h>
 #include <list>
 
-#include "thunk.hh"
-#include "ggpaths.hh"
-#include "path.hh"
 #include "model-gcc.hh"
+#include "thunk/thunk.hh"
+#include "thunk/ggpaths.hh"
+#include "util/path.hh"
 
 #include "toolchain.hh"
 

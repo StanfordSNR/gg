@@ -4,12 +4,12 @@
 
 #include <stdexcept>
 
-#include "ggpaths.hh"
-#include "optional.hh"
-#include "system_runner.hh"
-#include "http_response.hh"
 #include "execution_response.hh"
-#include "units.hh"
+#include "net/http_response.hh"
+#include "thunk/ggpaths.hh"
+#include "util/optional.hh"
+#include "util/system_runner.hh"
+#include "util/units.hh"
 
 using namespace std;
 using namespace gg::thunk;

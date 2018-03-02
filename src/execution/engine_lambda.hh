@@ -7,10 +7,10 @@
 #include <chrono>
 
 #include "engine.hh"
-#include "aws.hh"
-#include "lambda.hh"
-#include "thunk.hh"
-#include "http_request.hh"
+#include "thunk/thunk.hh"
+#include "net/aws.hh"
+#include "net/lambda.hh"
+#include "net/http_request.hh"
 
 class AWSLambdaExecutionEngine : public ExecutionEngine
 {

@@ -6,8 +6,8 @@
 #include <sys/types.h>
 #include <string>
 
-#include "optional.hh"
-#include "file_descriptor.hh"
+#include "util/optional.hh"
+#include "util/file_descriptor.hh"
 
 class ThunkPlaceholder
 {

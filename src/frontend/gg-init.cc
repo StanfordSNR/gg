@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "path.hh"
-#include "exception.hh"
+#include "util/exception.hh"
+#include "util/path.hh"
 
 using namespace std;
 

@@ -1,13 +1,13 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include "digest.hh"
+
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
 #include <crypto++/sha.h>
 #include <crypto++/hex.h>
 #include <crypto++/base64.h>
-
-#include "digest.hh"
 
 using namespace CryptoPP;
 using namespace std;

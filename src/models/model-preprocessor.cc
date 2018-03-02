@@ -11,12 +11,12 @@
 #include <sys/fcntl.h>
 #include <unistd.h>
 
-#include "temp_file.hh"
-#include "system_runner.hh"
-#include "thunk.hh"
-#include "ggpaths.hh"
-#include "thunk_reader.hh"
-#include "exception.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/thunk_reader.hh"
+#include "thunk/thunk.hh"
+#include "util/exception.hh"
+#include "util/system_runner.hh"
+#include "util/temp_file.hh"
 
 using namespace std;
 using namespace boost;

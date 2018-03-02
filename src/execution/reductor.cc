@@ -9,17 +9,17 @@
 #include <numeric>
 #include <chrono>
 
-#include "optional.hh"
-#include "exception.hh"
 #include "engine_local.hh"
 #include "engine_lambda.hh"
 #include "engine_gg.hh"
-#include "status_bar.hh"
-#include "s3.hh"
-#include "timeit.hh"
-#include "ggpaths.hh"
-#include "path.hh"
-#include "digest.hh"
+#include "thunk/ggpaths.hh"
+#include "net/s3.hh"
+#include "tui/status_bar.hh"
+#include "util/optional.hh"
+#include "util/exception.hh"
+#include "util/timeit.hh"
+#include "util/path.hh"
+#include "util/digest.hh"
 
 using namespace std;
 using namespace gg::thunk;

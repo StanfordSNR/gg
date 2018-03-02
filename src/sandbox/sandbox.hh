@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "tracer.hh"
+#include "trace/tracer.hh"
 
 struct Permissions
 {

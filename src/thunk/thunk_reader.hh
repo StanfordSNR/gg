@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "gg.pb.h"
-#include "serialization.hh"
-#include "thunk.hh"
+#include "protobufs/gg.pb.h"
+#include "thunk/thunk.hh"
+#include "util/serialization.hh"
 
 class ThunkReader
 {

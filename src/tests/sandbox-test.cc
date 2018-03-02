@@ -8,8 +8,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "exception.hh"
-#include "sandbox.hh"
+#include "sandbox/sandbox.hh"
+#include "util/exception.hh"
 
 using namespace std;
 

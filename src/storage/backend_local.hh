@@ -4,8 +4,8 @@
 #define STORAGE_BACKEND_LOCAL_HH
 
 #include "backend.hh"
-#include "aws.hh"
-#include "s3.hh"
+#include "net/aws.hh"
+#include "net/s3.hh"
 
 class LocalStorageBackend : public StorageBackend
 {

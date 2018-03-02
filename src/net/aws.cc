@@ -6,7 +6,7 @@
 #include <cassert>
 #include <stdexcept>
 
-#include "util.hh"
+#include "util/util.hh"
 
 using namespace std;
 

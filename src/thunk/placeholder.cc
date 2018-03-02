@@ -5,7 +5,8 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
-#include "path.hh"
+
+#include "util/path.hh"
 
 using namespace std;
 

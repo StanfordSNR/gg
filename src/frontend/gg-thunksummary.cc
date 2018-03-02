@@ -4,12 +4,12 @@
 #include <cstring>
 #include <iostream>
 
-#include "exception.hh"
-#include "syscall.hh"
-#include "thunk.hh"
-#include "thunk_reader.hh"
-#include "ggpaths.hh"
-#include "path.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/thunk_reader.hh"
+#include "thunk/thunk.hh"
+#include "trace/syscall.hh"
+#include "util/exception.hh"
+#include "util/path.hh"
 
 using namespace std;
 using namespace gg::thunk;

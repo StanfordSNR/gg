@@ -2,9 +2,9 @@
 
 #include "loop.hh"
 
-#include "ggpaths.hh"
-#include "exception.hh"
-#include "optional.hh"
+#include "thunk/ggpaths.hh"
+#include "util/exception.hh"
+#include "util/optional.hh"
 
 using namespace std;
 using namespace PollerShortNames;

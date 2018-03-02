@@ -4,7 +4,7 @@
 #define CHUNKED_BODY_PARSER_HH
 
 #include "body_parser.hh"
-#include "exception.hh"
+#include "util/exception.hh"
 
 class ChunkedBodyParser : public BodyParser
 {

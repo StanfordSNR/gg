@@ -7,21 +7,21 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include "exception.hh"
-#include "thunk.hh"
-#include "thunk_reader.hh"
-#include "path.hh"
-#include "ggpaths.hh"
-#include "placeholder.hh"
-#include "util.hh"
-#include "s3.hh"
-#include "digest.hh"
-#include "optional.hh"
-#include "timeit.hh"
-#include "status_bar.hh"
-#include "reductor.hh"
-#include "backend_s3.hh"
-#include "backend_local.hh"
+#include "execution/reductor.hh"
+#include "net/s3.hh"
+#include "storage/backend_local.hh"
+#include "storage/backend_s3.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/placeholder.hh"
+#include "thunk/thunk_reader.hh"
+#include "thunk/thunk.hh"
+#include "tui/status_bar.hh"
+#include "util/digest.hh"
+#include "util/exception.hh"
+#include "util/optional.hh"
+#include "util/path.hh"
+#include "util/timeit.hh"
+#include "util/util.hh"
 
 using namespace std;
 using namespace gg::thunk;

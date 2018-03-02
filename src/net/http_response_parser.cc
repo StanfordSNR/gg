@@ -4,8 +4,8 @@
 #include <cassert>
 
 #include "http_response_parser.hh"
-#include "exception.hh"
 #include "http_response.hh"
+#include "util/exception.hh"
 
 using namespace std;
 

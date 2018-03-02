@@ -1,7 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "thunk_reader.hh"
-#include "serialization.hh"
+#include "thunk/thunk_reader.hh"
+#include "util/serialization.hh"
 
 using namespace std;
 using namespace gg;

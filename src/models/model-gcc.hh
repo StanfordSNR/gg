@@ -7,10 +7,11 @@
 #include <vector>
 #include <unordered_map>
 
-#include "thunk.hh"
+#include "thunk/thunk.hh"
+#include "util/optional.hh"
+#include "util/temp_file.hh"
+
 #include "toolchain.hh"
-#include "optional.hh"
-#include "temp_file.hh"
 
 enum GCCStage
 {

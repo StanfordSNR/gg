@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include "http_message.hh"
-#include "exception.hh"
+#include "util/exception.hh"
 
 using namespace std;
 
@@ -38,7 +38,7 @@ void HTTPMessage::done_with_headers()
 void HTTPMessage::set_expected_body_size( const bool is_known, const size_t value )
 {
     assert( state_ == BODY_PENDING );
-    
+
     expected_body_size_ = make_pair( is_known, value );
 }
 

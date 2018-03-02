@@ -4,8 +4,8 @@
 #define ENGINE_GG_HH
 
 #include "engine.hh"
-#include "thunk.hh"
-#include "http_request.hh"
+#include "net/http_request.hh"
+#include "thunk/thunk.hh"
 
 class GGExecutionEngine : public ExecutionEngine
 {

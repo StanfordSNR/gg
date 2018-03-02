@@ -9,10 +9,10 @@
 #include <iostream>
 #include <algorithm>
 
-#include "system_runner.hh"
-#include "digest.hh"
-#include "ggpaths.hh"
-#include "thunk_reader.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/thunk_reader.hh"
+#include "util/digest.hh"
+#include "util/system_runner.hh"
 
 using namespace std;
 

@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_set>
 
-#include "system_runner.hh"
+#include "util/system_runner.hh"
 
 using namespace std;
 using namespace gg::thunk;

@@ -3,11 +3,11 @@
 #include <iostream>
 #include <string>
 
-#include "lambda.hh"
-#include "socket.hh"
-#include "secure_socket.hh"
-#include "http_request.hh"
-#include "http_response_parser.hh"
+#include "net/http_request.hh"
+#include "net/http_response_parser.hh"
+#include "net/lambda.hh"
+#include "net/secure_socket.hh"
+#include "net/socket.hh"
 
 using namespace std;
 

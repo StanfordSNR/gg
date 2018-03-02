@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "thunk.hh"
+#include "thunk/thunk.hh"
 
 class ThunkWriter
 {

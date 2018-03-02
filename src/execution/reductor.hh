@@ -11,8 +11,8 @@
 
 #include "loop.hh"
 #include "engine.hh"
-#include "graph.hh"
-#include "backend.hh"
+#include "thunk/graph.hh"
+#include "storage/backend.hh"
 
 enum class ExecutionEnvironment { LOCAL, GG_RUNNER, LAMBDA };
 

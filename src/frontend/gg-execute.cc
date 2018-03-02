@@ -8,20 +8,20 @@
 #include <vector>
 #include <unordered_set>
 
-#include "exception.hh"
-#include "thunk.hh"
-#include "path.hh"
-#include "ggpaths.hh"
-#include "child_process.hh"
-#include "temp_file.hh"
-#include "temp_dir.hh"
-#include "thunk_reader.hh"
-#include "backend.hh"
-#include "storage_requests.hh"
-#include "digest.hh"
-#include "util.hh"
-#include "execution_response.hh"
-#include "thunk_writer.hh"
+#include "execution/execution_response.hh"
+#include "net/storage_requests.hh"
+#include "storage/backend.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/thunk_reader.hh"
+#include "thunk/thunk_writer.hh"
+#include "thunk/thunk.hh"
+#include "util/child_process.hh"
+#include "util/digest.hh"
+#include "util/exception.hh"
+#include "util/path.hh"
+#include "util/temp_dir.hh"
+#include "util/temp_file.hh"
+#include "util/util.hh"
 
 using namespace std;
 using namespace gg::thunk;

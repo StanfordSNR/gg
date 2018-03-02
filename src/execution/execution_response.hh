@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <sys/types.h>
 
-#include "optional.hh"
+#include "util/optional.hh"
 
 class FetchDependenciesError : public std::exception {};
 class ExecutionError : public std::exception {};

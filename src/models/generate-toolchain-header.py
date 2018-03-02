@@ -105,8 +105,8 @@ print_hh("""\
 #include <string>
 #include <vector>
 
-#include "thunk.hh"
-#include "path.hh"
+#include "thunk/thunk.hh"
+#include "util/path.hh"
 """)
 
 print_hh('#define TOOLCHAIN_PATH "{}"'.format(BINDIR))

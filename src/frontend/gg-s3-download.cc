@@ -5,9 +5,9 @@
 #include <iostream>
 #include <vector>
 
-#include "s3.hh"
-#include "path.hh"
-#include "ggpaths.hh"
+#include "net/s3.hh"
+#include "thunk/ggpaths.hh"
+#include "util/path.hh"
 
 using namespace std;
 

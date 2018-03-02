@@ -1,7 +1,7 @@
 /* -*-mode:c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 #include "strict_conversions.hh"
-#include "exception.hh"
+#include "util/exception.hh"
 
 using namespace std;
 

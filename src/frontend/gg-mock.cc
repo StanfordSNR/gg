@@ -10,13 +10,13 @@
 #include <unordered_map>
 #include <sys/ptrace.h>
 
-#include "tracer.hh"
-#include "exception.hh"
-#include "placeholder.hh"
-#include "file_descriptor.hh"
-#include "child_process.hh"
-#include "ggpaths.hh"
-#include "system_runner.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/placeholder.hh"
+#include "trace/tracer.hh"
+#include "util/child_process.hh"
+#include "util/exception.hh"
+#include "util/file_descriptor.hh"
+#include "util/system_runner.hh"
 
 using namespace std;
 

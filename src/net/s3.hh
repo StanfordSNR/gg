@@ -11,9 +11,9 @@
 
 #include "aws.hh"
 #include "http_request.hh"
-#include "path.hh"
-#include "optional.hh"
 #include "storage_requests.hh"
+#include "util/path.hh"
+#include "util/optional.hh"
 
 class S3
 {

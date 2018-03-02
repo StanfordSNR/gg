@@ -5,7 +5,7 @@
 #include <linux/netfilter_ipv4.h>
 
 #include "socket.hh"
-#include "exception.hh"
+#include "util/exception.hh"
 
 using namespace std;
 

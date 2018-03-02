@@ -4,7 +4,7 @@
 
 #include "strict_conversions.hh"
 #include "http_request.hh"
-#include "exception.hh"
+#include "util/exception.hh"
 
 using namespace std;
 
@@ -43,4 +43,3 @@ bool HTTPRequest::is_head() const
     /* RFC 2616 5.1.1 says "The method is case-sensitive." */
     return first_line_.substr( 0, 5 ) == "HEAD ";
 }
-

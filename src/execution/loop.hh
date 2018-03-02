@@ -8,13 +8,12 @@
 #include <functional>
 #include <unordered_map>
 
-#include "socket.hh"
-#include "secure_socket.hh"
 #include "connection_context.hh"
-#include "signalfd.hh"
-#include "child_process.hh"
-#include "signalfd.hh"
-#include "poller.hh"
+#include "net/socket.hh"
+#include "net/secure_socket.hh"
+#include "util/signalfd.hh"
+#include "util/child_process.hh"
+#include "util/poller.hh"
 
 class ExecutionLoop
 {

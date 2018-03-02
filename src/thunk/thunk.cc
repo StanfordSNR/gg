@@ -10,12 +10,12 @@
 #include <numeric>
 #include <google/protobuf/util/json_util.h>
 
-#include "system_runner.hh"
-#include "thunk_writer.hh"
-#include "temp_file.hh"
-#include "placeholder.hh"
-#include "digest.hh"
-#include "ggpaths.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/placeholder.hh"
+#include "thunk/thunk_writer.hh"
+#include "util/digest.hh"
+#include "util/system_runner.hh"
+#include "util/temp_file.hh"
 
 using namespace std;
 using namespace gg;

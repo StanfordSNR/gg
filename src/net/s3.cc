@@ -12,8 +12,8 @@
 #include "http_request.hh"
 #include "http_response_parser.hh"
 #include "awsv4_sig.hh"
-#include "exception.hh"
-#include "temp_file.hh"
+#include "util/exception.hh"
+#include "util/temp_file.hh"
 
 using namespace std;
 using namespace storage;

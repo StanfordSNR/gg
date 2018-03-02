@@ -1,7 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include <sys/ioctl.h>
-#include <cmath>
+#include "model-gcc.hh"
+
 #include <vector>
 #include <string>
 #include <tuple>
@@ -11,18 +11,18 @@
 #include <memory>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 #include <getopt.h>
 #include <libgen.h>
+#include <sys/ioctl.h>
 
-#include "exception.hh"
-#include "optional.hh"
-#include "digest.hh"
-#include "temp_file.hh"
-#include "thunk.hh"
-#include "ggpaths.hh"
-#include "system_runner.hh"
-
-#include "model-gcc.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/thunk.hh"
+#include "util/digest.hh"
+#include "util/exception.hh"
+#include "util/optional.hh"
+#include "util/system_runner.hh"
+#include "util/temp_file.hh"
 
 using namespace std;
 using namespace gg::thunk;

@@ -7,7 +7,7 @@
 #include <vector>
 #include <limits>
 
-#include "optional.hh"
+#include "util/optional.hh"
 
 /* See also: http://docopt.org/ */
 

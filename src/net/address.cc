@@ -5,13 +5,12 @@
 #include <memory>
 #include <cassert>
 #include <functional>
-
 #include <netdb.h>
 
 #include "address.hh"
-#include "util.hh"
-#include "exception.hh"
 #include "strict_conversions.hh"
+#include "util/util.hh"
+#include "util/exception.hh"
 
 using namespace std;
 
@@ -82,7 +81,7 @@ Address::Address( const string & node, const string & service, const addrinfo & 
     if ( not resolved_address ) {
         throw runtime_error( "getaddrinfo returned successfully but with no results" );
     }
-  
+
     /* put resolved_address in a wrapper so it will get freed if we have to throw an exception */
     unique_ptr<addrinfo, function<void(addrinfo*)>> wrapped_address
         { resolved_address, []( addrinfo * x ) { freeaddrinfo( x ); } };

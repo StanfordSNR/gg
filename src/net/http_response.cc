@@ -2,12 +2,12 @@
 
 #include <cassert>
 
-#include "tokenize.hh"
 #include "http_response.hh"
-#include "exception.hh"
 #include "mime_type.hh"
 #include "chunked_parser.hh"
 #include "strict_conversions.hh"
+#include "util/exception.hh"
+#include "util/tokenize.hh"
 
 using namespace std;
 

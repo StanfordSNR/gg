@@ -8,8 +8,8 @@
 #include <vector>
 #include <sys/types.h>
 
-#include "path.hh"
-#include "optional.hh"
+#include "util/path.hh"
+#include "util/optional.hh"
 
 namespace gg {
   namespace paths {

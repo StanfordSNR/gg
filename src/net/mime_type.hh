@@ -1,3 +1,5 @@
+/* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+
 #ifndef MIME_TYPE_HH
 #define MIME_TYPE_HH
 

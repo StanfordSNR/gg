@@ -5,10 +5,10 @@
 #include <iostream>
 #include <sys/ptrace.h>
 
-#include "exception.hh"
-#include "syscall.hh"
-#include "child_process.hh"
-#include "tracer.hh"
+#include "trace/syscall.hh"
+#include "trace/tracer.hh"
+#include "util/child_process.hh"
+#include "util/exception.hh"
 
 using namespace std;
 
@@ -36,7 +36,7 @@ int main( int argc, char * argv[] )
                        return execvp( argv[ 1 ], &argv[ 1 ] ); } );
 
     cerr << "Direct child: " << tp.pid() << endl;
-    
+
     TracerFlock tracers { []( TracedThreadInfo &, TracerFlock & )
         {
           //          tcb.syscall_invocation->fetch_arguments();
@@ -63,7 +63,7 @@ int main( int argc, char * argv[] )
     }
 
     cerr << "done.\n";
-    
+
     if ( tp.exit_status() != 0 ) {
       tp.throw_exception();
     }

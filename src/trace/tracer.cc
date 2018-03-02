@@ -14,7 +14,7 @@
 #include <sstream>
 #include <exception>
 
-#include "exception.hh"
+#include "util/exception.hh"
 
 using namespace std;
 

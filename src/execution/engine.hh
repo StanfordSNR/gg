@@ -7,8 +7,8 @@
 #include <functional>
 
 #include "loop.hh"
-#include "thunk.hh"
 #include "execution_response.hh"
+#include "thunk/thunk.hh"
 
 class ExecutionEngine
 {

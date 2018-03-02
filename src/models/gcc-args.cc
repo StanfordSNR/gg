@@ -5,7 +5,7 @@
 #include <iostream>
 #include <getopt.h>
 
-#include "util.hh"
+#include "util/util.hh"
 
 using namespace std;
 

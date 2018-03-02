@@ -1,12 +1,13 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include "invocation.hh"
+
 #include <sstream>
 #include <string>
 #include <sys/ptrace.h>
 #include <climits>
 
-#include "invocation.hh"
-#include "exception.hh"
+#include "util/exception.hh"
 
 using namespace std;
 

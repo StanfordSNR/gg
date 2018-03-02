@@ -11,8 +11,8 @@
 #include <unordered_set>
 #include <mutex>
 
-#include "optional.hh"
-#include "thunk.hh"
+#include "thunk/thunk.hh"
+#include "util/optional.hh"
 
 class DependencyGraph
 {

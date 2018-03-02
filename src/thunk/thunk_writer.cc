@@ -5,10 +5,10 @@
 #include <iostream>
 #include <fstream>
 
-#include "serialization.hh"
-#include "ggpaths.hh"
-#include "path.hh"
-#include "digest.hh"
+#include "thunk/ggpaths.hh"
+#include "util/digest.hh"
+#include "util/path.hh"
+#include "util/serialization.hh"
 
 using namespace std;
 using namespace gg;

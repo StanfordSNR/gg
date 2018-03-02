@@ -5,9 +5,9 @@
 
 #include <string>
 
-#include "secure_socket.hh"
-#include "http_request.hh"
-#include "http_response_parser.hh"
+#include "net/http_request.hh"
+#include "net/http_response_parser.hh"
+#include "net/secure_socket.hh"
 
 struct ConnectionContext
 {

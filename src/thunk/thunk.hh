@@ -11,10 +11,10 @@
 #include <crypto++/base64.h>
 #include <crypto++/files.h>
 
-#include "optional.hh"
-#include "sandbox.hh"
-#include "path.hh"
-#include "gg.pb.h"
+#include "protobufs/gg.pb.h"
+#include "sandbox/sandbox.hh"
+#include "util/optional.hh"
+#include "util/path.hh"
 
 namespace gg {
   namespace thunk {

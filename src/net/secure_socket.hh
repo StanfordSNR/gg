@@ -8,7 +8,7 @@
 #include <openssl/err.h>
 
 #include "socket.hh"
-#include "exception.hh"
+#include "util/exception.hh"
 
 /* error category for OpenSSL */
 class ssl_error_category : public std::error_category

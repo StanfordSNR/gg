@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "optional.hh"
 #include "syscall.hh"
+#include "util/optional.hh"
 
 struct ArgumentValue
 {
@@ -62,7 +62,7 @@ private:
 
   template<typename T>
   void set_syscall_arg( const uint8_t argnum, const T & value ) const;
-  
+
 public:
   SystemCallInvocation( const pid_t pid, const long syscall_no );
 

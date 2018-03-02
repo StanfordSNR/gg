@@ -4,9 +4,9 @@
 
 #include <stdexcept>
 
-#include "ggpaths.hh"
-#include "optional.hh"
-#include "system_runner.hh"
+#include "thunk/ggpaths.hh"
+#include "util/optional.hh"
+#include "util/system_runner.hh"
 
 using namespace std;
 using namespace gg::thunk;

@@ -8,9 +8,8 @@
 
 #include "backend_local.hh"
 #include "backend_s3.hh"
-#include "optional.hh"
-#include "ggpaths.hh"
-#include "tokenize.hh"
+#include "util/optional.hh"
+#include "util/tokenize.hh"
 
 using namespace std;
 

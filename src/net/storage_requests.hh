@@ -5,8 +5,8 @@
 
 #include <string>
 
-#include "optional.hh"
-#include "path.hh"
+#include "util/optional.hh"
+#include "util/path.hh"
 
 namespace storage {
 

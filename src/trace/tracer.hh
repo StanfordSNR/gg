@@ -8,7 +8,7 @@
 
 #include "syscall.hh"
 #include "invocation.hh"
-#include "child_process.hh"
+#include "util/child_process.hh"
 
 struct TracedThreadInfo
 {

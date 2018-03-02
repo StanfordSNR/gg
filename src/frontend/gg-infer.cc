@@ -5,9 +5,9 @@
 #include <iostream>
 #include <string>
 
-#include "util.hh"
-#include "exception.hh"
-#include "ggpaths.hh"
+#include "thunk/ggpaths.hh"
+#include "util/exception.hh"
+#include "util/util.hh"
 
 using namespace std;
 

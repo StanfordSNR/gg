@@ -4,11 +4,11 @@
 #include <cstring>
 #include <iostream>
 
-#include "exception.hh"
-#include "path.cc"
-#include "placeholder.hh"
-#include "ggpaths.hh"
-#include "system_runner.hh"
+#include "thunk/ggpaths.hh"
+#include "thunk/placeholder.hh"
+#include "util/exception.hh"
+#include "util/path.cc"
+#include "util/system_runner.hh"
 
 using namespace std;
 

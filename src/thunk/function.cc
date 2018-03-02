@@ -9,7 +9,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "digest.hh"
+#include "util/digest.hh"
 
 using namespace std;
 using namespace gg;

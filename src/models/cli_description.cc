@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-#include "tokenize.hh"
+#include "util/tokenize.hh"
 
 using namespace std;
 

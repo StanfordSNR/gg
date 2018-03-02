@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 
-#include "s3.hh"
+#include "net/s3.hh"
 
 using namespace std;
 

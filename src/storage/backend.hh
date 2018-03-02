@@ -9,9 +9,9 @@
 #include <memory>
 #include <unordered_map>
 
-#include "path.hh"
-#include "optional.hh"
-#include "storage_requests.hh"
+#include "net/storage_requests.hh"
+#include "util/path.hh"
+#include "util/optional.hh"
 
 typedef std::function<void( const storage::PutRequest & )> PutCallback;
 typedef std::function<void( const storage::GetRequest & )> GetCallback;

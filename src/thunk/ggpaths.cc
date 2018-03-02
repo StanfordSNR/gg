@@ -7,11 +7,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "util.hh"
-#include "file_descriptor.hh"
-#include "exception.hh"
-#include "digest.hh"
-#include "tokenize.hh"
+#include "util/digest.hh"
+#include "util/exception.hh"
+#include "util/file_descriptor.hh"
+#include "util/tokenize.hh"
+#include "util/util.hh"
 
 using namespace std;
 
