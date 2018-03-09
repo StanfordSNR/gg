@@ -13,11 +13,8 @@ using namespace std;
 static const std::string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-force-and-run" };
 static const std::string LIBRARY_DIRECTIVE { "OUTPUT_FORMAT(\"elf64-x86-64\") /*" };
 
-ThunkPlaceholder::ThunkPlaceholder( const string & hash,
-                                    const size_t order,
-                                    const off_t size )
-
-  : content_hash_( hash ), order_( order ), size_( size )
+ThunkPlaceholder::ThunkPlaceholder( const string & hash )
+  : content_hash_( hash )
 {}
 
 void ThunkPlaceholder::write( const string & filename ) const
@@ -47,8 +44,6 @@ void ThunkPlaceholder::write( const string & filename, const Type type ) const
   fout << header
        << endl
        << content_hash_ << " "
-       << order_ << " "
-       << size_
        << "\n" << '*' << '/'
        << endl;
 
@@ -73,16 +68,13 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
   }
 
   string hash;
-  size_t order;
-  off_t size;
-
-  fin >> hash >> order >> size;
+  fin >> hash;
 
   if ( not fin.good() ) {
     throw runtime_error( "failed reading from " + filename );
   }
 
-  return ThunkPlaceholder { hash, order, size };
+  return ThunkPlaceholder { hash };
 }
 
 bool ThunkPlaceholder::is_placeholder( FileDescriptor && fd )

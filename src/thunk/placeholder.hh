@@ -13,19 +13,13 @@ class ThunkPlaceholder
 {
 private:
   std::string content_hash_;
-  size_t order_;
-  off_t size_;
 
 public:
   enum class Type { LinkerScript, ShellScript };
 
-  ThunkPlaceholder( const std::string & content_hash,
-                    const size_t order,
-                    const off_t size );
+  ThunkPlaceholder( const std::string & content_hash );
 
   std::string content_hash() const { return content_hash_; }
-  size_t order() const { return order_; }
-  off_t size() const { return size_; }
 
   void write( const std::string & filename, const Type type ) const;
   void write( const std::string & filename ) const;
