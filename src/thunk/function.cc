@@ -15,8 +15,6 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
-const size_t PATH_MAX_LEN = 128;
-
 Function::Function( const string & hash, const vector<string> & args,
                     const vector<string> & envars )
   : hash_( hash ), args_( args ), envars_( envars )

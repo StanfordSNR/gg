@@ -1,6 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#pragma once
+#ifndef THUNK_HH
+#define THUNK_HH
 
 #include <string>
 #include <vector>
@@ -20,10 +21,8 @@ namespace gg {
   namespace thunk {
 
     static const std::string MAGIC_NUMBER = "##GGTHUNK##";
-
     static const std::string BEGIN_REPLACE = "__GG_BEGIN_REPLACE__";
     static const std::string END_REPLACE = "__GG_END_REPLACE__";
-
     static const std::string GG_HASH_REPLACE = "@@GG_HASH@@";
 
     class Function
@@ -111,3 +110,5 @@ namespace gg {
 
   } /* namespace thunk */
 } /* namespace gg */
+
+#endif /* THUNK_HH */
