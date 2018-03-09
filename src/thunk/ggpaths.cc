@@ -197,7 +197,7 @@ namespace gg {
                                                     open( reduction.string().c_str(), O_RDONLY ) ) };
       const string output_hash = cache_entry.read_exactly( digest::length );
 
-      return ReductionResult { output_hash, 0 };
+      return ReductionResult { output_hash };
     }
 
     void insert( const string & old_hash, const string & new_hash )

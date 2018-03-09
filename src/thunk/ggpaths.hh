@@ -40,8 +40,6 @@ namespace gg {
     struct ReductionResult
     {
       std::string hash;
-      size_t order;
-      /* XXX add this: off_t size; */
     };
 
     Optional<ReductionResult> check( const std::string & thunk_hash );
