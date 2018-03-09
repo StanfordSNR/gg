@@ -33,14 +33,7 @@ namespace gg {
       std::vector<std::string> args_;
       std::vector<std::string> envars_ {};
 
-      void parse_cmd();
-
-      static std::string hash_exe( const std::string & exe );
-
     public:
-      Function( const std::string & exe, const std::vector<std::string> & args,
-                const std::vector<std::string> & envars );
-
       Function( const std::string & hash, const std::vector<std::string> & args,
                 const std::vector<std::string> & envars );
 

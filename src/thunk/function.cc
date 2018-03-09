@@ -17,11 +17,6 @@ using namespace gg::thunk;
 
 const size_t PATH_MAX_LEN = 128;
 
-Function::Function( const string & exe, const vector<string> & args,
-                    const vector<string> & envars )
-  : hash_( InFile::compute_hash( exe ) ), args_( args ), envars_( envars )
-{}
-
 Function::Function( const string & hash, const vector<string> & args,
                     const vector<string> & envars )
   : hash_( hash ), args_( args ), envars_( envars )
