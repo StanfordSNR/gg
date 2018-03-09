@@ -26,65 +26,11 @@ namespace gg {
 
     static const std::string GG_HASH_REPLACE = "@@GG_HASH@@";
 
-    class InFile
-    {
-    public:
-      enum class Type
-      {
-        FILE = 0,
-        EXECUTABLE = 1,
-        DUMMY_DIRECTORY = 2,
-      };
-
-    private:
-      /* name of the file in the thunk */
-      std::string filename_;
-      /* where the actual content is */
-      std::string real_filename_;
-      std::string content_hash_;
-      size_t order_;
-      off_t size_;
-      Type type_ { Type::FILE };
-
-      /* Checks if the real_filename_ is actually a placeholder */
-      void fill_file_info();
-
-    public:
-      InFile( const std::string & filename, const std::string & real_filename = {},
-              const Type type = Type::FILE );
-
-      InFile( const std::string & filename, const std::string & real_filename,
-              const std::string & hash, const size_t order, const off_t size,
-              const Type type = Type::FILE );
-
-      InFile( const gg::protobuf::InFile & infile_proto );
-
-      const std::string & filename() const { return filename_; }
-      const std::string & real_filename() const { return real_filename_; }
-      const std::string & content_hash() const { return content_hash_; }
-      size_t order() const { return order_; }
-      off_t size() const { return size_; }
-      Type type() const { return type_; }
-
-      gg::protobuf::InFile to_protobuf() const;
-
-      bool operator==( const InFile & other ) const;
-      bool operator!=( const InFile & other ) const { return not operator==( other ); }
-
-      static size_t compute_order( const std::string & filename );
-      static std::string compute_hash( const std::string & filename );
-      static off_t compute_size( const std::string & filename );
-
-      /* does the same file exist, with same contents, in the filesystem? */
-      bool matches_filesystem() const;
-    };
-
     class Function
     {
     private:
-      std::string exe_ {};
+      std::string hash_ {};
       std::vector<std::string> args_;
-      std::string exe_hash_ {};
       std::vector<std::string> envars_ {};
 
       void parse_cmd();
@@ -92,17 +38,16 @@ namespace gg {
       static std::string hash_exe( const std::string & exe );
 
     public:
-      Function( const std::string & exe, const std::vector<std::string> & cmd,
+      Function( const std::string & exe, const std::vector<std::string> & args,
                 const std::vector<std::string> & envars );
 
-      Function( const std::string & exe, const std::vector<std::string> & cmd,
-                const std::vector<std::string> & envars, const std::string & hash );
+      Function( const std::string & hash, const std::vector<std::string> & args,
+                const std::vector<std::string> & envars );
 
       Function( const gg::protobuf::Function & func_proto );
 
-      const std::string & exe() const { return exe_; }
+      const std::string & hash() const { return hash_; }
       const std::vector<std::string> & args() const { return args_; }
-      const std::string & hash() const { return exe_hash_; }
       const std::vector<std::string> & envars() const { return envars_; }
 
       gg::protobuf::Function to_protobuf() const;
@@ -111,23 +56,29 @@ namespace gg {
       bool operator!=( const Function & other ) const { return not operator==( other ); }
     };
 
-
     class Thunk
     {
     private:
-      std::string outfile_;
+      struct Data {
+        Data( const std::vector<std::string> & data );
+
+        std::set<std::string> objects; /* prefixed F */
+        std::set<std::string> thunks; /* prefixed T */
+        std::set<std::string> executables; /* prefixed X */
+      };
+
       Function function_;
-      std::vector<InFile> infiles_;
-      size_t order_;
+      Data data_;
+      std::set<std::string> outputs_;
 
       mutable Optional<std::string> hash_ {};
 
-      size_t compute_order() const;
       std::string filename_to_hash( const std::string & filename ) const;
 
     public:
-      Thunk( const std::string & outfile, const Function & function,
-             const std::vector<InFile> & infiles );
+      Thunk( const Function & function,
+             const std::vector<std::string> & data,
+             const std::vector<std::string> & outputs );
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
@@ -136,10 +87,11 @@ namespace gg {
       static std::string execution_payload( const Thunk & thunk );
       static std::string execution_payload( const std::vector<Thunk> & thunks );
 
-      const std::string & outfile() const { return outfile_; }
       const Function & function() const { return function_; }
-      const std::vector<InFile> & infiles() const { return infiles_; }
-      size_t order() const { return order_; }
+      const std::set<std::string> & data_objects() const { return data_.objects; }
+      const std::set<std::string> & data_thunks() const { return data_.thunks; }
+      const std::set<std::string> & data_execs() const { return data_.executables; }
+      const std::set<std::string> & outputs() const { return outputs_; }
 
       gg::protobuf::Thunk to_protobuf() const;
 
@@ -156,14 +108,6 @@ namespace gg {
       std::string hash() const;
       void set_hash( const std::string & hash ) const { hash_.reset( hash ); }
 
-      std::string executable_hash() const;
-
-      void update_infile( const std::string & old_hash,
-                          const std::string & new_hash,
-                          const size_t new_order,
-                          const off_t new_size,
-                          const size_t index = 0 );
-
       size_t infiles_size( const bool include_executables = true ) const;
 
       /* Returns a list of files that can be accessed while executing this
@@ -171,5 +115,6 @@ namespace gg {
       std::unordered_map<std::string, Permissions>
       get_allowed_files() const;
     };
-  }
-}
+
+  } /* namespace thunk */
+} /* namespace gg */

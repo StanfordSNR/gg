@@ -3,31 +3,15 @@ syntax = 'proto3';
 package gg.protobuf;
 
 message Function {
-  string exe = 1;
+  string hash = 1;
   repeated string args = 2;
-  string hash = 3;
-  repeated string envars = 4;
-}
-
-message InFile {
-  string filename = 1;
-  string hash = 2;
-  uint32 order = 3;
-  uint64 size = 4;
-
-  enum Type {
-    FILE = 0;
-    EXECUTABLE = 1;
-    DUMMY_DIRECTORY = 2;
-  }
-
-  Type type = 5;
+  repeated string envars = 3;
 }
 
 message Thunk {
   Function function = 1;
-  repeated InFile infiles = 2;
-  string outfile = 3;
+  repeated string data = 2;
+  repeated string outfiles = 3;
 }
 
 message LambdaInFile {

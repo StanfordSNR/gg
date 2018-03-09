@@ -19,32 +19,29 @@ const size_t PATH_MAX_LEN = 128;
 
 Function::Function( const string & exe, const vector<string> & args,
                     const vector<string> & envars )
-  : exe_( exe ), args_( args ),
-    exe_hash_( InFile::compute_hash( exe ) ), envars_( envars )
+  : hash_( InFile::compute_hash( exe ) ), args_( args ), envars_( envars )
 {}
 
-Function::Function( const string & exe, const vector<string> & args,
-                    const vector<string> & envars, const string & hash )
-  : exe_( exe ), args_( args ), exe_hash_( hash ), envars_( envars )
+Function::Function( const string & hash, const vector<string> & args,
+                    const vector<string> & envars )
+  : hash_( hash ), args_( args ), envars_( envars )
 {}
 
 Function::Function( const protobuf::Function & func_proto )
-  : exe_( func_proto.exe() ),
+  : hash_( func_proto.hash() ),
     args_( func_proto.args().begin(), func_proto.args().end() ),
-    exe_hash_( func_proto.hash() ), envars_( func_proto.envars().begin(), func_proto.envars().end() )
+    envars_( func_proto.envars().begin(), func_proto.envars().end() )
 {}
 
 protobuf::Function Function::to_protobuf() const
 {
   protobuf::Function func;
 
-  func.set_exe( exe_ );
+  func.set_hash( hash_ );
 
   for ( const string & arg : args_ ) {
     func.add_args( arg );
   }
-
-  func.set_hash( exe_hash_ );
 
   for ( const string & envar : envars_ ) {
     func.add_envars( envar );
@@ -55,8 +52,7 @@ protobuf::Function Function::to_protobuf() const
 
 bool Function::operator==( const Function & other ) const
 {
-  return ( exe_ == other.exe_ ) and
+  return ( hash_ == other.hash_ ) and
          ( args_ == other.args_ ) and
-         ( exe_hash_ == other.exe_hash_ ) and
          ( envars_ == other.envars_ );
 }
