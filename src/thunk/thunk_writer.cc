@@ -31,7 +31,7 @@ string ThunkWriter::serialize_thunk( const gg::thunk::Thunk & thunk )
 {
   string ret { MAGIC_NUMBER };
   if ( not thunk.to_protobuf().AppendToString( &ret ) ) {
-    throw runtime_error( "could not serialize thunk for " + thunk.outfile() );
+    throw runtime_error( "could not serialize thunk" );
   }
   return ret;
 }
