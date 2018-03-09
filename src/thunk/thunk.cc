@@ -23,27 +23,50 @@ using namespace gg::thunk;
 using namespace CryptoPP;
 using namespace google::protobuf::util;
 
-Thunk::Thunk( const string & outfile, const Function & function,
-              const vector<InFile> & infiles )
-  : outfile_( roost::path( outfile ).lexically_normal().string() ),
-    function_( function ), infiles_( infiles ), order_( compute_order() )
+template<class Iterator>
+Thunk::Data::Data( Iterator begin, Iterator end )
+{
+  for ( auto it = begin; it != end; it++ ) {
+    if ( not it->length() ) {
+      throw runtime_error( "invalid data hash: " + *it );
+    }
+
+    switch ( (*it)[ 0 ] ) {
+    case 'F': objects.emplace( *it ); break;
+    case 'T': thunks.emplace( *it ); break;
+    case 'X': executables.emplace( *it ); break;
+
+    default: throw runtime_error( "invalid data tag: " + (*it)[ 0 ] );
+    }
+  }
+}
+
+Thunk::Data::Data( const vector<string> & data )
+  : Data( data.cbegin(), data.cend() )
+{}
+
+bool Thunk::Data::operator==( const Data & other ) const
+{
+  return ( objects == other.objects ) and
+         ( executables == other.executables ) and
+         ( thunks == other.thunks );
+}
+
+Thunk::Thunk( const Function & function, const vector<string> & data,
+              const vector<string> & outputs )
+  : function_( function ), data_( data ), outputs_( outputs )
 {}
 
 Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
-  : outfile_( thunk_proto.outfile() ), function_( thunk_proto.function() ),
-    infiles_(), order_()
-{
-  for ( protobuf::InFile infile : thunk_proto.infiles() ) {
-    infiles_.push_back( { infile } );
-  }
-
-  order_ = compute_order();
-}
+  : function_( thunk_proto.function() ),
+    data_( thunk_proto.data().cbegin(), thunk_proto.data().cend() ),
+    outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() )
+{}
 
 int Thunk::execute() const
 {
-  if ( order_ != 1 ) {
-    throw runtime_error( "cannot execute thunk with order != 1" );
+  if ( data_.thunks.size() != 0 ) {
+    throw runtime_error( "cannot execute thunk with unresolved dependencies" );
   }
 
   bool verbose = ( getenv( "GG_VERBOSE" ) != nullptr );
@@ -79,8 +102,6 @@ int Thunk::execute() const
     }
   }
 
-  args.insert( args.begin(), function_.exe() );
-
   const roost::path thunk_path = gg::paths::blob_path( hash() );
 
   // preparing envp
@@ -101,7 +122,7 @@ int Thunk::execute() const
 
   if ( verbose ) {
     string exec_string = "+ exec(" + hash() + ") {"
-                       + roost::rbasename( function_.exe() ).string()
+                       + roost::rbasename( function_.args().front() ).string()
                        + "}\n";
 
     cerr << exec_string;
@@ -148,29 +169,21 @@ string Thunk::execution_payload( const vector<Thunk> & thunks )
   return ret;
 }
 
-size_t Thunk::compute_order() const
-{
-  size_t order = 0;
-
-  for ( const InFile & infile : infiles_ ) {
-    order = max( infile.order(), order );
-  }
-
-  return order + 1;
-}
-
 protobuf::Thunk Thunk::to_protobuf() const
 {
-  protobuf::Thunk thunk;
+  protobuf::Thunk thunk_proto;
 
-  thunk.set_outfile( outfile_ );
-  *thunk.mutable_function() = function_.to_protobuf();
+  *thunk_proto.mutable_function() = function_.to_protobuf();
 
-  for ( const InFile & infile : infiles_ ) {
-    *thunk.add_infiles() = infile.to_protobuf();
+  for ( const string & h : data_.objects ) { thunk_proto.add_data( "F" + h ); }
+  for ( const string & h : data_.thunks ) { thunk_proto.add_data( "T" + h ); }
+  for ( const string & h : data_.executables ) { thunk_proto.add_data( "X" + h ); }
+
+  for ( const string & output : outputs_ ) {
+    thunk_proto.add_outputs( output );
   }
 
-  return thunk;
+  return thunk_proto;
 }
 
 void put_file( const roost::path & src, const roost::path & dst )
@@ -183,41 +196,11 @@ void put_file( const roost::path & src, const roost::path & dst )
   roost::copy_then_rename( src, dst );
 }
 
-void Thunk::collect_infiles() const
-{
-  for ( InFile infile : infiles_ ) {
-    if ( infile.content_hash().length() == 0 ) {
-      /* this is a directory, not a file. no need to copy anything */
-      continue;
-    }
-
-    roost::path source_path = infile.real_filename();
-    roost::path target_path = gg::paths::blob_path( infile.content_hash() );
-    put_file( source_path, target_path );
-  }
-}
-
-string Thunk::store( const bool create_placeholder )
-{
-  collect_infiles();
-
-  set_hash( ThunkWriter::write_thunk( *this ) );
-
-  if ( create_placeholder ) {
-    ThunkPlaceholder placeholder { hash(), order(),
-                                   roost::file_size( paths::blob_path( hash() ) ) };
-    placeholder.write( outfile() );
-  }
-
-  return hash();
-}
-
 bool Thunk::operator==( const Thunk & other ) const
 {
-  return ( outfile_ == other.outfile_ ) and
-         ( function_ == other.function_ ) and
-         ( infiles_ == other.infiles_ ) and
-         ( order_ == other.order_ );
+  return ( function_ == other.function_ ) and
+         ( data_ == other.data_ ) and
+         ( outputs_ == other.outputs_ );
 }
 
 string Thunk::hash() const
@@ -231,32 +214,20 @@ string Thunk::hash() const
 
 string Thunk::executable_hash() const
 {
-  vector<string> executable_hashes;
-
-  for ( const InFile & infile : infiles_ ) {
-    if ( infile.type() == InFile::Type::EXECUTABLE ) {
-      executable_hashes.push_back( infile.content_hash() );
-    }
-  }
-
-  sort( executable_hashes.begin(), executable_hashes.end() );
-
-  const string combined_hashes = accumulate( executable_hashes.begin(),
-                                             executable_hashes.end(),
+  const string combined_hashes = accumulate( data_.executables.begin(),
+                                             data_.executables.end(),
                                              string {} );
 
   return digest::sha256( combined_hashes, true );
 }
 
-void Thunk::update_infile( const string & old_hash, const string & new_hash,
+/* void Thunk::update_infile( const string & old_hash, const string & new_hash,
                            const size_t new_order, const off_t new_size,
                            const size_t index )
 {
   hash_.clear();
 
   bool found = false;
-
-  /* First, update the infile entry... */
 
   for ( size_t i = index; i < infiles_.size(); i++ ) {
     if ( infiles_[ i ].content_hash() == old_hash ) {
@@ -274,7 +245,6 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
     throw runtime_error( "infile doesn't exist: " + old_hash );
   }
 
-  /* Second, let's see if we need to update any argument... */
   vector<string> func_args = function_.args();
   const string source_arg = GG_HASH_REPLACE + old_hash;
   const string target_arg = GG_HASH_REPLACE + new_hash;
@@ -291,42 +261,26 @@ void Thunk::update_infile( const string & old_hash, const string & new_hash,
   if ( changed_args ) {
     function_ = Function { function_.exe(), func_args, function_.envars(), function_.hash() };
   }
-}
-
-string Thunk::filename_to_hash( const string & filename ) const
-{
-  const string normalized_filename = roost::path( filename ).lexically_normal().string();
-  for ( const InFile & infile : infiles_ ) {
-    if ( infile.filename() == normalized_filename ) {
-      return infile.content_hash();
-    }
-  }
-
-  throw runtime_error( "filename " + filename + " not found in thunk" );
-}
+} */
 
 unordered_map<string, Permissions>
 Thunk::get_allowed_files() const
 {
   unordered_map<string, Permissions> allowed_files;
 
-  for ( const InFile & infile : infiles() ) {
-    if ( infile.content_hash().length() ) {
-      if ( infile.type() == InFile::Type::FILE ) {
-        allowed_files[ gg::paths::blob_path( infile.content_hash() ).string() ] = { true, false, false };
-      }
-      else if ( infile.type() == InFile::Type::EXECUTABLE ) {
-        allowed_files[ gg::paths::blob_path( infile.content_hash() ).string() ] = { true, false, true };
-      }
-    }
-    else {
-      allowed_files[ infile.filename() ] = { true, false, false };
-    }
+  for ( const std::string & hash : data_.objects ) {
+    allowed_files[ gg::paths::blob_path( hash ).string() ] = { true, false, false };
+  }
+
+  for ( const std::string & hash : data_.executables ) {
+    allowed_files[ gg::paths::blob_path( hash ).string() ] = { true, false, true };
   }
 
   allowed_files[ gg::paths::blobs().string() ] = { true, false, false };
-  allowed_files[ gg::paths::blob_path( hash() ).string() ] = { true, false, false };
-  allowed_files[ outfile() ] = { true, true, false };
+
+  for ( const string & output : outputs_ ) {
+    allowed_files[ output ] = { true, true, false };
+  }
 
   return allowed_files;
 }
@@ -335,10 +289,13 @@ size_t Thunk::infiles_size( const bool include_executables ) const
 {
   size_t total_size = 0;
 
-  for ( const InFile & infile : infiles_ ) {
-    if ( infile.type() == InFile::Type::FILE or
-         ( include_executables and infile.type() == InFile::Type::EXECUTABLE ) ) {
-      total_size += infile.size();
+  for ( const string & hash : data_.objects ) {
+    total_size += gg::hash::extract_size( hash );
+  }
+
+  if ( include_executables ) {
+    for ( const string & hash : data_.executables ) {
+      total_size += gg::hash::extract_size( hash );
     }
   }
 

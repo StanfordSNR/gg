@@ -54,14 +54,20 @@ namespace gg {
       struct Data {
         Data( const std::vector<std::string> & data );
 
-        std::set<std::string> objects; /* prefixed F */
-        std::set<std::string> thunks; /* prefixed T */
-        std::set<std::string> executables; /* prefixed X */
+        template<class Iterator>
+        Data( Iterator begin, Iterator end );
+
+        std::set<std::string> objects {};     /* prefixed F */
+        std::set<std::string> thunks {};      /* prefixed T */
+        std::set<std::string> executables {}; /* prefixed X */
+
+        bool operator==( const Data & other ) const;
+        bool operator!=( const Data & other ) const { return not operator==( other ); }
       };
 
       Function function_;
       Data data_;
-      std::set<std::string> outputs_;
+      std::vector<std::string> outputs_;
 
       mutable Optional<std::string> hash_ {};
 
@@ -83,22 +89,17 @@ namespace gg {
       const std::set<std::string> & data_objects() const { return data_.objects; }
       const std::set<std::string> & data_thunks() const { return data_.thunks; }
       const std::set<std::string> & data_execs() const { return data_.executables; }
-      const std::set<std::string> & outputs() const { return outputs_; }
+      const std::vector<std::string> & outputs() const { return outputs_; }
 
       gg::protobuf::Thunk to_protobuf() const;
-
-      void collect_infiles() const;
-
-      /* this function will collect all of the infiles in .gg directory, and
-         will store two copies for the thunk, both in the working directory
-         and .gg directory. It returns the hash. */
-      std::string store( const bool create_placeholder = true );
 
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
 
       std::string hash() const;
       void set_hash( const std::string & hash ) const { hash_.reset( hash ); }
+
+      std::string executable_hash() const;
 
       size_t infiles_size( const bool include_executables = true ) const;
 
