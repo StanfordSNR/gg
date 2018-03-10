@@ -128,7 +128,8 @@ int Thunk::execute() const
     cerr << exec_string;
   }
 
-  if ( ( retval = ezexec( gg::paths::blob_path( function_.hash() ).string(), args, envars ) ) < 0 ) {
+  if ( ( retval = ezexec( gg::paths::blob_path( function_.hash() ).string(),
+                          args, envars ) ) < 0 ) {
     throw runtime_error( "execvpe failed" );
   }
 
@@ -221,47 +222,16 @@ string Thunk::executable_hash() const
   return digest::sha256( combined_hashes, true );
 }
 
-/* void Thunk::update_infile( const string & old_hash, const string & new_hash,
-                           const size_t new_order, const off_t new_size,
-                           const size_t index )
+void Thunk::update_infile( const string & old_hash, const string & new_hash,
+                           const bool is_thunk )
 {
   hash_.clear();
+  data_.thunks.erase( old_hash );
+  ( is_thunk ) ? data_.thunks.insert( new_hash )
+               : data_.objects.insert( new_hash );
 
-  bool found = false;
-
-  for ( size_t i = index; i < infiles_.size(); i++ ) {
-    if ( infiles_[ i ].content_hash() == old_hash ) {
-      InFile new_infile { infiles_[ i ].filename(), infiles_[ i ].real_filename(),
-                          new_hash, new_order, new_size, infiles_[ i ].type() };
-
-      infiles_[ i ] = new_infile;
-      order_ = compute_order();
-      found = true;
-      break;
-    }
-  }
-
-  if ( not found ) {
-    throw runtime_error( "infile doesn't exist: " + old_hash );
-  }
-
-  vector<string> func_args = function_.args();
-  const string source_arg = GG_HASH_REPLACE + old_hash;
-  const string target_arg = GG_HASH_REPLACE + new_hash;
-
-  bool changed_args = false;
-
-  for ( size_t i = 0; i < func_args.size(); i++ ) {
-    if ( func_args[ i ] == source_arg ) {
-      func_args[ i ] = target_arg;
-      changed_args = true;
-    }
-  }
-
-  if ( changed_args ) {
-    function_ = Function { function_.exe(), func_args, function_.envars(), function_.hash() };
-  }
-} */
+  /* XXX Update the args. */
+}
 
 unordered_map<string, Permissions>
 Thunk::get_allowed_files() const

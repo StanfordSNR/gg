@@ -88,7 +88,7 @@ namespace gg {
       const Function & function() const { return function_; }
       const std::set<std::string> & data_objects() const { return data_.objects; }
       const std::set<std::string> & data_thunks() const { return data_.thunks; }
-      const std::set<std::string> & data_execs() const { return data_.executables; }
+      const std::set<std::string> & data_executables() const { return data_.executables; }
       const std::vector<std::string> & outputs() const { return outputs_; }
 
       gg::protobuf::Thunk to_protobuf() const;
@@ -96,12 +96,17 @@ namespace gg {
       bool operator==( const Thunk & other ) const;
       bool operator!=( const Thunk & other ) const { return not operator==( other ); }
 
-      std::string hash() const;
       void set_hash( const std::string & hash ) const { hash_.reset( hash ); }
-
+      std::string hash() const;
       std::string executable_hash() const;
 
+      bool executable() const { return ( data_.thunks.size() == 0 ); }
+
       size_t infiles_size( const bool include_executables = true ) const;
+
+      void update_infile( const std::string & old_hash,
+                          const std::string & new_hash,
+                          const bool is_thunk );
 
       /* Returns a list of files that can be accessed while executing this
          thunk. */

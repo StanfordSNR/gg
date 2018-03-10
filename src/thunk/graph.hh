@@ -30,13 +30,12 @@ private:
                           const std::string & new_hash );
 
 public:
-  DependencyGraph();
+  DependencyGraph() {}
 
   void add_thunk( const std::string & hash );
 
   Optional<std::unordered_set<std::string>>
-  force_thunk( const std::string & old_hash,
-               const std::string & new_hash );
+  force_thunk( const std::string & old_hash, const std::string & new_hash );
 
   const std::unordered_set<std::string> &
   order_zero_dependencies() const { return order_zero_dependencies_; }

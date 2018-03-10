@@ -11,9 +11,6 @@
 using namespace std;
 using namespace gg::thunk;
 
-DependencyGraph::DependencyGraph()
-{}
-
 void DependencyGraph::add_thunk( const string & hash )
 {
   if ( thunks_.count( hash ) > 0 ) {
@@ -24,25 +21,17 @@ void DependencyGraph::add_thunk( const string & hash )
   Thunk thunk = thunk_reader.read_thunk();
   thunk.set_hash( hash );
 
-  for ( const InFile & infile : thunk.infiles() ) {
-    if ( infile.order() > 0 ) {
-      add_thunk( infile.content_hash() );
-      referenced_thunks_[ infile.content_hash() ].insert( hash );
-    }
-    else {
-      switch ( infile.type() ) {
-      case InFile::Type::FILE:
-        order_zero_dependencies_.insert( infile.content_hash() );
-        break;
+  for ( const string & h : thunk.data_objects() ) {
+    order_zero_dependencies_.insert( h );
+  }
 
-      case InFile::Type::EXECUTABLE:
-        executable_dependencies_.insert( infile.content_hash() );
-        break;
+  for ( const string & h : thunk.data_executables() ) {
+    executable_dependencies_.insert( h );
+  }
 
-      default:
-        break;
-      }
-    }
+  for ( const string & h : thunk.data_thunks() ) {
+    add_thunk( h );
+    referenced_thunks_[ h ].insert( hash );
   }
 
   thunks_.emplace( make_pair( hash, move( thunk ) ) );
@@ -51,7 +40,7 @@ void DependencyGraph::add_thunk( const string & hash )
 void DependencyGraph::update_thunk_hash( const string & old_hash,
                                          const string & new_hash )
 {
-  assert( thunks_.at( old_hash ).order() == 1 );
+  assert( thunks_.at( old_hash ).executable() );
 
   thunks_.emplace( make_pair( new_hash, move( thunks_.at( old_hash ) ) ) );
   thunks_.erase( old_hash );
@@ -69,11 +58,9 @@ void DependencyGraph::update_thunk_hash( const string & old_hash,
     referenced_thunks_.emplace( make_pair( new_hash, move( referenced_thunks_.at( old_hash ) ) ) );
     referenced_thunks_.erase( old_hash );
 
-    uint32_t new_size = gg::hash::extract_size( new_hash );
-
     for ( const string & thash : referenced_thunks_.at( new_hash ) ) {
       Thunk & ref_thunk = thunks_.at( thash );
-      ref_thunk.update_infile( old_hash, new_hash, ref_thunk.order(), new_size );
+      ref_thunk.update_infile( old_hash, new_hash,  );
     }
   }
 }
@@ -89,8 +76,8 @@ Optional<unordered_set<string>> DependencyGraph::force_thunk( const string & old
     return { false };
   }
 
-  if ( thunks_.at( old_hash ).order() != 1 ) {
-    throw runtime_error( "can't force thunks with order != 1" );
+  if ( thunks_.at( old_hash ).executable() ) {
+    throw runtime_error( "can't force thunks with unresolved dependencies" );
   }
 
   /* we don't need this thunk anymore, so let's just delete it from memory */
@@ -102,13 +89,13 @@ Optional<unordered_set<string>> DependencyGraph::force_thunk( const string & old
     return order_one_thunks;
   }
 
-  uint32_t new_size = gg::hash::extract_size( new_hash );
-
   for ( const string & thash : referenced_thunks_.at( old_hash ) ) {
     Thunk & ref_thunk = thunks_.at( thash );
-    ref_thunk.update_infile( old_hash, new_hash, 0, new_size );
 
-    if ( ref_thunk.order() == 1 ) {
+    // XXX FUCK THIS SHIT
+    ref_thunk.update_infile( old_hash, new_hash );
+
+    if ( ref_thunk.executable() ) {
       const string ref_thunk_hash = ThunkWriter::write_thunk( ref_thunk );
       update_thunk_hash( thash, ref_thunk_hash );
       order_one_thunks.insert( ref_thunk_hash );
@@ -127,7 +114,7 @@ DependencyGraph::order_one_dependencies( const string & thunk_hash ) const
   unordered_set<string> result;
   const Thunk & thunk = get_thunk( thunk_hash );
 
-  if ( thunk.order() == 1 ) {
+  if ( thunk.executable() ) {
     result.insert( thunk_hash );
   }
 
