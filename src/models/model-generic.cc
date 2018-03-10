@@ -4,7 +4,7 @@
 
 #include "cli_description.hh"
 #include "thunk/thunk.hh"
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "util/path.hh"
 
 #include "toolchain.hh"

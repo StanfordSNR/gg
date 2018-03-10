@@ -8,7 +8,7 @@
 #include "trace/syscall.hh"
 #include "thunk/thunk.hh"
 #include "thunk/thunk_reader.hh"
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "util/path.hh"
 
 using namespace std;

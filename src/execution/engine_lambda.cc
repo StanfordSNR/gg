@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include "execution_response.hh"
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "net/http_response.hh"
 #include "util/optional.hh"
 #include "util/system_runner.hh"

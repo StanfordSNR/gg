@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <sys/ptrace.h>
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "thunk/placeholder.hh"
 #include "trace/tracer.hh"
 #include "util/child_process.hh"

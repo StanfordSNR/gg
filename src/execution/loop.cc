@@ -2,7 +2,7 @@
 
 #include "loop.hh"
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "util/exception.hh"
 #include "util/optional.hh"
 

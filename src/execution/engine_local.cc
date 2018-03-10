@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "util/optional.hh"
 #include "util/system_runner.hh"
 

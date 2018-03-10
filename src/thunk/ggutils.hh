@@ -36,7 +36,6 @@ namespace gg {
     void set_available( const std::string & hash );
 
     std::string storage_backend_uri();
-
     std::pair<std::string, uint16_t> runner_server();
   }
 

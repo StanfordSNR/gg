@@ -10,7 +10,7 @@
 #include <numeric>
 #include <google/protobuf/util/json_util.h>
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "thunk/placeholder.hh"
 #include "thunk/thunk_writer.hh"
 #include "util/digest.hh"

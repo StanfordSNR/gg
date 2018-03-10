@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "net/s3.hh"
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "util/path.hh"
 
 using namespace std;

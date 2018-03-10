@@ -1,6 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "ggpaths.hh"
+#include "ggutils.hh"
 
 #include <sys/types.h>
 #include <sys/fcntl.h>

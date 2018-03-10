@@ -12,7 +12,7 @@
 #include "engine_local.hh"
 #include "engine_lambda.hh"
 #include "engine_gg.hh"
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "net/s3.hh"
 #include "tui/status_bar.hh"
 #include "util/optional.hh"

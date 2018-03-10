@@ -9,7 +9,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "thunk/thunk_reader.hh"
 #include "util/digest.hh"
 #include "util/system_runner.hh"

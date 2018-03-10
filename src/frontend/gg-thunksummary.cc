@@ -4,7 +4,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "thunk/thunk_reader.hh"
 #include "thunk/thunk.hh"
 #include "trace/syscall.hh"

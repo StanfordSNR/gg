@@ -4,7 +4,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "thunk/placeholder.hh"
 #include "util/exception.hh"
 #include "util/path.cc"

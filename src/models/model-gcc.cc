@@ -16,7 +16,7 @@
 #include <libgen.h>
 #include <sys/ioctl.h>
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"
 #include "util/digest.hh"
 #include "util/exception.hh"

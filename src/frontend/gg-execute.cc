@@ -11,7 +11,7 @@
 #include "execution/execution_response.hh"
 #include "net/storage_requests.hh"
 #include "storage/backend.hh"
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "thunk/thunk_reader.hh"
 #include "thunk/thunk_writer.hh"
 #include "thunk/thunk.hh"

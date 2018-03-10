@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "util/exception.hh"
 #include "util/util.hh"
 

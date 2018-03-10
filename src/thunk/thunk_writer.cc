@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "thunk/ggpaths.hh"
+#include "thunk/ggutils.hh"
 #include "util/digest.hh"
 #include "util/path.hh"
 #include "util/serialization.hh"
