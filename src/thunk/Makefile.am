@@ -9,5 +9,6 @@ libthunk_a_SOURCES = thunk.hh function.cc thunk.cc \
                      thunk_writer.cc thunk_writer.hh \
                      thunk_reader.cc thunk_reader.hh \
                      placeholder.cc placeholder.hh \
+                     manifest.cc manifest.hh \
                      ggutils.cc ggutils.hh \
                      graph.cc graph.hh

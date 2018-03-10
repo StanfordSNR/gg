@@ -8,6 +8,8 @@
 #include <vector>
 #include <sys/types.h>
 
+#include "manifest.hh"
+#include "thunk.hh"
 #include "util/path.hh"
 #include "util/optional.hh"
 
@@ -52,6 +54,10 @@ namespace gg {
   namespace hash {
     uint32_t size( const std::string & hash );
     ObjectType type( const std::string & hash );
+  }
+
+  namespace thunk {
+    void store( const Thunk & thunk, const FileManifest & manifest );
   }
 
   namespace models {
