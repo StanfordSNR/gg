@@ -52,7 +52,7 @@ string execute_thunk( const Thunk & original_thunk )
 
         thunk.update_infile( new_infiles[ i ].content_hash(),
                              result->hash, result->order,
-                             gg::hash::extract_size( result->hash ), i );
+                             gg::hash::size( result->hash ), i );
       }
     }
 

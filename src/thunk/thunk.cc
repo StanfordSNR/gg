@@ -27,16 +27,10 @@ template<class Iterator>
 Thunk::Data::Data( Iterator begin, Iterator end )
 {
   for ( auto it = begin; it != end; it++ ) {
-    if ( not it->length() ) {
-      throw runtime_error( "invalid data hash: " + *it );
-    }
-
-    switch ( (*it)[ 0 ] ) {
-    case 'F': objects.emplace( *it ); break;
-    case 'T': thunks.emplace( *it ); break;
-    case 'X': executables.emplace( *it ); break;
-
-    default: throw runtime_error( "invalid data tag: " + (*it)[ 0 ] );
+    switch ( hash::type( *it ) ) {
+    case ObjectType::Value: values.emplace( *it ); break;
+    case ObjectType::Thunk: thunks.emplace( *it ); break;
+    case ObjectType::Executable: executables.emplace( *it ); break;
     }
   }
 }
@@ -47,7 +41,7 @@ Thunk::Data::Data( const vector<string> & data )
 
 bool Thunk::Data::operator==( const Data & other ) const
 {
-  return ( objects == other.objects ) and
+  return ( values == other.values ) and
          ( executables == other.executables ) and
          ( thunks == other.thunks );
 }
@@ -176,9 +170,9 @@ protobuf::Thunk Thunk::to_protobuf() const
 
   *thunk_proto.mutable_function() = function_.to_protobuf();
 
-  for ( const string & h : data_.objects ) { thunk_proto.add_data( "F" + h ); }
-  for ( const string & h : data_.thunks ) { thunk_proto.add_data( "T" + h ); }
-  for ( const string & h : data_.executables ) { thunk_proto.add_data( "X" + h ); }
+  for ( const string & h : data_.thunks ) { thunk_proto.add_data( h ); }
+  for ( const string & h : data_.values ) { thunk_proto.add_data( h ); }
+  for ( const string & h : data_.executables ) { thunk_proto.add_data( h ); }
 
   for ( const string & output : outputs_ ) {
     thunk_proto.add_outputs( output );
@@ -222,13 +216,17 @@ string Thunk::executable_hash() const
   return digest::sha256( combined_hashes, true );
 }
 
-void Thunk::update_infile( const string & old_hash, const string & new_hash,
-                           const bool is_thunk )
+void Thunk::update_data( const string & old_hash, const string & new_hash )
 {
   hash_.clear();
   data_.thunks.erase( old_hash );
-  ( is_thunk ) ? data_.thunks.insert( new_hash )
-               : data_.objects.insert( new_hash );
+
+  if ( hash::type( new_hash ) == ObjectType::Thunk ) {
+    data_.thunks.insert( new_hash );
+  }
+  else {
+    data_.values.insert( new_hash );
+  }
 
   /* XXX Update the args. */
 }
@@ -238,7 +236,7 @@ Thunk::get_allowed_files() const
 {
   unordered_map<string, Permissions> allowed_files;
 
-  for ( const std::string & hash : data_.objects ) {
+  for ( const std::string & hash : data_.values ) {
     allowed_files[ gg::paths::blob_path( hash ).string() ] = { true, false, false };
   }
 
@@ -259,13 +257,13 @@ size_t Thunk::infiles_size( const bool include_executables ) const
 {
   size_t total_size = 0;
 
-  for ( const string & hash : data_.objects ) {
-    total_size += gg::hash::extract_size( hash );
+  for ( const string & hash : data_.values ) {
+    total_size += gg::hash::size( hash );
   }
 
   if ( include_executables ) {
     for ( const string & hash : data_.executables ) {
-      total_size += gg::hash::extract_size( hash );
+      total_size += gg::hash::size( hash );
     }
   }
 

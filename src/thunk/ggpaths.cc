@@ -207,10 +207,24 @@ namespace gg {
   }
 
   namespace hash {
-    uint32_t extract_size( const string & hash )
+    uint32_t size( const string & hash )
     {
       assert( hash.length() >= 8 );
       return stoul( hash.substr( hash.length() - 8 ), nullptr, 16 );
+    }
+
+    ObjectType type( const string & hash )
+    {
+      if ( hash.length() == 0 ) {
+        throw runtime_error( "invalid hash" );
+      }
+
+      switch ( hash[ 0 ] ) {
+      case 'T': return ObjectType::Thunk;
+      case 'V': return ObjectType::Value;
+      case 'X': return ObjectType::Executable;
+      default: throw runtime_error( "invalid hash type" );
+      }
     }
   }
 

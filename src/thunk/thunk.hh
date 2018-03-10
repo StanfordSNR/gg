@@ -57,7 +57,7 @@ namespace gg {
         template<class Iterator>
         Data( Iterator begin, Iterator end );
 
-        std::set<std::string> objects {};     /* prefixed F */
+        std::set<std::string> values {};      /* prefixed V */
         std::set<std::string> thunks {};      /* prefixed T */
         std::set<std::string> executables {}; /* prefixed X */
 
@@ -86,7 +86,7 @@ namespace gg {
       static std::string execution_payload( const std::vector<Thunk> & thunks );
 
       const Function & function() const { return function_; }
-      const std::set<std::string> & data_objects() const { return data_.objects; }
+      const std::set<std::string> & data_values() const { return data_.values; }
       const std::set<std::string> & data_thunks() const { return data_.thunks; }
       const std::set<std::string> & data_executables() const { return data_.executables; }
       const std::vector<std::string> & outputs() const { return outputs_; }
@@ -99,19 +99,15 @@ namespace gg {
       void set_hash( const std::string & hash ) const { hash_.reset( hash ); }
       std::string hash() const;
       std::string executable_hash() const;
-
       bool executable() const { return ( data_.thunks.size() == 0 ); }
-
       size_t infiles_size( const bool include_executables = true ) const;
 
-      void update_infile( const std::string & old_hash,
-                          const std::string & new_hash,
-                          const bool is_thunk );
+      void update_data( const std::string & old_hash,
+                        const std::string & new_hash );
 
       /* Returns a list of files that can be accessed while executing this
          thunk. */
-      std::unordered_map<std::string, Permissions>
-      get_allowed_files() const;
+      std::unordered_map<std::string, Permissions> get_allowed_files() const;
     };
 
   } /* namespace thunk */

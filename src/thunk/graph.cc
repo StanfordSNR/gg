@@ -21,7 +21,7 @@ void DependencyGraph::add_thunk( const string & hash )
   Thunk thunk = thunk_reader.read_thunk();
   thunk.set_hash( hash );
 
-  for ( const string & h : thunk.data_objects() ) {
+  for ( const string & h : thunk.data_values() ) {
     order_zero_dependencies_.insert( h );
   }
 
@@ -60,7 +60,7 @@ void DependencyGraph::update_thunk_hash( const string & old_hash,
 
     for ( const string & thash : referenced_thunks_.at( new_hash ) ) {
       Thunk & ref_thunk = thunks_.at( thash );
-      ref_thunk.update_infile( old_hash, new_hash,  );
+      ref_thunk.update_data( old_hash, new_hash );
     }
   }
 }
@@ -91,9 +91,7 @@ Optional<unordered_set<string>> DependencyGraph::force_thunk( const string & old
 
   for ( const string & thash : referenced_thunks_.at( old_hash ) ) {
     Thunk & ref_thunk = thunks_.at( thash );
-
-    // XXX FUCK THIS SHIT
-    ref_thunk.update_infile( old_hash, new_hash );
+    ref_thunk.update_data( old_hash, new_hash );
 
     if ( ref_thunk.executable() ) {
       const string ref_thunk_hash = ThunkWriter::write_thunk( ref_thunk );
@@ -108,28 +106,28 @@ Optional<unordered_set<string>> DependencyGraph::force_thunk( const string & old
   return order_one_thunks;
 }
 
-unordered_set<string>
-DependencyGraph::order_one_dependencies( const string & thunk_hash ) const
-{
-  unordered_set<string> result;
-  const Thunk & thunk = get_thunk( thunk_hash );
-
-  if ( thunk.executable() ) {
-    result.insert( thunk_hash );
-  }
-
-  for ( const InFile & infile : thunk.infiles() ) {
-    if ( infile.order() == 1 ) {
-      result.insert( infile.content_hash() );
-    }
-    else if ( infile.order() > 1 ) {
-      unordered_set<string> subresult = order_one_dependencies( infile.content_hash() );
-      result.insert( subresult.begin(), subresult.end() );
-    }
-  }
-
-  return result;
-}
+// unordered_set<string>
+// DependencyGraph::order_one_dependencies( const string & thunk_hash ) const
+// {
+//   unordered_set<string> result;
+//   const Thunk & thunk = get_thunk( thunk_hash );
+//
+//   if ( thunk.executable() ) {
+//     result.insert( thunk_hash );
+//   }
+//
+//   for ( const InFile & infile : thunk.infiles() ) {
+//     if ( infile.order() == 1 ) {
+//       result.insert( infile.content_hash() );
+//     }
+//     else if ( infile.order() > 1 ) {
+//       unordered_set<string> subresult = order_one_dependencies( infile.content_hash() );
+//       result.insert( subresult.begin(), subresult.end() );
+//     }
+//   }
+//
+//   return result;
+// }
 
 string DependencyGraph::updated_hash( const string & original_hash ) const
 {

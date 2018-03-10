@@ -12,6 +12,10 @@
 #include "util/optional.hh"
 
 namespace gg {
+  enum class ObjectType {
+    Value = 0, Executable, Thunk,
+  };
+
   namespace paths {
     roost::path blobs();
     roost::path reductions();
@@ -47,7 +51,8 @@ namespace gg {
   }
 
   namespace hash {
-    uint32_t extract_size( const std::string & hash );
+    uint32_t size( const std::string & hash );
+    ObjectType type( const std::string & hash );
   }
 
   namespace models {
