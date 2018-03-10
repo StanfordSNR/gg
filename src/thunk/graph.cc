@@ -22,7 +22,7 @@ void DependencyGraph::add_thunk( const string & hash )
   thunk.set_hash( hash );
 
   for ( const string & h : thunk.data_values() ) {
-    order_zero_dependencies_.insert( h );
+    value_dependencies_.insert( h );
   }
 
   for ( const string & h : thunk.data_executables() ) {

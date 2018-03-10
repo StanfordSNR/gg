@@ -305,7 +305,7 @@ void Reductor::upload_dependencies() const
 
   vector<storage::PutRequest> upload_requests;
 
-  for ( const string & dep : dep_graph_.order_zero_dependencies() ) {
+  for ( const string & dep : dep_graph_.value_dependencies() ) {
     if ( gg::remote::is_available( dep ) ) {
       continue;
     }
