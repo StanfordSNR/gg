@@ -11,7 +11,6 @@
 
 #include "thunk/ggutils.hh"
 #include "thunk/thunk_reader.hh"
-#include "util/digest.hh"
 #include "util/system_runner.hh"
 
 using namespace std;
@@ -26,7 +25,7 @@ GCCModelGenerator::parse_linker_output( const vector<string> & linker_args )
     command_line.append( 1, '\0' );
   }
 
-  const auto cache_entry_path = gg::paths::dependency_cache_entry( digest::sha256( command_line ) );
+  const auto cache_entry_path = gg::paths::dependency_cache_entry( gg::hash::compute( command_line ) );
 
   /* assemble the function */
   const gg::thunk::Function makedep_fn { linker_args.front(), linker_args, gcc_environment(), linker_args.front() };

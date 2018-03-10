@@ -17,7 +17,8 @@ using namespace gg::thunk;
 std::string ThunkWriter::write_thunk( const Thunk & thunk )
 {
   const string serialized_thunk = serialize_thunk( thunk );
-  const string thunk_hash = digest::sha256( serialized_thunk );
+  const string thunk_hash = gg::hash::compute( serialized_thunk,
+                                               ObjectType::Thunk );
   thunk.set_hash( thunk_hash );
 
   if ( not roost::exists( paths::blob_path( thunk_hash ) ) ) {

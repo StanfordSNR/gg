@@ -2,10 +2,15 @@
 
 #include "ggutils.hh"
 
+#include <sstream>
+#include <iomanip>
 #include <sys/types.h>
 #include <sys/fcntl.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <crypto++/sha.h>
+#include <crypto++/hex.h>
+#include <crypto++/base64.h>
 
 #include "util/digest.hh"
 #include "util/exception.hh"
@@ -14,6 +19,7 @@
 #include "util/util.hh"
 
 using namespace std;
+using namespace CryptoPP;
 
 namespace gg {
   namespace paths {
@@ -195,7 +201,7 @@ namespace gg {
 
       FileDescriptor cache_entry { CheckSystemCall( "open( " + reduction.string() + " )",
                                                     open( reduction.string().c_str(), O_RDONLY ) ) };
-      const string output_hash = cache_entry.read_exactly( digest::length );
+      const string output_hash = cache_entry.read_exactly( gg::hash::length );
 
       return ReductionResult { output_hash };
     }
@@ -207,6 +213,38 @@ namespace gg {
   }
 
   namespace hash {
+    string compute( const string & input, const ObjectType type )
+    {
+      string ret { move( digest::sha256( input ) ) };
+      ostringstream output_sstr;
+
+      replace( ret.begin(), ret.end(), '-', '.' );
+      output_sstr << to_underlying( type ) << ret << setfill( '0' )
+                  << setw( 8 ) << hex << input.length();
+      return output_sstr.str();
+    }
+
+    string to_hex( const string & gghash )
+    {
+      string output;
+
+      string hash = gghash.substr( 0, gghash.length() - 8 );
+      replace( hash.begin(), hash.end(), '.', '-' );
+      hash += '=';
+
+      StringSource s( hash, true,
+                      new Base64URLDecoder(
+                      new HexEncoder(
+                      new StringSink( output ), false ) ) );
+
+      if ( output.length() == 64 ) {
+        return output;
+      }
+      else {
+        throw runtime_error( "invalid gghash: " + gghash );
+      }
+    }
+
     uint32_t size( const string & hash )
     {
       assert( hash.length() >= 8 );

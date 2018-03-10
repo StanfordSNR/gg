@@ -215,7 +215,7 @@ void upload_output( unique_ptr<StorageBackend> & storage_backend,
 {
   try {
     storage_backend->put( { { gg::paths::blob_path( output_hash ), output_hash,
-                          digest::gghash_to_hex( output_hash ) } } );
+                              gg::hash::to_hex( output_hash ) } } );
   }
   catch ( const exception & ex ) {
     throw_with_nested( UploadOutputError {} );

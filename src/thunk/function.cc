@@ -9,8 +9,6 @@
 #include <sstream>
 #include <iomanip>
 
-#include "util/digest.hh"
-
 using namespace std;
 using namespace gg;
 using namespace gg::thunk;

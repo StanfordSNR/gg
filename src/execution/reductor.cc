@@ -311,7 +311,7 @@ void Reductor::upload_dependencies() const
     }
 
     upload_requests.push_back( { gg::paths::blob_path( dep ), dep,
-                                 digest::gghash_to_hex( dep ) } );
+                                 gg::hash::to_hex( dep ) } );
   }
 
   for ( const string & dep : dep_graph_.executable_dependencies() ) {
@@ -320,7 +320,7 @@ void Reductor::upload_dependencies() const
     }
 
     upload_requests.push_back( { gg::paths::blob_path( dep ), dep,
-                                 digest::gghash_to_hex( dep ) } );
+                                 gg::hash::to_hex( dep ) } );
   }
 
   if ( upload_requests.size() == 0 ) {

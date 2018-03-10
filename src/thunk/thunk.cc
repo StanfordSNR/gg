@@ -201,7 +201,7 @@ bool Thunk::operator==( const Thunk & other ) const
 string Thunk::hash() const
 {
   if ( not hash_.initialized() ) {
-    hash_.reset( digest::sha256( ThunkWriter::serialize_thunk( *this ) ) );
+    hash_.reset( gg::hash::compute( ThunkWriter::serialize_thunk( *this, ObjectType::Thunk ) ) );
   }
 
   return *hash_;
@@ -213,7 +213,7 @@ string Thunk::executable_hash() const
                                              data_.executables.end(),
                                              string {} );
 
-  return digest::sha256( combined_hashes, true );
+  return digest::sha256( combined_hashes );
 }
 
 void Thunk::update_data( const string & old_hash, const string & new_hash )

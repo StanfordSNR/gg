@@ -14,10 +14,6 @@
 #include "util/optional.hh"
 
 namespace gg {
-  enum class ObjectType {
-    Value = 0, Executable, Thunk,
-  };
-
   namespace paths {
     roost::path blobs();
     roost::path reductions();
@@ -52,8 +48,13 @@ namespace gg {
   }
 
   namespace hash {
-    uint32_t size( const std::string & hash );
-    ObjectType type( const std::string & hash );
+    constexpr size_t length = 1 /* type */ + 256 / 6 /* base64(sha256) */ + 1 /* round up */ + 8 /* length */;
+
+    std::string compute( const std::string & input, const ObjectType type = ObjectType::Value );
+    std::string to_hex( const std::string & gghash );
+
+    uint32_t size( const std::string & gghash );
+    ObjectType type( const std::string & gghash );
   }
 
   namespace thunk {

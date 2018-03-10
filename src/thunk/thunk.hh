@@ -18,6 +18,14 @@
 #include "util/path.hh"
 
 namespace gg {
+
+  enum class ObjectType : char
+  {
+    Value = 'V',
+    Executable = 'X',
+    Thunk = 'T',
+  };
+
   namespace thunk {
 
     static const std::string MAGIC_NUMBER = "##GGTHUNK##";
