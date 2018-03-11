@@ -11,7 +11,7 @@ import subprocess as sub
 
 BINDIR = sys.argv[1]
 
-def sha256_checksum(filename, block_size=65536):
+def sha256_checksum(filename, otype='V', block_size=65536):
     sha256 = hashlib.sha256()
     size = 0
 
@@ -20,7 +20,7 @@ def sha256_checksum(filename, block_size=65536):
             size += len(block)
             sha256.update(block)
 
-    return "{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).replace('=','').replace('-', '.'), size)
+    return "{}{}{:08x}".format(otype, base64.urlsafe_b64encode(sha256.digest()).replace('=','').replace('-', '.'), size)
 
 def get_include_path(language='c'):
     lang_switch = ''
@@ -106,13 +106,14 @@ print_hh("""\
 #include <vector>
 
 #include "thunk/thunk.hh"
+#include "thunk/factory.hh"
 #include "util/path.hh"
 """)
 
 print_hh('#define TOOLCHAIN_PATH "{}"'.format(BINDIR))
 print_hh()
 print_hh("""\
-const std::pair<std::string, off_t> & program_data( const std::string & name );
+const std::string & program_hash( const std::string & name );
 extern const std::vector<std::string> c_include_path;
 extern const std::vector<std::string> cpp_include_path;
 extern const std::vector<std::string> ld_search_path;
@@ -132,7 +133,7 @@ extern const std::string STRIP;
 extern const std::string GG_BIN_PREFIX;
 extern const roost::path toolchain_path;
 
-extern const std::unordered_map<std::string, gg::thunk::InFile> program_infiles;
+extern const std::unordered_map<std::string, ThunkFactory::Data> program_data;
 
 #endif /* TOOLCHAIN_HH */""")
 
@@ -148,24 +149,20 @@ print_cc("""\
     { \\
       GG_BIN_PREFIX + "/" + x, \\
       ( toolchain_path / x ).string(), \\
-      program_data( x ).first, \\
-      0, \\
-      program_data( x ).second, \\
-      gg::thunk::InFile::Type::EXECUTABLE \\
+      program_hash( x ), \\
     } \\
   }""")
 print_cc()
 print_cc("""\
-const pair<string, off_t> & program_data( const string & name )
+const string & program_hash( const string & name )
 {
-  static const unordered_map<string, pair<string, off_t>> programs = {""")
+  static const unordered_map<string, string> programs = {""")
 
 for exe in os.listdir(BINDIR):
     exe_path = os.path.join(BINDIR, exe)
-    exe_hash = sha256_checksum(exe_path)
-    exe_size = os.stat(exe_path).st_size
+    exe_hash = sha256_checksum(exe_path, 'X')
     print_cc(" " * 4, end='')
-    print_cc('{{ "{exe}", {{ "{hash}", {size} }} }},'.format(exe=exe, hash=exe_hash, size=exe_size))
+    print_cc('{{ "{exe}", "{hash}" }},'.format(exe=exe, hash=exe_hash))
 
 print_cc("  };\n")
 print_cc("  return programs.at( name );")
@@ -185,7 +182,7 @@ const std::string STRIP { "strip" };
 const std::string GG_BIN_PREFIX { "/__gg__" };
 const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
-const std::unordered_map<std::string, gg::thunk::InFile> program_infiles {
+const std::unordered_map<std::string, gg::thunk::InFile> program_data {
   PROGRAM( GCC ), PROGRAM( GXX ), PROGRAM( CC1 ), PROGRAM( CC1PLUS ),
   PROGRAM( AS ), PROGRAM( COLLECT2 ), PROGRAM( LD ), PROGRAM( AR ),
   PROGRAM( RANLIB ), PROGRAM( STRIP )
