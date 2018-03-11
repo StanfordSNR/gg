@@ -64,7 +64,7 @@ namespace gg {
   namespace models {
     void init();
     static const std::string OPEN_TO_DETACH_PATH = "/__gg__detach_from_tracing__/";
-    std::vector<std::string> args_to_vector( int argc, char ** argv );
+    std::vector<std::string> args_to_vector( int argc, char ** argv, const std::string & argv0 = {} );
   }
 }
 

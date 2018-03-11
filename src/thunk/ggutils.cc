@@ -278,9 +278,15 @@ namespace gg {
       gg::paths::fix_path_envar();
     }
 
-    vector<string> args_to_vector( int argc, char ** argv )
+    vector<string> args_to_vector( int argc, char ** argv, const string & argv0 )
     {
+      if ( argc < 1 ) {
+        throw runtime_error( "no args provided" );
+      }
+
       vector<string> result;
+      ( argv0.length() > 0 ) ? result.push_back( argv0 ) :
+                             : result.push_back( argv[ 0 ] );
 
       /* ignores argv[ 0 ] */
       for ( int i = 1; i < argc; i++ ) {
