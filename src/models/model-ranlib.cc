@@ -11,7 +11,7 @@
 using namespace std;
 using namespace gg::thunk;
 
-Thunk generate_thunk( int argc, char * argv[] )
+void generate_thunk( int argc, char * argv[] )
 {
   if ( argc < 2 ) {
     throw runtime_error( "not enough arguments" );
@@ -28,22 +28,21 @@ Thunk generate_thunk( int argc, char * argv[] )
 
   string archive = argv[ optind ];
 
-  return {
-    archive,
-    { RANLIB, gg::models::args_to_vector( argc, argv ), {}, program_data( RANLIB ).first },
+  ThunkFactory::generate(
     {
-      archive,
-      program_infiles.at( RANLIB )
-    }
-  };
+      program_hash( RANLIB ),
+      gg::models::args_to_vector( argc, argv, program_data.at( RANLIB ).filename() ),
+      {}
+    },
+    { archive, program_data.at( RANLIB ) },
+    { { "output", archive } },
+    true
+  );
 }
 
 int main( int argc, char * argv[] )
 {
   gg::models::init();
-
-  Thunk thunk = generate_thunk( argc, argv );
-  thunk.store();
-
+  generate_thunk( argc, argv );
   return 0;
 }
