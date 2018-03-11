@@ -23,8 +23,12 @@ ThunkFactory::Data::Data( const string & filename,
                           const string & real_filename )
   : filename_( roost::path( filename ).lexically_normal().string() ),
     real_filename_( ( real_filename.length() ) ? real_filename : filename_ ),
-    hash_(), type_( ObjectType::Value )
+    hash_( hash ), type_( ObjectType::Value )
 {
+  if ( hash.length() == 0 ) {
+    return;
+  }
+
   Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( real_filename_ );
 
   if ( placeholder.initialized() ) {
@@ -89,11 +93,11 @@ string ThunkFactory::Data::compute_hash() const
   return computed_hash;
 }
 
-std::string ThunkFactory::generate_thunk( const Function & function,
-                                          const std::vector<Data> & data,
-                                          const std::vector<Output> & outputs,
-                                          const bool generate_manifest,
-                                          const std::vector<std::string> & dummy_dirs )
+std::string ThunkFactory::generate( const Function & function,
+                                    const std::vector<Data> & data,
+                                    const std::vector<Output> & outputs,
+                                    const bool generate_manifest,
+                                    const std::vector<std::string> & dummy_dirs )
 {
   vector<string> thunk_data;
   vector<string> thunk_outputs;

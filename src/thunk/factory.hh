@@ -23,7 +23,9 @@ public:
     std::string compute_hash() const;
 
   public:
-    Data( const std::string & filename, const std::string & real_filename = {} );
+    Data( const std::string & filename,
+          const std::string & real_filename = {},
+          const std::string & hash = {} );
 
     const std::string & filename() const { return filename_; }
     const std::string & hash() const { return hash_; }
@@ -48,11 +50,11 @@ public:
   };
 
 public:
-  std::string generate_thunk( const Function & function,
-                              const std::vector<Data> & data,
-                              const std::vector<Output> & outputs,
-                              const bool generate_manifest = false,
-                              const std::vector<std::string> & dummy_dirs = {} );
+  static std::string generate( const Function & function,
+                               const std::vector<Data> & data,
+                               const std::vector<Output> & outputs,
+                               const bool generate_manifest = false,
+                               const std::vector<std::string> & dummy_dirs = {} );
 };
 
 #endif /* FACTORY_HH */
