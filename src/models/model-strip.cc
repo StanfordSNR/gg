@@ -11,7 +11,7 @@
 using namespace std;
 using namespace gg::thunk;
 
-Thunk generate_thunk( int argc, char * argv[] )
+void generate_thunk( int argc, char * argv[] )
 {
   if ( argc < 2 ) {
     throw runtime_error( "not enough arguments" );
@@ -33,22 +33,21 @@ Thunk generate_thunk( int argc, char * argv[] )
 
   string stripf = argv[ optind ];
 
-  return {
-    stripf,
-    { STRIP, gg::models::args_to_vector( argc, argv ), {}, program_data( STRIP ).first },
+  ThunkFactory::generate(
     {
-      stripf,
-      program_infiles.at( STRIP )
-    }
-  };
+      program_hash( STRIP ),
+      gg::models::args_to_vector( argc, argv, program_data.at( STRIP ).filename() ),
+      {}
+    },
+    { stripf, program_data.at( STRIP ) },
+    { { "output", stripf } },
+    true
+  );
 }
 
 int main( int argc, char * argv[] )
 {
   gg::models::init();
-
-  Thunk thunk = generate_thunk( argc, argv );
-  thunk.store();
-
+  generate_thunk( argc, argv );
   return 0;
 }
