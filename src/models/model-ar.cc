@@ -4,8 +4,9 @@
 #include <cstring>
 #include <getopt.h>
 
-#include "thunk/thunk.hh"
+#include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
+#include "thunk/thunk.hh"
 #include "util/path.hh"
 
 #include "toolchain.hh"
@@ -16,13 +17,13 @@ using namespace gg::thunk;
 const int PLUGIN_FLAG = 1000;
 
 /* this function is based on ar source code */
-Thunk generate_thunk( int argc, char * argv[] )
+void generate_thunk( int argc, char * argv[] )
 {
   if ( argc < 2 ) {
     throw runtime_error( "not enough arguments" );
   }
 
-  vector<string> original_args = gg::models::args_to_vector( argc, argv );
+  vector<string> original_args = gg::models::args_to_vector( argc, argv, program_data.at( AR ).filename() );
 
   struct option long_options[] = {
     { "plugin", required_argument, nullptr, PLUGIN_FLAG },
@@ -64,7 +65,7 @@ Thunk generate_thunk( int argc, char * argv[] )
     argv = &new_argv[ 0 ];
   }
 
-  vector<InFile> infiles;
+  vector<ThunkFactory::Data> data;
 
   optind = 1; /* reset getopt */
   opterr = 0; /* turn off error messages */
@@ -105,21 +106,21 @@ Thunk generate_thunk( int argc, char * argv[] )
       break;
 
     case PLUGIN_FLAG:
-      infiles.emplace_back( optarg );
+      data.emplace_back( optarg );
       break;
     }
   }
 
   string outfile;
 
-  infiles.push_back( program_infiles.at( AR ) );
+  data.push_back( program_data.at( AR ) );
 
   int i = optind + ( need_relpos ? 1 : 0 ) + ( need_count ? 1 : 0 );
   outfile = argv[ i++ ];
 
   if ( members_infile ) {
     for ( ; i < argc; i++ ) {
-      infiles.emplace_back( argv[ i ] );
+      data.emplace_back( argv[ i ] );
     }
   }
 
@@ -127,21 +128,24 @@ Thunk generate_thunk( int argc, char * argv[] )
   if ( roost::exists( outfile ) ) {
     /* this means that the ar command might want change an existing library, so
     we have to list that as an infile */
-    infiles.push_back( outfile );
+    data.push_back( outfile );
   }
 
-  return { outfile,
-    { AR, original_args, {}, program_data( AR ).first },
-    infiles
-  };
+  ThunkFactory::generate(
+    {
+      program_hash( AR ),
+      original_args,
+      {}
+    },
+    data,
+    { { "output", outfile } },
+    true
+  );
 }
 
 int main( int argc, char * argv[] )
 {
   gg::models::init();
-
-  Thunk thunk = generate_thunk( argc, argv );
-  thunk.store();
-
+  generate_thunk( argc, argv );
   return 0;
 }
