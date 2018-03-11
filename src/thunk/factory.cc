@@ -20,12 +20,13 @@ using namespace std;
 using namespace gg;
 
 ThunkFactory::Data::Data( const string & filename,
-                          const string & real_filename )
+                          const string & real_filename,
+                          const string & hash )
   : filename_( roost::path( filename ).lexically_normal().string() ),
     real_filename_( ( real_filename.length() ) ? real_filename : filename_ ),
     hash_( hash ), type_( ObjectType::Value )
 {
-  if ( hash.length() == 0 ) {
+  if ( hash_.length() == 0 ) {
     return;
   }
 

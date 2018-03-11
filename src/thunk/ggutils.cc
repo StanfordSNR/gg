@@ -285,7 +285,7 @@ namespace gg {
       }
 
       vector<string> result;
-      ( argv0.length() > 0 ) ? result.push_back( argv0 ) :
+      ( argv0.length() > 0 ) ? result.push_back( argv0 )
                              : result.push_back( argv[ 0 ] );
 
       /* ignores argv[ 0 ] */
