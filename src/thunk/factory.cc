@@ -21,10 +21,11 @@ using namespace gg;
 
 ThunkFactory::Data::Data( const string & filename,
                           const string & real_filename,
+                          const ObjectType & type,
                           const string & hash )
   : filename_( roost::path( filename ).lexically_normal().string() ),
     real_filename_( ( real_filename.length() ) ? real_filename : filename_ ),
-    hash_( hash ), type_( ObjectType::Value )
+    hash_( hash ), type_( type )
 {
   if ( hash_.length() == 0 ) {
     return;
@@ -37,7 +38,7 @@ ThunkFactory::Data::Data( const string & filename,
     hash_ = placeholder->content_hash();
   }
   else {
-    type_ = ObjectType::Value;
+    type_ = type;
     compute_hash();
   }
 }

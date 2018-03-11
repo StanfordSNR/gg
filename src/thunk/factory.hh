@@ -25,6 +25,7 @@ public:
   public:
     Data( const std::string & filename,
           const std::string & real_filename = {},
+          const gg::ObjectType & type = gg::ObjectType::Value,
           const std::string & hash = {} );
 
     const std::string & filename() const { return filename_; }
