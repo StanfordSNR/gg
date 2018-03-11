@@ -23,6 +23,11 @@ using namespace gg::thunk;
 using namespace CryptoPP;
 using namespace google::protobuf::util;
 
+string thunk::data_placeholder( const string & hash )
+{
+  return DATA_PLACEHOLDER_START + hash + DATA_PLACEHOLDER_END;
+}
+
 template<class Iterator>
 Thunk::Data::Data( Iterator begin, Iterator end )
 {

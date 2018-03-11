@@ -28,10 +28,15 @@ namespace gg {
 
   namespace thunk {
 
-    static const std::string MAGIC_NUMBER = "##GGTHUNK##";
-    static const std::string BEGIN_REPLACE = "__GG_BEGIN_REPLACE__";
-    static const std::string END_REPLACE = "__GG_END_REPLACE__";
-    static const std::string GG_HASH_REPLACE = "@@GG_HASH@@";
+    const std::string MAGIC_NUMBER = "##GGTHUNK##";
+    const std::string BEGIN_REPLACE = "__GG_BEGIN_REPLACE__";
+    const std::string END_REPLACE = "__GG_END_REPLACE__";
+    const std::string GG_HASH_REPLACE = "@@GG_HASH@@";
+
+    const std::string DATA_PLACEHOLDER_START = "@{GGHASH:";
+    const std::string DATA_PLACEHOLDER_END = "}";
+
+    std::string data_placeholder( const std::string & hash );
 
     class Function
     {
@@ -41,7 +46,8 @@ namespace gg {
       std::vector<std::string> envars_ {};
 
     public:
-      Function( const std::string & hash, const std::vector<std::string> & args,
+      Function( const std::string & hash,
+                const std::vector<std::string> & args,
                 const std::vector<std::string> & envars );
 
       Function( const gg::protobuf::Function & func_proto );
@@ -49,6 +55,7 @@ namespace gg {
       const std::string & hash() const { return hash_; }
       const std::vector<std::string> & args() const { return args_; }
       const std::vector<std::string> & envars() const { return envars_; }
+      std::vector<std::string> & envars() { return envars_; }
 
       gg::protobuf::Function to_protobuf() const;
 
