@@ -3,13 +3,15 @@
 #include <getopt.h>
 
 #include "cli_description.hh"
-#include "thunk/thunk.hh"
+#include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
+#include "thunk/thunk.hh"
 #include "util/path.hh"
 
 #include "toolchain.hh"
 
 using namespace std;
+using namespace gg;
 using namespace gg::thunk;
 
 void usage( const char * argv0  )
@@ -17,8 +19,8 @@ void usage( const char * argv0  )
   cerr << argv0 << " <cli-description> [program options...]" << endl;
 }
 
-Thunk generate_thunk( const CLIDescription & cli_description,
-                      const int argc, char * argv[] )
+void generate_thunk( const CLIDescription & cli_description,
+                     const int argc, char * argv[] )
 {
   vector<struct option> long_options;
   string optstring;
@@ -39,8 +41,9 @@ Thunk generate_thunk( const CLIDescription & cli_description,
   optind = 1; /* reset getopt */
   opterr = 0; /* turn off error messages */
 
-  vector<string> args = gg::models::args_to_vector( argc, argv );
-  vector<InFile> infiles;
+  vector<string> args = models::args_to_vector( argc, argv,
+                                                roost::rbasename( cli_description.target_bin() ).string() );
+  vector<ThunkFactory::Data> indata;
   string outfile;
 
   int opt;
@@ -51,33 +54,38 @@ Thunk generate_thunk( const CLIDescription & cli_description,
           outfile = optarg;
         }
         else if ( option.type == CLIOption::Type::InFile ) {
-          infiles.emplace_back( "", optarg );
-          InFile & this_infile = infiles.back();
-          args[ ( optind - 1 ) - 1 ] = gg::thunk::GG_HASH_REPLACE + this_infile.content_hash();
+          indata.emplace_back( "", optarg );
+          ThunkFactory::Data & this_indata = indata.back();
+          args[ ( optind - 1 ) - 1 ] = gg::thunk::GG_HASH_REPLACE + this_indata.hash();
         }
       }
     }
   }
 
   for ( const size_t idx : cli_description.infile_args() ) {
-    infiles.emplace_back( "", argv[ optind + idx ] );
-    InFile & this_infile = infiles.back();
-    args[ ( optind + idx ) - 1 ] = gg::thunk::GG_HASH_REPLACE + this_infile.content_hash();
+    indata.emplace_back( "", argv[ optind + idx ] );
+    ThunkFactory::Data & this_indata = indata.back();
+    args[ ( optind + idx ) - 1 ] = gg::thunk::GG_HASH_REPLACE + this_indata.hash();
   }
 
   if ( cli_description.outfile_arg().initialized() ) {
     outfile = argv[ optind + *cli_description.outfile_arg() ];
   }
 
-  infiles.emplace_back( roost::rbasename( cli_description.target_bin() ).string(),
+  indata.emplace_back( roost::rbasename( cli_description.target_bin() ).string(),
                         cli_description.target_bin(),
-                        InFile::Type::EXECUTABLE );
+                        ObjectType::Executable );
 
-  return {
-    outfile,
-    { infiles.back().filename(), args, {}, infiles.back().content_hash() },
-    infiles
-  };
+  ThunkFactory::generate(
+    {
+      indata.back().hash(),
+      args,
+      {}
+    },
+    indata,
+    { { "output", outfile } },
+    false /* no need to generate a manifest */
+  );
 }
 
 int main( int argc, char * argv[] )
@@ -98,8 +106,7 @@ int main( int argc, char * argv[] )
   argv++;
   argc--;
 
-  Thunk thunk = generate_thunk( cli_description, argc, argv );
-  thunk.store();
+  generate_thunk( cli_description, argc, argv );
 
   return 0;
 }

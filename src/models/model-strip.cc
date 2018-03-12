@@ -2,8 +2,9 @@
 
 #include <getopt.h>
 
-#include "thunk/thunk.hh"
+#include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
+#include "thunk/thunk.hh"
 #include "util/path.hh"
 
 #include "toolchain.hh"
