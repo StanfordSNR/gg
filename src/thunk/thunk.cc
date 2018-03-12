@@ -75,26 +75,7 @@ int Thunk::execute() const
 
   /* do we need to replace a filename with its hash? */
   for ( string & arg : args ) {
-    const size_t replace_begin = arg.find( BEGIN_REPLACE );
-
-    if ( replace_begin != string::npos ) {
-      const size_t filename_begin = replace_begin + BEGIN_REPLACE.length();
-
-      const size_t replace_end = arg.find( END_REPLACE, filename_begin );
-      if ( replace_end == string::npos ) {
-        throw runtime_error( "invalid GG argument replacement: " + arg );
-      }
-
-      const string filename = arg.substr( filename_begin,
-                                          replace_end - filename_begin );
-
-      const string replacement = filename_to_hash( filename );
-
-      arg.replace( replace_begin,
-                   BEGIN_REPLACE.length() + filename.length() + END_REPLACE.length(),
-                   replacement );
-    }
-    else if ( arg.compare( 0, GG_HASH_REPLACE.length(), GG_HASH_REPLACE ) == 0 ) {
+    if ( arg.compare( 0, GG_HASH_REPLACE.length(), GG_HASH_REPLACE ) == 0 ) {
       /* XXX check if the file is actually mentioned in the thunk */
       string path_to_hash = gg::paths::blob_path( arg.substr( GG_HASH_REPLACE.length() ) ).string();
       arg.swap( path_to_hash );
