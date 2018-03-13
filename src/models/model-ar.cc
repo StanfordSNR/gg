@@ -113,8 +113,6 @@ void generate_thunk( int argc, char * argv[] )
 
   string outfile;
 
-  data.push_back( program_data.at( AR ) );
-
   int i = optind + ( need_relpos ? 1 : 0 ) + ( need_count ? 1 : 0 );
   outfile = argv[ i++ ];
 
@@ -138,6 +136,7 @@ void generate_thunk( int argc, char * argv[] )
       {}
     },
     data,
+    { program_data.at( AR ) },
     { { "output", outfile } },
     true
   );

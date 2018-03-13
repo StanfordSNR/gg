@@ -149,7 +149,7 @@ print_cc("""\
     { \\
       GG_BIN_PREFIX + "/" + x, \\
       ( toolchain_path / x ).string(), \\
-      gg::ObjectType::Executable, \\
+      gg::ObjectType::Value, \\
       program_hash( x ), \\
     } \\
   }""")

@@ -138,10 +138,7 @@ void generate_thunk( size_t argc, char * argv[] )
     }
   }
 
-  indata.push_back( program_data.at( LD ) );
-
   vector<string> dependencies = get_link_dependencies( argc, argv, input_indexes );
-
   for ( const string & dep : dependencies ) {
     indata.emplace_back( dep );
   }
@@ -169,6 +166,7 @@ void generate_thunk( size_t argc, char * argv[] )
       {}
     },
     indata,
+    { program_data.at( LD ) },
     { { "output", outfile } },
     true, dummy_dirs
   );

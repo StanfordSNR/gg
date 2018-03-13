@@ -72,10 +72,6 @@ void generate_thunk( const CLIDescription & cli_description,
     outfile = argv[ optind + *cli_description.outfile_arg() ];
   }
 
-  indata.emplace_back( roost::rbasename( cli_description.target_bin() ).string(),
-                        cli_description.target_bin(),
-                        ObjectType::Executable );
-
   ThunkFactory::generate(
     {
       indata.back().hash(),
@@ -83,6 +79,8 @@ void generate_thunk( const CLIDescription & cli_description,
       {}
     },
     indata,
+    { roost::rbasename( cli_description.target_bin() ).string(),
+      cli_description.target_bin() },
     { { "output", outfile } },
     false /* no need to generate a manifest */
   );

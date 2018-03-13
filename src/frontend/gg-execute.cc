@@ -35,7 +35,7 @@ string execute_thunk( const Thunk & original_thunk )
 {
   Thunk thunk = original_thunk;
 
-  if ( not thunk.executable() ) {
+  if ( not thunk.can_be_executed() ) {
     /* Let's see if we can redudce this thunk to an order one thunk by updating
     the infiles */
     const set<string> dep_hashes = thunk.data_thunks();
@@ -144,7 +144,7 @@ void do_cleanup( const Thunk & thunk )
     infile_hashes.emplace( hash );
   }
 
-  for ( const string & hash : thunk.data_executables() ) {
+  for ( const string & hash : thunk.executables() ) {
     infile_hashes.emplace( hash );
   }
 
@@ -176,14 +176,14 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
     for_each( thunk.data_values().cbegin(), thunk.data_values().cend(),
               check_dep );
 
-    for_each( thunk.data_executables().cbegin(), thunk.data_executables().cend(),
+    for_each( thunk.executables().cbegin(), thunk.executables().cend(),
               check_dep );
 
     if ( download_items.size() > 0 ) {
       storage_backend->get( download_items );
     }
 
-    for ( const string & hash : thunk.data_executables() ) {
+    for ( const string & hash : thunk.executables() ) {
       roost::make_executable( gg::paths::blob_path( hash ) );
     }
   }

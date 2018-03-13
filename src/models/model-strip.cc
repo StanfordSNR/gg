@@ -40,7 +40,8 @@ void generate_thunk( int argc, char * argv[] )
       gg::models::args_to_vector( argc, argv, program_data.at( STRIP ).filename() ),
       {}
     },
-    { stripf, program_data.at( STRIP ) },
+    { stripf },
+    { program_data.at( STRIP ) },
     { { "output", stripf } },
     true
   );

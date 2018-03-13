@@ -97,9 +97,9 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   );
 
   /* Common infiles */
-  vector<ThunkFactory::Data> base_infiles = {
-    input.indata,
-    program_data.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX )
+  vector<ThunkFactory::Data> base_infiles = { input.indata };
+  vector<ThunkFactory::Data> base_executables = {
+    program_data.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX ),
   };
 
   base_infiles.emplace_back( "/__gg__/gcc-specs", specs_tempfile_.name() );
@@ -213,10 +213,10 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     if ( input.language == Language::C or
          input.language == Language::C_HEADER or
          input.language == Language::ASSEMBLER_WITH_CPP ) {
-      base_infiles.emplace_back( program_data.at( CC1 ) );
+      base_executables.emplace_back( program_data.at( CC1 ) );
     }
     else {
-      base_infiles.emplace_back( program_data.at( CC1PLUS ) );
+      base_executables.emplace_back( program_data.at( CC1PLUS ) );
     }
 
     for ( const string & dep : dependencies ) {
@@ -236,6 +236,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     return ThunkFactory::generate(
       gcc_function( operation_mode_, all_args, envars_ ),
       base_infiles,
+      base_executables,
       { { "output", output } },
       true, dummy_dirs, write_placeholder
     );
@@ -251,15 +252,16 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     args = prune_makedep_flags( args );
 
     if ( input.language == Language::CPP_OUTPUT ) {
-      base_infiles.push_back( program_data.at( CC1 ) );
+      base_executables.push_back( program_data.at( CC1 ) );
     }
     else {
-      base_infiles.push_back( program_data.at( CC1PLUS ) );
+      base_executables.push_back( program_data.at( CC1PLUS ) );
     }
 
     return ThunkFactory::generate(
       gcc_function( operation_mode_, args, envars_ ),
       base_infiles,
+      base_executables,
       { { "output", output } },
       true, dummy_dirs, write_placeholder
     );
@@ -278,11 +280,12 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     args.push_back( "-c" );
     args = prune_makedep_flags( args );
-    base_infiles.push_back( program_data.at( AS ) );
+    base_executables.push_back( program_data.at( AS ) );
 
     return ThunkFactory::generate(
       gcc_function( operation_mode_, args, envars_ ),
       base_infiles,
+      base_executables,
       { { "output", output } },
       true, dummy_dirs, write_placeholder
     );

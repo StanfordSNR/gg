@@ -35,7 +35,8 @@ void generate_thunk( int argc, char * argv[] )
       gg::models::args_to_vector( argc, argv, program_data.at( RANLIB ).filename() ),
       {}
     },
-    { archive, program_data.at( RANLIB ) },
+    { archive },
+    { program_data.at( RANLIB ) },
     { { "output", archive } },
     true
   );

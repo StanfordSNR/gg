@@ -55,17 +55,18 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
                                                const string & output )
 {
   vector<ThunkFactory::Data> infiles;
+  vector<ThunkFactory::Data> executables;
   vector<string> dummy_dirs;
 
   if ( operation_mode_ == OperationMode::GCC ) {
-    infiles.emplace_back( program_data.at( GCC ) );
+    executables.emplace_back( program_data.at( GCC ) );
   }
   else {
-    infiles.emplace_back( program_data.at( GXX ) );
+    executables.emplace_back( program_data.at( GXX ) );
   }
 
-  infiles.emplace_back( program_data.at( COLLECT2 ) );
-  infiles.emplace_back( program_data.at( LD ) );
+  executables.emplace_back( program_data.at( COLLECT2 ) );
+  executables.emplace_back( program_data.at( LD ) );
 
   for ( auto const & link_input : link_inputs ) {
     if ( link_input.language == Language::OBJECT or
@@ -155,6 +156,7 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
   return ThunkFactory::generate(
     gcc_function( operation_mode_, all_args, envars_ ),
     infiles,
+    executables,
     { { "output", output } },
     true, dummy_dirs, true
   );
