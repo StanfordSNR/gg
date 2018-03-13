@@ -39,7 +39,7 @@ ThunkFactory::Data::Data( const string & filename,
   }
   else {
     type_ = type;
-    compute_hash();
+    hash_ = compute_hash();
   }
 }
 
