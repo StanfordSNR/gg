@@ -9,6 +9,7 @@
 #include "thunk/thunk_writer.hh"
 #include "thunk/thunk.hh"
 #include "util/exception.hh"
+#include "util/temp_file.hh"
 
 using namespace std;
 using namespace google::protobuf;
@@ -31,34 +32,25 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    // First writing out a thunk
+    Thunk original_thunk {
+      {
+        "FUNCTIONHASH", { "f", "arg1", "arg2", "arg3", "arg4", "arg5", "arg6" },
+        { "envar1=A", "envar2=B", "envar3=C" },
+      },
+      {
+        "XOBJ1", "XOBJ2", "VOBJ3", "VOBJ4", "TOBJ5", "TOBJ6"
+      },
+      {
+        "output1", "output2", "output3", "output4"
+      }
+    };
 
-    string outfile = "TEST_remake.o";
-
-    string exe = "gcc";
-    vector<string> args = { "-DLOCALEDIR=\"/usr/local/share/locale\"",
-      "-DLIBDIR=\"/usr/local/lib\"", "-DINCLUDEDIR=\"/usr/local/include\"",
-      "-DHAVE_CONFIG_H", "-I.", "-g", "-O2", "-MT", "remake.o", "-MD", "-MP",
-      "-MF", ".deps/remake.Tpo", "-c", "-o", "TEST_remake.o", "remake.i" };
-    vector<string> envars = { "A=a", "B=b", "C=c" };
-
-    Function function( exe, args, envars, "ABCDEFGHI" );
-
-    InFile infile1( "thunk.hh", "thunk.hh", "XXX", 0, 120 );
-    InFile infile2( "infile_desc.hh", "infile_desc.hh", "YYY", 0, 24000 );
-    InFile infile3( "thunk_func.hh", "infile_desc.hh", "ZZZ", 0, 59200 );
-    InFile indir1( "/home/sadjad/", "", InFile::Type::DUMMY_DIRECTORY );
-    InFile indir2( "/etc/gg/", "", InFile::Type::DUMMY_DIRECTORY );
-
-    vector<InFile> infiles = { infile1, infile2, infile3, indir1, indir2 };
-
-    Thunk original_thunk { outfile, function, infiles };
-
+    TempFile temp_file { "output" };
     const string contents = ThunkWriter::serialize_thunk( original_thunk );
-    roost::atomic_create( contents, outfile );
+    roost::atomic_create( contents, temp_file.name() );
 
     // Now reading it back
-    ThunkReader thunk_reader { outfile };
+    ThunkReader thunk_reader { temp_file.name() };
     Thunk thunk = thunk_reader.read_thunk();
 
     if ( thunk == original_thunk ) {
