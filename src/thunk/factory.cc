@@ -39,17 +39,18 @@ ThunkFactory::Data::Data( const string & filename,
   }
   else {
     type_ = type;
-    hash_ = compute_hash();
+    hash_ = compute_hash( real_filename_, type_ );
   }
 }
 
-string ThunkFactory::Data::compute_hash() const
+string ThunkFactory::Data::compute_hash( const string & real_filename,
+                                         const gg::ObjectType type )
 {
   /* do we have this hash in cache? */
   struct stat file_stat;
-  CheckSystemCall( "stat", stat( real_filename_.c_str(), &file_stat ) );
+  CheckSystemCall( "stat", stat( real_filename.c_str(), &file_stat ) );
 
-  const auto cache_entry_path = gg::paths::hash_cache_entry( real_filename_, file_stat );
+  const auto cache_entry_path = gg::paths::hash_cache_entry( real_filename, file_stat );
 
   if ( roost::exists( cache_entry_path ) ) {
     FileDescriptor cache_file { CheckSystemCall( "open",
@@ -75,13 +76,13 @@ string ThunkFactory::Data::compute_hash() const
 
   /* not a cache hit, so need to compute hash ourselves */
 
-  FileDescriptor file { CheckSystemCall( "open (" + real_filename_ + ")",
-                                         open( real_filename_.c_str(), O_RDONLY ) ) };
+  FileDescriptor file { CheckSystemCall( "open (" + real_filename + ")",
+                                         open( real_filename.c_str(), O_RDONLY ) ) };
 
   string contents;
   while ( not file.eof() ) { contents += file.read(); }
 
-  const string computed_hash = gg::hash::compute( contents, type_ );
+  const string computed_hash = gg::hash::compute( contents, type );
 
   /* make a cache entry */
   atomic_create( to_string( file_stat.st_size ) + " "

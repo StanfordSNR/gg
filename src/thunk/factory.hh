@@ -20,8 +20,6 @@ public:
     std::string hash_;
     gg::ObjectType type_;
 
-    std::string compute_hash() const;
-
   public:
     Data( const std::string & filename,
           const std::string & real_filename = {},
@@ -32,6 +30,9 @@ public:
     const std::string & real_filename() const { return real_filename_; }
     const std::string & hash() const { return hash_; }
     gg::ObjectType type() const { return type_; }
+
+    static std::string compute_hash( const std::string & real_filename,
+                                     const gg::ObjectType type = gg::ObjectType::Value );
   };
 
   using Function = gg::thunk::Function;
