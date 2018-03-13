@@ -25,7 +25,7 @@ void DependencyGraph::add_thunk( const string & hash )
     value_dependencies_.insert( h );
   }
 
-  for ( const string & h : thunk.data_executables() ) {
+  for ( const string & h : thunk.executables() ) {
     executable_dependencies_.insert( h );
   }
 
