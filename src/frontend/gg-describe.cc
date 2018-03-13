@@ -76,7 +76,6 @@ int main( int argc, char * argv[] )
       options.always_print_primitive_fields = true;
       MessageToJsonString( thunk.to_protobuf(), &textf, options );
 
-      cout << "// [order=" << thunk.order() << "]" << endl;
       cout << textf << endl;
     }
   }

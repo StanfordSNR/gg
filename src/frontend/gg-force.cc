@@ -132,7 +132,7 @@ int main( int argc, char * argv[] )
           throw runtime_error( "not a thunk: " + target_filename );
         }
         else {
-          thunk_hash = InFile::compute_hash( target_filename );
+          thunk_hash = gg::hash::compute( target_filename, gg::ObjectType::Thunk );
         }
       }
       else {
