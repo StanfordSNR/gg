@@ -26,15 +26,15 @@ string FileManifest::serialize() const
   ostringstream sout;
 
   for ( const auto & entry : filename_to_hashes_ ) {
-    sout << "F\0" << entry.first << '\0' << entry.second << '\0';
+    sout << "F" << '\0' << entry.first << '\0' << entry.second << '\0';
   }
 
   for ( const auto & entry : dummy_directories_ ) {
-    sout << "D\0" << entry << '\0';
+    sout << "D" << '\0' << entry << '\0';
   }
 
   for ( const auto & entry : output_tags_ ) {
-    sout << "O\0" << entry.first << '\0' << entry.second << '\0';
+    sout << "O" << '\0' << entry.first << '\0' << entry.second << '\0';
   }
 
   return sout.str();
