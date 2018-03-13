@@ -8,6 +8,7 @@
 #include <functional>
 #include <unordered_map>
 #include <limits>
+#include <regex>
 #include <sys/types.h>
 #include <crypto++/base64.h>
 #include <crypto++/files.h>
@@ -35,6 +36,7 @@ namespace gg {
 
     const std::string DATA_PLACEHOLDER_START = "@{GGHASH:";
     const std::string DATA_PLACEHOLDER_END = "}";
+    const std::regex DATA_PLACEHOLDER_REGEX { R"X(@\{GGHASH:([a-zA-Z0-9_.]+)\})X" };
 
     std::string data_placeholder( const std::string & hash );
 

@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <numeric>
+#include <regex>
 #include <google/protobuf/util/json_util.h>
 
 #include "thunk/ggutils.hh"
@@ -72,31 +73,38 @@ int Thunk::execute() const
 
   // preparing argv
   vector<string> args = function_.args();
+  vector<string> envars { function_.envars() };
 
-  /* do we need to replace a filename with its hash? */
+  auto replace_data_placeholder =
+    []( string & str ) -> void
+    {
+      if ( regex_search( str, DATA_PLACEHOLDER_REGEX ) ) {
+        string new_path = regex_replace( str, DATA_PLACEHOLDER_REGEX, gg::paths::blob_path( "$1" ).string() );
+        swap( str, new_path );
+      }
+    };
+
+  /* do we need to replace a hash placeholder with the actual path? */
   for ( string & arg : args ) {
-    if ( arg.compare( 0, GG_HASH_REPLACE.length(), GG_HASH_REPLACE ) == 0 ) {
-      /* XXX check if the file is actually mentioned in the thunk */
-      string path_to_hash = gg::paths::blob_path( arg.substr( GG_HASH_REPLACE.length() ) ).string();
-      arg.swap( path_to_hash );
-    }
+    replace_data_placeholder( arg );
+  }
+
+  for ( string & envar : envars ) {
+    replace_data_placeholder( envar );
   }
 
   const roost::path thunk_path = gg::paths::blob_path( hash() );
 
   // preparing envp
-  const vector<string> & f_envars = function_.envars();
-  vector<string> envars = {
+  envars.insert( envars.end(), {
     "__GG_THUNK_PATH__=" + thunk_path.string(),
     "__GG_DIR__=" + gg::paths::blobs().string(),
     "__GG_ENABLED__=1",
-  };
+  } );
 
   if ( verbose ) {
     envars.emplace_back( "__GG_VERBOSE__=1" );
   }
-
-  envars.insert( envars.end(), f_envars.begin(), f_envars.end() );
 
   int retval;
 
