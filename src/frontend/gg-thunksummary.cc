@@ -51,22 +51,22 @@ ThunkStats print_thunk_info( const string & hash, unsigned int indent )
   const Thunk thunk { ThunkReader { gg::paths::blob_path( hash ).string() }.read_thunk() };
   const string indentation( indent, ' ' );
 
-  const string display_name = roost::rbasename( thunk.outfile() ).string() + " (" + shortn( hash ) + ")";
+  const string display_name = shortn( hash );
 
   ThunkStats stats;
   stats.thunks.insert( hash );
 
-  cout << indentation << display_name << " {" << roost::rbasename( thunk.function().exe() ).string() << "}\n";
+  cout << indentation << display_name << "\n";
 
-  for ( const auto & infile : thunk.infiles() ) {
-    const string infile_name = roost::rbasename( infile.filename() ).string() + " (" + shortn( infile.content_hash() ) + ")";
-    if ( infile.order() ) {
-      stats += print_thunk_info( infile.content_hash(), indent + 1 );
-    } else if ( infile.size() ) {
-      cout << indentation << " " << infile_name << "\n";
+  for ( const auto & hash : thunk.data_values() ) {
+    const string infile_name = shortn( hash );
+    cout << indentation << " " << infile_name << "\n";
+    stats.files.insert( { hash, gg::hash::size( hash ) } );
+  }
 
-      stats.files.insert( { infile.content_hash(), infile.size() } );
-    }
+  for ( const auto & hash : thunk.data_thunks() ) {
+    const string infile_name = shortn( hash );
+    stats += print_thunk_info( hash, indent + 1 );
   }
 
   const string plural = stats.thunks.size() > 1 ? "s" : "";
