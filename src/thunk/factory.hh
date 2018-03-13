@@ -54,6 +54,7 @@ public:
 public:
   static std::string generate( const Function & function,
                                const std::vector<Data> & data,
+                               const std::vector<Data> & executables,
                                const std::vector<Output> & outputs,
                                const bool generate_manifest = false,
                                const std::vector<std::string> & dummy_dirs = {},

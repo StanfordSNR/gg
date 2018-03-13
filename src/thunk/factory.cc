@@ -97,6 +97,7 @@ string ThunkFactory::Data::compute_hash() const
 
 std::string ThunkFactory::generate( const Function & function,
                                     const std::vector<Data> & data,
+                                    const std::vector<Data> & executables,
                                     const std::vector<Output> & outputs,
                                     const bool generate_manifest,
                                     const std::vector<std::string> & dummy_dirs,
@@ -104,6 +105,7 @@ std::string ThunkFactory::generate( const Function & function,
                                     const bool collect_data )
 {
   vector<string> thunk_data;
+  vector<string> thunk_executables;
   vector<string> thunk_outputs;
 
   thunk::Function thunk_function { function };
@@ -113,6 +115,14 @@ std::string ThunkFactory::generate( const Function & function,
 
     for ( const Data & datum : data ) {
       thunk_data.push_back( datum.hash() );
+
+      if ( datum.filename().length() > 0 ) {
+        manifest.add_filename_to_hash( datum.filename(), datum.hash() );
+      }
+    }
+
+    for ( const Data & datum : executables ) {
+      thunk_executables.push_back( datum.hash() );
 
       if ( datum.filename().length() > 0 ) {
         manifest.add_filename_to_hash( datum.filename(), datum.hash() );
@@ -141,21 +151,24 @@ std::string ThunkFactory::generate( const Function & function,
   }
 
   if ( collect_data ) {
-    for ( const Data & datum : data ) {
-      roost::path source_path = datum.real_filename();
-      roost::path target_path = gg::paths::blob_path( datum.hash() );
+    auto fn_collect =
+      [] ( const Data & datum )
+      {
+        roost::path source_path = datum.real_filename();
+        roost::path target_path = gg::paths::blob_path( datum.hash() );
 
-      if ( roost::exists( target_path ) ) {
-        continue;
-      }
-      else {
-        roost::copy_then_rename( source_path, target_path );
-      }
-    }
+        if ( not roost::exists( target_path ) ) {
+          roost::copy_then_rename( source_path, target_path );
+        }
+      };
+
+    for ( const Data & datum : data ) { fn_collect( datum ); }
+    for ( const Data & datum : executables ) { fn_collect( datum ); }
   }
 
   string hash = ThunkWriter::write_thunk( { thunk_function,
                                             thunk_data,
+                                            thunk_executables,
                                             thunk_outputs } );
 
   if ( create_placeholder and outputs.at( 0 ).filename().initialized() ) {

@@ -260,7 +260,6 @@ namespace gg {
       switch ( hash[ 0 ] ) {
       case 'T': return ObjectType::Thunk;
       case 'V': return ObjectType::Value;
-      case 'X': return ObjectType::Executable;
       default: throw runtime_error( "invalid hash type" );
       }
     }
