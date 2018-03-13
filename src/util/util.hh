@@ -6,7 +6,6 @@
 #include <string>
 
 std::string safe_getenv( const std::string & key );
-
 std::string safe_getenv_or( const std::string & key, const std::string & def_val );
 
 template <typename E>

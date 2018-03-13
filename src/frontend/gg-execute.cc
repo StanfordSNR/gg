@@ -35,33 +35,27 @@ string execute_thunk( const Thunk & original_thunk )
 {
   Thunk thunk = original_thunk;
 
-  if ( thunk.order() != 1 ) {
+  if ( not thunk.executable() ) {
     /* Let's see if we can redudce this thunk to an order one thunk by updating
     the infiles */
-    const vector<InFile> new_infiles = thunk.infiles();
+    const set<string> dep_hashes = thunk.data_thunks();
 
-    for ( size_t i = 0; i < new_infiles.size(); i++ ) {
-      if ( new_infiles[ i ].order() != 0 ) {
-        /* let's check if we have a reduction of this infile */
-        auto result = gg::cache::check( new_infiles[ i ].content_hash() );
+    for ( const string & dep_hash : dep_hashes ) {
+      /* let's check if we have a reduction of this infile */
+      auto result = gg::cache::check( dep_hash );
 
-        if ( not result.initialized() or result->order != 0 ) {
-          throw runtime_error( "thunk is not order-1 and cannot be "
-                               "reduced to an order-1 thunk" );
-        }
-
-        thunk.update_infile( new_infiles[ i ].content_hash(),
-                             result->hash, result->order,
-                             gg::hash::size( result->hash ), i );
+      if ( not result.initialized() or
+           gg::hash::type( result->hash ) == gg::ObjectType::Thunk ) {
+        throw runtime_error( "thunk is not executable and cannot be "
+                             "reduced to an executable thunk" );
       }
+
+      thunk.update_data( dep_hash, result->hash );
     }
 
     thunk.set_hash( ThunkWriter::write_thunk( thunk ) );
-    cerr << "order-" << original_thunk.order() << " thunk ("
-         << original_thunk.hash() << ") reduced to order-" << thunk.order()
-         << " thunk (" << thunk.hash() << ")." << endl;
-
-    assert( thunk.order() == 1 );
+    cerr << "thunk:" << original_thunk.hash() << " reduced to "
+         << "thunk:" << thunk.hash() << "." << endl;
   }
 
   /* when executing the thunk, we create a temp directory, and execute the thunk
@@ -71,35 +65,15 @@ string execute_thunk( const Thunk & original_thunk )
   // PREPARING THE ENV
   TempDirectory exec_dir { temp_dir_template };
   roost::path exec_dir_path { exec_dir.name() };
-
-  roost::path outfile_path { thunk.outfile() };
-
-  if ( roost::is_absolute( outfile_path ) ) {
-    throw runtime_error( "absolute path for outfiles is not supported" );
-  }
-
-  roost::path outfile_dir = roost::dirname( outfile_path );
-  vector<string> path_components = outfile_dir.path_components();
-
-  /* sometimes the outfile path can be in form of ../../../outfile. we need to
-  accommodate for those cases */
-  for ( const string & pc : outfile_dir.path_components() ) {
-    if ( pc == ".." ) {
-      exec_dir_path = exec_dir_path / "_ggsubdir";
-    }
-    else {
-      break;
-    }
-  }
+  roost::path outfile_path { "output" };
 
   // EXECUTING THE THUNK
   if ( not sandboxed ) {
     ChildProcess process {
-      thunk.outfile(),
-      [thunk, exec_dir_path, &outfile_dir]() {
+      thunk.hash(),
+      [thunk, &exec_dir_path]() {
         roost::create_directories( exec_dir_path );
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
-        roost::create_directories( outfile_dir );
         return thunk.execute();
       }
     };
@@ -126,10 +100,9 @@ string execute_thunk( const Thunk & original_thunk )
       [thunk]() {
         return thunk.execute();
       },
-      [exec_dir_path, &outfile_dir] () {
+      [&exec_dir_path] () {
         roost::create_directories( exec_dir_path );
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
-        roost::create_directories( outfile_dir );
       }
     };
 
@@ -142,8 +115,8 @@ string execute_thunk( const Thunk & original_thunk )
   }
 
   // GRABBING THE OUTPUT
-  roost::path outfile { exec_dir_path / thunk.outfile() };
-  string outfile_hash = InFile::compute_hash( outfile.string() );
+  roost::path outfile { exec_dir_path / "output" };
+  string outfile_hash = gg::hash::compute( outfile.string() );
   roost::path outfile_gg = gg::paths::blob_path( outfile_hash );
 
   if ( not roost::exists( outfile_gg ) ) {
@@ -166,8 +139,13 @@ void do_cleanup( const Thunk & thunk )
   unordered_set<string> infile_hashes;
 
   infile_hashes.emplace( thunk.hash() );
-  for ( const InFile & infile : thunk.infiles() ) {
-    infile_hashes.emplace( infile.content_hash() );
+
+  for ( const string & hash : thunk.data_values() ) {
+    infile_hashes.emplace( hash );
+  }
+
+  for ( const string & hash : thunk.data_executables() ) {
+    infile_hashes.emplace( hash );
   }
 
   for ( const string & blob : roost::list_directory( gg::paths::blobs() ) ) {
@@ -184,25 +162,29 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
   try {
     vector<storage::GetRequest> download_items;
 
-    for ( const InFile & infile : thunk.infiles() ) {
-      if ( infile.type() == InFile::Type::DUMMY_DIRECTORY ) continue;
+    auto check_dep =
+      [&download_items]( const string & hash ) -> void
+      {
+        const auto target_path = gg::paths::blob_path( hash );
 
-      const auto target_path = gg::paths::blob_path( infile.content_hash() );
+        if ( not roost::exists( target_path )
+             or roost::file_size( target_path ) != gg::hash::size( hash ) ) {
+          download_items.push_back( { hash, target_path } );
+        }
+      };
 
-      if ( not roost::exists( target_path )
-           or roost::file_size( target_path ) != infile.size() ) {
-        download_items.push_back( { infile.content_hash(), target_path } );
-      }
-    }
+    for_each( thunk.data_values().cbegin(), thunk.data_values().cend(),
+              check_dep );
+
+    for_each( thunk.data_executables().cbegin(), thunk.data_executables().cend(),
+              check_dep );
 
     if ( download_items.size() > 0 ) {
       storage_backend->get( download_items );
     }
 
-    for ( const InFile & infile : thunk.infiles() ) {
-      if ( infile.type() == InFile::Type::EXECUTABLE ) {
-        roost::make_executable( gg::paths::blob_path( infile.content_hash() ) );
-      }
+    for ( const string & hash : thunk.data_executables() ) {
+      roost::make_executable( gg::paths::blob_path( hash ) );
     }
   }
   catch ( const exception & ex ) {
