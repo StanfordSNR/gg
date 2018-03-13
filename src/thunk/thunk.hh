@@ -23,7 +23,6 @@ namespace gg {
   enum class ObjectType : char
   {
     Value = 'V',
-    Executable = 'X',
     Thunk = 'T',
   };
 
@@ -74,9 +73,8 @@ namespace gg {
         template<class Iterator>
         Data( Iterator begin, Iterator end );
 
-        std::set<std::string> values {};      /* prefixed V */
-        std::set<std::string> thunks {};      /* prefixed T */
-        std::set<std::string> executables {}; /* prefixed X */
+        std::set<std::string> values {}; /* prefixed V */
+        std::set<std::string> thunks {}; /* prefixed T */
 
         bool operator==( const Data & other ) const;
         bool operator!=( const Data & other ) const { return not operator==( other ); }
@@ -84,6 +82,7 @@ namespace gg {
 
       Function function_;
       Data data_;
+      std::set<std::string> executables_;
       std::vector<std::string> outputs_;
 
       mutable Optional<std::string> hash_ {};
@@ -93,6 +92,7 @@ namespace gg {
     public:
       Thunk( const Function & function,
              const std::vector<std::string> & data,
+             const std::vector<std::string> & executables,
              const std::vector<std::string> & outputs );
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
@@ -105,7 +105,7 @@ namespace gg {
       const Function & function() const { return function_; }
       const std::set<std::string> & data_values() const { return data_.values; }
       const std::set<std::string> & data_thunks() const { return data_.thunks; }
-      const std::set<std::string> & data_executables() const { return data_.executables; }
+      const std::set<std::string> & executables() const { return executables_; }
       const std::vector<std::string> & outputs() const { return outputs_; }
 
       gg::protobuf::Thunk to_protobuf() const;

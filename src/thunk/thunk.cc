@@ -36,7 +36,6 @@ Thunk::Data::Data( Iterator begin, Iterator end )
     switch ( hash::type( *it ) ) {
     case ObjectType::Value: values.emplace( *it ); break;
     case ObjectType::Thunk: thunks.emplace( *it ); break;
-    case ObjectType::Executable: executables.emplace( *it ); break;
     }
   }
 }
@@ -48,18 +47,19 @@ Thunk::Data::Data( const vector<string> & data )
 bool Thunk::Data::operator==( const Data & other ) const
 {
   return ( values == other.values ) and
-         ( executables == other.executables ) and
          ( thunks == other.thunks );
 }
 
 Thunk::Thunk( const Function & function, const vector<string> & data,
-              const vector<string> & outputs )
-  : function_( function ), data_( data ), outputs_( outputs )
+              const vector<string> & executables, const vector<string> & outputs )
+  : function_( function ), data_( data ),
+    executables_( executables.cbegin(), executables.cend() ), outputs_( outputs )
 {}
 
 Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   : function_( thunk_proto.function() ),
     data_( thunk_proto.data().cbegin(), thunk_proto.data().cend() ),
+    executables_( thunk_proto.executables().cbegin(), thunk_proto.executables().cend() ),
     outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() )
 {}
 
@@ -166,7 +166,7 @@ protobuf::Thunk Thunk::to_protobuf() const
 
   for ( const string & h : data_.thunks ) { thunk_proto.add_data( h ); }
   for ( const string & h : data_.values ) { thunk_proto.add_data( h ); }
-  for ( const string & h : data_.executables ) { thunk_proto.add_data( h ); }
+  for ( const string & h : executables_ ) { thunk_proto.add_executables( h ); }
 
   for ( const string & output : outputs_ ) {
     thunk_proto.add_outputs( output );
@@ -203,8 +203,8 @@ string Thunk::hash() const
 
 string Thunk::executable_hash() const
 {
-  const string combined_hashes = accumulate( data_.executables.begin(),
-                                             data_.executables.end(),
+  const string combined_hashes = accumulate( executables_.begin(),
+                                             executables_.end(),
                                              string {} );
 
   return digest::sha256( combined_hashes );
@@ -234,7 +234,7 @@ Thunk::get_allowed_files() const
     allowed_files[ gg::paths::blob_path( hash ).string() ] = { true, false, false };
   }
 
-  for ( const std::string & hash : data_.executables ) {
+  for ( const std::string & hash : executables_ ) {
     allowed_files[ gg::paths::blob_path( hash ).string() ] = { true, false, true };
   }
 
@@ -256,7 +256,7 @@ size_t Thunk::infiles_size( const bool include_executables ) const
   }
 
   if ( include_executables ) {
-    for ( const string & hash : data_.executables ) {
+    for ( const string & hash : executables_ ) {
       total_size += gg::hash::size( hash );
     }
   }
