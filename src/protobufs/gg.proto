@@ -11,7 +11,8 @@ message Function {
 message Thunk {
   Function function = 1;
   repeated string data = 2;
-  repeated string outputs = 3;
+  repeated string executables = 3;
+  repeated string outputs = 4;
 }
 
 message LambdaInFile {
