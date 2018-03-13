@@ -56,7 +56,7 @@ public:
                                const std::vector<Output> & outputs,
                                const bool generate_manifest = false,
                                const std::vector<std::string> & dummy_dirs = {},
-                               const bool create_placeholder = false );
+                               const bool create_placeholder = true );
 };
 
 #endif /* FACTORY_HH */
