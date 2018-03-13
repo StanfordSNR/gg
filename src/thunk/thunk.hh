@@ -116,7 +116,7 @@ namespace gg {
       void set_hash( const std::string & hash ) const { hash_.reset( hash ); }
       std::string hash() const;
       std::string executable_hash() const;
-      bool executable() const { return ( data_.thunks.size() == 0 ); }
+      bool can_be_executed() const { return ( data_.thunks.size() == 0 ); }
       size_t infiles_size( const bool include_executables = true ) const;
 
       void update_data( const std::string & old_hash,

@@ -189,6 +189,7 @@ bool Thunk::operator==( const Thunk & other ) const
 {
   return ( function_ == other.function_ ) and
          ( data_ == other.data_ ) and
+         ( executables_ == other.executables_ ) and
          ( outputs_ == other.outputs_ );
 }
 

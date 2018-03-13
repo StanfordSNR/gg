@@ -40,7 +40,7 @@ void DependencyGraph::add_thunk( const string & hash )
 void DependencyGraph::update_thunk_hash( const string & old_hash,
                                          const string & new_hash )
 {
-  assert( thunks_.at( old_hash ).executable() );
+  assert( thunks_.at( old_hash ).can_be_executed() );
 
   thunks_.emplace( make_pair( new_hash, move( thunks_.at( old_hash ) ) ) );
   thunks_.erase( old_hash );
@@ -76,7 +76,7 @@ Optional<unordered_set<string>> DependencyGraph::force_thunk( const string & old
     return { false };
   }
 
-  if ( thunks_.at( old_hash ).executable() ) {
+  if ( thunks_.at( old_hash ).can_be_executed() ) {
     throw runtime_error( "can't force thunks with unresolved dependencies" );
   }
 
@@ -93,7 +93,7 @@ Optional<unordered_set<string>> DependencyGraph::force_thunk( const string & old
     Thunk & ref_thunk = thunks_.at( thash );
     ref_thunk.update_data( old_hash, new_hash );
 
-    if ( ref_thunk.executable() ) {
+    if ( ref_thunk.can_be_executed() ) {
       const string ref_thunk_hash = ThunkWriter::write_thunk( ref_thunk );
       update_thunk_hash( thash, ref_thunk_hash );
       order_one_thunks.insert( ref_thunk_hash );
@@ -112,7 +112,7 @@ DependencyGraph::order_one_dependencies( const string & thunk_hash ) const
   unordered_set<string> result;
   const Thunk & thunk = get_thunk( thunk_hash );
 
-  if ( thunk.executable() ) {
+  if ( thunk.can_be_executed() ) {
     result.insert( thunk_hash );
     return result;
   }
