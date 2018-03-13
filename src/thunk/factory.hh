@@ -15,8 +15,8 @@ public:
   class Data
   {
   private:
-    const std::string filename_;
-    const std::string real_filename_;
+    std::string filename_;
+    std::string real_filename_;
     std::string hash_;
     gg::ObjectType type_;
 
@@ -55,7 +55,8 @@ public:
                                const std::vector<Data> & data,
                                const std::vector<Output> & outputs,
                                const bool generate_manifest = false,
-                               const std::vector<std::string> & dummy_dirs = {} );
+                               const std::vector<std::string> & dummy_dirs = {},
+                               const bool create_placeholder = false );
 };
 
 #endif /* FACTORY_HH */

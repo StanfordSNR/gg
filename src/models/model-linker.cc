@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_set>
 
+#include "thunk/factory.hh"
 #include "util/system_runner.hh"
 
 using namespace std;
@@ -49,28 +50,28 @@ vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile>
 }
 
 
-Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inputs,
-                                              const vector<string> & dependencies,
-                                              const string & output )
+string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inputs,
+                                               const vector<string> & dependencies,
+                                               const string & output )
 {
-  vector<InFile> infiles;
+  vector<ThunkFactory::Data> infiles;
+  vector<string> dummy_dirs;
+
   if ( operation_mode_ == OperationMode::GCC ) {
-    infiles.emplace_back( program_infiles.at( GCC ) );
+    infiles.emplace_back( program_data.at( GCC ) );
   }
   else {
-    infiles.emplace_back( program_infiles.at( GXX ) );
+    infiles.emplace_back( program_data.at( GXX ) );
   }
 
-  infiles.emplace_back( program_infiles.at( COLLECT2 ) );
-  infiles.emplace_back( program_infiles.at( LD ) );
+  infiles.emplace_back( program_data.at( COLLECT2 ) );
+  infiles.emplace_back( program_data.at( LD ) );
 
   for ( auto const & link_input : link_inputs ) {
     if ( link_input.language == Language::OBJECT or
          link_input.language == Language::SHARED_OBJECT or
          link_input.language == Language::ARCHIVE_LIBRARY ) {
-      infiles.push_back( link_input.infile.content_hash().empty()
-                         ? link_input.name
-                         : link_input.infile );
+      infiles.push_back( link_input.indata );
     }
   }
 
@@ -105,13 +106,13 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
 
   if ( not arguments_.no_stdlib() ) {
     for ( const string & dir : gcc_library_path ) {
-      infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
+      dummy_dirs.push_back( dir );
       all_args.push_back( "-L" + dir );
     }
   }
 
   for ( const string & dir : arguments_.library_dirs() ) {
-    infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
+    dummy_dirs.push_back( dir );
     all_args.push_back( "-L" + dir );
   }
 
@@ -120,15 +121,15 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
   all_args.push_back( "-B" + gcc_install_path );
 
   for ( const string & dir : ld_search_path ) {
+    dummy_dirs.push_back( dir );
     all_args.push_back( "-Wl,-rpath-link," + dir );
-    infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
   }
 
   if ( arguments_.force_strip() ) {
     all_args.push_back( "-s" );
   }
 
-  infiles.emplace_back( gcc_install_path, "", InFile::Type::DUMMY_DIRECTORY );
+  dummy_dirs.push_back( gcc_install_path );
 
   for ( const string & infile : arguments_.extra_infiles( LINK ) ) {
     infiles.emplace_back( infile );
@@ -151,5 +152,10 @@ Thunk GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_inp
     }
   }
 
-  return { output, gcc_function( operation_mode_, all_args, envars_ ), infiles };
+  return ThunkFactory::generate(
+    gcc_function( operation_mode_, all_args, envars_ ),
+    infiles,
+    { { "output", output } },
+    true, dummy_dirs, true
+  );
 }

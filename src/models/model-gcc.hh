@@ -7,6 +7,7 @@
 #include <vector>
 #include <unordered_map>
 
+#include "thunk/factory.hh"
 #include "thunk/thunk.hh"
 #include "util/optional.hh"
 #include "util/temp_file.hh"
@@ -44,7 +45,8 @@ struct InputFile
   Language language;
   Language source_language;
   size_t index;
-  gg::thunk::InFile infile;
+
+  ThunkFactory::Data indata;
 };
 
 enum class OperationMode
@@ -89,10 +91,10 @@ static auto gcc_function =
   {
     switch ( operation_mode ) {
     case OperationMode::GCC:
-      return { GG_BIN_PREFIX + "/" + GCC, args, envars, program_data( GCC ).first };
+      return { program_hash( GCC ), args, envars,  };
 
     case OperationMode::GXX:
-      return { GG_BIN_PREFIX + "/" + GXX, args, envars, program_data( GXX ).first };
+      return { program_hash( GXX ), args, envars };
 
     default:
       throw std::runtime_error( "invalid operation mode" );
@@ -172,19 +174,19 @@ private:
   std::vector<std::string> parse_dependencies_file( const std::string & dep_filename,
                                                     const std::string & target_name );
 
-  std::vector<std::string> generate_dependencies_file( const std::string & input_filename,
-                                                       const std::vector<std::string> & option_args,
+  std::vector<std::string> generate_dependencies_file( const std::vector<std::string> & option_args,
                                                        const std::string & output_name,
                                                        const std::string & target_name );
 
-  gg::thunk::Thunk generate_thunk( const GCCStage first_stage,
-                                   const GCCStage stage,
-                                   const InputFile & input,
-                                   const std::string & output );
+  std::string generate_thunk( const GCCStage first_stage,
+                              const GCCStage stage,
+                              const InputFile & input,
+                              const std::string & output,
+                              const bool write_placeholder );
 
-  gg::thunk::Thunk generate_link_thunk( const std::vector<InputFile> & link_inputs,
-                                        const std::vector<std::string> & dependencies,
-                                        const std::string & output );
+  std::string generate_link_thunk( const std::vector<InputFile> & link_inputs,
+                                   const std::vector<std::string> & dependencies,
+                                   const std::string & output );
 
   static std::vector<std::string> gcc_environment();
 

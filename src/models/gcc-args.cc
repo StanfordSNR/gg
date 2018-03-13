@@ -380,7 +380,7 @@ void GCCArguments::add_input( const string & filename, const Language language )
   }
 
   input_files_.push_back( { filename, language, language, input_args_.size() - 1,
-                            gg::thunk::InFile( "", "", "", 0, 0 ) } );
+                            ThunkFactory::Data( filename ) } );
 }
 
 vector<string> GCCArguments::all_args() const

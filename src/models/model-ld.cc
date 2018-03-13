@@ -6,8 +6,9 @@
 #include <list>
 
 #include "model-gcc.hh"
-#include "thunk/thunk.hh"
+#include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
+#include "thunk/thunk.hh"
 #include "util/path.hh"
 
 #include "toolchain.hh"
@@ -51,7 +52,7 @@ vector<string> get_link_dependencies( size_t argc, char * argv[], list<size_t> i
   return GCCModelGenerator::parse_linker_output( args );
 }
 
-Thunk generate_thunk( size_t argc, char * argv[] )
+void generate_thunk( size_t argc, char * argv[] )
 {
   if ( argc < 2 ) {
     throw runtime_error( "not enough arguments" );
@@ -84,7 +85,8 @@ Thunk generate_thunk( size_t argc, char * argv[] )
   vector<string> dep_args;
 
   string outfile;
-  vector<InFile> infiles;
+  vector<ThunkFactory::Data> indata;
+  vector<std::string> dummy_dirs;
   list<size_t> input_indexes;
 
   while ( true ) {
@@ -95,7 +97,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     }
 
     if ( opt == 1 ) {
-      infiles.emplace_back( optarg );
+      indata.emplace_back( optarg );
       input_indexes.emplace_back( optind - 1 );
       continue;
     }
@@ -108,7 +110,7 @@ Thunk generate_thunk( size_t argc, char * argv[] )
       break;
 
     case 'T':
-      infiles.emplace_back( optarg );
+      indata.emplace_back( optarg );
       break;
 
     case '?':
@@ -136,15 +138,16 @@ Thunk generate_thunk( size_t argc, char * argv[] )
     }
   }
 
-  infiles.push_back( program_infiles.at( LD ) );
+  indata.push_back( program_data.at( LD ) );
 
   vector<string> dependencies = get_link_dependencies( argc, argv, input_indexes );
 
   for ( const string & dep : dependencies ) {
-    infiles.emplace_back( dep );
+    indata.emplace_back( dep );
   }
 
   vector<string> all_args;
+  all_args.push_back( program_data.at( LD ).filename() );
 
   if ( not no_stdlib ) {
     all_args.push_back( "-nostdlib" );
@@ -153,24 +156,27 @@ Thunk generate_thunk( size_t argc, char * argv[] )
       all_args.push_back( "-L" + dir );
       all_args.push_back( "-rpath-link" );
       all_args.push_back( dir );
-      infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
+      dummy_dirs.push_back( dir );
     }
   }
 
   all_args.insert( all_args.end(), original_args.begin(), original_args.end() );
 
-  return { outfile,
-    { LD, all_args, {}, program_data( LD ).first },
-    infiles
-  };
+  ThunkFactory::generate(
+    {
+      program_hash( LD ),
+      all_args,
+      {}
+    },
+    indata,
+    { { "output", outfile } },
+    true, dummy_dirs
+  );
 }
 
 int main( int argc, char * argv[] )
 {
   gg::models::init();
-
-  Thunk thunk = generate_thunk( argc, argv );
-  thunk.store();
-
+  generate_thunk( argc, argv );
   return 0;
 }

@@ -16,6 +16,7 @@
 #include <libgen.h>
 #include <sys/ioctl.h>
 
+#include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"
 #include "util/digest.hh"
@@ -80,10 +81,11 @@ bool has_include_or_incbin( const string & filename )
   return false;
 }
 
-Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
-                                         const GCCStage stage,
-                                         const InputFile & input,
-                                         const string & output )
+string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
+                                          const GCCStage stage,
+                                          const InputFile & input,
+                                          const string & output,
+                                          const bool write_placeholder )
 {
   vector<string> args { arguments_.option_args() };
 
@@ -95,9 +97,9 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   );
 
   /* Common infiles */
-  vector<InFile> base_infiles = {
-    input.infile,
-    program_infiles.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX )
+  vector<ThunkFactory::Data> base_infiles = {
+    input.indata,
+    program_data.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX )
   };
 
   base_infiles.emplace_back( "/__gg__/gcc-specs", specs_tempfile_.name() );
@@ -105,6 +107,9 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   for ( const string & extra_infile : arguments_.extra_infiles( stage ) ) {
     base_infiles.emplace_back( extra_infile );
   }
+
+  /* Common dummy directories */
+  vector<string> dummy_dirs;
 
   /* Common args */
   args.push_back( "-x" );
@@ -130,7 +135,8 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   case PREPROCESS:
   {
     const vector<string> & include_path =
-      ( input.language == Language::C or input.language == Language::C_HEADER or
+      ( input.language == Language::C or
+        input.language == Language::C_HEADER or
         input.language == Language::ASSEMBLER_WITH_CPP )
         ? c_include_path
         : cpp_include_path;
@@ -193,21 +199,24 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       makedep_filename = makedep_tempfile.name();
     }
 
-    const vector<string> dependencies = generate_dependencies_file( input.name, all_args,
+    const vector<string> dependencies = generate_dependencies_file( all_args,
                                                                     makedep_filename, makedep_target );
 
+    /* We promised that we would add these here, and we lived up to our
+       promise... */
     all_args.insert( all_args.begin(), "-specs=/__gg__/gcc-specs" );
     all_args.push_back( "-o" );
     all_args.push_back( output );
     all_args = prune_makedep_flags( all_args );
 
     /* INFILES */
-    if ( input.language == Language::C or input.language == Language::C_HEADER or
+    if ( input.language == Language::C or
+         input.language == Language::C_HEADER or
          input.language == Language::ASSEMBLER_WITH_CPP ) {
-      base_infiles.emplace_back( program_infiles.at( CC1 ) );
+      base_infiles.emplace_back( program_data.at( CC1 ) );
     }
     else {
-      base_infiles.emplace_back( program_infiles.at( CC1PLUS ) );
+      base_infiles.emplace_back( program_data.at( CC1PLUS ) );
     }
 
     for ( const string & dep : dependencies ) {
@@ -215,16 +224,21 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     }
 
     for ( const string & dir : include_path ) {
-      base_infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
+      dummy_dirs.push_back( dir );
     }
 
     for ( const string & dir : arguments_.include_dirs() ) {
-      base_infiles.emplace_back( dir, "", InFile::Type::DUMMY_DIRECTORY );
+      dummy_dirs.push_back( dir );
     }
 
-    base_infiles.emplace_back( ".", "", InFile::Type::DUMMY_DIRECTORY );
+    dummy_dirs.push_back( "." );
 
-    return { output, gcc_function( operation_mode_, all_args, envars_ ), base_infiles };
+    return ThunkFactory::generate(
+      gcc_function( operation_mode_, all_args, envars_ ),
+      base_infiles,
+      { { "output", output } },
+      true, dummy_dirs, write_placeholder
+    );
   }
 
   case COMPILE:
@@ -237,13 +251,18 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     args = prune_makedep_flags( args );
 
     if ( input.language == Language::CPP_OUTPUT ) {
-      base_infiles.push_back( program_infiles.at( CC1 ) );
+      base_infiles.push_back( program_data.at( CC1 ) );
     }
     else {
-      base_infiles.push_back( program_infiles.at( CC1PLUS ) );
+      base_infiles.push_back( program_data.at( CC1PLUS ) );
     }
 
-    return { output, gcc_function( operation_mode_, args, envars_ ), base_infiles };
+    return ThunkFactory::generate(
+      gcc_function( operation_mode_, args, envars_ ),
+      base_infiles,
+      { { "output", output } },
+      true, dummy_dirs, write_placeholder
+    );
 
   case ASSEMBLE:
     if ( first_stage != ASSEMBLE and
@@ -259,8 +278,14 @@ Thunk GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     args.push_back( "-c" );
     args = prune_makedep_flags( args );
-    base_infiles.push_back( program_infiles.at( AS ) );
-    return { output, gcc_function( operation_mode_, args, envars_ ), base_infiles };
+    base_infiles.push_back( program_data.at( AS ) );
+
+    return ThunkFactory::generate(
+      gcc_function( operation_mode_, args, envars_ ),
+      base_infiles,
+      { { "output", output } },
+      true, dummy_dirs, write_placeholder
+    );
 
   default: throw runtime_error( "not implemented" );
   }
@@ -279,7 +304,7 @@ void print_gcc_command( const string & command_str )
 
   for ( size_t i = 0; i < line_count; i++ ) {
     if ( i > 0 ) {
-      cerr << " \u2936" << endl;;
+      cerr << " \u2936" << endl;
       cerr << "\u2503  ";
     }
    cerr << command_str.substr( i * window_width, window_width );
@@ -355,6 +380,7 @@ void GCCModelGenerator::generate()
                                               []( const InputFile & input ) {
                                                 return is_non_object_input( input );
                                               } );
+
   if ( source_inputs > 1 and not final_output.empty() ) {
     throw runtime_error( "cannot specify -o with -c, -S or -E with multiple files" );
   }
@@ -371,7 +397,7 @@ void GCCModelGenerator::generate()
 
     map<size_t, string> stage_output;
     stage_output[ first_stage - 1 ] = input.name;
-    input.infile = input.name;
+    input.indata = move( ThunkFactory::Data( input.name ) );
 
     cerr << "\u251c\u257c input: " << input.name << endl;
 
@@ -406,9 +432,7 @@ void GCCModelGenerator::generate()
                                 + "_" + to_string( stage_num );
       }
 
-      Thunk stage_thunk = generate_thunk( first_stage, stage, input, output_name );
-
-      const string last_stage_hash = stage_thunk.store( stage == last_stage );
+      string last_stage_hash = generate_thunk( first_stage, stage, input, output_name, stage == last_stage );
 
       switch ( stage ) {
       case PREPROCESS:
@@ -455,9 +479,8 @@ void GCCModelGenerator::generate()
       }
 
       input.name = output_name;
-      input.infile = InFile( input.name, "nonexistent",
-                             last_stage_hash, stage_thunk.order(),
-                             0 );
+      input.indata = ThunkFactory::Data( "nonexistent", input.name,
+                                         gg::ObjectType::Value, last_stage_hash );
 
       if ( stage == last_stage ) {
         cerr << "\u2570\u257c output: " << final_output << endl;
@@ -474,8 +497,7 @@ void GCCModelGenerator::generate()
 
     vector<string> dependencies = get_link_dependencies( input_files, args );
 
-    Thunk thunk = generate_link_thunk( input_files, dependencies, final_output );
-    string last_stage_hash = thunk.store();
+    string last_stage_hash = generate_link_thunk( input_files, dependencies, final_output );
 
     cerr << "\u251c\u2500 linked: " << last_stage_hash << endl;
     cerr << "\u2570\u257c output: " << final_output << endl;
