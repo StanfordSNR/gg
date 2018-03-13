@@ -27,7 +27,7 @@ ThunkFactory::Data::Data( const string & filename,
     real_filename_( ( real_filename.length() ) ? real_filename : filename_ ),
     hash_( hash ), type_( type )
 {
-  if ( hash_.length() == 0 ) {
+  if ( hash_.length() ) {
     return;
   }
 
@@ -99,7 +99,8 @@ std::string ThunkFactory::generate( const Function & function,
                                     const std::vector<Data> & data,
                                     const std::vector<Output> & outputs,
                                     const bool generate_manifest,
-                                    const std::vector<std::string> & dummy_dirs )
+                                    const std::vector<std::string> & dummy_dirs,
+                                    const bool create_placeholder )
 {
   vector<string> thunk_data;
   vector<string> thunk_outputs;
@@ -138,7 +139,14 @@ std::string ThunkFactory::generate( const Function & function,
     thunk_function.envars().push_back( "GG_MANIFEST=" + thunk::data_placeholder( manifest_hash ) );
   }
 
-  return ThunkWriter::write_thunk( { thunk_function,
-                                     thunk_data,
-                                     thunk_outputs } );
+  string hash = ThunkWriter::write_thunk( { thunk_function,
+                                            thunk_data,
+                                            thunk_outputs } );
+
+  if ( create_placeholder and outputs.at( 0 ).filename().initialized() ) {
+    ThunkPlaceholder placeholder { hash };
+    placeholder.write( *outputs.at( 0 ).filename() );
+  }
+
+  return hash;
 }
