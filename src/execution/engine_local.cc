@@ -21,7 +21,7 @@ void LocalExecutionEngine::force_thunk( const Thunk & thunk,
 
       Optional<gg::cache::ReductionResult> result = gg::cache::check( hash );
 
-      if ( not result.initialized() or result->order != 0 ) {
+      if ( not result.initialized() ) {
         throw runtime_error( "could not find the reduction entry" );
       }
 
