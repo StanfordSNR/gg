@@ -161,7 +161,7 @@ const string & program_hash( const string & name )
 
 for exe in os.listdir(BINDIR):
     exe_path = os.path.join(BINDIR, exe)
-    exe_hash = sha256_checksum(exe_path, 'X')
+    exe_hash = sha256_checksum(exe_path, 'V')
     print_cc(" " * 4, end='')
     print_cc('{{ "{exe}", "{hash}" }},'.format(exe=exe, hash=exe_hash))
 
