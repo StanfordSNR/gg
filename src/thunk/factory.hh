@@ -29,6 +29,7 @@ public:
           const std::string & hash = {} );
 
     const std::string & filename() const { return filename_; }
+    const std::string & real_filename() const { return real_filename_; }
     const std::string & hash() const { return hash_; }
     gg::ObjectType type() const { return type_; }
   };
@@ -56,7 +57,8 @@ public:
                                const std::vector<Output> & outputs,
                                const bool generate_manifest = false,
                                const std::vector<std::string> & dummy_dirs = {},
-                               const bool create_placeholder = true );
+                               const bool create_placeholder = true,
+                               const bool collect_data = true );
 };
 
 #endif /* FACTORY_HH */

@@ -100,7 +100,8 @@ std::string ThunkFactory::generate( const Function & function,
                                     const std::vector<Output> & outputs,
                                     const bool generate_manifest,
                                     const std::vector<std::string> & dummy_dirs,
-                                    const bool create_placeholder )
+                                    const bool create_placeholder,
+                                    const bool collect_data )
 {
   vector<string> thunk_data;
   vector<string> thunk_outputs;
@@ -137,6 +138,20 @@ std::string ThunkFactory::generate( const Function & function,
     roost::atomic_create( manifest_data,
                           gg::paths::blob_path( manifest_hash ) );
     thunk_function.envars().push_back( "GG_MANIFEST=" + thunk::data_placeholder( manifest_hash ) );
+  }
+
+  if ( collect_data ) {
+    for ( const Data & datum : data ) {
+      roost::path source_path = datum.real_filename();
+      roost::path target_path = gg::paths::blob_path( datum.hash() );
+
+      if ( roost::exists( target_path ) ) {
+        continue;
+      }
+      else {
+        roost::copy_then_rename( source_path, target_path );
+      }
+    }
   }
 
   string hash = ThunkWriter::write_thunk( { thunk_function,
