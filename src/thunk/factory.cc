@@ -102,11 +102,13 @@ std::string ThunkFactory::generate( const Function & function,
                                     const std::vector<Data> & data,
                                     const std::vector<Data> & executables,
                                     const std::vector<Output> & outputs,
-                                    const bool generate_manifest,
                                     const std::vector<std::string> & dummy_dirs,
-                                    const bool create_placeholder,
-                                    const bool collect_data )
+                                    const int options )
 {
+  const bool generate_manifest = options & Options::generate_manifest;
+  const bool create_placeholder = options & Options::create_placeholder;
+  const bool collect_data = options & Options::collect_data;
+
   vector<Thunk::DataItem> thunk_data;
   vector<Thunk::DataItem> thunk_executables;
   vector<string> thunk_outputs;

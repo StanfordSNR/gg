@@ -12,6 +12,13 @@
 class ThunkFactory
 {
 public:
+  struct Options
+  {
+    static constexpr int generate_manifest  = ( 1 << 0 );
+    static constexpr int create_placeholder = ( 1 << 1 );
+    static constexpr int collect_data       = ( 1 << 2 );
+  };
+
   class Data
   {
   private:
@@ -59,10 +66,8 @@ public:
                                const std::vector<Data> & data,
                                const std::vector<Data> & executables,
                                const std::vector<Output> & outputs,
-                               const bool generate_manifest = false,
                                const std::vector<std::string> & dummy_dirs = {},
-                               const bool create_placeholder = true,
-                               const bool collect_data = true );
+                               const int options = Options::create_placeholder | Options::collect_data );
 };
 
 #endif /* FACTORY_HH */
