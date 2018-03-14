@@ -29,43 +29,85 @@ string thunk::data_placeholder( const string & hash )
   return DATA_PLACEHOLDER_START + hash + DATA_PLACEHOLDER_END;
 }
 
-template<class Iterator>
-Thunk::Data::Data( Iterator begin, Iterator end )
+string data_to_string( const pair<const string, string> & item )
 {
-  for ( auto it = begin; it != end; it++ ) {
-    switch ( hash::type( *it ) ) {
-    case ObjectType::Value: values.emplace( *it ); break;
-    case ObjectType::Thunk: thunks.emplace( *it ); break;
+  if ( item.second.length() > 0 ) {
+    return item.first + '=' + item.second;
+  }
+  else {
+    return item.first;
+  }
+}
+
+pair<const string, string> string_to_data( const string & str )
+{
+  auto eqpos = str.find( '=' );
+  if ( eqpos == string::npos ) {
+    return make_pair( str, string {} );
+  }
+  else {
+    return make_pair( str.substr( 0, eqpos ), str.substr( eqpos + 1 ) );
+  }
+}
+
+Thunk::Thunk( const Function & function,
+              const vector<DataItem> & data,
+              const vector<DataItem> & executables,
+              const vector<string> & outputs )
+  : function_( function ),
+    values_(),
+    thunks_(),
+    executables_( executables.cbegin(), executables.cend() ), outputs_( outputs )
+{
+  for ( const DataItem & item : data ) {
+    switch ( hash::type( item.first ) ) {
+    case ObjectType::Value: values_.emplace( item ); break;
+    case ObjectType::Thunk: thunks_.emplace( item ); break;
     }
   }
 }
 
-Thunk::Data::Data( const vector<string> & data )
-  : Data( data.cbegin(), data.cend() )
-{}
-
-bool Thunk::Data::operator==( const Data & other ) const
+Thunk::Thunk( Function && function,
+              vector<DataItem> && data,
+              vector<DataItem> && executables,
+              vector<string> && outputs )
+  : function_( move( function ) ), values_(), thunks_(), executables_(),
+    outputs_( move( outputs ) )
 {
-  return ( values == other.values ) and
-         ( thunks == other.thunks );
-}
+  for ( DataItem & item : data ) {
+    switch ( hash::type( item.first ) ) {
+    case ObjectType::Value: values_.emplace( move( item ) ); break;
+    case ObjectType::Thunk: thunks_.emplace( move( item ) ); break;
+    }
+  }
 
-Thunk::Thunk( const Function & function, const vector<string> & data,
-              const vector<string> & executables, const vector<string> & outputs )
-  : function_( function ), data_( data ),
-    executables_( executables.cbegin(), executables.cend() ), outputs_( outputs )
-{}
+  for ( DataItem & item : executables ) {
+    executables_.emplace( move( item ) ) ;
+  }
+}
 
 Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   : function_( thunk_proto.function() ),
-    data_( thunk_proto.data().cbegin(), thunk_proto.data().cend() ),
-    executables_( thunk_proto.executables().cbegin(), thunk_proto.executables().cend() ),
+    values_(),
+    thunks_(),
+    executables_(),
     outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() )
-{}
+{
+  for ( const string & item : thunk_proto.data() ) {
+    switch ( hash::type( item ) ) {
+    case ObjectType::Value: values_.emplace( string_to_data( item ) ); break;
+    case ObjectType::Thunk: thunks_.emplace( string_to_data( item ) ); break;
+    }
+  }
+
+  for ( const string & item : thunk_proto.executables() ) {
+    executables_.emplace( string_to_data( item ) );
+  }
+}
 
 int Thunk::execute() const
 {
-  if ( data_.thunks.size() != 0 ) {
+  if ( thunks_.size() != 0 ) {
     throw runtime_error( "cannot execute thunk with unresolved dependencies" );
   }
 
@@ -136,7 +178,7 @@ string Thunk::execution_payload( const vector<Thunk> & thunks )
   for ( const Thunk & thunk : thunks ) {
     string base64_thunk;
     StringSource s( ThunkWriter::serialize_thunk( thunk ), true,
-                  new Base64Encoder( new StringSink( base64_thunk ), false ) );
+                    new Base64Encoder( new StringSink( base64_thunk ), false ) );
 
     protobuf::RequestItem request_item;
     request_item.set_thunk_data( base64_thunk );
@@ -164,31 +206,19 @@ protobuf::Thunk Thunk::to_protobuf() const
 
   *thunk_proto.mutable_function() = function_.to_protobuf();
 
-  for ( const string & h : data_.thunks ) { thunk_proto.add_data( h ); }
-  for ( const string & h : data_.values ) { thunk_proto.add_data( h ); }
-  for ( const string & h : executables_ ) { thunk_proto.add_executables( h ); }
-
-  for ( const string & output : outputs_ ) {
-    thunk_proto.add_outputs( output );
-  }
+  for ( const auto & h : thunks_ ) { thunk_proto.add_data( data_to_string( h ) ); }
+  for ( const auto & h : values_ ) { thunk_proto.add_data( data_to_string( h ) ); }
+  for ( const auto & h : executables_ ) { thunk_proto.add_executables( data_to_string( h ) ); }
+  for ( const string & output : outputs_ ) { thunk_proto.add_outputs( output ); }
 
   return thunk_proto;
-}
-
-void put_file( const roost::path & src, const roost::path & dst )
-{
-  if ( roost::exists( dst ) ) {
-    /* XXX we might want to implement strict checks, like hash check */
-    return;
-  }
-
-  roost::copy_then_rename( src, dst );
 }
 
 bool Thunk::operator==( const Thunk & other ) const
 {
   return ( function_ == other.function_ ) and
-         ( data_ == other.data_ ) and
+         ( values_ == other.values_ ) and
+         ( thunks_ == other.thunks_ ) and
          ( executables_ == other.executables_ ) and
          ( outputs_ == other.outputs_ );
 }
@@ -207,7 +237,11 @@ string Thunk::executable_hash() const
 {
   const string combined_hashes = accumulate( executables_.begin(),
                                              executables_.end(),
-                                             string {} );
+                                             string {},
+                                             []( const auto & a, const auto & b )
+                                             {
+                                               return a + b.first;
+                                             } );
 
   return digest::sha256( combined_hashes );
 }
@@ -215,13 +249,12 @@ string Thunk::executable_hash() const
 void Thunk::update_data( const string & old_hash, const string & new_hash )
 {
   hash_.clear();
-  data_.thunks.erase( old_hash );
+  string old_name { move( thunks_.at( old_hash ) ) };
+  thunks_.erase( old_hash );
 
-  if ( hash::type( new_hash ) == ObjectType::Thunk ) {
-    data_.thunks.insert( new_hash );
-  }
-  else {
-    data_.values.insert( new_hash );
+  switch ( hash::type( new_hash ) ) {
+  case ObjectType::Thunk: thunks_.insert( { new_hash, old_name } ); break;
+  case ObjectType::Value: values_.insert( { new_hash, old_name } ); break;
   }
 
   /* XXX Update the args. */
@@ -232,12 +265,12 @@ Thunk::get_allowed_files() const
 {
   unordered_map<string, Permissions> allowed_files;
 
-  for ( const std::string & hash : data_.values ) {
-    allowed_files[ gg::paths::blob_path( hash ).string() ] = { true, false, false };
+  for ( const DataItem & item : values_ ) {
+    allowed_files[ gg::paths::blob_path( item.first ).string() ] = { true, false, false };
   }
 
-  for ( const std::string & hash : executables_ ) {
-    allowed_files[ gg::paths::blob_path( hash ).string() ] = { true, false, true };
+  for ( const DataItem & item : executables_ ) {
+    allowed_files[ gg::paths::blob_path( item.first ).string() ] = { true, false, true };
   }
 
   allowed_files[ gg::paths::blobs().string() ] = { true, false, false };
@@ -253,13 +286,13 @@ size_t Thunk::infiles_size( const bool include_executables ) const
 {
   size_t total_size = 0;
 
-  for ( const string & hash : data_.values ) {
-    total_size += gg::hash::size( hash );
+  for ( const DataItem & item : values_ ) {
+    total_size += gg::hash::size( item.first );
   }
 
   if ( include_executables ) {
-    for ( const string & hash : executables_ ) {
-      total_size += gg::hash::size( hash );
+    for ( const DataItem & item : executables_ ) {
+      total_size += gg::hash::size( item.first );
     }
   }
 

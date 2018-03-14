@@ -66,34 +66,29 @@ namespace gg {
 
     class Thunk
     {
+    public:
+      typedef std::map<std::string, std::string> DataList;
+      typedef DataList::value_type DataItem;
+
     private:
-      struct Data {
-        Data( const std::vector<std::string> & data );
-
-        template<class Iterator>
-        Data( Iterator begin, Iterator end );
-
-        std::set<std::string> values {}; /* prefixed V */
-        std::set<std::string> thunks {}; /* prefixed T */
-
-        bool operator==( const Data & other ) const;
-        bool operator!=( const Data & other ) const { return not operator==( other ); }
-      };
-
       Function function_;
-      Data data_;
-      std::set<std::string> executables_;
+      DataList values_;
+      DataList thunks_;
+      DataList executables_;
       std::vector<std::string> outputs_;
 
       mutable Optional<std::string> hash_ {};
 
-      std::string filename_to_hash( const std::string & filename ) const;
-
     public:
       Thunk( const Function & function,
-             const std::vector<std::string> & data,
-             const std::vector<std::string> & executables,
+             const std::vector<DataItem> & data,
+             const std::vector<DataItem> & executables,
              const std::vector<std::string> & outputs );
+
+     Thunk( Function && function,
+            std::vector<DataItem> && data,
+            std::vector<DataItem> && executables,
+            std::vector<std::string> && outputs );
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
@@ -103,9 +98,9 @@ namespace gg {
       static std::string execution_payload( const std::vector<Thunk> & thunks );
 
       const Function & function() const { return function_; }
-      const std::set<std::string> & data_values() const { return data_.values; }
-      const std::set<std::string> & data_thunks() const { return data_.thunks; }
-      const std::set<std::string> & executables() const { return executables_; }
+      const DataList & values() const { return values_; }
+      const DataList & thunks() const { return thunks_; }
+      const DataList & executables() const { return executables_; }
       const std::vector<std::string> & outputs() const { return outputs_; }
 
       gg::protobuf::Thunk to_protobuf() const;
@@ -116,7 +111,7 @@ namespace gg {
       void set_hash( const std::string & hash ) const { hash_.reset( hash ); }
       std::string hash() const;
       std::string executable_hash() const;
-      bool can_be_executed() const { return ( data_.thunks.size() == 0 ); }
+      bool can_be_executed() const { return ( thunks_.size() == 0 ); }
       size_t infiles_size( const bool include_executables = true ) const;
 
       void update_data( const std::string & old_hash,
