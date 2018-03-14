@@ -58,15 +58,15 @@ ThunkStats print_thunk_info( const string & hash, unsigned int indent )
 
   cout << indentation << display_name << "\n";
 
-  for ( const auto & hash : thunk.data_values() ) {
-    const string infile_name = shortn( hash );
+  for ( const auto & item : thunk.values() ) {
+    const string infile_name = shortn( item.first );
     cout << indentation << " " << infile_name << "\n";
-    stats.files.insert( { hash, gg::hash::size( hash ) } );
+    stats.files.insert( { item.first, gg::hash::size( item.first ) } );
   }
 
-  for ( const auto & hash : thunk.data_thunks() ) {
-    const string infile_name = shortn( hash );
-    stats += print_thunk_info( hash, indent + 1 );
+  for ( const auto & item : thunk.thunks() ) {
+    const string infile_name = shortn( item.first );
+    stats += print_thunk_info( item.first, indent + 1 );
   }
 
   const string plural = stats.thunks.size() > 1 ? "s" : "";

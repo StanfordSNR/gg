@@ -39,11 +39,9 @@ string execute_thunk( const Thunk & original_thunk )
   if ( not thunk.can_be_executed() ) {
     /* Let's see if we can redudce this thunk to an order one thunk by updating
     the infiles */
-    const set<string> dep_hashes = thunk.data_thunks();
-
-    for ( const string & dep_hash : dep_hashes ) {
+    for ( const Thunk::DataItem & dep_item : thunk.thunks() ) {
       /* let's check if we have a reduction of this infile */
-      auto result = gg::cache::check( dep_hash );
+      auto result = gg::cache::check( dep_item.first );
 
       if ( not result.initialized() or
            gg::hash::type( result->hash ) == gg::ObjectType::Thunk ) {
@@ -51,7 +49,7 @@ string execute_thunk( const Thunk & original_thunk )
                              "reduced to an executable thunk" );
       }
 
-      thunk.update_data( dep_hash, result->hash );
+      thunk.update_data( dep_item.first, result->hash );
     }
 
     thunk.set_hash( ThunkWriter::write_thunk( thunk ) );
@@ -141,12 +139,12 @@ void do_cleanup( const Thunk & thunk )
 
   infile_hashes.emplace( thunk.hash() );
 
-  for ( const string & hash : thunk.data_values() ) {
-    infile_hashes.emplace( hash );
+  for ( const Thunk::DataItem & item : thunk.values() ) {
+    infile_hashes.emplace( item.first );
   }
 
-  for ( const string & hash : thunk.executables() ) {
-    infile_hashes.emplace( hash );
+  for ( const Thunk::DataItem & item : thunk.executables() ) {
+    infile_hashes.emplace( item.first );
   }
 
   for ( const string & blob : roost::list_directory( gg::paths::blobs() ) ) {
@@ -164,17 +162,17 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
     vector<storage::GetRequest> download_items;
 
     auto check_dep =
-      [&download_items]( const string & hash ) -> void
+      [&download_items]( const Thunk::DataItem & item ) -> void
       {
-        const auto target_path = gg::paths::blob_path( hash );
+        const auto target_path = gg::paths::blob_path( item.first );
 
         if ( not roost::exists( target_path )
-             or roost::file_size( target_path ) != gg::hash::size( hash ) ) {
-          download_items.push_back( { hash, target_path } );
+             or roost::file_size( target_path ) != gg::hash::size( item.first ) ) {
+          download_items.push_back( { item.first, target_path } );
         }
       };
 
-    for_each( thunk.data_values().cbegin(), thunk.data_values().cend(),
+    for_each( thunk.values().cbegin(), thunk.values().cend(),
               check_dep );
 
     for_each( thunk.executables().cbegin(), thunk.executables().cend(),
@@ -184,8 +182,8 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
       storage_backend->get( download_items );
     }
 
-    for ( const string & hash : thunk.executables() ) {
-      roost::make_executable( gg::paths::blob_path( hash ) );
+    for ( const Thunk::DataItem & item : thunk.executables() ) {
+      roost::make_executable( gg::paths::blob_path( item.first ) );
     }
   }
   catch ( const exception & ex ) {
