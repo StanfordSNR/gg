@@ -168,10 +168,10 @@ std::string ThunkFactory::generate( const Function & function,
     for ( const Data & datum : executables ) { fn_collect( datum ); }
   }
 
-  string hash = ThunkWriter::write_thunk( { thunk_function,
-                                            thunk_data,
-                                            thunk_executables,
-                                            thunk_outputs } );
+  string hash = ThunkWriter::write_thunk( { move( thunk_function ),
+                                            move( thunk_data ),
+                                            move( thunk_executables ),
+                                            move( thunk_outputs ) } );
 
   if ( create_placeholder and outputs.at( 0 ).filename().initialized() ) {
     ThunkPlaceholder placeholder { hash };
