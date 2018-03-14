@@ -131,7 +131,7 @@ std::string ThunkFactory::generate( const Function & function,
     }
 
     for ( const string & dir : dummy_dirs ) {
-      manifest.add_dummy_directory( dir );
+      manifest.add_dummy_directory( roost::path( dir ).lexically_normal().string() );
     }
 
     for ( const Output & output : outputs ) {
