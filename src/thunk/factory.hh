@@ -67,8 +67,8 @@ public:
                                const std::vector<Data> & data,
                                const std::vector<Data> & executables,
                                const std::vector<Output> & outputs,
-                               const std::vector<std::string> & dummy_dirs = {},
-                               const int options = Options::create_placeholder | Options::collect_data );
+                               const std::vector<std::string> & dummy_dirs,
+                               const int options );
 };
 
 #endif /* FACTORY_HH */
