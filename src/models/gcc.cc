@@ -88,6 +88,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
                                           const bool write_placeholder )
 {
   vector<string> args { arguments_.option_args() };
+  auto & gcc_data = program_data.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX );
 
   args.erase(
     remove_if(
@@ -98,9 +99,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
   /* Common infiles */
   vector<ThunkFactory::Data> base_infiles = { input.indata };
-  vector<ThunkFactory::Data> base_executables = {
-    program_data.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX ),
-  };
+  vector<ThunkFactory::Data> base_executables = { gcc_data };
 
   base_infiles.emplace_back( "/__gg__/gcc-specs", specs_tempfile_.name() );
 
@@ -120,7 +119,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     /* For preprocess stage, we are going to use `args` to get the
        dependencies, so we can't have this FAKE specs path here.
        We will add these later.*/
-    args.insert( args.begin(), "-specs=/__gg__/gcc-specs" );
+    args.insert( args.begin(), { gcc_data.filename(), "-specs=/__gg__/gcc-specs" } );
     args.push_back( "-o" );
     args.push_back( output );
   }
@@ -204,7 +203,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     /* We promised that we would add these here, and we lived up to our
        promise... */
-    all_args.insert( all_args.begin(), "-specs=/__gg__/gcc-specs" );
+    all_args.insert( all_args.begin(), { gcc_data.filename(), "-specs=/__gg__/gcc-specs" } );
     all_args.push_back( "-o" );
     all_args.push_back( output );
     all_args = prune_makedep_flags( all_args );
