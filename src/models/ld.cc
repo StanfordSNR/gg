@@ -168,7 +168,11 @@ void generate_thunk( size_t argc, char * argv[] )
     indata,
     { program_data.at( LD ) },
     { { "output", outfile } },
-    true, dummy_dirs
+    dummy_dirs,
+    ThunkFactory::Options::create_placeholder
+      | ThunkFactory::Options::collect_data
+      | ThunkFactory::Options::generate_manifest
+      | ThunkFactory::Options::include_filenames
   );
 }
 

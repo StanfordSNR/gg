@@ -159,6 +159,10 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
     infiles,
     executables,
     { { "output", output } },
-    true, dummy_dirs, true
+    dummy_dirs,
+    ThunkFactory::Options::create_placeholder
+      | ThunkFactory::Options::collect_data
+      | ThunkFactory::Options::generate_manifest
+      | ThunkFactory::Options::include_filenames
   );
 }

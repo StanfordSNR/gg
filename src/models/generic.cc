@@ -82,7 +82,9 @@ void generate_thunk( const CLIDescription & cli_description,
     { roost::rbasename( cli_description.target_bin() ).string(),
       cli_description.target_bin() },
     { { "output", outfile } },
-    false /* no need to generate a manifest */
+    {},
+    ThunkFactory::Options::create_placeholder
+      | ThunkFactory::Options::collect_data
   );
 }
 

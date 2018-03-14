@@ -237,7 +237,11 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       base_infiles,
       base_executables,
       { { "output", output } },
-      true, dummy_dirs, write_placeholder
+      dummy_dirs,
+      ( write_placeholder ? ThunkFactory::Options::create_placeholder : 0 )
+        | ThunkFactory::Options::collect_data
+        | ThunkFactory::Options::generate_manifest
+        | ThunkFactory::Options::include_filenames
     );
   }
 
@@ -262,7 +266,11 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       base_infiles,
       base_executables,
       { { "output", output } },
-      true, dummy_dirs, write_placeholder
+      dummy_dirs,
+      ( write_placeholder ? ThunkFactory::Options::create_placeholder : 0 )
+        | ThunkFactory::Options::collect_data
+        | ThunkFactory::Options::generate_manifest
+        | ThunkFactory::Options::include_filenames
     );
 
   case ASSEMBLE:
@@ -286,7 +294,11 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       base_infiles,
       base_executables,
       { { "output", output } },
-      true, dummy_dirs, write_placeholder
+      dummy_dirs,
+      ( write_placeholder ? ThunkFactory::Options::create_placeholder : 0 )
+        | ThunkFactory::Options::collect_data
+        | ThunkFactory::Options::generate_manifest
+        | ThunkFactory::Options::include_filenames
     );
 
   default: throw runtime_error( "not implemented" );

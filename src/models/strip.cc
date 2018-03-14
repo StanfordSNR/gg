@@ -43,7 +43,11 @@ void generate_thunk( int argc, char * argv[] )
     { stripf },
     { program_data.at( STRIP ) },
     { { "output", stripf } },
-    true
+    {},
+    ThunkFactory::Options::create_placeholder
+      | ThunkFactory::Options::collect_data
+      | ThunkFactory::Options::generate_manifest
+      | ThunkFactory::Options::include_filenames
   );
 }
 

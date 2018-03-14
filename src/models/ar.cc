@@ -138,7 +138,11 @@ void generate_thunk( int argc, char * argv[] )
     data,
     { program_data.at( AR ) },
     { { "output", outfile } },
-    true
+    {},
+    ThunkFactory::Options::create_placeholder
+      | ThunkFactory::Options::collect_data
+      | ThunkFactory::Options::generate_manifest
+      | ThunkFactory::Options::include_filenames
   );
 }
 

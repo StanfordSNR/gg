@@ -38,7 +38,11 @@ void generate_thunk( int argc, char * argv[] )
     { archive },
     { program_data.at( RANLIB ) },
     { { "output", archive } },
-    true
+    {},
+    ThunkFactory::Options::create_placeholder
+      | ThunkFactory::Options::collect_data
+      | ThunkFactory::Options::generate_manifest
+      | ThunkFactory::Options::include_filenames
   );
 }
 
