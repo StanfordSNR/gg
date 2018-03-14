@@ -21,17 +21,17 @@ void DependencyGraph::add_thunk( const string & hash )
   Thunk thunk = thunk_reader.read_thunk();
   thunk.set_hash( hash );
 
-  for ( const string & h : thunk.data_values() ) {
-    value_dependencies_.insert( h );
+  for ( const Thunk::DataItem & h : thunk.values() ) {
+    value_dependencies_.insert( h.first );
   }
 
-  for ( const string & h : thunk.executables() ) {
-    executable_dependencies_.insert( h );
+  for ( const Thunk::DataItem & h : thunk.executables() ) {
+    executable_dependencies_.insert( h.first );
   }
 
-  for ( const string & h : thunk.data_thunks() ) {
-    add_thunk( h );
-    referenced_thunks_[ h ].insert( hash );
+  for ( const Thunk::DataItem & h : thunk.thunks() ) {
+    add_thunk( h.first );
+    referenced_thunks_[ h.first ].insert( hash );
   }
 
   thunks_.emplace( make_pair( hash, move( thunk ) ) );
@@ -117,8 +117,8 @@ DependencyGraph::order_one_dependencies( const string & thunk_hash ) const
     return result;
   }
 
-  for ( const string & hash : thunk.data_thunks() ) {
-    unordered_set<string> subresult = order_one_dependencies( hash );
+  for ( const Thunk::DataItem & item : thunk.thunks() ) {
+    unordered_set<string> subresult = order_one_dependencies( item.first );
     result.insert( subresult.begin(), subresult.end() );
   }
 
