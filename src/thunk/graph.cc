@@ -76,7 +76,7 @@ Optional<unordered_set<string>> DependencyGraph::force_thunk( const string & old
     return { false };
   }
 
-  if ( thunks_.at( old_hash ).can_be_executed() ) {
+  if ( not thunks_.at( old_hash ).can_be_executed() ) {
     throw runtime_error( "can't force thunks with unresolved dependencies" );
   }
 
