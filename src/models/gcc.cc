@@ -481,8 +481,10 @@ void GCCModelGenerator::generate()
       }
 
       input.name = output_name;
-      input.indata = ThunkFactory::Data( "nonexistent", input.name,
-                                         gg::ObjectType::Value, last_stage_hash );
+      cerr << last_stage_hash << endl;
+      input.indata = ThunkFactory::Data( input.name, "nonexistent",
+                                         gg::hash::type( last_stage_hash ),
+                                         last_stage_hash );
 
       if ( stage == last_stage ) {
         cerr << "\u2570\u257c output: " << final_output << endl;
