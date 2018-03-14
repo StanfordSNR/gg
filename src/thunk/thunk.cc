@@ -196,7 +196,8 @@ bool Thunk::operator==( const Thunk & other ) const
 string Thunk::hash() const
 {
   if ( not hash_.initialized() ) {
-    hash_.reset( gg::hash::compute( ThunkWriter::serialize_thunk( *this ) ) );
+    hash_.reset( gg::hash::compute( ThunkWriter::serialize_thunk( *this ),
+                                    ObjectType::Thunk ) );
   }
 
   return *hash_;
