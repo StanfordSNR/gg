@@ -15,12 +15,14 @@ public:
   class Data
   {
   private:
-    std::string filename_;
-    std::string real_filename_;
-    std::string hash_;
-    gg::ObjectType type_;
+    std::string filename_ {};
+    std::string real_filename_ {};
+    std::string hash_ {};
+    gg::ObjectType type_ { gg::ObjectType::Value };
 
   public:
+    Data() {}
+
     Data( const std::string & filename,
           const std::string & real_filename = {},
           const gg::ObjectType & type = gg::ObjectType::Value,

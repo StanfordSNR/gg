@@ -157,7 +157,7 @@ void generate_thunk( size_t argc, char * argv[] )
     }
   }
 
-  all_args.insert( all_args.end(), original_args.begin(), original_args.end() );
+  all_args.insert( all_args.end(), original_args.begin() + 1, original_args.end() );
 
   ThunkFactory::generate(
     {

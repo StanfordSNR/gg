@@ -374,13 +374,16 @@ void GCCArguments::add_input( const string & filename, const Language language )
 {
   if ( language == Language::SHARED_LIBRARY ) {
     input_args_.emplace_back( string( "-l" ) + filename );
+
+    input_files_.push_back( { filename, language, language, input_args_.size() - 1,
+                              ThunkFactory::Data() } );
   }
   else {
     input_args_.push_back( filename );
-  }
 
-  input_files_.push_back( { filename, language, language, input_args_.size() - 1,
-                            ThunkFactory::Data( filename ) } );
+    input_files_.push_back( { filename, language, language, input_args_.size() - 1,
+                              ThunkFactory::Data( filename ) } );
+  }
 }
 
 vector<string> GCCArguments::all_args() const
