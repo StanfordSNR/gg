@@ -108,6 +108,7 @@ std::string ThunkFactory::generate( const Function & function,
   const bool generate_manifest = options & Options::generate_manifest;
   const bool create_placeholder = options & Options::create_placeholder;
   const bool collect_data = options & Options::collect_data;
+  const bool include_filenames = options & Options::include_filenames;
 
   vector<Thunk::DataItem> thunk_data;
   vector<Thunk::DataItem> thunk_executables;
@@ -119,11 +120,15 @@ std::string ThunkFactory::generate( const Function & function,
     FileManifest manifest;
 
     for ( const Data & datum : data ) {
-      thunk_data.emplace_back( datum.hash(), datum.filename() );
+      thunk_data.emplace_back( datum.hash(),
+                               include_filenames ? datum.filename()
+                                                 : string {} );
     }
 
     for ( const Data & datum : executables ) {
-      thunk_executables.emplace_back( datum.hash(), datum.filename() );
+      thunk_executables.emplace_back( datum.hash(),
+                                      include_filenames ? datum.filename()
+                                                        : string {} );
     }
 
     for ( const string & dir : dummy_dirs ) {

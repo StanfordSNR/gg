@@ -17,6 +17,7 @@ public:
     static constexpr int generate_manifest  = ( 1 << 0 );
     static constexpr int create_placeholder = ( 1 << 1 );
     static constexpr int collect_data       = ( 1 << 2 );
+    static constexpr int include_filenames  = ( 1 << 3 );
   };
 
   class Data
