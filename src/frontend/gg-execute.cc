@@ -12,6 +12,7 @@
 #include "net/storage_requests.hh"
 #include "storage/backend.hh"
 #include "thunk/ggutils.hh"
+#include "thunk/factory.hh"
 #include "thunk/thunk_reader.hh"
 #include "thunk/thunk_writer.hh"
 #include "thunk/thunk.hh"
@@ -116,7 +117,7 @@ string execute_thunk( const Thunk & original_thunk )
 
   // GRABBING THE OUTPUT
   roost::path outfile { exec_dir_path / "output" };
-  string outfile_hash = gg::hash::compute( outfile.string() );
+  string outfile_hash = ThunkFactory::Data::compute_hash( outfile.string() );
   roost::path outfile_gg = gg::paths::blob_path( outfile_hash );
 
   if ( not roost::exists( outfile_gg ) ) {
