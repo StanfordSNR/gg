@@ -5,7 +5,7 @@
 #include <getopt.h>
 #include <list>
 
-#include "model-gcc.hh"
+#include "gcc.hh"
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"

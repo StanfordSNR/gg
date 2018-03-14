@@ -1,6 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include "model-gcc.hh"
+#include "gcc.hh"
 
 #include <iostream>
 #include <getopt.h>
