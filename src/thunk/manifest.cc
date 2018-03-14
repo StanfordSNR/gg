@@ -6,11 +6,6 @@
 
 using namespace std;
 
-void FileManifest::add_filename_to_hash( const string & filename, const string & hash )
-{
-  filename_to_hashes_.emplace_back( filename, hash );
-}
-
 void FileManifest::add_dummy_directory( const string & dummy_dir )
 {
   dummy_directories_.emplace_back( dummy_dir );
@@ -24,10 +19,6 @@ void FileManifest::add_output_tag( const string & filename, const string & tag )
 string FileManifest::serialize() const
 {
   ostringstream sout;
-
-  for ( const auto & entry : filename_to_hashes_ ) {
-    sout << "F" << '\0' << entry.first << '\0' << entry.second << '\0';
-  }
 
   for ( const auto & entry : dummy_directories_ ) {
     sout << "D" << '\0' << entry << '\0';
