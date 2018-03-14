@@ -9,6 +9,7 @@
 #include "ggutils.hh"
 #include "manifest.hh"
 #include "placeholder.hh"
+#include "thunk.hh"
 #include "thunk_writer.hh"
 #include "util/exception.hh"
 #include "util/file_descriptor.hh"
@@ -18,6 +19,7 @@
 
 using namespace std;
 using namespace gg;
+using namespace gg::thunk;
 
 ThunkFactory::Data::Data( const string & filename,
                           const string & real_filename,
@@ -105,8 +107,8 @@ std::string ThunkFactory::generate( const Function & function,
                                     const bool create_placeholder,
                                     const bool collect_data )
 {
-  vector<string> thunk_data;
-  vector<string> thunk_executables;
+  vector<Thunk::DataItem> thunk_data;
+  vector<Thunk::DataItem> thunk_executables;
   vector<string> thunk_outputs;
 
   thunk::Function thunk_function { function };
@@ -115,19 +117,11 @@ std::string ThunkFactory::generate( const Function & function,
     FileManifest manifest;
 
     for ( const Data & datum : data ) {
-      thunk_data.push_back( datum.hash() );
-
-      if ( datum.filename().length() > 0 ) {
-        manifest.add_filename_to_hash( datum.filename(), datum.hash() );
-      }
+      thunk_data.emplace_back( datum.hash(), datum.filename() );
     }
 
     for ( const Data & datum : executables ) {
-      thunk_executables.push_back( datum.hash() );
-
-      if ( datum.filename().length() > 0 ) {
-        manifest.add_filename_to_hash( datum.filename(), datum.hash() );
-      }
+      thunk_executables.emplace_back( datum.hash(), datum.filename() );
     }
 
     for ( const string & dir : dummy_dirs ) {
@@ -145,7 +139,7 @@ std::string ThunkFactory::generate( const Function & function,
     string manifest_data = manifest.serialize();
     string manifest_hash = gg::hash::compute( manifest_data,
                                               ObjectType::Value );
-    thunk_data.push_back( manifest_hash );
+    thunk_data.emplace_back( manifest_hash, string {} );
     roost::atomic_create( manifest_data,
                           gg::paths::blob_path( manifest_hash ) );
     thunk_function.envars().push_back( "GG_MANIFEST=" + thunk::data_placeholder( manifest_hash ) );
