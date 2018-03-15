@@ -38,10 +38,11 @@ int main( int argc, char * argv[] )
         { "envar1=A", "envar2=B", "envar3=C" },
       },
       {
-        "VOBJ1", "VOBJ2", "VOBJ3", "VOBJ4", "TOBJ5", "TOBJ6"
+        { "VOBJ1", "A" }, { "VOBJ2", "B" }, { "VOBJ3", "" },
+        { "TOBJ1", "A" }, { "TOBJ2", "B" }, { "TOBJ3", "" },
       },
       {
-        "VOBJ10", "VOBJ11",
+        { "VOBJ4", "A" }, { "VOBJ5", "" }, { "VOBJ6", "" },
       },
       {
         "output1", "output2", "output3", "output4"
