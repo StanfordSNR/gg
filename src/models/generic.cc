@@ -44,19 +44,19 @@ void generate_thunk( const CLIDescription & cli_description,
   vector<string> args = models::args_to_vector( argc, argv,
                                                 roost::rbasename( cli_description.target_bin() ).string() );
   vector<ThunkFactory::Data> indata;
-  string outfile;
+  vector<ThunkFactory::Output> outfiles;
 
   int opt;
   while ( ( opt = getopt_long( argc, argv, optstring.c_str(), long_options.data(), NULL ) ) != -1 ) {
     for ( const CLIOption & option : cli_description.options() ) {
       if ( option.value == opt ) {
         if ( option.type == CLIOption::Type::OutFile ) {
-          outfile = optarg;
+          outfiles.emplace_back( optarg );
         }
         else if ( option.type == CLIOption::Type::InFile ) {
           indata.emplace_back( "", optarg );
           ThunkFactory::Data & this_indata = indata.back();
-          args[ ( optind - 1 ) - 1 ] = gg::thunk::GG_HASH_REPLACE + this_indata.hash();
+          args[ ( optind - 1 ) - 1 ] = thunk::data_placeholder( this_indata.hash() );
         }
       }
     }
@@ -65,11 +65,11 @@ void generate_thunk( const CLIDescription & cli_description,
   for ( const size_t idx : cli_description.infile_args() ) {
     indata.emplace_back( "", argv[ optind + idx ] );
     ThunkFactory::Data & this_indata = indata.back();
-    args[ ( optind + idx ) - 1 ] = gg::thunk::GG_HASH_REPLACE + this_indata.hash();
+    args[ ( optind + idx ) ] = thunk::data_placeholder( this_indata.hash() );
   }
 
-  if ( cli_description.outfile_arg().initialized() ) {
-    outfile = argv[ optind + *cli_description.outfile_arg() ];
+  for ( const size_t idx : cli_description.outfile_args() ) {
+    outfiles.emplace_back( argv[ optind + idx ] );
   }
 
   ThunkFactory::generate(
@@ -81,7 +81,7 @@ void generate_thunk( const CLIDescription & cli_description,
     indata,
     { roost::rbasename( cli_description.target_bin() ).string(),
       cli_description.target_bin() },
-    { { "output", outfile } },
+    outfiles,
     {},
     ThunkFactory::Options::create_placeholder
       | ThunkFactory::Options::collect_data
