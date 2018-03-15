@@ -116,28 +116,28 @@ std::string ThunkFactory::generate( const Function & function,
 
   thunk::Function thunk_function { function };
 
+  for ( const Data & datum : data ) {
+    thunk_data.emplace_back( datum.hash(), include_filenames ? datum.filename()
+                                                             : string {} );
+  }
+
+  for ( const Data & datum : executables ) {
+    thunk_executables.emplace_back( datum.hash(), include_filenames ? datum.filename()
+                                                                    : string {} );
+  }
+
+  for ( const Output & output : outputs ) {
+    thunk_outputs.push_back( output.tag() );
+  }
+
   if ( generate_manifest ) {
     FileManifest manifest;
-
-    for ( const Data & datum : data ) {
-      thunk_data.emplace_back( datum.hash(),
-                               include_filenames ? datum.filename()
-                                                 : string {} );
-    }
-
-    for ( const Data & datum : executables ) {
-      thunk_executables.emplace_back( datum.hash(),
-                                      include_filenames ? datum.filename()
-                                                        : string {} );
-    }
 
     for ( const string & dir : dummy_dirs ) {
       manifest.add_dummy_directory( roost::path( dir ).lexically_normal().string() );
     }
 
     for ( const Output & output : outputs ) {
-      thunk_outputs.push_back( output.tag() );
-
       if ( output.filename().initialized() ) {
         manifest.add_output_tag( *output.filename(), output.tag() );
       }

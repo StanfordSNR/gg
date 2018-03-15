@@ -72,7 +72,8 @@ Thunk::Thunk( const Function & function,
   : function_( function ),
     values_(),
     thunks_(),
-    executables_( executables.cbegin(), executables.cend() ), outputs_( outputs )
+    executables_( executables.cbegin(), executables.cend() ),
+    outputs_( outputs )
 {
   for ( const DataItem & item : data ) {
     switch ( hash::type( item.first ) ) {
