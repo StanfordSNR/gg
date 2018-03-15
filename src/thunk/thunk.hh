@@ -78,6 +78,8 @@ namespace gg {
 
       mutable Optional<std::string> hash_ {};
 
+      void throw_if_error() const;
+
     public:
       Thunk( const Function & function,
              const std::vector<DataItem> & data,

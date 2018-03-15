@@ -50,6 +50,21 @@ pair<const string, string> string_to_data( const string & str )
   }
 }
 
+void Thunk::throw_if_error() const
+{
+  if ( outputs_.size() == 0 ) {
+    throw runtime_error( "a thunk needs at least one output" );
+  }
+
+  if ( executables_.size() == 0 ) {
+    throw runtime_error( "a thunk needs at least one executable" );
+  }
+
+  if ( function_.args().size() == 0 ) {
+    throw runtime_error( "a thunk needs at least one argument (argv0)" );
+  }
+}
+
 Thunk::Thunk( const Function & function,
               const vector<DataItem> & data,
               const vector<DataItem> & executables,
@@ -65,6 +80,8 @@ Thunk::Thunk( const Function & function,
     case ObjectType::Thunk: thunks_.emplace( item ); break;
     }
   }
+
+  throw_if_error();
 }
 
 Thunk::Thunk( Function && function,
@@ -84,6 +101,8 @@ Thunk::Thunk( Function && function,
   for ( DataItem & item : executables ) {
     executables_.emplace( move( item ) ) ;
   }
+
+  throw_if_error();
 }
 
 Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
@@ -103,6 +122,8 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   for ( const string & item : thunk_proto.executables() ) {
     executables_.emplace( string_to_data( item ) );
   }
+
+  throw_if_error();
 }
 
 int Thunk::execute() const
