@@ -31,7 +31,7 @@ private:
   std::string target_bin_ {};
   std::vector<CLIOption> options_ {};
   std::vector<size_t> infile_args_ {};
-  Optional<size_t> outfile_arg_ { false };
+  std::vector<size_t> outfile_args_ {};
 
 public:
   CLIDescription( const std::string & description );
@@ -39,7 +39,7 @@ public:
   const std::string & target_bin() const { return target_bin_; }
   const std::vector<CLIOption> & options() const { return options_; }
   const std::vector<size_t> & infile_args() const { return infile_args_; }
-  const Optional<size_t> & outfile_arg() const { return outfile_arg_; }
+  const std::vector<size_t> & outfile_args() const { return outfile_args_; }
 };
 
 #endif /* CLI_DESCRIPTION_HH */
