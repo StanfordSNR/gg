@@ -47,7 +47,7 @@ def gghash(filename, block_size=65536):
             size += len(block)
             sha256.update(block)
 
-    return "{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).decode('ascii').replace('=','').replace('-', '.'), size)
+    return "V{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).decode('ascii').replace('=','').replace('-', '.'), size)
 
 def create_lambda_package(output, function_execs, gg_execute_static):
     PACKAGE_FILES = {
