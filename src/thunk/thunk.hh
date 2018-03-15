@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <map>
 #include <unordered_map>
 #include <limits>
 #include <regex>
@@ -66,7 +67,7 @@ namespace gg {
     class Thunk
     {
     public:
-      typedef std::map<std::string, std::string> DataList;
+      typedef std::multimap<std::string, std::string> DataList;
       typedef DataList::value_type DataItem;
 
     private:

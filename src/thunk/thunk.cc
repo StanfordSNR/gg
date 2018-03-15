@@ -270,13 +270,19 @@ string Thunk::executable_hash() const
 
 void Thunk::update_data( const string & old_hash, const string & new_hash )
 {
-  hash_.clear();
-  string old_name { move( thunks_.at( old_hash ) ) };
-  thunks_.erase( old_hash );
+  hash_.clear(); /* invalidating the cached hash */
+  auto result = thunks_.equal_range( old_hash );
 
-  switch ( hash::type( new_hash ) ) {
-  case ObjectType::Thunk: thunks_.insert( { new_hash, old_name } ); break;
-  case ObjectType::Value: values_.insert( { new_hash, old_name } ); break;
+  for ( auto it = result.first; it != result.second; ) {
+    auto it_copy = it;
+    it++;
+
+    string old_name { move( it_copy->second ) };
+    thunks_.erase( it_copy );
+    switch ( hash::type( new_hash ) ) {
+    case ObjectType::Thunk: thunks_.insert( { new_hash, old_name } ); break;
+    case ObjectType::Value: values_.insert( { new_hash, old_name } ); break;
+    }
   }
 
   /* XXX Update the args. */
