@@ -228,7 +228,7 @@ namespace gg {
     {
       string output;
 
-      string hash = gghash.substr( 0, gghash.length() - 8 );
+      string hash = gghash.substr( 1, gghash.length() - 9 );
       replace( hash.begin(), hash.end(), '.', '-' );
       hash += '=';
 
