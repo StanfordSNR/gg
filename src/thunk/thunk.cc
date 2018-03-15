@@ -274,6 +274,7 @@ Thunk::get_allowed_files() const
   }
 
   allowed_files[ gg::paths::blobs().string() ] = { true, false, false };
+  allowed_files[ gg::paths::blob_path( hash() ).string() ] = { true, false, false };
 
   for ( const string & output : outputs_ ) {
     allowed_files[ output ] = { true, true, false };
