@@ -24,6 +24,7 @@ message LambdaInFile {
 message RequestItem {
   string thunk_hash = 1;
   string thunk_data = 2;
+  repeated string expected_outputs = 3;
 }
 
 message ExecutionRequest {
