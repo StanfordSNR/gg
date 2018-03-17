@@ -203,11 +203,11 @@ string Thunk::execution_payload( const vector<Thunk> & thunks )
                     new Base64Encoder( new StringSink( base64_thunk ), false ) );
 
     protobuf::RequestItem request_item;
-    request_item.set_thunk_data( base64_thunk );
-    request_item.set_thunk_hash( thunk.hash() );
+    request_item.set_data( base64_thunk );
+    request_item.set_hash( thunk.hash() );
 
     for ( const string & output : thunk.outputs() ) {
-      request_item.add_expected_outputs( output );
+      request_item.add_outputs( output );
     }
 
     *execution_request.add_thunks() = request_item;
