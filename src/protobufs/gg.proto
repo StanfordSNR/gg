@@ -22,9 +22,9 @@ message LambdaInFile {
 }
 
 message RequestItem {
-  string thunk_hash = 1;
-  string thunk_data = 2;
-  repeated string expected_outputs = 3;
+  string hash = 1;
+  string data = 2;
+  repeated string outputs = 3;
 }
 
 message ExecutionRequest {
@@ -32,11 +32,16 @@ message ExecutionRequest {
   string storage_backend = 2;
 }
 
+message OutputItem {
+  string tag = 1;
+  string hash = 2;
+  uint32 size = 3;
+  bool executable = 4;
+}
+
 message ResponseItem {
   string thunk_hash = 1;
-  string output_hash = 2;
-  uint64 output_size = 3;
-  bool executable_output = 4;
+  repeated OutputItem outputs = 2;
 }
 
 message ExecutionResponse {
