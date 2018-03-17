@@ -213,6 +213,11 @@ namespace gg {
   }
 
   namespace hash {
+    string for_output( const string & thunk_hash, const string & output_tag )
+    {
+      return thunk_hash + "#" + output_tag;
+    }
+
     string compute( const string & input, const ObjectType type )
     {
       string ret { move( digest::sha256( input ) ) };

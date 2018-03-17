@@ -9,7 +9,7 @@
 #include <unordered_set>
 
 #include "execution/execution_response.hh"
-#include "net/storage_requests.hh"
+#include "net/requests.hh"
 #include "storage/backend.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/factory.hh"
@@ -25,6 +25,7 @@
 #include "util/util.hh"
 
 using namespace std;
+using namespace gg;
 using namespace gg::thunk;
 using ReductionResult = gg::cache::ReductionResult;
 
@@ -32,7 +33,7 @@ const bool sandboxed = ( getenv( "GG_SANDBOXED" ) != NULL );
 const string temp_dir_template = "/tmp/thunk-execute";
 const string temp_file_template = "/tmp/thunk-file";
 
-string execute_thunk( const Thunk & original_thunk )
+vector<string> execute_thunk( const Thunk & original_thunk )
 {
   Thunk thunk = original_thunk;
 
@@ -113,24 +114,49 @@ string execute_thunk( const Thunk & original_thunk )
     }
   }
 
-  // GRABBING THE OUTPUT
-  roost::path outfile { exec_dir_path / "output" };
-  string outfile_hash = ThunkFactory::Data::compute_hash( outfile.string() );
-  roost::path outfile_gg = gg::paths::blob_path( outfile_hash );
+  vector<string> output_hashes;
 
-  if ( not roost::exists( outfile_gg ) ) {
-    roost::move_file( outfile, outfile_gg );
-  } else {
-    roost::remove( outfile );
+  // GRABBING THE OUTPUTS & CREATING CACHE ENTRIES
+  for ( size_t i = 0; i < thunk.outputs().size(); i++ ) {
+    const string & output = thunk.outputs().at( i );
+    roost::path outfile { exec_dir_path / output };
+
+    /* let's check if the output is a thunk or not */
+    ObjectType output_type;
+
+    ThunkReader thunk_reader { outfile.string() };
+    if ( ThunkReader( outfile.string() ).is_thunk() ) {
+      output_type = ObjectType::Thunk;
+    }
+    else {
+      output_type = ObjectType::Value;
+    }
+
+    string outfile_hash = ThunkFactory::Data::compute_hash( outfile.string(), output_type );
+    roost::path outfile_gg = gg::paths::blob_path( outfile_hash );
+
+    if ( not roost::exists( outfile_gg ) ) {
+      roost::move_file( outfile, outfile_gg );
+    } else {
+      roost::remove( outfile );
+    }
+
+    if ( i == 0 ) {
+      gg::cache::insert( original_thunk.hash(), outfile_hash );
+      if ( original_thunk.hash() != thunk.hash() ) {
+        gg::cache::insert( thunk.hash(), outfile_hash );
+      }
+    }
+
+    gg::cache::insert( original_thunk.output_hash( output ), outfile_hash );
+    if ( original_thunk.hash() != thunk.hash() ) {
+      gg::cache::insert( thunk.output_hash( output ), outfile_hash );
+    }
+
+    output_hashes.emplace_back( move( outfile_hash ) );
   }
 
-  // CREATING CACHE ENTRIES
-  gg::cache::insert( original_thunk.hash(), outfile_hash );
-  if ( original_thunk.hash() != thunk.hash() ) {
-    gg::cache::insert( thunk.hash(), outfile_hash );
-  }
-
-  return outfile_hash;
+  return output_hashes;
 }
 
 void do_cleanup( const Thunk & thunk )
@@ -192,11 +218,15 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
 }
 
 void upload_output( unique_ptr<StorageBackend> & storage_backend,
-                    const string & output_hash )
+                    const vector<string> & output_hashes )
 {
   try {
-    storage_backend->put( { { gg::paths::blob_path( output_hash ), output_hash,
-                              gg::hash::to_hex( output_hash ) } } );
+    vector<storage::PutRequest> requests;
+    for ( const string & output_hash : output_hashes ) {
+      requests.push_back( { gg::paths::blob_path( output_hash ), output_hash,
+                            gg::hash::to_hex( output_hash ) } );
+    }
+    storage_backend->put( requests );
   }
   catch ( const exception & ex ) {
     throw_with_nested( UploadOutputError {} );
@@ -291,10 +321,10 @@ int main( int argc, char * argv[] )
         fetch_dependencies( storage_backend, thunk );
       }
 
-      string output_hash = execute_thunk( thunk );
+      vector<string> output_hashes = execute_thunk( thunk );
 
       if ( put_output ) {
-        upload_output( storage_backend, output_hash );
+        upload_output( storage_backend, output_hashes );
       }
     }
 

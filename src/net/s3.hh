@@ -11,7 +11,7 @@
 
 #include "aws.hh"
 #include "http_request.hh"
-#include "storage_requests.hh"
+#include "requests.hh"
 #include "util/path.hh"
 #include "util/optional.hh"
 

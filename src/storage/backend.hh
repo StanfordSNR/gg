@@ -9,7 +9,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include "net/storage_requests.hh"
+#include "net/requests.hh"
 #include "util/path.hh"
 #include "util/optional.hh"
 

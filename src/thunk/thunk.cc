@@ -260,6 +260,11 @@ string Thunk::hash() const
   return *hash_;
 }
 
+string Thunk::output_hash( const string & tag ) const
+{
+  return gg::hash::for_output( hash(), tag );
+}
+
 string Thunk::executable_hash() const
 {
   const string combined_hashes = accumulate( executables_.begin(),

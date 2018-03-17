@@ -72,15 +72,18 @@ void generate_thunk( const CLIDescription & cli_description,
     outfiles.emplace_back( argv[ optind + idx ] );
   }
 
+  ThunkFactory::Data executable =
+    { roost::rbasename( cli_description.target_bin() ).string(),
+      cli_description.target_bin() };
+
   ThunkFactory::generate(
     {
-      indata.back().hash(),
+      executable.hash(),
       args,
       {}
     },
     indata,
-    { roost::rbasename( cli_description.target_bin() ).string(),
-      cli_description.target_bin() },
+    { executable },
     outfiles,
     {},
     ThunkFactory::Options::create_placeholder

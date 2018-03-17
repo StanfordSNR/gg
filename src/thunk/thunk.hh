@@ -113,6 +113,8 @@ namespace gg {
       void set_hash( const std::string & hash ) const { hash_.reset( hash ); }
       std::string hash() const;
       std::string executable_hash() const;
+      std::string output_hash( const std::string & tag ) const;
+
       bool can_be_executed() const { return ( thunks_.size() == 0 ); }
       size_t infiles_size( const bool include_executables = true ) const;
 
