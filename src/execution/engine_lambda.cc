@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <cmath>
 
-#include "execution_response.hh"
+#include "response.hh"
 #include "thunk/ggutils.hh"
 #include "net/http_response.hh"
 #include "util/optional.hh"
@@ -87,6 +87,10 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
           throw runtime_error( "expected output for " +
                                thunk_hash + ", got output for " +
                                response.thunk_hash );
+        }
+
+        for ( const auto & output : response.outputs ) {
+          
         }
 
         gg::cache::insert( response.thunk_hash, response.output_hash );

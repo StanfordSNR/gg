@@ -39,7 +39,8 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
     response.outputs.push_back( { output_proto.tag(),
                                   output_proto.hash(),
                                   output_proto.size(),
-                                  output_proto.executable() } );
+                                  output_proto.executable(),
+                                  output_proto.data() } );
   }
 
   return response;

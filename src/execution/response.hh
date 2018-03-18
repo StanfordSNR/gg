@@ -37,6 +37,7 @@ public:
     std::string hash;
     off_t size;
     bool is_executable;
+    std::string data;
   };
 
 private:

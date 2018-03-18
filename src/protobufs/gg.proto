@@ -37,6 +37,7 @@ message OutputItem {
   string hash = 2;
   uint32 size = 3;
   bool executable = 4;
+  string data = 5;
 }
 
 message ResponseItem {

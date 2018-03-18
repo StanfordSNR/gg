@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-#include "execution_response.hh"
+#include "response.hh"
 #include "net/http_response.hh"
 #include "thunk/ggutils.hh"
 #include "util/optional.hh"

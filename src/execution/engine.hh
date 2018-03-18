@@ -7,7 +7,7 @@
 #include <functional>
 
 #include "loop.hh"
-#include "execution_response.hh"
+#include "response.hh"
 #include "thunk/thunk.hh"
 
 class ExecutionEngine

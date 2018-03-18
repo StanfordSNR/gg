@@ -28,8 +28,12 @@ class GGPaths:
 
 class GGCache:
     @classmethod
-    def check(cls, thunk_hash):
-        rpath = GGPaths.reduction_path(thunk_hash)
+    def check(cls, thunk_hash, output_tag=None):
+        key = thunk_hash
+        if output_tag:
+            key += ("#%s" % tag)
+
+        rpath = GGPaths.reduction_path(key)
 
         if not os.path.exists(rpath):
             return None

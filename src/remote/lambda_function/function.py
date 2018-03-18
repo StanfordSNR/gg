@@ -26,8 +26,8 @@ def handler(event, context):
 
     # Write thunks to disk
     for thunk_item in thunks:
-        thunk_data = b64decode(thunk_item['thunkData'])
-        with open(GGPaths.blob_path(thunk_item['thunkHash']), "wb") as fout:
+        thunk_data = b64decode(thunk_item['data'])
+        with open(GGPaths.blob_path(thunk_item['hash']), "wb") as fout:
             fout.write(thunk_data)
 
     # Move executables from Lambda package to .gg directory
@@ -47,12 +47,12 @@ def handler(event, context):
     # Execute the thunk, and upload the result
     return_code, output = run_command(["gg-execute-static",
          "--get-dependencies", "--put-output", "--cleanup",] +
-         [x['thunkHash'] for x in thunks])
+         [x['hash'] for x in thunks])
 
     result_hashes = []
 
     for thunk_item in thunks:
-        result = GGCache.check(thunk_item['thunkHash'])
+        result = GGCache.check(thunk_item['hash'])
         result_hashes += [result]
 
     if return_code or (None in result_hashes):
@@ -63,12 +63,26 @@ def handler(event, context):
 
     executed_thunks = []
 
-    for i in range(len(thunks)):
+    for thunk in thunks:
+        outputs = []
+
+        for output_tag in thunk['outputs']:
+            output_hash = GGPaths.check(thunk['hash'], output)
+
+            if not output_hash:
+                # this shouldn't happen, gg-execute actually check for this
+                # XXX Where do we go now? Where do we go now?
+                pass
+
+            outputs += [{
+                'hash': result_hashes[i],
+                'size': os.path.getsize(GGPaths.blob_path(output_hash)),
+                'executable': is_executable(GGPaths.blob_path(output_hash))
+            }]
+
         executed_thunks += [{
-            'thunkHash': thunks[i]['thunkHash'],
-            'outputHash': result_hashes[i],
-            'outputSize': os.path.getsize(GGPaths.blob_path(result_hashes[i])),
-            'executableOutput': is_executable(GGPaths.blob_path(result_hashes[i]))
+            'thunkHash': thunks[i]['hash'],
+            'outputs': outputs
         }]
 
     return {

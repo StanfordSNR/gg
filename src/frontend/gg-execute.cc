@@ -8,7 +8,7 @@
 #include <vector>
 #include <unordered_set>
 
-#include "execution/execution_response.hh"
+#include "execution/response.hh"
 #include "net/requests.hh"
 #include "storage/backend.hh"
 #include "thunk/ggutils.hh"
@@ -120,6 +120,10 @@ vector<string> execute_thunk( const Thunk & original_thunk )
   for ( size_t i = 0; i < thunk.outputs().size(); i++ ) {
     const string & output = thunk.outputs().at( i );
     roost::path outfile { exec_dir_path / output };
+
+    if ( not roost::exists( outfile ) ) {
+      throw ExecutionError {};
+    }
 
     /* let's check if the output is a thunk or not */
     ObjectType output_type;
