@@ -114,11 +114,11 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
     outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() )
 {
   for ( const string & item : thunk_proto.values() ) {
-    values_.emplace( string_to_data( item ) ); break;
+    values_.emplace( string_to_data( item ) );
   }
 
   for ( const string & item : thunk_proto.thunks() ) {
-    thunks_.emplace( string_to_data( item ) ); break;
+    thunks_.emplace( string_to_data( item ) );
   }
 
   for ( const string & item : thunk_proto.executables() ) {
