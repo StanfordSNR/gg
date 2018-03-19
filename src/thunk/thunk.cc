@@ -113,11 +113,12 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
     executables_(),
     outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() )
 {
-  for ( const string & item : thunk_proto.data() ) {
-    switch ( hash::type( item ) ) {
-    case ObjectType::Value: values_.emplace( string_to_data( item ) ); break;
-    case ObjectType::Thunk: thunks_.emplace( string_to_data( item ) ); break;
-    }
+  for ( const string & item : thunk_proto.values() ) {
+    values_.emplace( string_to_data( item ) ); break;
+  }
+
+  for ( const string & item : thunk_proto.thunks() ) {
+    thunks_.emplace( string_to_data( item ) ); break;
   }
 
   for ( const string & item : thunk_proto.executables() ) {
@@ -233,8 +234,8 @@ protobuf::Thunk Thunk::to_protobuf() const
 
   *thunk_proto.mutable_function() = function_.to_protobuf();
 
-  for ( const auto & h : thunks_ ) { thunk_proto.add_data( data_to_string( h ) ); }
-  for ( const auto & h : values_ ) { thunk_proto.add_data( data_to_string( h ) ); }
+  for ( const auto & h : values_ ) { thunk_proto.add_values( data_to_string( h ) ); }
+  for ( const auto & h : thunks_ ) { thunk_proto.add_thunks( data_to_string( h ) ); }
   for ( const auto & h : executables_ ) { thunk_proto.add_executables( data_to_string( h ) ); }
   for ( const string & output : outputs_ ) { thunk_proto.add_outputs( output ); }
 
