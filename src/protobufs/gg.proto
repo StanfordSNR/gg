@@ -10,9 +10,10 @@ message Function {
 
 message Thunk {
   Function function = 1;
-  repeated string data = 2;
-  repeated string executables = 3;
-  repeated string outputs = 4;
+  repeated string values = 2;
+  repeated string thunks = 3;
+  repeated string executables = 4;
+  repeated string outputs = 5;
 }
 
 message LambdaInFile {
