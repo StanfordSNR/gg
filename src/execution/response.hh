@@ -41,13 +41,15 @@ public:
   };
 
 private:
-  ExecutionResponse();
+  ExecutionResponse() {}
 
 public:
-  JobStatus status;
+  JobStatus status {};
 
-  std::string thunk_hash;
-  std::vector<Output> outputs;
+  std::string thunk_hash {};
+  std::vector<Output> outputs {};
+
+  std::string stdout {};
 
   static ExecutionResponse parse_message( const std::string & message );
 };

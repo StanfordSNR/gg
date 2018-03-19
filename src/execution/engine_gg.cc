@@ -70,8 +70,16 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
         throw runtime_error( "expected output for " + thunk_hash + ", got output for " + response.thunk_hash );
       }
 
-      gg::cache::insert( response.thunk_hash, response.output_hash );
-      success_callback_( response.thunk_hash, response.output_hash, 0 );
+      for ( const auto & output : response.outputs ) {
+        gg::cache::insert( gg::hash::for_output( response.thunk_hash, output.tag ), output.hash );
+
+        if ( output.data.length() ) {
+          atomic_create( output.data, gg::paths::blob_path( output.hash ) );
+        }
+      }
+
+      gg::cache::insert( response.thunk_hash, response.outputs.at( 0 ).hash );
+      success_callback_( response.thunk_hash, response.outputs.at( 0 ).hash, 0 );
     },
     [this] ( const uint64_t, const string & thunk_hash )
     {

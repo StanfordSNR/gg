@@ -76,8 +76,8 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
       ExecutionResponse response = ExecutionResponse::parse_message( http_response.body() );
 
       /* print the output, if there's any */
-      if ( response.output.length() ) {
-        cerr << response.output << endl;
+      if ( response.stdout.length() ) {
+        cerr << response.stdout << endl;
       }
 
       switch ( response.status ) {
@@ -90,11 +90,15 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
         }
 
         for ( const auto & output : response.outputs ) {
-          
+          gg::cache::insert( gg::hash::for_output( response.thunk_hash, output.tag ), output.hash );
+
+          if ( output.data.length() ) {
+            atomic_create( output.data, gg::paths::blob_path( output.hash ) );
+          }
         }
 
-        gg::cache::insert( response.thunk_hash, response.output_hash );
-        success_callback_( response.thunk_hash, response.output_hash,
+        gg::cache::insert( response.thunk_hash, response.outputs.at( 0 ).hash );
+        success_callback_( response.thunk_hash, response.outputs.at( 0 ).hash,
                            compute_cost( start_times_.at( id ) ) );
 
         start_times_.erase( id );

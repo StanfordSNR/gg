@@ -206,16 +206,9 @@ namespace gg {
       return ReductionResult { output_hash };
     }
 
-    void insert( const string & old_hash, const string & new_hash,
-                 const string & tag )
+    void insert( const string & old_hash, const string & new_hash )
     {
-      if ( tag.size() == 0 ) {
-        atomic_create( new_hash, gg::paths::reduction_path( old_hash ) );
-      }
-      else {
-        string key = old_hash + "#" + tag;
-        atomic_create( new_hash, gg::paths::reduction_path( key ) );
-      }
+      atomic_create( new_hash, gg::paths::reduction_path( old_hash ) );
     }
   }
 

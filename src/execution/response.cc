@@ -45,7 +45,3 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
 
   return response;
 }
-
-ExecutionResponse::ExecutionResponse()
-  : status(), thunk_hash(), outputs()
-{}
