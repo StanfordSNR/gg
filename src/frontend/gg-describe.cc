@@ -57,10 +57,10 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    roost::path thunk_path { gg::paths::blob_path( argv[ optind ] ) };
+    roost::path thunk_path { argv[ optind ] };
 
     if ( not roost::exists( thunk_path ) ) {
-      thunk_path = argv[ optind ];
+      thunk_path = gg::paths::blob_path( argv[ optind ] );
     }
 
     ThunkReader thunk_reader { thunk_path.string() };
