@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 FIB_HASH=$(gg-hash fib)
 ADD_HASH=$(gg-hash add)
