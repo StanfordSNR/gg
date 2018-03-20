@@ -7,7 +7,6 @@
 
 #include "thunk/thunk.hh"
 #include "thunk/thunk_writer.hh"
-#include "thunk/factory.hh"
 #include "util/path.hh"
 #include "util/util.hh"
 
@@ -44,34 +43,31 @@ int main( int argc, char * argv[] )
   vector<string> envars = { "FIB_FUNCTION_HASH=" + fib_func_hash,
                             "ADD_FUNCTION_HASH=" + add_func_hash };
 
-  const Thunk fib_left = ThunkFactory::create_thunk(
+  const Thunk fib_left {
     { fib_func_hash, { "fib", to_string( N - 1 ) }, envars },
     {},
-    { fib_func_hash },
-    { { "out" }, { "left" }, { "right" } },
-    false
-  );
+    { { fib_func_hash, "" } },
+    { { "out" }, { "left" }, { "right" } }
+  };
 
-  const Thunk fib_right = ThunkFactory::create_thunk(
+  const Thunk fib_right {
     { fib_func_hash, { "fib", to_string( N - 2 ) }, envars },
     {},
-    { fib_func_hash },
-    { { "out" }, { "left" }, { "right" } },
-    false
-  );
+    { { fib_func_hash, "" } },
+    { { "out" }, { "left" }, { "right" } }
+  };
 
   const string fib_left_hash = ThunkWriter::write_thunk( fib_left, "left" );
   const string fib_right_hash = ThunkWriter::write_thunk( fib_right, "right" );
 
-  const Thunk add_thunk = ThunkFactory::create_thunk(
+  const Thunk add_thunk {
     { add_func_hash, { "add",
                        thunk::data_placeholder( fib_left_hash ),
                        thunk::data_placeholder( fib_right_hash ) }, {} },
-    { fib_left_hash, fib_right_hash },
-    { add_func_hash },
-    {{ "out" }},
-    false
-  );
+    { { fib_left_hash, "" }, { fib_right_hash, "" } },
+    { { add_func_hash, "" } },
+    { { "out" } }
+  };
 
   ThunkWriter::write_thunk( add_thunk, "out" );
 
