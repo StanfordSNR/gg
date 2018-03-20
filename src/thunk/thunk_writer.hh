@@ -5,10 +5,12 @@
 #include <string>
 
 #include "thunk/thunk.hh"
+#include "util/path.hh"
 
 class ThunkWriter
 {
 public:
-  static std::string write_thunk( const gg::thunk::Thunk & thunk );
+  static std::string write_thunk( const gg::thunk::Thunk & thunk,
+                                  const roost::path & path = {} );
   static std::string serialize_thunk( const gg::thunk::Thunk & thunk );
 };

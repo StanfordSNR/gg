@@ -14,15 +14,18 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
-std::string ThunkWriter::write_thunk( const Thunk & thunk )
+string ThunkWriter::write_thunk( const Thunk & thunk, const roost::path & path )
 {
   const string serialized_thunk = serialize_thunk( thunk );
   const string thunk_hash = gg::hash::compute( serialized_thunk,
                                                ObjectType::Thunk );
   thunk.set_hash( thunk_hash );
 
-  if ( not roost::exists( paths::blob_path( thunk_hash ) ) ) {
-    atomic_create( serialized_thunk, paths::blob_path( thunk_hash ) );
+  roost::path target_path { ( not path.empty() ) ? path
+                                                 : paths::blob_path( thunk_hash ) };
+
+  if ( not roost::exists( target_path ) ) {
+    atomic_create( serialized_thunk, target_path );
   }
 
   return thunk_hash;

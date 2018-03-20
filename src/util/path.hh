@@ -35,6 +35,7 @@ namespace roost {
     path lexically_normal() const;
     const std::string & string() const;
     std::vector<std::string> path_components() const;
+    bool empty() const { return ( path_.length() == 0 ); }
 
     bool operator==( const path & other ) const;
     bool operator!=( const path & other ) const { return not operator==( other ); }
