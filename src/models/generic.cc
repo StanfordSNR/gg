@@ -56,7 +56,7 @@ void generate_thunk( const CLIDescription & cli_description,
         else if ( option.type == CLIOption::Type::InFile ) {
           indata.emplace_back( "", optarg );
           ThunkFactory::Data & this_indata = indata.back();
-          args[ ( optind - 1 ) - 1 ] = thunk::data_placeholder( this_indata.hash() );
+          args[ optind - 1 ] = thunk::data_placeholder( this_indata.hash() );
         }
       }
     }
