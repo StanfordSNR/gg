@@ -173,9 +173,15 @@ std::string ThunkFactory::generate( const Function & function,
                                             move( thunk_executables ),
                                             move( thunk_outputs ) } );
 
-  if ( create_placeholder and outputs.at( 0 ).filename().initialized() ) {
+  if ( create_placeholder ) {
     ThunkPlaceholder placeholder { hash };
-    placeholder.write( *outputs.at( 0 ).filename() );
+
+    if ( outputs.at( 0 ).filename().initialized() ) {
+      placeholder.write( *outputs.at( 0 ).filename() );
+    }
+    else {
+      placeholder.write( outputs.at( 0 ).tag() );
+    }
   }
 
   return hash;
