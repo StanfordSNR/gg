@@ -32,16 +32,7 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    const string filename { argv[ 1 ] };
-    const ObjectType type = ThunkReader( filename ).is_thunk() ? ObjectType::Thunk
-                                                               : ObjectType::Value;
-
-    FileDescriptor file { CheckSystemCall( "open (" + filename + ")",
-                                           open( filename.c_str(), O_RDONLY ) ) };
-
-    string contents;
-    while ( not file.eof() ) { contents += file.read(); }
-    cout << gg::hash::compute( contents, type ) << endl;
+    cout << gg::hash::file( argv[ 1 ] ) << endl;
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );
