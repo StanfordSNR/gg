@@ -12,6 +12,7 @@
 #include <crypto++/hex.h>
 #include <crypto++/base64.h>
 
+#include "thunk_reader.hh"
 #include "util/digest.hh"
 #include "util/exception.hh"
 #include "util/file_descriptor.hh"
@@ -227,6 +228,19 @@ namespace gg {
       output_sstr << to_underlying( type ) << ret << setfill( '0' )
                   << setw( 8 ) << hex << input.length();
       return output_sstr.str();
+    }
+
+    string file( const roost::path & path )
+    {
+      const ObjectType type = ThunkReader( path.string() ).is_thunk() ? ObjectType::Thunk
+                                                                      : ObjectType::Value;
+
+      FileDescriptor file { CheckSystemCall( "open (" + path.string() + ")",
+                                             open( path.string().c_str(), O_RDONLY ) ) };
+
+      string contents;
+      while ( not file.eof() ) { contents += file.read(); }
+      return gg::hash::compute( contents, type );
     }
 
     string to_hex( const string & gghash )
