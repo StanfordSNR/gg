@@ -89,10 +89,10 @@ namespace gg {
              const std::vector<DataItem> & executables,
              const std::vector<std::string> & outputs );
 
-     Thunk( Function && function,
-            std::vector<DataItem> && data,
-            std::vector<DataItem> && executables,
-            std::vector<std::string> && outputs );
+      Thunk( Function && function,
+             std::vector<DataItem> && data,
+             std::vector<DataItem> && executables,
+             std::vector<std::string> && outputs );
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
