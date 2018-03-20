@@ -16,11 +16,11 @@ using namespace gg::thunk;
 void usage( const char * argv0 )
 {
   cerr << argv0 << endl
-       << "\t[--envar, -E <arg>]..." << endl
-       << "\t[--value, -v value[=name]]..." << endl
-       << "\t[--thunk, -t thunk[=name]]..." << endl
-       << "\t[--executable, -e executable[=name]]..." << endl
-       << "\t[--output, -o tag]..." << endl
+       << "\t[--envar, -E <environment-varible>]..." << endl
+       << "\t[--value, -v <value[=name]>]..." << endl
+       << "\t[--thunk, -t <thunk[=name]>]..." << endl
+       << "\t[--executable, -e <executable[=name]>]..." << endl
+       << "\t[--output, -o <tag>]..." << endl
        << "\t[--placeholder, -C <arg>]" << endl
        << "\tFUNCTION-HASH FUNCTION-ARG..." << endl;
 }
