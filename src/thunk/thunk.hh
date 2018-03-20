@@ -51,6 +51,11 @@ namespace gg {
                 const std::vector<std::string> & args,
                 const std::vector<std::string> & envars );
 
+
+      Function( std::string && hash,
+                std::vector<std::string> && args,
+                std::vector<std::string> && envars );
+
       Function( const gg::protobuf::Function & func_proto );
 
       const std::string & hash() const { return hash_; }
@@ -132,6 +137,9 @@ namespace gg {
       /* Returns a list of files that can be accessed while executing this
          thunk. */
       std::unordered_map<std::string, Permissions> get_allowed_files() const;
+
+      static std::pair<const std::string, std::string>
+      string_to_data( const std::string & str );
     };
 
   } /* namespace thunk */

@@ -18,6 +18,11 @@ Function::Function( const string & hash, const vector<string> & args,
   : hash_( hash ), args_( args ), envars_( envars )
 {}
 
+Function::Function( string && hash, vector<string> && args,
+                    vector<string> && envars )
+  : hash_( move( hash ) ), args_( move( args ) ), envars_( move( envars ) )
+{}
+
 Function::Function( const protobuf::Function & func_proto )
   : hash_( func_proto.hash() ),
     args_( func_proto.args().begin(), func_proto.args().end() ),

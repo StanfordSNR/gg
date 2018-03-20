@@ -39,7 +39,7 @@ string data_to_string( const pair<const string, string> & item )
   }
 }
 
-pair<const string, string> string_to_data( const string & str )
+pair<const string, string> Thunk::string_to_data( const string & str )
 {
   auto eqpos = str.find( '=' );
   if ( eqpos == string::npos ) {
