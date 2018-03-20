@@ -11,7 +11,10 @@ BASE_LDADD = ../../src/thunk/libthunk.a \
              ../../src/util/libggutil.a \
              $(CRYPTO_LIBS) $(PROTOBUF_LIBS)
 
-bin_PROGRAMS = fib
+bin_PROGRAMS = fib add
 
 fib_SOURCES = fib.cc
 fib_LDADD = $(BASE_LDADD)
+
+add_SOURCES = add.cc
+add_LDFLAGS = -static
