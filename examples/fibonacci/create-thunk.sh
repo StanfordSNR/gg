@@ -13,3 +13,5 @@ gg-create-thunk --envar FIB_FUNCTION_HASH=${FIB_HASH} \
                 --output right \
                 --placeholder fib${N}_output \
                 ${FIB_HASH} fib ${N}
+
+gg-collect fib add

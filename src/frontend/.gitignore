@@ -16,4 +16,5 @@ gg-s3-download-static
 gg-init
 gg-hash
 gg-create-thunk
+gg-collect
 lambda-invoker
