@@ -72,6 +72,10 @@ void generate_thunk( const CLIDescription & cli_description,
     outfiles.emplace_back( argv[ optind + idx ] );
   }
 
+  if ( outfiles.size() == 0 ) {
+    outfiles.emplace_back( "out" );
+  }
+
   ThunkFactory::Data executable =
     { roost::rbasename( cli_description.target_bin() ).string(),
       cli_description.target_bin() };
