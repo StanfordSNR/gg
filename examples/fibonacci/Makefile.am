@@ -15,7 +15,10 @@ bin_PROGRAMS = fib add
 
 fib_SOURCES = fib.cc
 fib_LDADD = $(BASE_LDADD)
-fib_LDFLAGS = -static
 
 add_SOURCES = add.cc
-add_LDFLAGS = -static
+
+if BUILD_STATIC_BINS
+  fib_LDFLAGS = -static
+  add_LDFLAGS = -static
+endif
