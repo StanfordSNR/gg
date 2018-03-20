@@ -106,6 +106,29 @@ Thunk::Thunk( Function && function,
   throw_if_error();
 }
 
+Thunk::Thunk( Function && function,
+              vector<DataItem> && values,
+              vector<DataItem> && thunks,
+              vector<DataItem> && executables,
+              vector<string> && outputs )
+  : function_( move( function ) ), values_(), thunks_(), executables_(),
+    outputs_( move( outputs ) )
+{
+  for ( DataItem & item : values ) {
+    values_.emplace( move( item ) );
+  }
+
+  for ( DataItem & item : thunks ) {
+    thunks_.emplace( move( item ) );
+  }
+
+  for ( DataItem & item : executables ) {
+    executables_.emplace( move( item ) ) ;
+  }
+
+  throw_if_error();
+}
+
 Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   : function_( thunk_proto.function() ),
     values_(),
