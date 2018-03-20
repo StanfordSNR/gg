@@ -31,7 +31,7 @@ class GGCache:
     def check(cls, thunk_hash, output_tag=None):
         key = thunk_hash
         if output_tag:
-            key += ("#%s" % tag)
+            key += ("#%s" % output_tag)
 
         rpath = GGPaths.reduction_path(key)
 

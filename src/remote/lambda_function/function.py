@@ -45,21 +45,9 @@ def handler(event, context):
     os.system("rm -rf /tmp/thunk-execute.*")
 
     # Execute the thunk, and upload the result
-    return_code, output = run_command(["gg-execute-static",
+    return_code, stdout = run_command(["gg-execute-static",
          "--get-dependencies", "--put-output", "--cleanup",] +
          [x['hash'] for x in thunks])
-
-    result_hashes = []
-
-    for thunk_item in thunks:
-        result = GGCache.check(thunk_item['hash'])
-        result_hashes += [result]
-
-    if return_code or (None in result_hashes):
-        return {
-            'returnCode': return_code,
-            'output': output
-        }
 
     executed_thunks = []
 
@@ -67,26 +55,28 @@ def handler(event, context):
         outputs = []
 
         for output_tag in thunk['outputs']:
-            output_hash = GGPaths.check(thunk['hash'], output)
+            output_hash = GGCache.check(thunk['hash'], output_tag)
 
             if not output_hash:
-                # this shouldn't happen, gg-execute actually check for this
-                # XXX Where do we go now? Where do we go now?
-                pass
+                return {
+                    'returnCode': return_code,
+                    'stdout': stdout
+                }
 
             outputs += [{
-                'hash': result_hashes[i],
+                'tag': output_tag,
+                'hash': output_hash,
                 'size': os.path.getsize(GGPaths.blob_path(output_hash)),
                 'executable': is_executable(GGPaths.blob_path(output_hash))
             }]
 
         executed_thunks += [{
-            'thunkHash': thunks[i]['hash'],
+            'thunkHash': thunk['hash'],
             'outputs': outputs
         }]
 
     return {
         'returnCode': 0,
-        'output': '',
+        'stdout': '',
         'executedThunks': executed_thunks
     }
