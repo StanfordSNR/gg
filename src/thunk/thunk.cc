@@ -296,7 +296,33 @@ void Thunk::update_data( const string & old_hash, const string & new_hash )
     }
   }
 
-  /* XXX Update the args. */
+
+  /* let's update the args/envs as necessary */
+  const string srcstr = data_placeholder( old_hash );
+  const string dststr = data_placeholder( new_hash );
+
+  assert( srcstr.length() == dststr.length() );
+
+  auto update_placeholder =
+    []( string & str, const string & src, const string & dst )
+    {
+      size_t index = 0;
+
+      while ( true ) {
+        index = str.find( src, index );
+        if ( index == string::npos ) break;
+        str.replace( index, dst.length(), dst );
+        index += dst.length();
+      }
+    };
+
+  for ( string & arg : function_.args() ) {
+    update_placeholder( arg, srcstr, dststr );
+  }
+
+  for ( string & envar : function_.envars() ) {
+    update_placeholder( envar, srcstr, dststr );
+  }
 }
 
 unordered_map<string, Permissions>

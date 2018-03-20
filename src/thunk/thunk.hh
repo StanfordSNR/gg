@@ -56,6 +56,8 @@ namespace gg {
       const std::string & hash() const { return hash_; }
       const std::vector<std::string> & args() const { return args_; }
       const std::vector<std::string> & envars() const { return envars_; }
+
+      std::vector<std::string> & args() { return args_; }
       std::vector<std::string> & envars() { return envars_; }
 
       gg::protobuf::Function to_protobuf() const;
