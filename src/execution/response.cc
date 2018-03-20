@@ -43,5 +43,8 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
                                   output_proto.data() } );
   }
 
+  response.thunk_hash = response_proto.executed_thunks( 0 ).thunk_hash();
+  response.stdout = response_proto.stdout();
+
   return response;
 }
