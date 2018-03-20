@@ -1,5 +1,6 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <cstdlib>
@@ -8,7 +9,8 @@ using namespace std;
 
 int main( int argc, char * argv[] )
 {
-  if ( argc != 4 ) {
+  if ( argc != 3 ) {
+    cerr << "usage: add <A> <B>" << endl;
     return EXIT_FAILURE;
   }
 
@@ -16,7 +18,7 @@ int main( int argc, char * argv[] )
 
   ifstream fin_a { argv[ 1 ] };
   ifstream fin_b { argv[ 2 ] };
-  ofstream fout { argv[ 3 ] };
+  ofstream fout { "out" };
 
   fin_a >> num1;
   fin_b >> num2;
