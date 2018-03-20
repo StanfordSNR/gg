@@ -63,6 +63,12 @@ public:
   };
 
 public:
+  static gg::thunk::Thunk create_thunk( const Function & function,
+                                        const std::vector<Data> & data,
+                                        const std::vector<Data> & executables,
+                                        const std::vector<Output> & outputs,
+                                        const bool include_filenames = true );
+
   static std::string generate( const Function & function,
                                const std::vector<Data> & data,
                                const std::vector<Data> & executables,

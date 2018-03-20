@@ -98,6 +98,38 @@ string ThunkFactory::Data::compute_hash( const string & real_filename,
   return computed_hash;
 }
 
+Thunk ThunkFactory::create_thunk( const Function & function,
+                                  const vector<Data> & data,
+                                  const vector<Data> & executables,
+                                  const vector<Output> & outputs,
+                                  const bool include_filenames )
+{
+  vector<Thunk::DataItem> thunk_data;
+  vector<Thunk::DataItem> thunk_executables;
+  vector<string> thunk_outputs;
+
+  thunk::Function thunk_function { function };
+
+  for ( const Data & datum : data ) {
+    thunk_data.emplace_back( datum.hash(), include_filenames ? datum.filename()
+                                                             : string {} );
+  }
+
+  for ( const Data & datum : executables ) {
+    thunk_executables.emplace_back( datum.hash(), include_filenames ? datum.filename()
+                                                                    : string {} );
+  }
+
+  for ( const Output & output : outputs ) {
+    thunk_outputs.push_back( output.tag() );
+  }
+
+  return { move( thunk_function ),
+           move( thunk_data ),
+           move( thunk_executables ),
+           move( thunk_outputs ) };
+}
+
 std::string ThunkFactory::generate( const Function & function,
                                     const std::vector<Data> & data,
                                     const std::vector<Data> & executables,
