@@ -57,7 +57,7 @@ int main( int argc, char * argv[] )
     vector<string> outputs;
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "E:v:t:e:o:C", cmd_options, nullptr );
+      const int opt = getopt_long( argc, argv, "E:v:t:e:o:C:", cmd_options, nullptr );
 
       if ( opt == -1 ) { break; }
 
