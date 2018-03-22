@@ -4,143 +4,38 @@
 
 #include <stdexcept>
 
-#include "thunk/ggutils.hh"
-#include "thunk/thunk_reader.hh"
-#include "thunk/thunk_writer.hh"
+#include "ggutils.hh"
+#include "thunk.hh"
+#include "thunk_reader.hh"
+#include "thunk_writer.hh"
 
 using namespace std;
 using namespace gg::thunk;
 
-void DependencyGraph::add_thunk( const string & hash )
+void ExecutionGraph::add_thunk( const std::string & hash )
 {
-  if ( thunks_.count( hash ) > 0 ) {
-    return; // already added
+  if ( thunks_.count( hash ) ) {
+    /* we already have this thunk */
+    throw runtime_error( "possible cycle in the execution graph" );
   }
 
   ThunkReader thunk_reader { gg::paths::blob_path( hash ).string() };
-  Thunk thunk = thunk_reader.read_thunk();
+  Thunk thunk { thunk_reader.read_thunk() };
   thunk.set_hash( hash );
 
-  for ( const Thunk::DataItem & h : thunk.values() ) {
-    value_dependencies_.insert( h.first );
+  for ( const Thunk::DataItem & item : thunk.values() ) {
+    value_dependencies_.emplace( item.first );
   }
 
-  for ( const Thunk::DataItem & h : thunk.executables() ) {
-    executable_dependencies_.insert( h.first );
-  }
-
-  for ( const Thunk::DataItem & h : thunk.thunks() ) {
-    add_thunk( h.first );
-    referenced_thunks_[ h.first ].insert( hash );
-  }
-
-  thunks_.emplace( make_pair( hash, move( thunk ) ) );
-}
-
-void DependencyGraph::update_thunk_hash( const string & old_hash,
-                                         const string & new_hash )
-{
-  assert( thunks_.at( old_hash ).can_be_executed() );
-
-  thunks_.emplace( make_pair( new_hash, move( thunks_.at( old_hash ) ) ) );
-  thunks_.erase( old_hash );
-
-  if ( original_hashes_.count( old_hash ) == 0 ) {
-    updated_hashes_.insert( { old_hash, new_hash } );
-    original_hashes_.insert( { new_hash, old_hash } );
-  }
-  else {
-    updated_hashes_[ original_hashes_[ old_hash ] ] = new_hash;
-    original_hashes_.erase( old_hash );
-  }
-
-  if ( referenced_thunks_.count( old_hash ) ) {
-    referenced_thunks_.emplace( make_pair( new_hash, move( referenced_thunks_.at( old_hash ) ) ) );
-    referenced_thunks_.erase( old_hash );
-
-    for ( const string & thash : referenced_thunks_.at( new_hash ) ) {
-      Thunk & ref_thunk = thunks_.at( thash );
-      ref_thunk.update_data( old_hash, new_hash );
-    }
-  }
-}
-
-Optional<unordered_set<string>> DependencyGraph::force_thunk( const string & old_hash,
-                                                              const string & new_hash )
-{
-  unordered_set<string> order_one_thunks;
-
-  if ( not thunks_.count( old_hash ) ) {
-    /* we already have forced this thunk, or maybe we never had it in the first
-    place. */
-    return { false };
-  }
-
-  if ( not thunks_.at( old_hash ).can_be_executed() ) {
-    throw runtime_error( "can't force thunks with unresolved dependencies" );
-  }
-
-  /* we don't need this thunk anymore, so let's just delete it from memory */
-  thunks_.erase( old_hash );
-
-  if ( referenced_thunks_.count( old_hash ) == 0 ) {
-    // no other thunk actually referenced this thunk
-    // XXX is this the right thing to do?
-    return order_one_thunks;
-  }
-
-  for ( const string & thash : referenced_thunks_.at( old_hash ) ) {
-    Thunk & ref_thunk = thunks_.at( thash );
-    ref_thunk.update_data( old_hash, new_hash );
-
-    if ( ref_thunk.can_be_executed() ) {
-      const string ref_thunk_hash = ThunkWriter::write_thunk( ref_thunk );
-      update_thunk_hash( thash, ref_thunk_hash );
-      order_one_thunks.insert( ref_thunk_hash );
-    }
-  }
-
-  /* we don't need to know the thunks that referenced this thunk either */
-  referenced_thunks_.erase( old_hash );
-
-  return order_one_thunks;
-}
-
-unordered_set<string>
-DependencyGraph::order_one_dependencies( const string & thunk_hash ) const
-{
-  unordered_set<string> result;
-  const Thunk & thunk = get_thunk( thunk_hash );
-
-  if ( thunk.can_be_executed() ) {
-    result.insert( thunk_hash );
-    return result;
+  for ( const Thunk::DataItem & item : thunk.executables() ) {
+    executable_dependencies_.emplace( item.first );
   }
 
   for ( const Thunk::DataItem & item : thunk.thunks() ) {
-    unordered_set<string> subresult = order_one_dependencies( item.first );
-    result.insert( subresult.begin(), subresult.end() );
+    add_thunk( item.first );
   }
 
-  return result;
-}
-
-string DependencyGraph::updated_hash( const string & original_hash ) const
-{
-  if ( updated_hashes_.count( original_hash ) ) {
-    return updated_hashes_.at( original_hash );
-  }
-  else {
-    return original_hash;
-  }
-}
-
-string DependencyGraph::original_hash( const string & updated_hash ) const
-{
-  if ( original_hashes_.count( updated_hash ) ) {
-    return original_hashes_.at( updated_hash );
-  }
-  else {
-    return updated_hash;
-  }
+  thunks_.emplace( piecewise_construct,
+                   forward_as_tuple( hash ),
+                   forward_as_tuple( move( thunk ) ) );
 }

@@ -14,24 +14,14 @@
 #include "thunk/thunk.hh"
 #include "util/optional.hh"
 
-class DependencyGraph
+class ExecutionGraph
 {
 private:
   std::unordered_map<std::string, gg::thunk::Thunk> thunks_ {};
-  std::unordered_map<std::string, std::unordered_set<std::string>> referenced_thunks_ {};
-
-  std::unordered_map<std::string, std::string> updated_hashes_{};
-  std::unordered_map<std::string, std::string> original_hashes_{};
-
   std::unordered_set<std::string> value_dependencies_ {};
   std::unordered_set<std::string> executable_dependencies_ {};
 
-  void update_thunk_hash( const std::string & old_hash,
-                          const std::string & new_hash );
-
 public:
-  DependencyGraph() {}
-
   void add_thunk( const std::string & hash );
 
   Optional<std::unordered_set<std::string>>
@@ -50,9 +40,7 @@ public:
   get_thunk( const std::string & hash ) const { return thunks_.at( hash ); }
 
   std::string updated_hash( const std::string & original_hash ) const;
-
   std::string original_hash( const std::string & updated_hash ) const;
-
   size_t size() const { return thunks_.size(); }
 };
 

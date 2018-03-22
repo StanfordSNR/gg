@@ -24,7 +24,7 @@ private:
   size_t max_jobs_;
   bool status_bar_;
 
-  DependencyGraph dep_graph_ {};
+  ExecutionGraph dep_graph_ {};
 
   std::deque<std::string> job_queue_ {};
   std::unordered_set<std::string> running_jobs_ {};
