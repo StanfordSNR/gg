@@ -45,14 +45,16 @@ void ExecutionGraph::add_thunk( const string & hash )
 void ExecutionGraph::update_hash( const string & old_hash, const string & new_hash )
 {
   /* updating the hash chain */
-  if ( original_hashes_.count( old_hash ) == 0 ) {
-    original_hashes_[ new_hash ] = old_hash;
-    updated_hashes_[ old_hash ] = new_hash;
-  }
-  else {
-    original_hashes_[ new_hash ] = original_hashes_[ old_hash ];
-    updated_hashes_[ original_hashes_[ old_hash ] ] = new_hash;
-    original_hashes_.erase( old_hash );
+  if ( gg::hash::type( new_hash ) == gg::ObjectType::Thunk ) {
+    if ( original_hashes_.count( old_hash ) == 0 ) {
+      original_hashes_[ new_hash ] = old_hash;
+      updated_hashes_[ old_hash ] = new_hash;
+    }
+    else {
+      original_hashes_[ new_hash ] = original_hashes_[ old_hash ];
+      updated_hashes_[ original_hashes_[ old_hash ] ] = new_hash;
+      original_hashes_.erase( old_hash );
+    }
   }
 
   /* updating the thunks that are referencing this thunk */
@@ -102,8 +104,13 @@ ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
   if ( new_type == gg::ObjectType::Thunk ) {
     next_to_execute = order_one_dependencies( new_hash );
   }
+  else {
+    /* the thunk has been reducted to a value. we don't need to keep
+    the list of thunks that are referencing it anymore. */
+    referencing_thunks_.erase( new_hash );
+  }
 
-  return next_to_execute;
+  return { true, move( next_to_execute ) };
 }
 
 unordered_set<string> ExecutionGraph::order_one_dependencies( const string & hash ) const
