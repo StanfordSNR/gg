@@ -42,7 +42,7 @@ public:
   executable_dependencies() const { return executable_dependencies_; }
 
   std::unordered_set<std::string>
-  order_one_dependencies( const std::string & thunk_hash ) const;
+  order_one_dependencies( const std::string & hash ) const;
 
   const gg::thunk::Thunk &
   get_thunk( const std::string & hash ) const { return thunks_.at( hash ); }

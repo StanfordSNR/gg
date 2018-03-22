@@ -72,7 +72,7 @@ void ExecutionGraph::update_hash( const string & old_hash, const string & new_ha
 Optional<unordered_set<string>>
 ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
 {
-  if ( thunks_.count( old_hash ) ) {
+  if ( thunks_.count( old_hash ) == 0 ) {
     return { false };
   }
 
@@ -104,4 +104,38 @@ ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
   }
 
   return next_to_execute;
+}
+
+unordered_set<string> ExecutionGraph::order_one_dependencies( const string & hash ) const
+{
+  if ( thunks_.count( hash ) == 0 ) {
+    throw runtime_error( "thunk hash not found in the execution graph" );
+  }
+
+  const Thunk & thunk = thunks_.at( hash );
+
+  if ( thunk.can_be_executed() ) {
+    return { hash };
+  }
+
+  unordered_set<string> result;
+
+  for ( const Thunk::DataItem & item : thunk.thunks() ) {
+    auto subresult = order_one_dependencies( item.first );
+    result.insert( subresult.begin(), subresult.end() );
+  }
+
+  return result;
+}
+
+string ExecutionGraph::updated_hash( const string & original_hash ) const
+{
+  return updated_hashes_.count( original_hash ) ? updated_hashes_.at( original_hash )
+                                                : original_hash;
+}
+
+string ExecutionGraph::original_hash( const string & updated_hash ) const
+{
+  return original_hashes_.count( updated_hash ) ? original_hashes_.at( updated_hash )
+                                                : updated_hash;
 }
