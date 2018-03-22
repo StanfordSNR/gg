@@ -18,8 +18,16 @@ class ExecutionGraph
 {
 private:
   std::unordered_map<std::string, gg::thunk::Thunk> thunks_ {};
+
+  std::unordered_map<std::string, std::unordered_set<std::string>> referencing_thunks_ {};
+
   std::unordered_set<std::string> value_dependencies_ {};
   std::unordered_set<std::string> executable_dependencies_ {};
+
+  std::unordered_map<std::string, std::string> original_hashes_ {};
+  std::unordered_map<std::string, std::string> updated_hashes_ {};
+
+  void update_hash( const std::string & old_hash, const std::string & new_hash );
 
 public:
   void add_thunk( const std::string & hash );
