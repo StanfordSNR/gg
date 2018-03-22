@@ -30,6 +30,8 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
+    cerr << "fib(" << N << ")" << endl;
+
     if ( N < 2 ) {
       /* in this case, we just return the value and our job is done */
       ofstream fout { "out" };
@@ -39,8 +41,8 @@ int main( int argc, char * argv[] )
       return EXIT_SUCCESS;
     }
 
-    string fib_func_hash = safe_getenv( "FIB_FUNCTION_HASH" );
-    string add_func_hash = safe_getenv( "ADD_FUNCTION_HASH" );
+    const string fib_func_hash = safe_getenv( "FIB_FUNCTION_HASH" );
+    const string add_func_hash = safe_getenv( "ADD_FUNCTION_HASH" );
 
     vector<string> envars = { "FIB_FUNCTION_HASH=" + fib_func_hash,
                               "ADD_FUNCTION_HASH=" + add_func_hash };
@@ -71,7 +73,8 @@ int main( int argc, char * argv[] )
       { { "out" } }
     };
 
-    ThunkWriter::write_thunk( add_thunk, "out" );
+    const string add_hash = ThunkWriter::write_thunk( add_thunk, "out" );
+    cerr << add_hash << ": " << fib_left_hash << " + " + fib_right_hash << endl;
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );

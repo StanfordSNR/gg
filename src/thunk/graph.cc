@@ -16,7 +16,7 @@ void ExecutionGraph::add_thunk( const string & hash )
 {
   if ( thunks_.count( hash ) ) {
     /* we already have this thunk */
-    throw runtime_error( "possible cycle in the execution graph" );
+    return;
   }
 
   ThunkReader thunk_reader { gg::paths::blob_path( hash ).string() };

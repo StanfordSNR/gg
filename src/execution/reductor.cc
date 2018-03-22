@@ -213,7 +213,11 @@ void Reductor::finalize_execution( const string & old_hash,
 
   if ( new_o1s.initialized() ) {
     job_queue_.insert( job_queue_.end(), new_o1s->begin(), new_o1s->end() );
-    remaining_targets_.erase( dep_graph_.original_hash( old_hash ) );
+
+    if ( gg::hash::type( new_hash ) == gg::ObjectType::Value ) {
+      remaining_targets_.erase( dep_graph_.original_hash( old_hash ) );
+    }
+
     finished_jobs_++;
   }
 }
