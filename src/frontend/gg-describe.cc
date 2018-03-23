@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <getopt.h>
+#include <glob.h>
 #include <google/protobuf/util/json_util.h>
 
 #include "thunk/thunk.hh"
@@ -61,6 +62,26 @@ int main( int argc, char * argv[] )
 
     if ( not roost::exists( thunk_path ) ) {
       thunk_path = gg::paths::blob_path( argv[ optind ] );
+
+      if ( not roost::exists( thunk_path ) ) {
+        roost::path pattern { thunk_path.string() + "*" };
+
+        glob_t glob_result;
+
+        if ( glob( pattern.string().c_str(), GLOB_ERR | GLOB_NOSORT,
+                      nullptr, &glob_result ) == 0 ) {
+          if ( glob_result.gl_pathc > 1 ) {
+            cerr << "Partial hash, multiple matches found." << endl;
+            return EXIT_FAILURE;
+          }
+          else if ( glob_result.gl_pathc == 1 ) {
+            thunk_path = roost::path { glob_result.gl_pathv[ 0 ] };
+            cerr << thunk_path.string() << endl;
+          }
+        }
+
+        globfree( &glob_result );
+      }
     }
 
     ThunkReader thunk_reader { thunk_path.string() };
