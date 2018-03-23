@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
+#include <libgen.h>
 
 using namespace std;
 
@@ -23,6 +24,8 @@ int main( int argc, char * argv[] )
   fin_a >> num1;
   fin_b >> num2;
   fout << ( num1 + num2 ) << endl;
+
+  cerr << "+ " << basename( argv[ 1 ] ) << " " << basename( argv[ 2 ] ) << endl;
 
   return EXIT_SUCCESS;
 }
