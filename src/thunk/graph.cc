@@ -12,11 +12,16 @@
 using namespace std;
 using namespace gg::thunk;
 
-void ExecutionGraph::add_thunk( const string & hash )
+string ExecutionGraph::add_thunk( const string & hash )
 {
+  const string & updated = updated_hash( hash );
+
+  if ( thunks_.count( updated ) ) {
+    return updated;
+  }
+
   if ( thunks_.count( hash ) ) {
-    /* we already have this thunk */
-    return;
+    return hash;
   }
 
   ThunkReader thunk_reader { gg::paths::blob_path( hash ).string() };
@@ -32,14 +37,27 @@ void ExecutionGraph::add_thunk( const string & hash )
     executable_dependencies_.emplace( item.first );
   }
 
+  vector<pair<string, string>> updates_to_thunk;
+
   for ( const Thunk::DataItem & item : thunk.thunks() ) {
-    add_thunk( item.first );
-    referencing_thunks_[ item.first ].emplace( hash );
+    const string item_updated = updated_hash( item.first );
+    add_thunk( item_updated );
+    referencing_thunks_[ item_updated ].emplace( hash );
+
+    if ( item_updated != item.first ) {
+      updates_to_thunk.emplace_back( item.first, item_updated );
+    }
+  }
+
+  for ( const pair<string, string> & update : updates_to_thunk ) {
+    thunk.update_data( update.first, update.second );
   }
 
   thunks_.emplace( piecewise_construct,
                    forward_as_tuple( hash ),
                    forward_as_tuple( move( thunk ) ) );
+
+  return hash;
 }
 
 void ExecutionGraph::update_hash( const string & old_hash, const string & new_hash )
@@ -78,17 +96,18 @@ ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
     return { false };
   }
 
+  string actual_new_hash = new_hash;
   unordered_set<string> next_to_execute;
   const gg::ObjectType new_type = gg::hash::type( new_hash );
 
   /* the old thunk has returned a new thunk. this is not a pipe dream. */
   if ( new_type == gg::ObjectType::Thunk ) {
-    add_thunk( new_hash );
+    actual_new_hash = add_thunk( new_hash );
   }
 
-  update_hash( old_hash, new_hash );
+  update_hash( old_hash, actual_new_hash );
 
-  for ( const string & referencing_thunk_hash : referencing_thunks_.at( new_hash ) ) {
+  for ( const string & referencing_thunk_hash : referencing_thunks_.at( actual_new_hash ) ) {
     Thunk & referencing_thunk = thunks_.at( referencing_thunk_hash );
 
     if ( referencing_thunk.can_be_executed() ) {
@@ -102,12 +121,12 @@ ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
   }
 
   if ( new_type == gg::ObjectType::Thunk ) {
-    next_to_execute = order_one_dependencies( new_hash );
+    next_to_execute = order_one_dependencies( actual_new_hash );
   }
   else {
     /* the thunk has been reducted to a value. we don't need to keep
     the list of thunks that are referencing it anymore. */
-    referencing_thunks_.erase( new_hash );
+    referencing_thunks_.erase( actual_new_hash );
   }
 
   return { true, move( next_to_execute ) };

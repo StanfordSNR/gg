@@ -30,7 +30,7 @@ private:
   void update_hash( const std::string & old_hash, const std::string & new_hash );
 
 public:
-  void add_thunk( const std::string & hash );
+  std::string add_thunk( const std::string & hash );
 
   Optional<std::unordered_set<std::string>>
   force_thunk( const std::string & old_hash, const std::string & new_hash );
