@@ -234,7 +234,10 @@ void S3Client::download_files( const std::string & bucket,
               responses.parse( s3.read() );
               if ( not responses.empty() ) {
                 if ( responses.front().first_line() != "HTTP/1.1 200 OK" ) {
-                  throw runtime_error( "HTTP failure in S3Client::download_files(): " + responses.front().first_line() );
+                  const size_t response_index = first_file_idx + response_count * thread_count;
+                  throw runtime_error( "HTTP failure in downloading '" +
+                                       download_requests.at( response_index ).object_key +
+                                       "': " + responses.front().first_line() );
                 }
                 else {
                   const size_t response_index = first_file_idx + response_count * thread_count;
