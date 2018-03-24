@@ -3,6 +3,7 @@
 #include "placeholder.hh"
 
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <regex>
 
@@ -40,16 +41,15 @@ void ThunkPlaceholder::write( const string & filename, const Type type ) const
     ? LIBRARY_DIRECTIVE
     : SHEBANG_DIRECTIVE;
 
-  ofstream fout { filename };
-  fout << header
+  ostringstream sout;
+  sout << header
        << endl
        << content_hash_ << " "
        << "\n" << '*' << '/'
        << endl;
 
-  if ( not fout.good() ) {
-    throw runtime_error( "failed writing to " + filename );
-  }
+
+  roost::atomic_create( sout.str(), filename );
 
   if ( type == Type::ShellScript ) {
     roost::chmod( filename, 0755 );
