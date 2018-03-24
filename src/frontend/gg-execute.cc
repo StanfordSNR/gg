@@ -118,8 +118,7 @@ vector<string> execute_thunk( const Thunk & original_thunk )
   vector<string> output_hashes;
 
   // GRABBING THE OUTPUTS & CREATING CACHE ENTRIES
-  for ( size_t i = 0; i < thunk.outputs().size(); i++ ) {
-    const string & output = thunk.outputs().at( i );
+  for ( const string & output : thunk.outputs() ) {
     roost::path outfile { exec_dir_path / output };
 
     if ( not roost::exists( outfile ) ) {
@@ -136,6 +135,13 @@ vector<string> execute_thunk( const Thunk & original_thunk )
       roost::remove( outfile );
     }
 
+    output_hashes.emplace_back( move( outfile_hash ) );
+  }
+
+  for ( size_t i = 0; i < thunk.outputs().size(); i++ ) {
+    const string & output = thunk.outputs().at( i );
+    const string & outfile_hash = output_hashes.at( i );
+
     if ( i == 0 ) {
       gg::cache::insert( original_thunk.hash(), outfile_hash );
       if ( original_thunk.hash() != thunk.hash() ) {
@@ -147,8 +153,6 @@ vector<string> execute_thunk( const Thunk & original_thunk )
     if ( original_thunk.hash() != thunk.hash() ) {
       gg::cache::insert( thunk.output_hash( output ), outfile_hash );
     }
-
-    output_hashes.emplace_back( move( outfile_hash ) );
   }
 
   return output_hashes;
