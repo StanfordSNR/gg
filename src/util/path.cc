@@ -14,6 +14,7 @@
 #include <string>
 #include <sstream>
 #include <memory>
+#include <errno.h>
 
 #include "path.hh"
 #include "exception.hh"
@@ -168,6 +169,9 @@ namespace roost {
 
     if ( rename_result == 0 ) {
       return;
+    }
+    else if ( errno != EXDEV ) {
+      throw unix_error( "rename()" );
     }
 
     /* failed, so make copy onto target filesystem first */
@@ -328,8 +332,6 @@ namespace roost {
 
     while ( ( errno = 0, entry = readdir( dir.get() ) ) != NULL ) {
       string name { entry->d_name };
-
-      cerr << pathn << " / " << name << endl;
 
       if ( name == "." or name  == ".." ) {
         continue;
