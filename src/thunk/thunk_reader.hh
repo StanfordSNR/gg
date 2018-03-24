@@ -8,16 +8,17 @@
 #include "protobufs/gg.pb.h"
 #include "thunk/thunk.hh"
 #include "util/serialization.hh"
+#include "util/path.hh"
 
 class ThunkReader
 {
 private:
-  ProtobufDeserializer deserializer_;
-  bool is_thunk_;
+  ThunkReader();
 
 public:
-  ThunkReader( const std::string & filename );
+  static bool is_thunk( const std::string & path );
+  static bool is_thunk( const roost::path & path );
 
-  bool is_thunk() const { return is_thunk_; }
-  gg::thunk::Thunk read_thunk( const std::string & hash = {} );
+  static gg::thunk::Thunk read( const std::string & path, const std::string & hash = {} );
+  static gg::thunk::Thunk read( const roost::path & path, const std::string & hash = {} );
 };
