@@ -52,6 +52,4 @@ from 0 to 63 (the smaller, the better).
 ### Executing the pipeline
 
 1. `gg-infer make -j$(nproc)`
-2. `GG_LAMBDA=1 GG_GENERIC_FUNCTION=1 gg-force --jobs=100 *.ivf`
-
-Don't forget to prepend `GG_GENERIC_FUNCTION=1`!
+2. `GG_LAMBDA=1 gg-force --jobs=100 *.ivf`
