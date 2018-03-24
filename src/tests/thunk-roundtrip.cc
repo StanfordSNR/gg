@@ -50,12 +50,11 @@ int main( int argc, char * argv[] )
     };
 
     TempFile temp_file { "output" };
-    const string contents = ThunkWriter::serialize_thunk( original_thunk );
+    const string contents = ThunkWriter::serialize( original_thunk );
     roost::atomic_create( contents, temp_file.name() );
 
     // Now reading it back
-    ThunkReader thunk_reader { temp_file.name() };
-    Thunk thunk = thunk_reader.read_thunk();
+    Thunk thunk { move( ThunkReader::read( temp_file.name() ) ) };
 
     if ( thunk == original_thunk ) {
       return EXIT_SUCCESS;

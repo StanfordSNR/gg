@@ -149,7 +149,7 @@ namespace gg {
 
     void set_available( const string & hash )
     {
-      atomic_create( "", gg::paths::remote_index() / hash );
+      roost::atomic_create( "", gg::paths::remote_index() / hash );
     }
 
     string s3_bucket()
@@ -209,7 +209,7 @@ namespace gg {
 
     void insert( const string & old_hash, const string & new_hash )
     {
-      atomic_create( new_hash, gg::paths::reduction_path( old_hash ) );
+      roost::atomic_create( new_hash, gg::paths::reduction_path( old_hash ) );
     }
   }
 

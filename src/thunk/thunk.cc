@@ -223,7 +223,7 @@ string Thunk::execution_payload( const vector<Thunk> & thunks )
 
   for ( const Thunk & thunk : thunks ) {
     string base64_thunk;
-    StringSource s( ThunkWriter::serialize_thunk( thunk ), true,
+    StringSource s( ThunkWriter::serialize( thunk ), true,
                     new Base64Encoder( new StringSink( base64_thunk ), false ) );
 
     protobuf::RequestItem request_item;
@@ -277,7 +277,7 @@ bool Thunk::operator==( const Thunk & other ) const
 string Thunk::hash() const
 {
   if ( not hash_.initialized() ) {
-    hash_.reset( gg::hash::compute( ThunkWriter::serialize_thunk( *this ),
+    hash_.reset( gg::hash::compute( ThunkWriter::serialize( *this ),
                                     ObjectType::Thunk ) );
   }
 
@@ -318,7 +318,6 @@ void Thunk::update_data( const string & old_hash, const string & new_hash )
     case ObjectType::Value: values_.insert( { new_hash, old_name } ); break;
     }
   }
-
 
   /* let's update the args/envs as necessary */
   const string srcstr = data_placeholder( old_hash );

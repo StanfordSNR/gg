@@ -87,13 +87,13 @@ string ThunkFactory::Data::compute_hash( const string & real_filename,
   const string computed_hash = gg::hash::compute( contents, type );
 
   /* make a cache entry */
-  atomic_create( to_string( file_stat.st_size ) + " "
-                 + to_string( file_stat.st_mtim.tv_sec ) + " "
-                 + to_string( file_stat.st_mtim.tv_nsec ) + " "
-                 + to_string( file_stat.st_ctim.tv_sec ) + " "
-                 + to_string( file_stat.st_ctim.tv_nsec ) + " "
-                 + computed_hash,
-                 cache_entry_path );
+  roost::atomic_create( to_string( file_stat.st_size ) + " "
+                        + to_string( file_stat.st_mtim.tv_sec ) + " "
+                        + to_string( file_stat.st_mtim.tv_nsec ) + " "
+                        + to_string( file_stat.st_ctim.tv_sec ) + " "
+                        + to_string( file_stat.st_ctim.tv_nsec ) + " "
+                        + computed_hash,
+                        cache_entry_path );
 
   return computed_hash;
 }

@@ -84,8 +84,7 @@ int main( int argc, char * argv[] )
       }
     }
 
-    ThunkReader thunk_reader { thunk_path.string() };
-    Thunk thunk = thunk_reader.read_thunk();
+    Thunk thunk = ThunkReader::read( thunk_path );
 
     if ( print_executable_hash ) {
       cout << thunk.executable_hash() << endl;

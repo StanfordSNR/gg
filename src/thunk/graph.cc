@@ -24,9 +24,9 @@ string ExecutionGraph::add_thunk( const string & hash )
     return hash;
   }
 
-  ThunkReader thunk_reader { gg::paths::blob_path( hash ).string() };
-  Thunk thunk { thunk_reader.read_thunk() };
-  thunk.set_hash( hash );
+  Thunk thunk { move( ThunkReader::read( gg::paths::blob_path( hash ), hash ) ) };
+
+  /* creating the entry */
   referencing_thunks_[ hash ];
 
   for ( const Thunk::DataItem & item : thunk.values() ) {

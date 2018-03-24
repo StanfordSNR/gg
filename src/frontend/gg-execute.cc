@@ -53,7 +53,8 @@ vector<string> execute_thunk( const Thunk & original_thunk )
       thunk.update_data( dep_item.first, result->hash );
     }
 
-    thunk.set_hash( ThunkWriter::write_thunk( thunk ) );
+    thunk.set_hash( ThunkWriter::write( thunk ) );
+
     cerr << "thunk:" << original_thunk.hash() << " reduced to "
          << "thunk:" << thunk.hash() << "." << endl;
   }
@@ -300,8 +301,7 @@ int main( int argc, char * argv[] )
                                                   open( thunk_path.c_str(), O_RDONLY ) ) };
       raw_thunk.block_for_exclusive_lock();
 
-      ThunkReader thunk_reader { thunk_path };
-      Thunk thunk = thunk_reader.read_thunk();
+      Thunk thunk = ThunkReader::read( thunk_path );
 
       if ( get_dependencies or put_output ) {
         storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );

@@ -126,9 +126,7 @@ int main( int argc, char * argv[] )
       Optional<ThunkPlaceholder> placeholder = ThunkPlaceholder::read( target_filename );
 
       if ( not placeholder.initialized() ) {
-        ThunkReader thunk_reader { target_filename };
-
-        if( not thunk_reader.is_thunk() ) {
+        if( not ThunkReader::is_thunk( target_filename ) ) {
           throw runtime_error( "not a thunk: " + target_filename );
         }
         else {

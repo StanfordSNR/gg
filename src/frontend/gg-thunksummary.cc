@@ -48,7 +48,7 @@ struct ThunkStats
 
 ThunkStats print_thunk_info( const string & hash, unsigned int indent )
 {
-  const Thunk thunk { ThunkReader { gg::paths::blob_path( hash ).string() }.read_thunk() };
+  const Thunk thunk { move( ThunkReader::read( gg::paths::blob_path( hash ) ) ) };
   const string indentation( indent, ' ' );
 
   const string display_name = shortn( hash );

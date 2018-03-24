@@ -107,7 +107,7 @@ int main( int argc, char * argv[] )
     Thunk thunk { move( function ), move( values ), move( thunks ),
                   move( executables ), move( outputs ) };
 
-    string thunk_hash = ThunkWriter::write_thunk( thunk );
+    string thunk_hash = ThunkWriter::write( thunk );
 
     if ( placeholder_path.size() ) {
       ThunkPlaceholder placeholder { thunk_hash };

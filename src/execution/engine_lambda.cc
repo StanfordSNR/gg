@@ -93,7 +93,7 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
           gg::cache::insert( gg::hash::for_output( response.thunk_hash, output.tag ), output.hash );
 
           if ( output.data.length() ) {
-            atomic_create( output.data, gg::paths::blob_path( output.hash ) );
+            roost::atomic_create( output.data, gg::paths::blob_path( output.hash ) );
           }
         }
 
