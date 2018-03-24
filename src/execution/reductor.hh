@@ -28,7 +28,6 @@ private:
 
   std::deque<std::string> job_queue_ {};
   std::unordered_set<std::string> running_jobs_ {};
-  size_t total_jobs_ { 0 };
   size_t finished_jobs_ { 0 };
   float estimated_cost_ { 0.0 };
 

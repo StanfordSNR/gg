@@ -50,7 +50,7 @@ void Reductor::print_status() const
 
     data << color_reset
          << "[" << setw( 3 ) << right
-         << ceil( 100 * finished_jobs_ / total_jobs_ ) << "\x25]"
+         << floor( 100.0 * finished_jobs_ / dep_graph_.size() ) << "\x25]"
          << " in queue: " << BOLD << COLOR_YELLOW  << setw( 5 ) << left
          << job_queue_.size() << color_reset;
 
@@ -61,7 +61,7 @@ void Reductor::print_status() const
 
     data << " done: "  << BOLD << COLOR_GREEN << setw( 5 ) << left
          << finished_jobs_ << color_reset
-         << " total: " << BOLD << COLOR_DEFAULT << total_jobs_;
+         << " total: " << BOLD << COLOR_DEFAULT << dep_graph_.size();
 
     data << "  |  cost: " << BOLD << COLOR_CYAN << "~$" << setw( 8 ) << fixed
          << setprecision( 2 ) << estimated_cost_;
@@ -94,8 +94,6 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     unordered_set<string> thunk_o1_deps = dep_graph_.order_one_dependencies( hash );
     all_o1_deps.insert( thunk_o1_deps.begin(), thunk_o1_deps.end() );
   }
-
-  total_jobs_ = dep_graph_.size();
 
   job_queue_.insert( job_queue_.end(), all_o1_deps.begin(), all_o1_deps.end() );
 
