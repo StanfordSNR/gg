@@ -18,4 +18,5 @@ gg-hash
 gg-create-thunk
 gg-collect
 gg-put
+gg-get
 lambda-invoker

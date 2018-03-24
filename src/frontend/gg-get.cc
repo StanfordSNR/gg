@@ -11,7 +11,7 @@ using namespace std;
 
 void usage( char * argv0 )
 {
-  cerr << argv0 << " FILENAME..." << endl;
+  cerr << argv0 << " HASH..." << endl;
 }
 
 int main( int argc, char * argv[] )
@@ -28,17 +28,16 @@ int main( int argc, char * argv[] )
 
     unique_ptr<StorageBackend> storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
 
-    vector<storage::PutRequest> put_requests;
+    vector<storage::GetRequest> get_requests;
     for ( int i = 1; i < argc; i++ ) {
-      const string filename { argv[ i ] };
-      const string file_hash = gg::hash::file( filename );
-      put_requests.emplace_back( filename, file_hash, gg::hash::to_hex( file_hash ) );
+      const string hash { argv[ i ] };
+      get_requests.emplace_back( hash, gg::paths::blob_path( hash ) );
     }
-    storage_backend->put( put_requests,
-      []( const storage::PutRequest & request )
+    storage_backend->get( get_requests,
+      []( const storage::GetRequest & request )
       {
-        cerr << "PUT " << request.filename.string() << " -> "
-             << request.object_key << endl;
+        cerr << "GET " << request.object_key << " -> "
+             << request.filename.string() << endl;
       } );
   }
   catch ( const exception &  e ) {
