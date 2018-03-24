@@ -30,8 +30,6 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    cerr << "fib(" << N << ")" << endl;
-
     if ( N < 2 ) {
       /* in this case, we just return the value and our job is done */
       ofstream fout { "out" };
@@ -61,8 +59,8 @@ int main( int argc, char * argv[] )
       { { "out" }, { "left" }, { "right" } }
     };
 
-    const string fib_left_hash = ThunkWriter::write_thunk( fib_left, "left" );
-    const string fib_right_hash = ThunkWriter::write_thunk( fib_right, "right" );
+    const string fib_left_hash = ThunkWriter::write( fib_left, "left" );
+    const string fib_right_hash = ThunkWriter::write( fib_right, "right" );
 
     const Thunk add_thunk {
       { add_func_hash, { "add",
@@ -73,8 +71,7 @@ int main( int argc, char * argv[] )
       { { "out" } }
     };
 
-    const string add_hash = ThunkWriter::write_thunk( add_thunk, "out" );
-    cerr << add_hash << ": " << fib_left_hash << " + " + fib_right_hash << endl;
+    ThunkWriter::write( add_thunk, "out" );
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );

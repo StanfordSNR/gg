@@ -25,7 +25,5 @@ int main( int argc, char * argv[] )
   fin_b >> num2;
   fout << ( num1 + num2 ) << endl;
 
-  cerr << "+ " << basename( argv[ 1 ] ) << " " << basename( argv[ 2 ] ) << endl;
-
   return EXIT_SUCCESS;
 }
