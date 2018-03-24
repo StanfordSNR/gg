@@ -13,7 +13,7 @@ private:
   ThunkWriter();
 
 public:
-  static std::string write_thunk( const gg::thunk::Thunk & thunk,
+  static std::string write( const gg::thunk::Thunk & thunk,
                                   const roost::path & path = {} );
-  static std::string serialize_thunk( const gg::thunk::Thunk & thunk );
+  static std::string serialize( const gg::thunk::Thunk & thunk );
 };

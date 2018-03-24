@@ -14,9 +14,9 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
-string ThunkWriter::write_thunk( const Thunk & thunk, const roost::path & path )
+string ThunkWriter::write( const Thunk & thunk, const roost::path & path )
 {
-  const string serialized_thunk = serialize_thunk( thunk );
+  const string serialized_thunk = serialize( thunk );
   const string thunk_hash = gg::hash::compute( serialized_thunk,
                                                ObjectType::Thunk );
   thunk.set_hash( thunk_hash );
@@ -31,7 +31,7 @@ string ThunkWriter::write_thunk( const Thunk & thunk, const roost::path & path )
   return thunk_hash;
 }
 
-string ThunkWriter::serialize_thunk( const gg::thunk::Thunk & thunk )
+string ThunkWriter::serialize( const gg::thunk::Thunk & thunk )
 {
   string ret { MAGIC_NUMBER };
   if ( not thunk.to_protobuf().AppendToString( &ret ) ) {
