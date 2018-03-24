@@ -8,6 +8,7 @@
 #include "response.hh"
 #include "thunk/ggutils.hh"
 #include "net/http_response.hh"
+#include "util/base64.hh"
 #include "util/optional.hh"
 #include "util/system_runner.hh"
 #include "util/units.hh"
@@ -93,7 +94,8 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
           gg::cache::insert( gg::hash::for_output( response.thunk_hash, output.tag ), output.hash );
 
           if ( output.data.length() ) {
-            roost::atomic_create( output.data, gg::paths::blob_path( output.hash ) );
+            roost::atomic_create( base64::decode( output.data ),
+                                  gg::paths::blob_path( output.hash ) );
           }
         }
 
