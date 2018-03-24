@@ -232,14 +232,16 @@ namespace gg {
 
     string file( const roost::path & path )
     {
-      const ObjectType type = ThunkReader( path.string() ).is_thunk() ? ObjectType::Thunk
-                                                                      : ObjectType::Value;
-
       FileDescriptor file { CheckSystemCall( "open (" + path.string() + ")",
                                              open( path.string().c_str(), O_RDONLY ) ) };
 
       string contents;
       while ( not file.eof() ) { contents += file.read(); }
+
+      const ObjectType type = ( contents.size() >= thunk::MAGIC_NUMBER.size() and
+                                contents.compare( 0, thunk::MAGIC_NUMBER.size(), gg::thunk::MAGIC_NUMBER ) == 0 )
+                              ? ObjectType::Thunk : ObjectType::Value;
+
       return gg::hash::compute( contents, type );
     }
 
