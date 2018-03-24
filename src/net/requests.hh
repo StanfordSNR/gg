@@ -32,6 +32,10 @@ namespace storage {
   {
     std::string object_key;
     roost::path filename;
+
+    GetRequest( const std::string & object_key,
+                const roost::path & filename )
+      : object_key( object_key ), filename( filename ) {}
   };
 
 }
