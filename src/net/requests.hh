@@ -15,6 +15,17 @@ namespace storage {
     roost::path filename;
     std::string object_key;
     Optional<std::string> content_hash;
+
+    PutRequest( const roost::path & filename,
+                const std::string & object_key,
+                const std::string & content_hash )
+      : filename( filename ), object_key( object_key ),
+        content_hash( true, content_hash ) {}
+
+    PutRequest( const roost::path & filename,
+                const std::string & object_key )
+      : filename( filename ), object_key( object_key ),
+        content_hash( false ) {}
   };
 
   struct GetRequest
