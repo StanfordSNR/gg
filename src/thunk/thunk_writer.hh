@@ -9,6 +9,9 @@
 
 class ThunkWriter
 {
+private:
+  ThunkWriter();
+
 public:
   static std::string write_thunk( const gg::thunk::Thunk & thunk,
                                   const roost::path & path = {} );
