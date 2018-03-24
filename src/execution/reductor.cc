@@ -226,10 +226,24 @@ vector<string> Reductor::reduce()
 {
   while ( true ) {
     while ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
-      const string & thunk_hash = job_queue_.front();
+      const string thunk_hash { move( job_queue_.front() ) };
+      job_queue_.pop_front();
 
       /* don't bother executing gg-execute if it's in the cache */
-      Optional<ReductionResult> cache_entry = gg::cache::check( thunk_hash );
+      Optional<ReductionResult> cache_entry;
+
+      while ( true ) {
+        auto temp_cache_entry = gg::cache::check( cache_entry.initialized() ? cache_entry->hash
+                                                                            : thunk_hash );
+
+        if ( temp_cache_entry.initialized() ) {
+          cache_entry = move( temp_cache_entry );
+        }
+        else {
+          break;
+        }
+      }
+
       if ( cache_entry.initialized() ) {
         finalize_execution( thunk_hash, cache_entry->hash, 0 );
       }
@@ -252,8 +266,6 @@ vector<string> Reductor::reduce()
 
         running_jobs_.insert( thunk_hash );
       }
-
-      job_queue_.pop_front();
     }
 
     if ( status_bar_ ) {
