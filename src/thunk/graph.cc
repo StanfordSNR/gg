@@ -40,8 +40,7 @@ string ExecutionGraph::add_thunk( const string & hash )
   vector<pair<string, string>> updates_to_thunk;
 
   for ( const Thunk::DataItem & item : thunk.thunks() ) {
-    const string item_updated = updated_hash( item.first );
-    add_thunk( item_updated );
+    const string item_updated = add_thunk( item.first );
     referencing_thunks_[ item_updated ].emplace( hash );
 
     if ( item_updated != item.first ) {
@@ -111,7 +110,7 @@ ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
     Thunk & referencing_thunk = thunks_.at( referencing_thunk_hash );
 
     if ( referencing_thunk.can_be_executed() ) {
-      string referencing_thunk_new_hash = ThunkWriter::write_thunk( referencing_thunk );
+      string referencing_thunk_new_hash = ThunkWriter::write( referencing_thunk );
       thunks_.emplace( piecewise_construct,
                        forward_as_tuple( referencing_thunk_new_hash ),
                        forward_as_tuple( move( referencing_thunk ) ) );
