@@ -5,7 +5,7 @@ import sys
 import time
 import shutil
 import subprocess as sub
-from base64 import b64decode
+from base64 import b64decode, b64encode
 
 # Set up environment variables necessary
 curdir = os.path.dirname(__file__)
@@ -19,6 +19,9 @@ if not os.environ.get('GG_DIR'):
 # Now we can import gg stuff...
 from ggpaths import GGPaths, GGCache
 from common import is_executable, make_executable, run_command
+
+def is_hash_for_thunk(hash):
+    return len(hash) > 0 and hash[0] == 'T'
 
 def handler(event, context):
     os.environ['GG_STORAGE_URI'] = event['storageBackend']
@@ -63,11 +66,17 @@ def handler(event, context):
                     'stdout': stdout
                 }
 
+            data = None
+            if is_hash_for_thunk(output_hash):
+                with open(GGPaths.blob_path(output_hash), 'rb') as tin:
+                    data = b64encode(tin.read()).decode('ascii')
+
             outputs += [{
                 'tag': output_tag,
                 'hash': output_hash,
                 'size': os.path.getsize(GGPaths.blob_path(output_hash)),
-                'executable': is_executable(GGPaths.blob_path(output_hash))
+                'executable': is_executable(GGPaths.blob_path(output_hash)),
+                'data': data
             }]
 
         executed_thunks += [{
