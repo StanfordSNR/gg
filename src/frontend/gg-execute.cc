@@ -126,17 +126,7 @@ vector<string> execute_thunk( const Thunk & original_thunk )
     }
 
     /* let's check if the output is a thunk or not */
-    ObjectType output_type;
-
-    ThunkReader thunk_reader { outfile.string() };
-    if ( ThunkReader( outfile.string() ).is_thunk() ) {
-      output_type = ObjectType::Thunk;
-    }
-    else {
-      output_type = ObjectType::Value;
-    }
-
-    string outfile_hash = ThunkFactory::Data::compute_hash( outfile.string(), output_type );
+    string outfile_hash = gg::hash::file( outfile );
     roost::path outfile_gg = gg::paths::blob_path( outfile_hash );
 
     if ( not roost::exists( outfile_gg ) ) {
