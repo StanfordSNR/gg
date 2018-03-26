@@ -19,7 +19,9 @@ AM_TESTS_ENVIRONMENT = \
 	export DATADIR=$(abs_builddir)/test_vectors; \
   export TOOLCHAIN_PATH=$(TOOLCHAIN_PATH); \
   export TEST_TMPDIR=`mktemp -d $$TMPDIR_ROOT/test.XXXXXX`; \
-  export GG_DIR=$$TEST_TMPDIR/__gg_data__;
+  export GG_DIR=$$TEST_TMPDIR/__gg_data__; \
+  unset GG_LAMBDA; \
+  unset GG_REMOTE;
 
 check_PROGRAMS = thunk-roundtrip sandbox-test path-test
 dist_check_SCRIPTS = fetch-vectors.test \
@@ -27,6 +29,7 @@ dist_check_SCRIPTS = fetch-vectors.test \
                      model-compile.test model-assemble.test model-link.test \
                      model-ar.test model-ranlib.test model-strip.test \
                      model-ld.test gnu-hello.test mosh.test \
+                     fibonacci.test \
                      cleanup.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
@@ -49,7 +52,7 @@ mosh.log: fetch-vectors.log
 cleanup.log: model-preprocess.log \
              model-compile.log model-assemble.log model-link.log model-ar.log \
              model-ranlib.log model-strip.log model-ld.log gnu-hello.log \
-             mosh.log
+             mosh.log fibonacci.log
 
 clean-local:
 	-rm -rf $(abs_builddir)/test_temp

@@ -1,0 +1,7 @@
+#!/bin/bash -xe
+
+cd ${TEST_TMPDIR}
+
+../../../examples/fibonacci/create-thunk.sh 70
+gg-force fib70_output
+diff fib70_output <(echo 190392490709135)
