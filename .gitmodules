@@ -5,5 +5,5 @@
 	path = test_vectors
 	url = https://github.com/stanfordsnr/gg-test-vectors
 [submodule "python_sdk"]
-	path = python_sdk
+	path = tools/python_sdk
 	url = https://github.com/faromero/ggsdk.git
