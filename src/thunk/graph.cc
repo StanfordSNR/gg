@@ -137,7 +137,6 @@ ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
           do_update = true;
         }
       }
-      /* XXX: is the content below needed? */
       if ( do_update ) {
         string referencing_thunk_new_hash = ThunkWriter::write( referencing_thunk );
         referencing_thunk.set_hash( referencing_thunk_new_hash );
