@@ -2,8 +2,8 @@
 
 cd ${TEST_TMPDIR}
 
-export PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
-export GG_MODELPATH=${abs_srcdir}/../models/wrappers
+export PATH=${abs_builddir}/../src/models:${abs_builddir}/../src/frontend:$PATH
+export GG_MODELPATH=${abs_srcdir}/../src/models/wrappers
 
 cp -R $DATADIR/mosh .
 cd mosh

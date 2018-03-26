@@ -2,7 +2,7 @@
 
 cd ${TEST_TMPDIR}
 
-export PATH=${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
+export PATH=${abs_builddir}/../src/models:${abs_builddir}/../src/frontend:$PATH
 
 OUTPUT=curhello
 GCC_ARGS="$DATADIR/curhello.o -lncurses -s"

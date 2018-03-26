@@ -7,7 +7,7 @@ if ( -d $target ) {
   exit 0;
 }
 
-my $src_test_vectors = $ENV{ 'srcdir' } . q{/../../test_vectors/};
+my $src_test_vectors = $ENV{ 'srcdir' } . q{/../test_vectors/};
 
 if ( -d $src_test_vectors ) {
   print STDERR "$0: test vectors available in source directory\n";

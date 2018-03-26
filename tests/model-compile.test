@@ -2,7 +2,7 @@
 
 cd ${TEST_TMPDIR}
 
-PATH=${TOOLCHAIN_PATH}:${abs_builddir}/../models:${abs_builddir}/../frontend:$PATH
+PATH=${TOOLCHAIN_PATH}:${abs_builddir}/../src/models:${abs_builddir}/../src/frontend:$PATH
 
 # Run with GCC
 ${TOOLCHAIN_PATH}/gcc -O2 -S -frandom-seed=Hcj1aXXi5aDNIO5VWGmwN7GjQjbLbbVAxbUFsoWbRUA0003aa7d -o remake.s.gold $DATADIR/remake.i

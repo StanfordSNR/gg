@@ -86,8 +86,8 @@ AC_CONFIG_FILES([Makefile
                  src/execution/Makefile
                  src/frontend/Makefile
                  src/remote/Makefile
-                 src/tests/Makefile
                  examples/Makefile
-                 examples/fibonacci/Makefile])
+                 examples/fibonacci/Makefile
+                 tests/Makefile])
 
 AC_OUTPUT

@@ -1,12 +1,14 @@
-AM_CPPFLAGS = -I$(srcdir)/. -I$(builddir)/.. -I$(srcdir)/.. $(CXX14_FLAGS) \
+AM_CPPFLAGS = -I$(srcdir)/../src -I$(builddir)/../src $(CXX14_FLAGS) \
               $(PROTOBUF_CFLAGS)
 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
-LDADD = ../thunk/libthunk.a \
-        ../sandbox/libggsandbox.a \
-        ../trace/libggtrace.a ../trace/libggsyscalltable.a \
-        ../protobufs/libggprotobufs.a ../util/libggutil.a \
+LDADD = ../src/thunk/libthunk.a \
+        ../src/sandbox/libggsandbox.a \
+        ../src/trace/libggtrace.a \
+        ../src/trace/libggsyscalltable.a \
+        ../src/protobufs/libggprotobufs.a \
+        ../src/util/libggutil.a \
         $(PROTOBUF_LIBS) $(CRYPTO_LIBS)
 
 AM_TESTS_ENVIRONMENT = \
