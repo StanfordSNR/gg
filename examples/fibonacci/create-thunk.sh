@@ -1,7 +1,10 @@
 #!/bin/bash -e
 
-FIB_HASH=$(gg-hash fib)
-ADD_HASH=$(gg-hash add)
+FIB_PATH=$(dirname $0)/fib
+ADD_PATH=$(dirname $0)/add
+
+FIB_HASH=$(gg-hash $FIB_PATH)
+ADD_HASH=$(gg-hash $ADD_PATH)
 
 N=${1?"Usage: $0 <N>"}
 
@@ -14,7 +17,4 @@ gg-create-thunk --envar FIB_FUNCTION_HASH=${FIB_HASH} \
                 --placeholder fib${N}_output \
                 ${FIB_HASH} fib ${N}
 
-gg-collect fib add
-
-gg-put fib add
-
+gg-collect $FIB_PATH $ADD_PATH
