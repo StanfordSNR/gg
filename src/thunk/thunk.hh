@@ -36,6 +36,7 @@ namespace gg {
     const std::string DATA_PLACEHOLDER_START = "@{GGHASH:";
     const std::string DATA_PLACEHOLDER_END = "}";
     const std::regex DATA_PLACEHOLDER_REGEX { R"X(@\{GGHASH:([a-zA-Z0-9_.]+)\})X" };
+    const std::regex DATA_PLACEHOLDER_REGEX_POUND { R"X(@\{GGHASH:([a-zA-Z0-9_.#]+)\})X" };
 
     std::string data_placeholder( const std::string & hash );
 
@@ -64,6 +65,8 @@ namespace gg {
 
       std::vector<std::string> & args() { return args_; }
       std::vector<std::string> & envars() { return envars_; }
+
+      void update_arg( const std::string & origstr, const std::string & newstr );
 
       gg::protobuf::Function to_protobuf() const;
 

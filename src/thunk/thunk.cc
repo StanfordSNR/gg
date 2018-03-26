@@ -24,6 +24,10 @@ using namespace gg::thunk;
 using namespace CryptoPP;
 using namespace google::protobuf::util;
 
+void Function::update_arg( const string & origstr, const string & newstr ) {
+    replace( args_.begin(), args_.end(), origstr, newstr );
+}
+
 string thunk::data_placeholder( const string & hash )
 {
   return DATA_PLACEHOLDER_START + hash + DATA_PLACEHOLDER_END;
@@ -322,6 +326,24 @@ void Thunk::update_data( const string & old_hash, const string & new_hash )
   /* let's update the args/envs as necessary */
   const string srcstr = data_placeholder( old_hash );
   const string dststr = data_placeholder( new_hash );
+
+  /* replace <hash>#<tag> with the actual hash */
+  if ( srcstr.length() != dststr.length() ) {
+    vector<string> args = function_.args();
+    for ( string & arg : args ) {
+      size_t found = arg.find( "#" );
+      if ( found != string::npos ) {
+          string hash_to_lu = regex_replace( arg, DATA_PLACEHOLDER_REGEX_POUND, "$1" );
+          Optional<gg::cache::ReductionResult> result = gg::cache::check( hash_to_lu );
+          if ( not result.initialized() ) {
+              throw runtime_error( "reduction entry not found in update_data" );
+          }
+          string new_hash = data_placeholder( result->hash );
+          function_.update_arg( arg, new_hash );
+      }
+    }
+    return;
+  }
 
   assert( srcstr.length() == dststr.length() );
 

@@ -12,8 +12,13 @@
 using namespace std;
 using namespace gg::thunk;
 
-string ExecutionGraph::add_thunk( const string & hash )
+string ExecutionGraph::add_thunk( const string & orig_hash )
 {
+  size_t found = orig_hash.find( "#" );
+  const string hash = ( found != string::npos )
+      ? orig_hash.substr( 0, found )
+      : orig_hash;
+
   const string & updated = updated_hash( hash );
 
   if ( thunks_.count( updated ) ) {
@@ -40,11 +45,16 @@ string ExecutionGraph::add_thunk( const string & hash )
   vector<pair<string, string>> updates_to_thunk;
 
   for ( const Thunk::DataItem & item : thunk.thunks() ) {
-    const string item_updated = add_thunk( item.first );
+    size_t found_ref = ( item.first ).find( "#" );
+    const string mod_hash = ( found_ref != string::npos )
+        ? ( item.first ).substr( 0, found_ref )
+        : item.first;
+
+    const string item_updated = add_thunk( mod_hash );
     referencing_thunks_[ item_updated ].emplace( hash );
 
-    if ( item_updated != item.first ) {
-      updates_to_thunk.emplace_back( item.first, item_updated );
+    if ( item_updated != mod_hash ) {
+      updates_to_thunk.emplace_back( mod_hash, item_updated );
     }
   }
 
@@ -117,6 +127,28 @@ ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
       update_hash( referencing_thunk_hash, referencing_thunk_new_hash );
       next_to_execute.emplace( move( referencing_thunk_new_hash ) );
     }
+    else {
+      auto ref_thunk_thunks = referencing_thunk.thunks();
+      bool do_update = false;
+      for ( const Thunk::DataItem & dep_item : ref_thunk_thunks ) {
+        auto result = gg::cache::check( dep_item.first );
+        if ( result.initialized() ) {
+          referencing_thunk.update_data( dep_item.first, result->hash );
+          do_update = true;
+        }
+      }
+      /* XXX: is the content below needed? */
+      if ( do_update ) {
+        string referencing_thunk_new_hash = ThunkWriter::write( referencing_thunk );
+        referencing_thunk.set_hash( referencing_thunk_new_hash );
+
+        thunks_.emplace( piecewise_construct,
+                         forward_as_tuple( referencing_thunk_new_hash ),
+                         forward_as_tuple( move( referencing_thunk ) ) );
+        update_hash( referencing_thunk_hash, referencing_thunk_new_hash );
+        next_to_execute.emplace( move( referencing_thunk_new_hash ) );
+      }
+    }
   }
 
   if ( new_type == gg::ObjectType::Thunk ) {
@@ -131,8 +163,13 @@ ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
   return { true, move( next_to_execute ) };
 }
 
-unordered_set<string> ExecutionGraph::order_one_dependencies( const string & hash ) const
+unordered_set<string> ExecutionGraph::order_one_dependencies( const string & orig_hash ) const
 {
+  size_t found = orig_hash.find( "#" );
+  const string hash = ( found != string::npos )
+      ? orig_hash.substr( 0, found )
+      : orig_hash;
+
   if ( thunks_.count( hash ) == 0 ) {
     throw runtime_error( "thunk hash not found in the execution graph" );
   }
