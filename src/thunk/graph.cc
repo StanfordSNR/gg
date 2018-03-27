@@ -131,10 +131,13 @@ ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
       auto ref_thunk_thunks = referencing_thunk.thunks();
       bool do_update = false;
       for ( const Thunk::DataItem & dep_item : ref_thunk_thunks ) {
-        auto result = gg::cache::check( dep_item.first );
-        if ( result.initialized() ) {
-          referencing_thunk.update_data( dep_item.first, result->hash );
-          do_update = true;
+        size_t found = ( dep_item.first ).find( "#" );
+        if ( found != string::npos ) {
+          auto result = gg::cache::check( dep_item.first );
+          if ( result.initialized() ) {
+            referencing_thunk.update_data( dep_item.first, result->hash );
+            do_update = true;
+          }
         }
       }
       if ( do_update ) {
