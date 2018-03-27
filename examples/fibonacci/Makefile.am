@@ -1,3 +1,5 @@
+EXTRA_DIST = create-thunk.sh upload.sh
+
 AM_CPPFLAGS = -I$(srcdir)/../../src/. -I$(builddir)/../../src/. $(CXX14_FLAGS) \
               $(PROTOBUF_CFLAGS) $(CRYPTO_CFLAGS)
 

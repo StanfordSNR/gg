@@ -1,6 +1,3 @@
-DIST_EXTRA = gg.py s3.py create-function.py lambda_function/packages.zip \
-             lambda_function/function.py gg-lambda-execute.py
-
 .PHONY: ggfunctions
 
 ggfunctions: $(srcdir)/*.py $(srcdir)/lambda_function/*.py \
