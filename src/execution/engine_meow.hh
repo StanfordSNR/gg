@@ -26,8 +26,7 @@ private:
 public:
   MeowExecutionEngine( const AWSCredentials & credentials,
                        const std::string & region,
-                       const Address & listen_addr,
-                       ExecutionLoop & loop );
+                       const Address & listen_addr );
 
   void force_thunk( const gg::thunk::Thunk & thunk,
                     ExecutionLoop & exec_loop ) override;
