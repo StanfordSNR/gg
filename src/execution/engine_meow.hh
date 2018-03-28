@@ -17,6 +17,14 @@ public:
                        ExecutionLoop & loop,
                        SuccessCallbackFunc success_callback,
                        FailureCallbackFunc failure_callback );
+
+  void force_thunk( const gg::thunk::Thunk & thunk,
+                    ExecutionLoop & exec_loop ) override;
+
+  bool is_remote() const { return true; }
+  bool can_execute( const gg::thunk::Thunk & thunk ) const override;
+  size_t job_count() const override;
+  std::string label() const override { return "meow"; }
 };
 
 #endif /* ENGINE_MU_HH */

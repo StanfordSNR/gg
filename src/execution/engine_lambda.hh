@@ -40,11 +40,11 @@ public:
 
   void force_thunk( const gg::thunk::Thunk & thunk,
                     ExecutionLoop & exec_loop ) override;
-  size_t job_count() const override;
 
   bool is_remote() const { return true; }
-  std::string label() const override { return "lambda"; }
   bool can_execute( const gg::thunk::Thunk & thunk ) const override;
+  std::string label() const override { return "lambda"; }
+  size_t job_count() const override;
 };
 
 #endif /* ENGINE_LAMBDA_HH */
