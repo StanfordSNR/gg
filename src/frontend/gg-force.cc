@@ -1,9 +1,10 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include <getopt.h>
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <getopt.h>
+#include <cstdlib>
 #include <sys/time.h>
 #include <sys/resource.h>
 
@@ -28,16 +29,16 @@ using namespace gg::thunk;
 
 void usage( const char * argv0 )
 {
-  cerr << "Usage: " << argv0 << " [options] THUNKS..." << endl
+  cerr << "Usage: " << argv0 << endl
+       << "       " << "[-j|--jobs=<N>] [-s|--status] [-T|--timeout=<t>] [-S|--sandboxed]" << endl
+       << "       " << "[-e|--engine=<name>[=ENGINE_ARGS]]..." << endl
+       << "       " << "THUNKS..." << endl
        << endl
-       << "Options:" << endl
-       << " -j, --jobs    maximum number of jobs to run in parallel" << endl
-       << " -s, --status  show the status bar for the job" << endl
-       << " -T, --timeout number of seconds before duplicating running jobs" << endl
-       << endl
-       << "Useful environment variables:" << endl
-       << "  GG_SANDBOXED => if set, forces the thunks in a sandbox" << endl
-       << "  GG_REMOTE    => execute the thunks on AWS Lambda" << endl
+       << "Available engines:" << endl
+       << "  - local   Executes the jobs on the local machine" << endl
+       << "  - lambda  Executes the jobs on AWS Lambda" << endl
+       << "  - remote  Executes the jobs on a remote machine" << endl
+       << "  - meow    Executes the jobs on AWS Lambda with long-running workers" << endl
        << endl;
 }
 
@@ -59,6 +60,8 @@ void check_rlimit_nofile( const size_t max_jobs )
 
 int main( int argc, char * argv[] )
 {
+  usage(argv[0]);
+  return 1;
   try {
     if ( argc <= 0 ) {
       abort();
@@ -69,21 +72,23 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    const bool lambda_execution = ( getenv( "GG_LAMBDA" ) != NULL );
-    const bool ggremote_execution = ( getenv( "GG_REMOTE" ) != NULL );
     size_t max_jobs = thread::hardware_concurrency();
     bool status_bar = false;
     int timeout = -1;
 
+    vector<pair<string, string>> engines;
+
     struct option long_options[] = {
-      { "status", no_argument, nullptr, 's' },
-      { "jobs", required_argument, nullptr, 'j' },
-      { "timeout", required_argument, nullptr, 'T' },
-      { nullptr, 0, nullptr, 0 },
+      { "status",    no_argument,       nullptr, 's' },
+      { "sandboxed", no_argument,       nullptr, 'S' },
+      { "jobs",      required_argument, nullptr, 'j' },
+      { "timeout",   required_argument, nullptr, 'T' },
+      { "engine",    required_argument, nullptr, 'e' },
+      { nullptr,     0,                 nullptr,  0  },
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "sj:T:", long_options, NULL );
+      const int opt = getopt_long( argc, argv, "sSj:T:e:", long_options, NULL );
 
       if ( opt == -1 ) {
         break;
@@ -95,6 +100,10 @@ int main( int argc, char * argv[] )
         StatusBar::get();
         break;
 
+      case 'S':
+        setenv( "GG_SANDBOXED", "1", true );
+        break;
+
       case 'j':
         max_jobs = stoul( optarg );
         break;
@@ -102,6 +111,19 @@ int main( int argc, char * argv[] )
       case 'T':
         timeout = stoi( optarg );
         break;
+
+      case 'e':
+      {
+        string engine { optarg };
+        string::size_type eqpos = engine.find( '=' );
+        if ( eqpos == string::npos ) {
+          engines.emplace_back( make_pair( move( engine ), move( string {} ) ) );
+        }
+        else {
+          engines.emplace_back( make_pair( engine.substr( 0, eqpos ),
+                                           engine.substr( eqpos + 1 ) ) );
+        }
+      }
 
       default:
         throw runtime_error( "invalid option" );
