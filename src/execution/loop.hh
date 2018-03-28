@@ -56,6 +56,7 @@ public:
                            SocketType & socket,
                            const HTTPRequest & request );
 
+  Poller & poller() { return poller_; }
   Poller::Result loop_once( const int timeout_ms = -1 );
 };
 
