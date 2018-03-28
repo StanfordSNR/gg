@@ -7,9 +7,22 @@
 #include "net/address.hh"
 #include "net/aws.hh"
 #include "net/lambda.hh"
+#include "net/socket.hh"
 
 class MeowExecutionEngine : public ExecutionEngine
 {
+private:
+  AWSCredentials credentials_;
+  std::string region_;
+  Address aws_addr_;
+
+  Address listen_addr_;
+  TCPSocket listen_socket_;
+
+  SSLContext ssl_context_ {};
+
+  HTTPRequest generate_request( const gg::thunk::Thunk & thunk );
+
 public:
   MeowExecutionEngine( const AWSCredentials & credentials,
                        const std::string & region,
