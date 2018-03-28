@@ -10,7 +10,6 @@ using namespace std;
 using namespace PollerShortNames;
 
 using ReductionResult = gg::cache::ReductionResult;
-using SSLConnectionState = SSLConnectionContext::State;
 
 ExecutionLoop::ExecutionLoop()
   : signals_( { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT } ),
@@ -62,12 +61,6 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
       connection_it->socket, Direction::Out,
       [connection_it] ()
       {
-        connection_it->socket.verify_no_errors();
-
-        if ( connection_it->state == ConnectionContext::State::needs_connect ) {
-          connection_it->state = ConnectionContext::State::ready;
-        }
-
         connection_it->last_write = connection_it->socket.write( connection_it->last_write,
                                                                  connection_it->request_str.cend() );
 
@@ -90,7 +83,6 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
         connection_it->responses.parse( connection_it->socket.read() );
 
         if ( not connection_it->responses.empty() ) {
-          connection_it->state = ConnectionContext::State::closed;
           callback( connection_id, tag, connection_it->responses.front() );
           connection_contexts_.erase( connection_it );
           return ResultType::CancelAll;
@@ -98,7 +90,7 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
 
         return ResultType::Continue;
       },
-      [connection_it]() { return connection_it->ready(); },
+      [connection_it]() { return true; },
       [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
     )
   );
@@ -110,7 +102,7 @@ template<>
 uint64_t ExecutionLoop::add_connection( const string & tag,
                                         RemoteCallbackFunc callback,
                                         FailureCallbackFunc failure_callback,
-                                        SecureSocket & socket,
+                                        NBSecureSocket & socket,
                                         const HTTPRequest & request )
 {
   /* XXX not thread-safe */
@@ -123,34 +115,13 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
       connection_it->socket, Direction::Out,
       [connection_it, connection_id, tag, failure_callback]()
       {
-        try {
-          /* did it connect successfully? */
-          if ( not connection_it->connected() ) {
-            connection_it->continue_SSL_connect();
-          }
-          else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_write or
-                  ( connection_it->state == SSLConnectionState::ready and
-                    connection_it->something_to_write ) ) {
-            connection_it->continue_SSL_write();
-          }
-          else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_read ) {
-            connection_it->continue_SSL_read();
-          }
-        }
-        catch ( const ssl_error & ex ) {
-          failure_callback( connection_id, tag );
-          return ResultType::CancelAll;
-        }
-
+        connection_it->socket.ezwrite( connection_it->request_str );
+        connection_it->something_to_write = false;
         return ResultType::Continue;
       },
       [connection_it]()
       {
-        return ( connection_it->state == SSLConnectionState::needs_connect ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_write_to_connect ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_write_to_write ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_write_to_read ) or
-               ( connection_it->state == SSLConnectionState::ready and connection_it->something_to_write );
+        return connection_it->something_to_write;
       },
       [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
     )
@@ -162,25 +133,9 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
       connection_it->socket, Direction::In,
       [connection_it, tag, callback, failure_callback, connection_id, this]()
       {
-        try {
-          if ( not connection_it->connected() ) {
-            connection_it->continue_SSL_connect();
-          }
-          else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_write ) {
-            connection_it->continue_SSL_write();
-          }
-          else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_read or
-                    connection_it->state == SSLConnectionState::ready ) {
-            connection_it->continue_SSL_read();
-          }
-        }
-        catch ( const ssl_error & error ) {
-          failure_callback( connection_id, tag );
-          return ResultType::CancelAll;
-        }
+        connection_it->responses.parse( connection_it->socket.ezread() );
 
         if ( not connection_it->responses.empty() ) {
-          connection_it->state = SSLConnectionContext::State::closed;
           callback( connection_id, tag, connection_it->responses.front() );
           ssl_connection_contexts_.erase( connection_it );
           return ResultType::CancelAll;
@@ -190,11 +145,7 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
       },
       [connection_it]()
       {
-        return ( connection_it->state == SSLConnectionState::needs_connect ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_read_to_connect ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_read_to_write ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_read_to_read ) or
-               ( connection_it->state == SSLConnectionState::ready );
+        return true;
       },
       [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
     )

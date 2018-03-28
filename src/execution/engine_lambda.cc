@@ -8,6 +8,7 @@
 #include "response.hh"
 #include "thunk/ggutils.hh"
 #include "net/http_response.hh"
+#include "net/nb_secure_socket.hh"
 #include "util/base64.hh"
 #include "util/optional.hh"
 #include "util/system_runner.hh"
@@ -53,7 +54,8 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
     }
   }
 
-  SecureSocket lambda_socket = ssl_context_.new_secure_socket( move( sock ) );
+  NBSecureSocket lambda_socket { move( ssl_context_.new_secure_socket( move( sock ) ) ) };
+  lambda_socket.connect();
 
   uint64_t exec_id = exec_loop.add_connection(
     thunk.hash(),

@@ -49,9 +49,7 @@ void Reductor::print_status() const
     ostringstream data;
 
     data << color_reset
-         << "[" << setw( 3 ) << right
-         << floor( 100.0 * finished_jobs_ / dep_graph_.size() ) << "\x25]"
-         << " in queue: " << BOLD << COLOR_YELLOW  << setw( 5 ) << left
+         << "in queue: " << BOLD << COLOR_YELLOW  << setw( 5 ) << left
          << job_queue_.size() << color_reset;
 
     for ( auto & ee : exec_engines_ ) {
@@ -61,7 +59,7 @@ void Reductor::print_status() const
 
     data << " done: "  << BOLD << COLOR_GREEN << setw( 5 ) << left
          << finished_jobs_ << color_reset
-         << " total: " << BOLD << COLOR_DEFAULT << dep_graph_.size();
+         << " remaining: " << BOLD << COLOR_DEFAULT << dep_graph_.size();
 
     data << "  |  cost: " << BOLD << COLOR_CYAN << "~$" << setw( 8 ) << fixed
          << setprecision( 2 ) << estimated_cost_;

@@ -10,7 +10,7 @@
 
 #include "connection_context.hh"
 #include "net/socket.hh"
-#include "net/secure_socket.hh"
+#include "net/nb_secure_socket.hh"
 #include "util/signalfd.hh"
 #include "util/child_process.hh"
 #include "util/poller.hh"
@@ -34,8 +34,8 @@ private:
 
   Poller poller_;
   std::list<std::tuple<uint64_t, LocalCallbackFunc, ChildProcess>> child_processes_;
-  std::list<ConnectionContext> connection_contexts_;
-  std::list<SSLConnectionContext> ssl_connection_contexts_;
+  std::list<ConnectionContext<TCPSocket>> connection_contexts_;
+  std::list<ConnectionContext<NBSecureSocket>> ssl_connection_contexts_;
 
   Poller::Action::Result handle_signal( const signalfd_siginfo & );
 
