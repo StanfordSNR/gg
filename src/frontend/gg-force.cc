@@ -16,6 +16,11 @@
 #include "thunk/placeholder.hh"
 #include "thunk/thunk_reader.hh"
 #include "thunk/thunk.hh"
+#include "execution/engine.hh"
+#include "execution/engine_local.hh"
+#include "execution/engine_lambda.hh"
+#include "execution/engine_gg.hh"
+#include "execution/engine_meow.hh"
 #include "tui/status_bar.hh"
 #include "util/digest.hh"
 #include "util/exception.hh"
@@ -60,8 +65,6 @@ void check_rlimit_nofile( const size_t max_jobs )
 
 int main( int argc, char * argv[] )
 {
-  usage(argv[0]);
-  return 1;
   try {
     if ( argc <= 0 ) {
       abort();
@@ -123,6 +126,8 @@ int main( int argc, char * argv[] )
           engines.emplace_back( make_pair( engine.substr( 0, eqpos ),
                                            engine.substr( eqpos + 1 ) ) );
         }
+
+        break;
       }
 
       default:
@@ -162,27 +167,45 @@ int main( int argc, char * argv[] )
       target_hashes.emplace_back( move( thunk_hash ) );
     }
 
-    vector<ExecutionEnvironment> execution_environments;
+    vector<unique_ptr<ExecutionEngine>> execution_engines;
     unique_ptr<StorageBackend> storage_backend;
+    bool remote_execution = false;
 
-    if ( lambda_execution ) {
-      execution_environments.push_back( ExecutionEnvironment::LAMBDA );
+    if ( engines.size() == 0 ) {
+      /* the default engine is the local engine */
+      engines.emplace_back( make_pair( "local", "" ) );
     }
 
-    if ( ggremote_execution ) {
-      execution_environments.push_back( ExecutionEnvironment::GG_RUNNER );
+    for ( const pair<string, string> & engine : engines ) {
+      if ( engine.first == "local" ) {
+        execution_engines.emplace_back( make_unique<LocalExecutionEngine>() );
+      }
+      else if ( engine.first == "lambda" ) {
+        execution_engines.emplace_back( make_unique<AWSLambdaExecutionEngine>(
+          AWSCredentials(), AWS::region() ) );
+      }
+      else if ( engine.first == "remote" ) {
+        auto runner_server = gg::remote::runner_server();
+
+        execution_engines.emplace_back( make_unique<GGExecutionEngine>(
+            runner_server.first, runner_server.second ) );
+      }
+      else if ( engine.first == "meow" ) {
+        throw runtime_error( "not implemented" );
+      }
+      else {
+        throw runtime_error( "unknown execution engine" );
+      }
+
+      remote_execution |= execution_engines.back()->is_remote();
     }
 
-    if ( not ( lambda_execution or ggremote_execution ) ) {
-      execution_environments.push_back( ExecutionEnvironment::LOCAL );
-    }
-
-    if ( lambda_execution or ggremote_execution ) {
+    if ( remote_execution ) {
       storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
     }
 
     Reductor reductor { target_hashes, max_jobs,
-                        execution_environments,
+                        move( execution_engines ),
                         move( storage_backend ),
                         ( timeout > 0 ) ? ( timeout * 1000 ) : -1,
                         status_bar };

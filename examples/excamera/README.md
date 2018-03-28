@@ -52,4 +52,4 @@ from 0 to 63 (the smaller, the better).
 ### Executing the pipeline
 
 1. `gg-infer make -j$(nproc)`
-2. `GG_LAMBDA=1 gg-force --jobs=100 *.ivf`
+2. `gg-force --engine=lambda --status --jobs=100 *.ivf`

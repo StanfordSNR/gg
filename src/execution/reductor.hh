@@ -14,8 +14,6 @@
 #include "thunk/graph.hh"
 #include "storage/backend.hh"
 
-enum class ExecutionEnvironment { LOCAL, GG_RUNNER, LAMBDA };
-
 class Reductor
 {
 private:
@@ -35,7 +33,7 @@ private:
   int poller_timeout_ { -1 };
 
   ExecutionLoop exec_loop_ {};
-  std::vector<std::unique_ptr<ExecutionEngine>> exec_engines_ {};
+  std::vector<std::unique_ptr<ExecutionEngine>> exec_engines_;
 
   std::unique_ptr<StorageBackend> storage_backend_;
 
@@ -49,7 +47,7 @@ private:
 public:
   Reductor( const std::vector<std::string> & target_hashes,
             const size_t max_jobs,
-            const std::vector<ExecutionEnvironment> & execution_environments,
+            std::vector<std::unique_ptr<ExecutionEngine>> && execution_engines,
             std::unique_ptr<StorageBackend> && storage_backend,
             const int base_timeout = -1,
             const bool status_bar = false );

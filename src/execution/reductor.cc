@@ -9,9 +9,6 @@
 #include <numeric>
 #include <chrono>
 
-#include "engine_local.hh"
-#include "engine_lambda.hh"
-#include "engine_gg.hh"
 #include "thunk/ggutils.hh"
 #include "net/s3.hh"
 #include "tui/status_bar.hh"
@@ -74,7 +71,7 @@ void print_gg_message( const string & tag, const string & message )
 }
 
 Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
-                    const vector<ExecutionEnvironment> & execution_environments,
+                    vector<unique_ptr<ExecutionEngine>> && execution_engines,
                     std::unique_ptr<StorageBackend> && storage_backend,
                     const int base_timeout, const bool status_bar )
   : target_hashes_( target_hashes ),
@@ -82,6 +79,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     max_jobs_( max_jobs ), status_bar_( status_bar ),
     base_poller_timeout_( base_timeout ),
     poller_timeout_( base_timeout ),
+    exec_engines_( move( execution_engines ) ),
     storage_backend_( move( storage_backend ) )
 {
   unordered_set<string> all_o1_deps;
@@ -145,44 +143,15 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
       job_queue_.push_back( old_hash );
     };
 
-  for ( auto ee : execution_environments ) {
-    switch ( ee ) {
-    case ExecutionEnvironment::LOCAL:
-      exec_engines_.emplace_back(
-        make_unique<LocalExecutionEngine>()
-      );
-
-      break;
-
-    case ExecutionEnvironment::LAMBDA:
-      exec_engines_.emplace_back(
-        make_unique<AWSLambdaExecutionEngine>(
-          AWSCredentials(), AWS::region()
-        )
-      );
-
-      break;
-
-    case ExecutionEnvironment::GG_RUNNER:
-      {
-        auto runner_server = gg::remote::runner_server();
-
-        exec_engines_.emplace_back(
-          make_unique<GGExecutionEngine>(
-            runner_server.first, runner_server.second
-          )
-        );
-      }
-      break;
-    }
-
-    exec_engines_.back()->set_success_callback( success_callback );
-    exec_engines_.back()->set_failure_callback( failure_callback );
-    exec_engines_.back()->init( exec_loop_ );
-  }
 
   if ( exec_engines_.size() == 0 ) {
     throw runtime_error( "no execution engines are available" );
+  }
+
+  for ( auto & ee : exec_engines_ ) {
+    ee->set_success_callback( success_callback );
+    ee->set_failure_callback( failure_callback );
+    ee->init( exec_loop_ );
   }
 }
 
