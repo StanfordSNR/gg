@@ -12,6 +12,7 @@ libggnet_a_SOURCES = address.cc address.hh body_parser.hh \
                      http_response_parser.cc http_response_parser.hh \
                      mime_type.cc mime_type.hh \
                      secure_socket.cc secure_socket.hh socket.cc socket.hh \
+                     nb_secure_socket.cc nb_secure_socket.hh \
                      strict_conversions.hh strict_conversions.cc \
                      requests.hh \
                      aws.hh aws.cc \

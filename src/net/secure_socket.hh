@@ -43,7 +43,7 @@ private:
 
 public:
     void connect( void );
-    void accept( void );
+    void accept( const bool register_as_write = false );
 
     std::string read( const bool register_as_write = false );
     void write( const std::string & message, const bool register_as_read = false );
