@@ -25,15 +25,12 @@ public:
           FailureCallbackFunc;
 
 protected:
-  SuccessCallbackFunc success_callback_;
-  FailureCallbackFunc failure_callback_;
+  SuccessCallbackFunc success_callback_ {};
+  FailureCallbackFunc failure_callback_ {};
 
 public:
-  ExecutionEngine( SuccessCallbackFunc success_callback,
-                   FailureCallbackFunc failure_callback )
-    : success_callback_( success_callback ),
-      failure_callback_( failure_callback )
-  {}
+  void set_success_callback( SuccessCallbackFunc func ) { success_callback_ = func; }
+  void set_failure_callback( FailureCallbackFunc func ) { failure_callback_ = func; }
 
   virtual void force_thunk( const gg::thunk::Thunk & thunk,
                             ExecutionLoop & exec_loop ) = 0;

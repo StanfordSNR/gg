@@ -149,7 +149,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     switch ( ee ) {
     case ExecutionEnvironment::LOCAL:
       exec_engines_.emplace_back(
-        make_unique<LocalExecutionEngine>( success_callback, failure_callback )
+        make_unique<LocalExecutionEngine>()
       );
 
       break;
@@ -157,8 +157,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     case ExecutionEnvironment::LAMBDA:
       exec_engines_.emplace_back(
         make_unique<AWSLambdaExecutionEngine>(
-          AWSCredentials(), AWS::region(), success_callback,
-          failure_callback
+          AWSCredentials(), AWS::region()
         )
       );
 
@@ -170,13 +169,15 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
 
         exec_engines_.emplace_back(
           make_unique<GGExecutionEngine>(
-            runner_server.first, runner_server.second, success_callback,
-            failure_callback
+            runner_server.first, runner_server.second
           )
         );
       }
       break;
     }
+
+    exec_engines_.back()->set_success_callback( success_callback );
+    exec_engines_.back()->set_failure_callback( failure_callback );
   }
 
   if ( exec_engines_.size() == 0 ) {

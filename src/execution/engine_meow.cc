@@ -10,11 +10,8 @@ using namespace PollerShortNames;
 MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
                                           const std::string & region,
                                           const Address & listen_addr,
-                                          ExecutionLoop & loop,
-                                          SuccessCallbackFunc success_callback,
-                                          FailureCallbackFunc failure_callback )
-  : ExecutionEngine( success_callback, failure_callback ),
-    credentials_( credentials ), region_( region ),
+                                          ExecutionLoop & loop )
+  : credentials_( credentials ), region_( region ),
     aws_addr_( LambdaInvocationRequest::endpoint( region_ ), "https" ),
     listen_addr_( listen_addr ), listen_socket_()
 {
