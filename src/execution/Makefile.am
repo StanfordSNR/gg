@@ -12,4 +12,5 @@ libggexecution_a_SOURCES = response.hh response.cc \
                            engine_local.hh engine_local.cc \
                            engine_lambda.hh engine_lambda.cc \
                            engine_gg.hh engine_gg.cc \
+                           engine_meow.hh engine_meow.cc \
                            reductor.hh reductor.cc
