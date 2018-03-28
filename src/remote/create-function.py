@@ -53,8 +53,8 @@ def create_lambda_package(output, function_execs, gg_execute_static):
     PACKAGE_FILES = {
         "gg-execute-static": gg_execute_static,
         "function.py": "lambda_function/function.py",
-        "ggpaths.py": "lambda_function/ggpaths.py",
-        "common.py": "lambda_function/common.py"
+        "ggpaths.py": "common/ggpaths.py",
+        "common.py": "common/common.py"
     }
 
     for exe in function_execs:
