@@ -2,20 +2,6 @@ syntax = 'proto3';
 
 package gg.protobuf;
 
-message Function {
-  string hash = 1;
-  repeated string args = 2;
-  repeated string envars = 3;
-}
-
-message Thunk {
-  Function function = 1;
-  repeated string values = 2;
-  repeated string thunks = 3;
-  repeated string executables = 4;
-  repeated string outputs = 5;
-}
-
 message LambdaInFile {
   string hash = 1;
   uint64 size = 3;
