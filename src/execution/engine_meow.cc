@@ -14,3 +14,18 @@ MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
     aws_addr_( LambdaInvocationRequest::endpoint( region_ ), "https" ),
     listen_addr_( listen_addr ), listen_socket_()
 {}
+
+void MeowExecutionEngine::init( ExecutionLoop & loop )
+{
+  listen_socket_.set_blocking( false );
+  listen_socket_.set_reuseaddr();
+  listen_socket_.bind( listen_addr_ );
+  listen_socket_.listen();
+
+  loop.poller().add_action( Poller::Action( listen_socket_, Direction::In,
+    []() -> ResultType
+    {
+      cerr << "Incoming connection" << endl;
+      return ResultType::Continue;
+    } ) );
+}

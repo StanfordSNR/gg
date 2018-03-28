@@ -28,6 +28,8 @@ public:
                        const std::string & region,
                        const Address & listen_addr );
 
+  void init( ExecutionLoop & loop ) override;
+
   void force_thunk( const gg::thunk::Thunk & thunk,
                     ExecutionLoop & exec_loop ) override;
 
