@@ -13,9 +13,7 @@ using ReductionResult = gg::cache::ReductionResult;
 
 ExecutionLoop::ExecutionLoop()
   : signals_( { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT } ),
-    signal_fd_( signals_ ),
-    poller_(), child_processes_(), connection_contexts_(),
-    ssl_connection_contexts_()
+    signal_fd_( signals_ )
 {
   signals_.set_as_mask();
 

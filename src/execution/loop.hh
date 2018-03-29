@@ -32,10 +32,10 @@ private:
   SignalMask signals_;
   SignalFD signal_fd_;
 
-  Poller poller_;
-  std::list<std::tuple<uint64_t, LocalCallbackFunc, ChildProcess>> child_processes_;
-  std::list<ConnectionContext<TCPSocket>> connection_contexts_;
-  std::list<ConnectionContext<NBSecureSocket>> ssl_connection_contexts_;
+  Poller poller_ {};
+  std::list<std::tuple<uint64_t, LocalCallbackFunc, ChildProcess>> child_processes_ {};
+  std::list<ConnectionContext<TCPSocket>> connection_contexts_ {};
+  std::list<ConnectionContext<NBSecureSocket>> ssl_connection_contexts_ {};
 
   Poller::Action::Result handle_signal( const signalfd_siginfo & );
 

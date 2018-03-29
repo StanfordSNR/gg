@@ -22,6 +22,8 @@ int main( int argc, char * argv[] )
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
+
+    
   }
   catch ( const exception & e ) {
     return EXIT_FAILURE;
