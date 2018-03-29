@@ -77,9 +77,8 @@ void Socket::connect( const Address & address )
 
 void Socket::connect_nonblock( const Address & address )
 {
-    connect( address );
-
     try {
+        connect( address );
         throw runtime_error( "nonblocking connect unexpectedly succeeded immediately" );
     }
     catch ( const unix_error & e ) {
