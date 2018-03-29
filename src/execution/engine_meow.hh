@@ -34,7 +34,8 @@ private:
   TCPSocket listen_socket_;
   SSLContext ssl_context_ {};
 
-  std::map<uint64_t, Lambda> connections_ {};
+  std::map<uint64_t, Lambda> lambdas_ {};
+  std::set<uint64_t> free_lambdas_ {};
 
   HTTPRequest generate_request( const gg::thunk::Thunk & thunk );
 
