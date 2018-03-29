@@ -15,7 +15,7 @@ BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS)
 bin_PROGRAMS = gg-trace gg-describe gg-force-and-run gg-force gg-mock \
                gg-execute gg-infer gg-thunksummary gg-s3-upload \
                gg-s3-download gg-init gg-hash gg-create-thunk gg-collect \
-               gg-put gg-get lambda-invoker
+               gg-put gg-get gg-meow-worker lambda-invoker
 
 if BUILD_STATIC_BINS
   bin_PROGRAMS += gg-execute-static
@@ -73,6 +73,11 @@ gg_put_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 gg_get_SOURCES = gg-get.cc
 gg_get_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
+
+gg_meow_worker_SOURCES = gg-meow-worker.cc
+gg_meow_worker_CXXFLAGS = $(PICKY_CXXFLAGS)
+gg_meow_worker_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS) -ldl -lz
+gg_meow_worker_LDFLAGS = -static -s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 
 lambda_invoker_SOURCES = lambda-invoker.cc
 lambda_invoker_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
