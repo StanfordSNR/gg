@@ -14,17 +14,11 @@ struct ConnectionContext
 {
   SocketType socket;
   HTTPResponseParser responses {};
-  std::string request_str {};
-  std::string::const_iterator last_write {};
+  std::string write_buffer {};
 
-  bool something_to_write { true };
-
-  ConnectionContext( SocketType && sock, const HTTPRequest & request )
-    : socket( std::move( sock ) ), request_str( request.str() ),
-      last_write( request_str.cbegin() )
-  {
-    responses.new_request_arrived( request );
-  }
+  ConnectionContext( SocketType && sock )
+    : socket( std::move( sock ) )
+  {}
 };
 
 #endif /* CONNECTION_CONTEXT_HH */

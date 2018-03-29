@@ -40,6 +40,9 @@ private:
   Poller::Action::Result handle_signal( const signalfd_siginfo & );
 
 public:
+  typedef decltype( connection_contexts_ )::iterator ConnectionIterator;
+  typedef decltype( ssl_connection_contexts_ )::iterator SSLConnectionIterator;
+
   ExecutionLoop();
 
   /* the add_* functions will return a 64-bit number as a unique id */
@@ -50,11 +53,11 @@ public:
                               std::function<int()> && child_procedure );
 
   template<class SocketType>
-  uint64_t add_connection( const std::string & tag,
-                           RemoteCallbackFunc callback,
-                           FailureCallbackFunc failure_callback,
-                           SocketType & socket,
-                           const HTTPRequest & request );
+  std::pair<uint64_t, typename std::list<ConnectionContext<SocketType>>::iterator>
+  add_connection( const std::string & tag,
+                  RemoteCallbackFunc callback,
+                  FailureCallbackFunc failure_callback,
+                  SocketType & socket );
 
   Poller & poller() { return poller_; }
   Poller::Result loop_once( const int timeout_ms = -1 );

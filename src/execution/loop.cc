@@ -45,32 +45,29 @@ uint64_t ExecutionLoop::add_child_process( const string & tag,
 }
 
 template<>
-uint64_t ExecutionLoop::add_connection( const string & tag,
-                                        RemoteCallbackFunc callback,
-                                        FailureCallbackFunc failure_callback,
-                                        TCPSocket & socket,
-                                        const HTTPRequest & request )
+pair<uint64_t, ExecutionLoop::ConnectionIterator>
+ExecutionLoop::add_connection( const string & tag,
+                               RemoteCallbackFunc callback,
+                               FailureCallbackFunc failure_callback,
+                               TCPSocket & socket )
 {
   /* XXX not thread-safe */
-  const uint64_t connection_id = current_id_++;
+  uint64_t connection_id = current_id_++;
   auto connection_it = connection_contexts_.emplace( connection_contexts_.end(),
-                                                     move( socket ), request );
+                                                     move( socket ) );
 
   poller_.add_action(
     Poller::Action(
       connection_it->socket, Direction::Out,
       [connection_it] ()
       {
-        connection_it->last_write = connection_it->socket.write( connection_it->last_write,
-                                                                 connection_it->request_str.cend() );
+        auto last_write = connection_it->socket.write( connection_it->write_buffer.begin(),
+                                                       connection_it->write_buffer.cend() );
 
-        if ( connection_it->last_write == connection_it->request_str.cend() ) {
-          connection_it->something_to_write = false;
-        }
-
+        connection_it->write_buffer.erase( connection_it->write_buffer.begin(), last_write );
         return ResultType::Continue;
       },
-      [connection_it] { return connection_it->something_to_write; },
+      [connection_it] { return connection_it->write_buffer.size(); },
       [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
     )
   );
@@ -95,33 +92,33 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
     )
   );
 
-  return connection_id;
+  return make_pair( move( connection_id ), move( connection_it ) );
 }
 
 template<>
-uint64_t ExecutionLoop::add_connection( const string & tag,
-                                        RemoteCallbackFunc callback,
-                                        FailureCallbackFunc failure_callback,
-                                        NBSecureSocket & socket,
-                                        const HTTPRequest & request )
+pair<uint64_t, ExecutionLoop::SSLConnectionIterator>
+ExecutionLoop::add_connection( const string & tag,
+                               RemoteCallbackFunc callback,
+                               FailureCallbackFunc failure_callback,
+                               NBSecureSocket & socket )
 {
   /* XXX not thread-safe */
-  const uint64_t connection_id = current_id_++;
+  uint64_t connection_id = current_id_++;
   auto connection_it = ssl_connection_contexts_.emplace( ssl_connection_contexts_.end(),
-                                                         move( socket ), request );
+                                                         move( socket ) );
 
   poller_.add_action(
     Poller::Action(
       connection_it->socket, Direction::Out,
       [connection_it, connection_id, tag, failure_callback]()
       {
-        connection_it->socket.ezwrite( connection_it->request_str );
-        connection_it->something_to_write = false;
+        connection_it->socket.ezwrite( move( connection_it->write_buffer ) );
+        connection_it->write_buffer = string {};
         return ResultType::Continue;
       },
       [connection_it]()
       {
-        return connection_it->something_to_write;
+        return connection_it->write_buffer.size();
       },
       [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
     )
@@ -151,7 +148,7 @@ uint64_t ExecutionLoop::add_connection( const string & tag,
     )
   );
 
-  return connection_id;
+  return make_pair( move( connection_id ), move( connection_it ) );
 }
 
 Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & sig )

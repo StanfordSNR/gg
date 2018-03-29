@@ -48,7 +48,7 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
     }
   }
 
-  exec_loop.add_connection(
+  auto exec_info = exec_loop.add_connection(
     thunk.hash(),
     [this] ( const uint64_t, const string & thunk_hash,
              const HTTPResponse & http_response )
@@ -85,8 +85,11 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
     {
       failure_callback_( thunk_hash, JobStatus::SocketFailure );
     },
-    socket, request
+    socket
   );
+
+  exec_info.second->write_buffer = request.str();
+  exec_info.second->responses.new_request_arrived( request );
 
   running_jobs_++;
 }
