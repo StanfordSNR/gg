@@ -188,10 +188,11 @@ int main( int argc, char * argv[] )
         auto runner_server = gg::remote::runner_server();
 
         execution_engines.emplace_back( make_unique<GGExecutionEngine>(
-            runner_server.first, runner_server.second ) );
+          runner_server.first, runner_server.second ) );
       }
       else if ( engine.first == "meow" ) {
-        throw runtime_error( "not implemented" );
+        execution_engines.emplace_back( make_unique<MeowExecutionEngine>(
+          AWSCredentials(), AWS::region(), Address { "0.0.0.0", 9925 } ) );
       }
       else {
         throw runtime_error( "unknown execution engine" );

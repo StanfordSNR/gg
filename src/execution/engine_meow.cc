@@ -4,7 +4,10 @@
 
 #include <iostream>
 
+#include "util/units.hh"
+
 using namespace std;
+using namespace gg::thunk;
 using namespace PollerShortNames;
 
 MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
@@ -28,4 +31,19 @@ void MeowExecutionEngine::init( ExecutionLoop & loop )
       cerr << "Incoming connection" << endl;
       return ResultType::Continue;
     } ) );
+}
+
+void MeowExecutionEngine::force_thunk( const Thunk &, ExecutionLoop & )
+{
+  cerr << "Not implemented" << endl;
+}
+
+bool MeowExecutionEngine::can_execute( const gg::thunk::Thunk & thunk ) const
+{
+  return thunk.infiles_size() < 200_MiB;
+}
+
+size_t MeowExecutionEngine::job_count() const
+{
+  return 0;
 }
