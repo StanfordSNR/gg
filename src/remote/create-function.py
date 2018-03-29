@@ -10,24 +10,29 @@ import hashlib
 import base64
 import boto3
 
-BASE_FILE = "lambda_function/packages.zip"
+BASE_FILE = {
+    "lambda": "lambda_function/packages.zip",
+    "meow": "meow_function/packages.zip"
+}
+
 PACKAGE_GG_DIR = "_gg"
 
 functions = [
-    [], # the generic function
+    ("lambda", []), # the generic function
+    ("meow", []),
 
-    ["gcc", "cc1"],
-    ["gcc", "as"],
-    ["gcc", "collect2", "ld"],
+    #["gcc", "cc1"],
+    #["gcc", "as"],
+    #["gcc", "collect2", "ld"],
 
-    ["g++", "cc1plus"],
-    ["g++", "as"],
-    ["g++", "collect2", "ld"],
+    #["g++", "cc1plus"],
+    #["g++", "as"],
+    #["g++", "collect2", "ld"],
 
-    ["ranlib"],
-    ["ar"],
-    ["strip"],
-    ["ld"],
+    #["ranlib"],
+    #["ar"],
+    #["strip"],
+    #["ld"],
 ]
 
 hash_cache = {}
@@ -49,10 +54,10 @@ def gghash(filename, block_size=65536):
 
     return "V{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).decode('ascii').replace('=','').replace('-', '.'), size)
 
-def create_lambda_package(output, function_execs, gg_execute_static):
+def create_function_package(label, output, function_execs, gg_execute_static):
     PACKAGE_FILES = {
         "gg-execute-static": gg_execute_static,
-        "function.py": "lambda_function/function.py",
+        "function.py": "%s_function/function.py" % label,
         "ggpaths.py": "common/ggpaths.py",
         "common.py": "common/common.py"
     }
@@ -60,7 +65,7 @@ def create_lambda_package(output, function_execs, gg_execute_static):
     for exe in function_execs:
         PACKAGE_FILES["executables/{}".format(exe[0])] = exe[1]
 
-    shutil.copy(BASE_FILE, output)
+    shutil.copy(BASE_FILE[label], output)
 
     with ZipFile(output, 'a') as funczip:
         for fn, fp in PACKAGE_FILES.items():
@@ -113,20 +118,20 @@ def main():
     if not args.role:
         raise Exception("Please provide function role (or set GG_LAMBDA_ROLE).")
 
-    for func in functions:
+    for label, func in functions:
         function_execs = [(f, os.path.join(args.toolchain_path, f)) for f in func]
         function_execs = [(gghash(f[1]), f[1]) for f in function_execs]
         hashes = [f[0] for f in function_execs]
 
         if len(function_execs) == 0:
-            function_name = "gg-function-generic"
+            function_name = "gg-%s-function" % label
         else:
             function_name = "{prefix}{exechash}".format(
                 prefix="gg-", exechash=executable_hash(hashes)
             )
 
         function_file = "{}.zip".format(function_name)
-        create_lambda_package(function_file, function_execs, args.gg_execute_static)
+        create_function_package(label, function_file, function_execs, args.gg_execute_static)
         print("Installing lambda function {}... ".format(function_name), end='')
         install_lambda_package(function_file, function_name, args.role, args.region,
                                delete=args.delete)

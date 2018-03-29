@@ -22,7 +22,7 @@ HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk )
   string function_name;
 
   if ( getenv( "GG_SPECIALIZED_FUNCTION" ) == nullptr ) {
-    function_name = "gg-function-generic";
+    function_name = "gg-lambda-function";
   }
   else {
     function_name = "gg-" + thunk.executable_hash();
