@@ -61,8 +61,8 @@ ExecutionLoop::add_connection( const string & tag,
       connection_it->socket, Direction::Out,
       [connection_it] ()
       {
-        auto last_write = connection_it->socket.write( connection_it->write_buffer.begin(),
-                                                       connection_it->write_buffer.cend() );
+        string::const_iterator last_write = connection_it->socket.write( connection_it->write_buffer.begin(),
+                                                                         connection_it->write_buffer.cend() );
 
         connection_it->write_buffer.erase( connection_it->write_buffer.cbegin(), last_write );
         return ResultType::Continue;
