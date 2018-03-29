@@ -26,11 +26,29 @@ void MeowExecutionEngine::init( ExecutionLoop & loop )
   listen_socket_.listen();
 
   loop.poller().add_action( Poller::Action( listen_socket_, Direction::In,
-    []() -> ResultType
+    [this, &loop]() -> ResultType
     {
-      cerr << "Incoming connection" << endl;
+      /* incoming connection. we accept this connection, and we will
+      add this to the looper */
+      TCPSocket socket { move( listen_socket_.accept() ) };
+      auto conn_info = loop.add_connection( "meow-worker",
+        [] ( const uint64_t, const string &, const HTTPResponse & ) -> bool
+        {
+          /* handle the incoming message from Lambda */
+          return true; /* keep the connection open */
+        },
+        [] ( const uint64_t, const string & ) -> void
+        {
+          /* handle the failure */
+        },
+        socket
+      );
+
+      connections_.emplace( move( conn_info ) );
+
       return ResultType::Continue;
-    } ) );
+    } )
+  );
 }
 
 void MeowExecutionEngine::force_thunk( const Thunk &, ExecutionLoop & )

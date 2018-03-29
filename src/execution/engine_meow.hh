@@ -3,6 +3,8 @@
 #ifndef ENGINE_MEOW_HH
 #define ENGINE_MEOW_HH
 
+#include <vector>
+
 #include "engine.hh"
 #include "net/address.hh"
 #include "net/aws.hh"
@@ -15,11 +17,13 @@ private:
   AWSCredentials credentials_;
   std::string region_;
   Address aws_addr_;
-
   Address listen_addr_;
   TCPSocket listen_socket_;
-
   SSLContext ssl_context_ {};
+
+  std::map<uint64_t, ExecutionLoop::ConnectionIterator> connections_ {};
+  std::set<uint64_t> busy_lambdas_ {};
+  std::set<uint64_t> free_lambdas_ {};
 
   HTTPRequest generate_request( const gg::thunk::Thunk & thunk );
 
