@@ -51,7 +51,7 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
   auto exec_info = exec_loop.add_connection(
     thunk.hash(),
     [this] ( const uint64_t, const string & thunk_hash,
-             const HTTPResponse & http_response )
+             const HTTPResponse & http_response ) -> bool
     {
       running_jobs_--;
 
@@ -80,6 +80,8 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
 
       gg::cache::insert( response.thunk_hash, response.outputs.at( 0 ).hash );
       success_callback_( response.thunk_hash, response.outputs.at( 0 ).hash, 0 );
+
+      return false;
     },
     [this] ( const uint64_t, const string & thunk_hash )
     {

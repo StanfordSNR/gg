@@ -20,7 +20,7 @@ class ExecutionLoop
 public:
   typedef std::function<void( const uint64_t /* id */,
                               const std::string & /* tag */ )> LocalCallbackFunc;
-  typedef std::function<void( const uint64_t id /* id */,
+  typedef std::function<bool( const uint64_t id /* id */,
                               const std::string & /* tag */,
                               const HTTPResponse & )> RemoteCallbackFunc;
   typedef std::function<void( const uint64_t /* id */,

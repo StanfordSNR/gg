@@ -80,9 +80,11 @@ ExecutionLoop::add_connection( const string & tag,
         connection_it->responses.parse( connection_it->socket.read() );
 
         if ( not connection_it->responses.empty() ) {
-          callback( connection_id, tag, connection_it->responses.front() );
-          connection_contexts_.erase( connection_it );
-          return ResultType::CancelAll;
+          if ( not callback( connection_id, tag, connection_it->responses.front() ) ) {
+            connection_contexts_.erase( connection_it );
+            return ResultType::CancelAll;
+          }
+          connection_it->responses.pop();
         }
 
         return ResultType::Continue;
@@ -133,9 +135,11 @@ ExecutionLoop::add_connection( const string & tag,
         connection_it->responses.parse( connection_it->socket.ezread() );
 
         if ( not connection_it->responses.empty() ) {
-          callback( connection_id, tag, connection_it->responses.front() );
-          ssl_connection_contexts_.erase( connection_it );
-          return ResultType::CancelAll;
+          if ( not callback( connection_id, tag, connection_it->responses.front() ) ) {
+            ssl_connection_contexts_.erase( connection_it );
+            return ResultType::CancelAll;
+          }
+          connection_it->responses.pop();
         }
 
         return ResultType::Continue;

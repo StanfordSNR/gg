@@ -60,7 +60,7 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
   auto exec_info = exec_loop.add_connection(
     thunk.hash(),
     [this] ( const uint64_t id, const string & thunk_hash,
-             const HTTPResponse & http_response )
+             const HTTPResponse & http_response ) -> bool
     {
       running_jobs_--;
 
@@ -69,10 +69,12 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
              ( http_response.status_code() == "500" and
                http_response.has_header( "x-amzn-ErrorType" ) and
                http_response.get_header_value( "x-amzn-ErrorType" ) == "ServiceException" ) ) {
-          return failure_callback_( thunk_hash, JobStatus::RateLimit );
+          failure_callback_( thunk_hash, JobStatus::RateLimit );
+          return false;
         }
         else {
-          return failure_callback_( thunk_hash, JobStatus::InvocationFailure );
+          failure_callback_( thunk_hash, JobStatus::InvocationFailure );
+          return false;
         }
       }
 
@@ -111,6 +113,8 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
       default: /* in case of any other failure */
         failure_callback_( thunk_hash, response.status );
       }
+
+      return false;
     },
     [this] ( const uint64_t id, const string & thunk_hash )
     {
