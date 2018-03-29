@@ -44,7 +44,9 @@ void MeowExecutionEngine::init( ExecutionLoop & loop )
         socket
       );
 
-      connections_.emplace( move( conn_info ) );
+      connections_.emplace( piecewise_construct,
+                            forward_as_tuple( conn_info.first ),
+                            forward_as_tuple( move( conn_info.second ) ) );
 
       return ResultType::Continue;
     } )

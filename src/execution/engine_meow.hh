@@ -14,6 +14,19 @@
 class MeowExecutionEngine : public ExecutionEngine
 {
 private:
+  using ConnectionIterator = ExecutionLoop::ConnectionIterator;
+
+  struct Lambda
+  {
+    enum class State { UNINITIALIZED, FREE, BUSY };
+
+    State state { State::UNINITIALIZED };
+    ConnectionIterator connection_it;
+
+    Lambda( ConnectionIterator && conn_it )
+      : connection_it( move( conn_it ) ) {}
+  };
+
   AWSCredentials credentials_;
   std::string region_;
   Address aws_addr_;
@@ -21,9 +34,7 @@ private:
   TCPSocket listen_socket_;
   SSLContext ssl_context_ {};
 
-  std::map<uint64_t, ExecutionLoop::ConnectionIterator> connections_ {};
-  std::set<uint64_t> busy_lambdas_ {};
-  std::set<uint64_t> free_lambdas_ {};
+  std::map<uint64_t, Lambda> connections_ {};
 
   HTTPRequest generate_request( const gg::thunk::Thunk & thunk );
 
