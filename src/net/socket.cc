@@ -75,6 +75,22 @@ void Socket::connect( const Address & address )
     register_write();
 }
 
+void Socket::connect_nonblock( const Address & address )
+{
+    connect( address );
+
+    try {
+        throw runtime_error( "nonblocking connect unexpectedly succeeded immediately" );
+    }
+    catch ( const unix_error & e ) {
+        if ( e.error_code() == EINPROGRESS ) {
+            /* do nothing */
+        }
+        else {
+            throw;
+        }
+    }
+}
 /* send datagram to specified address */
 void UDPSocket::sendto( const Address & destination, const string & payload )
 {

@@ -36,6 +36,7 @@ public:
 
     /* connect socket to a specified peer address */
     void connect( const Address & address );
+    void connect_nonblock( const Address & address );
 
     /* accessors */
     Address local_address( void ) const;

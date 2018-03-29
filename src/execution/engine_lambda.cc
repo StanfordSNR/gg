@@ -43,16 +43,7 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
 
   TCPSocket sock;
   sock.set_blocking( false );
-  try {
-    sock.connect( address_ );
-    throw runtime_error( "nonblocking connect unexpectedly succeeded immediately" );
-  } catch ( const unix_error & e ) {
-    if ( e.error_code() == EINPROGRESS ) {
-      /* do nothing */
-    } else {
-      throw;
-    }
-  }
+  sock.connect_nonblock( address_ );
 
   NBSecureSocket lambda_socket { move( ssl_context_.new_secure_socket( move( sock ) ) ) };
   lambda_socket.connect();
