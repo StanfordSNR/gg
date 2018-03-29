@@ -17,10 +17,14 @@ if not os.environ.get('GG_DIR'):
     os.environ['GG_DIR'] = "/tmp/_gg"
 
 # Now we can import gg stuff...
-from ggpaths import GGPaths, GGCache
-from common import is_executable, make_executable, run_command
+from common import run_command
 
 def handler(event, context):
-    # XXX incomplete
+    #os.environ['GG_STORAGE_URI'] = event['storageBackend']
     coordinator_address = event['coordinator']
-    pass
+    coordinator_host, coordinator_port = event['coordinator'].split(':')
+
+    return_code, stdout = run_command(["gg-meow-woker",
+        coordinator_host, coordinator_port])
+
+    return {}
