@@ -4,6 +4,7 @@
 #define MEOW_MESSAGE_HH
 
 #include <string>
+#include <queue>
 
 #include "util/chunk.hh"
 
@@ -34,6 +35,20 @@ namespace meow {
     OpCode opcode() const { return opcode_; }
     uint32_t payload_length() const { return payload_length_; }
     const std::string payload() const { return payload_; }
+  };
+
+  class MessageParser
+  {
+  private:
+    std::string raw_buffer_ {};
+    std::queue<Message> completed_messages_ {};
+
+  public:
+    void parse( std::string && buf );
+
+    bool empty() const { return completed_messages_.empty(); }
+    const Message & front() const { return completed_messages_.front(); }
+    void pop() { completed_messages_.pop(); }
   };
 
 }
