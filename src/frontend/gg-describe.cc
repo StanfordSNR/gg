@@ -5,8 +5,8 @@
 #include <iostream>
 #include <getopt.h>
 #include <glob.h>
-#include <google/protobuf/util/json_util.h>
 
+#include "protobufs/util.hh"
 #include "thunk/thunk.hh"
 #include "thunk/thunk_reader.hh"
 #include "thunk/ggutils.hh"
@@ -90,13 +90,7 @@ int main( int argc, char * argv[] )
       cout << thunk.executable_hash() << endl;
     }
     else {
-      string textf;
-      JsonPrintOptions options;
-      options.add_whitespace = true;
-      options.always_print_primitive_fields = true;
-      MessageToJsonString( thunk.to_protobuf(), &textf, options );
-
-      cout << textf << endl;
+      cout << protoutil::to_json( thunk.to_protobuf(), true ) << endl;
     }
   }
   catch ( const exception &  e ) {

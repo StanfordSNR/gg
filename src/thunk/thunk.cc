@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <numeric>
 #include <regex>
-#include <google/protobuf/util/json_util.h>
 
+#include "protobufs/util.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/placeholder.hh"
 #include "thunk/thunk_writer.hh"
@@ -22,7 +22,6 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 using namespace CryptoPP;
-using namespace google::protobuf::util;
 
 string thunk::data_placeholder( const string & hash )
 {
@@ -238,17 +237,7 @@ string Thunk::execution_payload( const vector<Thunk> & thunks )
   }
 
   execution_request.set_storage_backend( gg::remote::storage_backend_uri() );
-
-  JsonPrintOptions print_options;
-  print_options.add_whitespace = false;
-  print_options.always_print_primitive_fields = true;
-
-  string ret;
-  if ( not MessageToJsonString( execution_request, &ret ).ok() ) {
-    throw runtime_error( "cannot create the json output" );
-  }
-
-  return ret;
+  return protoutil::to_json( execution_request );
 }
 
 protobuf::Thunk Thunk::to_protobuf() const
