@@ -24,8 +24,8 @@ namespace meow {
     };
 
   private:
-    OpCode opcode_ { OpCode::Hey };
     uint32_t payload_length_ { 0 };
+    OpCode opcode_ { OpCode::Hey };
     std::string payload_ {};
 
   public:
@@ -35,6 +35,10 @@ namespace meow {
     OpCode opcode() const { return opcode_; }
     uint32_t payload_length() const { return payload_length_; }
     const std::string payload() const { return payload_; }
+
+    std::string to_string() const;
+
+    static uint32_t expected_length( const Chunk & chunk );
   };
 
   class MessageParser
@@ -44,7 +48,7 @@ namespace meow {
     std::queue<Message> completed_messages_ {};
 
   public:
-    void parse( std::string && buf );
+    void parse( const std::string & buf );
 
     bool empty() const { return completed_messages_.empty(); }
     const Message & front() const { return completed_messages_.front(); }
