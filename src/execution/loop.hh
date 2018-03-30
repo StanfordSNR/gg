@@ -54,10 +54,10 @@ public:
 
   template<class SocketType>
   std::pair<uint64_t, typename std::list<ConnectionContext<SocketType>>::iterator>
-  add_connection( const std::string & tag,
+  add_connection( SocketType && socket,
+                  const std::string & tag,
                   RemoteCallbackFunc callback,
-                  FailureCallbackFunc failure_callback,
-                  SocketType && socket );
+                  FailureCallbackFunc failure_callback );
 
   Poller & poller() { return poller_; }
   Poller::Result loop_once( const int timeout_ms = -1 );

@@ -47,7 +47,7 @@ int main( int argc, char * argv[] )
       socket.set_blocking( false );
       socket.connect_nonblock( destination_addr );
 
-      main_connection = move( loop.add_connection( "main-connection",
+      main_connection = move( loop.add_connection( move( socket ), "main-connection",
         [] ( const uint64_t, const string &, const HTTPResponse & ) -> bool
         {
           /* do something */
@@ -56,8 +56,7 @@ int main( int argc, char * argv[] )
         [] ( const uint16_t, const string & )
         {
           /* do something */
-        },
-        move( socket )
+        }
       ) );
 
       /* socket object is moved, so we end the block here to make sure

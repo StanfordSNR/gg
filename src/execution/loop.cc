@@ -44,10 +44,10 @@ uint64_t ExecutionLoop::add_child_process( const string & tag,
 
 template<>
 pair<uint64_t, ExecutionLoop::ConnectionIterator>
-ExecutionLoop::add_connection( const string & tag,
+ExecutionLoop::add_connection( TCPSocket && socket,
+                               const string & tag,
                                RemoteCallbackFunc callback,
-                               FailureCallbackFunc failure_callback,
-                               TCPSocket && socket )
+                               FailureCallbackFunc failure_callback )
 {
   /* XXX not thread-safe */
   uint64_t connection_id = current_id_++;
@@ -98,10 +98,10 @@ ExecutionLoop::add_connection( const string & tag,
 
 template<>
 pair<uint64_t, ExecutionLoop::SSLConnectionIterator>
-ExecutionLoop::add_connection( const string & tag,
+ExecutionLoop::add_connection( NBSecureSocket && socket,
+                               const string & tag,
                                RemoteCallbackFunc callback,
-                               FailureCallbackFunc failure_callback,
-                               NBSecureSocket && socket )
+                               FailureCallbackFunc failure_callback )
 {
   /* XXX not thread-safe */
   uint64_t connection_id = current_id_++;

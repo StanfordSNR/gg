@@ -48,8 +48,7 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
   NBSecureSocket lambda_socket { move( ssl_context_.new_secure_socket( move( sock ) ) ) };
   lambda_socket.connect();
 
-  auto exec_info = exec_loop.add_connection(
-    thunk.hash(),
+  auto exec_info = exec_loop.add_connection( move( lambda_socket ), thunk.hash(),
     [this] ( const uint64_t id, const string & thunk_hash,
              const HTTPResponse & http_response ) -> bool
     {
@@ -111,8 +110,7 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
     {
       start_times_.erase( id );
       failure_callback_( thunk_hash, JobStatus::SocketFailure );
-    },
-    move( lambda_socket )
+    }
   );
 
   exec_info.second->write_buffer = request.str();

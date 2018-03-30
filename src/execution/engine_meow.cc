@@ -31,7 +31,7 @@ void MeowExecutionEngine::init( ExecutionLoop & loop )
       /* incoming connection. we accept this connection, and we will
       add this to the looper */
       TCPSocket socket { move( listen_socket_.accept() ) };
-      auto conn_info = loop.add_connection( "meow-worker",
+      auto conn_info = loop.add_connection( move( socket ), "meow-worker",
         [this] ( const uint64_t id, const string &,
                  const HTTPResponse & ) -> bool
         {
@@ -44,8 +44,7 @@ void MeowExecutionEngine::init( ExecutionLoop & loop )
         [] ( const uint64_t, const string & ) -> void
         {
           /* handle the failure */
-        },
-        move( socket )
+        }
       );
 
       lambdas_.emplace( piecewise_construct,
