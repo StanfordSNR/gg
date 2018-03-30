@@ -47,7 +47,7 @@ pair<uint64_t, ExecutionLoop::ConnectionIterator>
 ExecutionLoop::add_connection( const string & tag,
                                RemoteCallbackFunc callback,
                                FailureCallbackFunc failure_callback,
-                               TCPSocket & socket )
+                               TCPSocket && socket )
 {
   /* XXX not thread-safe */
   uint64_t connection_id = current_id_++;
@@ -101,7 +101,7 @@ pair<uint64_t, ExecutionLoop::SSLConnectionIterator>
 ExecutionLoop::add_connection( const string & tag,
                                RemoteCallbackFunc callback,
                                FailureCallbackFunc failure_callback,
-                               NBSecureSocket & socket )
+                               NBSecureSocket && socket )
 {
   /* XXX not thread-safe */
   uint64_t connection_id = current_id_++;

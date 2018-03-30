@@ -45,7 +45,7 @@ void MeowExecutionEngine::init( ExecutionLoop & loop )
         {
           /* handle the failure */
         },
-        socket
+        move( socket )
       );
 
       lambdas_.emplace( piecewise_construct,

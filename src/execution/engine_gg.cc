@@ -87,7 +87,7 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
     {
       failure_callback_( thunk_hash, JobStatus::SocketFailure );
     },
-    socket
+    move( socket )
   );
 
   exec_info.second->write_buffer = request.str();

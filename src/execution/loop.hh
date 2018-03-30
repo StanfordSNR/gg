@@ -57,7 +57,7 @@ public:
   add_connection( const std::string & tag,
                   RemoteCallbackFunc callback,
                   FailureCallbackFunc failure_callback,
-                  SocketType & socket );
+                  SocketType && socket );
 
   Poller & poller() { return poller_; }
   Poller::Result loop_once( const int timeout_ms = -1 );

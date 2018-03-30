@@ -57,7 +57,7 @@ int main( int argc, char * argv[] )
         {
           /* do something */
         },
-        socket
+        move( socket )
       ) );
 
       /* socket object is moved, so we end the block here to make sure

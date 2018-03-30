@@ -112,7 +112,7 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
       start_times_.erase( id );
       failure_callback_( thunk_hash, JobStatus::SocketFailure );
     },
-    lambda_socket
+    move( lambda_socket )
   );
 
   exec_info.second->write_buffer = request.str();
