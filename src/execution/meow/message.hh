@@ -30,7 +30,7 @@ namespace meow {
 
   public:
     Message( const Chunk & chunk );
-    Message( const OpCode opcode, string && payload );
+    Message( const OpCode opcode, std::string && payload );
 
     OpCode opcode() const { return opcode_; }
     uint32_t payload_length() const { return payload_length_; }
