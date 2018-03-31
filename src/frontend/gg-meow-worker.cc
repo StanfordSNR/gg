@@ -39,35 +39,6 @@ int main( int argc, char * argv[] )
     Address destination_addr { argv[ 1 ], static_cast<uint16_t>( port_argv ) };
 
     ExecutionLoop loop;
-    pair<uint64_t, ExecutionLoop::ConnectionIterator> main_connection;
-
-    /* let's connect to the address */
-    {
-      TCPSocket socket;
-      socket.set_blocking( false );
-      socket.connect_nonblock( destination_addr );
-
-      main_connection = move( loop.add_connection( move( socket ), "main-connection",
-        [] ( const uint64_t, const string &, const HTTPResponse & ) -> bool
-        {
-          /* do something */
-          return true;
-        },
-        [] ( const uint16_t, const string & )
-        {
-          /* do something */
-        }
-      ) );
-
-      /* socket object is moved, so we end the block here to make sure
-      no one accesses socket anymore */
-    }
-
-    while ( true ) {
-      if ( loop.loop_once( -1 ).result == Poller::Result::Type::Exit ) {
-        break;
-      }
-    }
   }
   catch ( const exception & e ) {
     print_exception( argv[ 0 ], e );

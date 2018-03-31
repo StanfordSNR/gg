@@ -14,17 +14,11 @@
 class MeowExecutionEngine : public ExecutionEngine
 {
 private:
-  using ConnectionIterator = ExecutionLoop::ConnectionIterator;
-
   struct Lambda
   {
     enum class State { UNINITIALIZED, FREE, BUSY };
 
     State state { State::UNINITIALIZED };
-    ConnectionIterator connection_it;
-
-    Lambda( ConnectionIterator && conn_it )
-      : connection_it( move( conn_it ) ) {}
   };
 
   AWSCredentials credentials_;

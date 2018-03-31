@@ -34,21 +34,7 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
 {
   HTTPRequest request = generate_request( thunk );
 
-  TCPSocket socket;
-  socket.set_blocking( false );
-
-  try {
-    socket.connect( address_ );
-    throw runtime_error( "nonblocking connect unexpectedly succeeded immediately" );
-  } catch ( const unix_error & e ) {
-    if ( e.error_code() == EINPROGRESS ) {
-      /* do nothing */
-    } else {
-      throw;
-    }
-  }
-
-  auto exec_info = exec_loop.add_connection( move( socket ), thunk.hash(),
+  exec_loop.make_http_request<UNSECURE>( thunk.hash(), address_, request,
     [this] ( const uint64_t, const string & thunk_hash,
              const HTTPResponse & http_response ) -> bool
     {
@@ -87,9 +73,6 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
       failure_callback_( thunk_hash, JobStatus::SocketFailure );
     }
   );
-
-  exec_info.second->write_buffer = request.str();
-  exec_info.second->responses.new_request_arrived( request );
 
   running_jobs_++;
 }

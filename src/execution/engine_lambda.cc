@@ -41,14 +41,8 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
 {
   HTTPRequest request = generate_request( thunk );
 
-  TCPSocket sock;
-  sock.set_blocking( false );
-  sock.connect_nonblock( address_ );
-
-  NBSecureSocket lambda_socket { move( ssl_context_.new_secure_socket( move( sock ) ) ) };
-  lambda_socket.connect();
-
-  auto exec_info = exec_loop.add_connection( move( lambda_socket ), thunk.hash(),
+  uint64_t connection_id = exec_loop.make_http_request<SECURE>( thunk.hash(),
+    address_, request,
     [this] ( const uint64_t id, const string & thunk_hash,
              const HTTPResponse & http_response ) -> bool
     {
@@ -113,10 +107,7 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
     }
   );
 
-  exec_info.second->write_buffer = request.str();
-  exec_info.second->responses.new_request_arrived( request );
-
-  start_times_.insert( { exec_info.first, chrono::steady_clock::now() } );
+  start_times_.insert( { connection_id, chrono::steady_clock::now() } );
 
   running_jobs_++;
 }
