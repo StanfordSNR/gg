@@ -52,7 +52,7 @@ void check_rlimit_nofile( const size_t max_jobs )
   struct rlimit limits;
   CheckSystemCall( "getrlimit", getrlimit( RLIMIT_NOFILE, &limits ) );
 
-  size_t target_nofile = max( max_jobs * 2, limits.rlim_cur );
+  size_t target_nofile = max( max_jobs * 3, limits.rlim_cur );
   target_nofile = min( target_nofile, limits.rlim_max );
 
   if ( limits.rlim_cur < target_nofile ) {
