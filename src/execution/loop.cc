@@ -2,6 +2,8 @@
 
 #include "loop.hh"
 
+#include <stdexcept>
+
 #include "net/http_response_parser.hh"
 #include "thunk/ggutils.hh"
 #include "util/exception.hh"
@@ -34,17 +36,14 @@ Poller::Result ExecutionLoop::loop_once( const int timeout_ms )
   return poller_.poll( timeout_ms );
 }
 
+
 template<>
 TCPConnectionContext &
-ExecutionLoop::make_connection<UNSECURE>( const Address & address,
-                                          const function<bool(string &&)> & data_callback,
-                                          const function<void()> & error_callback,
-                                          const function<void()> & close_callback )
+ExecutionLoop::add_connection( TCPSocket && socket,
+                               const function<bool(string &&)> & data_callback,
+                               const function<void()> & error_callback,
+                               const function<void()> & close_callback )
 {
-  TCPSocket socket;
-  socket.set_blocking( false );
-  socket.connect_nonblock( address );
-
   auto connection_it = connection_contexts_.emplace( connection_contexts_.end(),
                                                      move( socket ) );
 
@@ -97,18 +96,11 @@ ExecutionLoop::make_connection<UNSECURE>( const Address & address,
 
 template<>
 SSLConnectionContext &
-ExecutionLoop::make_connection<SECURE>( const Address & address,
-                                        const function<bool(string &&)> & data_callback,
-                                        const function<void()> & error_callback,
-                                        const function<void()> & close_callback )
+ExecutionLoop::add_connection( NBSecureSocket && secure_socket,
+                               const function<bool(string &&)> & data_callback,
+                               const function<void()> & error_callback,
+                               const function<void()> & close_callback )
 {
-  TCPSocket socket;
-  socket.set_blocking( false );
-  socket.connect_nonblock( address );
-
-  NBSecureSocket secure_socket { move( ssl_context_.new_secure_socket( move( socket ) ) ) };
-  secure_socket.connect();
-
   auto connection_it = ssl_connection_contexts_.emplace( ssl_connection_contexts_.end(),
                                                          move( secure_socket ) );
 
@@ -152,6 +144,37 @@ ExecutionLoop::make_connection<SECURE>( const Address & address,
   );
 
   return *connection_it;
+}
+
+template<>
+TCPConnectionContext &
+ExecutionLoop::make_connection<UNSECURE>( const Address & address,
+                                          const function<bool(string &&)> & data_callback,
+                                          const function<void()> & error_callback,
+                                          const function<void()> & close_callback )
+{
+  TCPSocket socket;
+  socket.set_blocking( false );
+  socket.connect_nonblock( address );
+
+  return add_connection( move( socket ), data_callback, error_callback, close_callback );
+}
+
+template<>
+SSLConnectionContext &
+ExecutionLoop::make_connection<SECURE>( const Address & address,
+                                        const function<bool(string &&)> & data_callback,
+                                        const function<void()> & error_callback,
+                                        const function<void()> & close_callback )
+{
+  TCPSocket socket;
+  socket.set_blocking( false );
+  socket.connect_nonblock( address );
+
+  NBSecureSocket secure_socket { move( ssl_context_.new_secure_socket( move( socket ) ) ) };
+  secure_socket.connect();
+
+  return add_connection( move( secure_socket ), data_callback, error_callback, close_callback );
 }
 
 template<ConnectionType is_secure>
@@ -202,7 +225,7 @@ uint64_t ExecutionLoop::make_http_request( const string & tag,
 }
 
 uint64_t ExecutionLoop::make_listener( const Address & address,
-                                       const std::function<bool(TCPSocket &&)> & connection_callback )
+                                       const function<bool(TCPSocket &&)> & connection_callback )
 {
   TCPSocket socket;
   socket.set_blocking( false );

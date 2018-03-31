@@ -61,6 +61,13 @@ public:
                               FailureCallbackFunc failure_callback,
                               std::function<int()> && child_procedure );
 
+  template<class SocketType>
+  ConnectionContext<SocketType> &
+  add_connection( SocketType && socket,
+                  const std::function<bool(std::string &&)> & data_callback,
+                  const std::function<void()> & error_callback = [](){},
+                  const std::function<void()> & close_callback = [](){} );
+
   template<ConnectionType is_secure>
   typename std::conditional<is_secure, SSLConnectionContext &, TCPConnectionContext &>::type
   make_connection( const Address & address,
