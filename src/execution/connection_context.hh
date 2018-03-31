@@ -5,6 +5,7 @@
 
 #include <string>
 #include <queue>
+#include <iostream>
 
 #include "loop.hh"
 #include "net/socket.hh"
@@ -23,6 +24,13 @@ public:
   ConnectionContext( SocketType && sock )
     : socket_( std::move( sock ) )
   {}
+
+  ~ConnectionContext()
+  {
+    if ( write_buffer_.size() ) {
+      std::cerr << "ConnectionContext destroyed with data left in write buffer" << std::endl;
+    }
+  }
 };
 
 using TCPConnectionContext = ConnectionContext<TCPSocket>;
