@@ -201,6 +201,33 @@ uint64_t ExecutionLoop::make_http_request( const string & tag,
   return connection_id;
 }
 
+uint64_t ExecutionLoop::make_listener( const Address & address,
+                                       const std::function<bool(TCPSocket &&)> & connection_callback )
+{
+  TCPSocket socket;
+  socket.set_blocking( false );
+  socket.set_reuseaddr();
+  socket.bind( address );
+  socket.listen();
+
+  auto connection_it = connection_contexts_.emplace( connection_contexts_.end(),
+                                                     move( socket ) );
+
+  poller_.add_action( Poller::Action( connection_it->socket_,
+    Direction::In,
+    [connection_it, connection_callback] () -> ResultType
+    {
+      TCPSocket new_socket { connection_it->socket_.accept() };
+      if ( not connection_callback( move( new_socket ) ) ) {
+        return ResultType::CancelAll;
+      }
+
+      return ResultType::Continue;
+    } ) );
+
+  return current_id_++;
+}
+
 uint64_t ExecutionLoop::add_child_process( const string & tag,
                                            LocalCallbackFunc callback,
                                            FailureCallbackFunc /* failure_callback */,

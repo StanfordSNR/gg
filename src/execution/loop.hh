@@ -75,6 +75,9 @@ public:
                               HTTPResponseCallbackFunc response_callback,
                               FailureCallbackFunc failure_callback );
 
+  uint64_t make_listener( const Address & address,
+                          const std::function<bool(TCPSocket &&)> & connection_callback );
+
   Poller & poller() { return poller_; }
   Poller::Result loop_once( const int timeout_ms = -1 );
 };
