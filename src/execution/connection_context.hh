@@ -4,21 +4,28 @@
 #define CONNECTION_CONTEXT_HH
 
 #include <string>
+#include <queue>
 
-#include "net/http_request.hh"
-#include "net/http_response_parser.hh"
-#include "net/secure_socket.hh"
+#include "loop.hh"
+#include "net/socket.hh"
+#include "net/nb_secure_socket.hh"
 
 template<class SocketType>
-struct ConnectionContext
+class ConnectionContext
 {
-  SocketType socket;
-  HTTPResponseParser responses {};
-  std::string write_buffer {};
+  friend class ExecutionLoop;
 
+private:
+  SocketType socket_;
+  std::string write_buffer_ {};
+
+public:
   ConnectionContext( SocketType && sock )
-    : socket( std::move( sock ) )
+    : socket_( std::move( sock ) )
   {}
 };
+
+using TCPConnectionContext = ConnectionContext<TCPSocket>;
+using SSLConnectionContext = ConnectionContext<NBSecureSocket>;
 
 #endif /* CONNECTION_CONTEXT_HH */
