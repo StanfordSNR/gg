@@ -1,3 +1,5 @@
+EXTRA_DIST = create-thunk.sh upload.sh
+
 AM_CPPFLAGS = -I$(srcdir)/../../src/. -I$(builddir)/../../src/. $(CXX14_FLAGS) \
               $(PROTOBUF_CFLAGS) $(CRYPTO_CFLAGS)
 
@@ -15,10 +17,12 @@ bin_PROGRAMS = fib add
 
 fib_SOURCES = fib.cc
 fib_LDADD = $(BASE_LDADD)
+fib_LDFLAGS = -s
 
 add_SOURCES = add.cc
+add_LDFLAGS = -s
 
 if BUILD_STATIC_BINS
-  fib_LDFLAGS = -static
-  add_LDFLAGS = -static
+  fib_LDFLAGS += -static
+  add_LDFLAGS += -static
 endif

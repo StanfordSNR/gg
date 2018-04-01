@@ -14,6 +14,7 @@
 #include <crypto++/base64.h>
 #include <crypto++/files.h>
 
+#include "protobufs/thunk.pb.h"
 #include "protobufs/gg.pb.h"
 #include "sandbox/sandbox.hh"
 #include "util/optional.hh"

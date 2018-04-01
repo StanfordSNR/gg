@@ -8,6 +8,7 @@
 #include "response.hh"
 #include "thunk/ggutils.hh"
 #include "net/http_response.hh"
+#include "net/nb_secure_socket.hh"
 #include "util/base64.hh"
 #include "util/optional.hh"
 #include "util/system_runner.hh"
@@ -21,7 +22,7 @@ HTTPRequest AWSLambdaExecutionEngine::generate_request( const vector<Thunk> & th
   string function_name;
 
   if ( getenv( "GG_SPECIALIZED_FUNCTION" ) == nullptr ) {
-    function_name = "gg-function-generic";
+    function_name = "gg-lambda-function";
   }
   else {
     function_name = "gg-" + thunk[0].executable_hash();
@@ -60,10 +61,10 @@ void AWSLambdaExecutionEngine::force_thunk( const vector<Thunk> & thunk,
     comb_hash += t.hash();
   }
 
-  uint64_t exec_id = exec_loop.add_connection(
-    comb_hash,
+  uint64_t connection_id = exec_loop.make_http_request<SECURE>( comb_hash,
+    address_, request,
     [this] ( const uint64_t id, const string & thunk_hash,
-             const HTTPResponse & http_response )
+             const HTTPResponse & http_response ) -> bool
     {
       running_jobs_--;
 
@@ -72,10 +73,12 @@ void AWSLambdaExecutionEngine::force_thunk( const vector<Thunk> & thunk,
              ( http_response.status_code() == "500" and
                http_response.has_header( "x-amzn-ErrorType" ) and
                http_response.get_header_value( "x-amzn-ErrorType" ) == "ServiceException" ) ) {
-          return failure_callback_( thunk_hash, JobStatus::RateLimit );
+          failure_callback_( thunk_hash, JobStatus::RateLimit );
+          return false;
         }
         else {
-          return failure_callback_( thunk_hash, JobStatus::InvocationFailure );
+          failure_callback_( thunk_hash, JobStatus::InvocationFailure );
+          return false;
         }
       }
 
@@ -129,16 +132,17 @@ void AWSLambdaExecutionEngine::force_thunk( const vector<Thunk> & thunk,
       default: /* in case of any other failure */
         failure_callback_( thunk_hash, response.status );
       }
+
+      return false;
     },
     [this] ( const uint64_t id, const string & thunk_hash )
     {
       start_times_.erase( id );
       failure_callback_( thunk_hash, JobStatus::SocketFailure );
-    },
-    lambda_socket, request
+    }
   );
 
-  start_times_.insert( { exec_id, chrono::steady_clock::now() } );
+  start_times_.insert( { connection_id, chrono::steady_clock::now() } );
 
   running_jobs_++;
 }

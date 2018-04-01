@@ -103,18 +103,23 @@ void SecureSocket::connect( void )
     register_write();
 }
 
-void SecureSocket::accept( void )
+void SecureSocket::accept( const bool register_as_write )
 {
     ERR_clear_error();
     const auto ret = SSL_accept( ssl_.get() );
 
     if ( ret == 1 ) {
+        register_read();
         return;
     } else {
-        throw ssl_error( "SSL_accept", SSL_get_error( ssl_.get(), ret ) );
-    }
+        int error_return = SSL_get_error( ssl_.get(), ret );
 
-    register_read();
+        if ( error_return == SSL_ERROR_WANT_WRITE or error_return == SSL_ERROR_WANT_READ ) {
+          register_service( register_as_write );
+        }
+
+        throw ssl_error( "SSL_accept", error_return );
+    }
 }
 
 string SecureSocket::read( const bool register_as_write )

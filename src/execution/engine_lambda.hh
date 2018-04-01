@@ -30,21 +30,19 @@ private:
 
 public:
   AWSLambdaExecutionEngine( const AWSCredentials & credentials,
-                            const std::string & region,
-                            SuccessCallbackFunc success_callback,
-                            FailureCallbackFunc failure_callback )
-    : ExecutionEngine( success_callback, failure_callback ),
-      credentials_( credentials ), region_( region ),
+                            const std::string & region )
+    : credentials_( credentials ), region_( region ),
       address_( LambdaInvocationRequest::endpoint( region_ ), "https" )
   {}
 
   void force_thunk( const std::vector<gg::thunk::Thunk> & thunk,
                     ExecutionLoop & exec_loop ) override;
-  size_t job_count() const override;
 
   bool is_remote() const { return true; }
+
   std::string label() const override { return "lambda"; }
   bool can_execute( const std::vector<gg::thunk::Thunk> & thunk ) const override;
+  size_t job_count() const override;
 };
 
 #endif /* ENGINE_LAMBDA_HH */

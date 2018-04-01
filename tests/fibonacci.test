@@ -2,6 +2,8 @@
 
 cd ${TEST_TMPDIR}
 
-../../../examples/fibonacci/create-thunk.sh 70
+export PATH=${abs_builddir}/../src/models:${abs_builddir}/../src/frontend:$PATH
+
+${abs_srcdir}/../examples/fibonacci/create-thunk.sh 70 ${abs_builddir}/../examples/fibonacci/fib ${abs_builddir}/../examples/fibonacci/add
 gg-force fib70_output
 diff fib70_output <(echo 190392490709135)

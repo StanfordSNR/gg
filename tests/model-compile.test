@@ -11,7 +11,7 @@ ${TOOLCHAIN_PATH}/gcc -O2 -S -frandom-seed=Hcj1aXXi5aDNIO5VWGmwN7GjQjbLbbVAxbUFs
 model-gcc gcc -O2 -S -o remake.s $DATADIR/remake.i
 
 # execute thunk
-GG_SANDBOXED=1 gg-force remake.s
+gg-force --sandboxed remake.s
 
 # check difference
 diff remake.s remake.s.gold

@@ -96,6 +96,21 @@ public:
     return le64toh( extract_value<uint64_t>() );
   }
 
+  uint16_t be16( void ) const
+  {
+    return be16toh( extract_value<uint16_t>() );
+  }
+
+  uint64_t be32( void ) const
+  {
+    return be32toh( extract_value<uint32_t>() );
+  }
+
+  uint64_t be64( void ) const
+  {
+    return be64toh( extract_value<uint64_t>() );
+  }
+
   uint64_t bits( const uint64_t & bit_offset, const uint64_t bit_length ) const
   {
     const uint64_t byte_len = 1 + ( bit_offset + bit_length - 1 ) / 8;

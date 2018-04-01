@@ -12,6 +12,8 @@
 
 #include "file_descriptor.hh"
 
+class NBSecureSocket;
+
 class Poller
 {
 public:
@@ -42,6 +44,12 @@ public:
       : fd( s_fd ), direction( s_direction ), callback( s_callback ),
         when_interested( s_when_interested ),
         fderror_callback( fderror_callback ), active( true ) {}
+
+    Action( NBSecureSocket & s_socket,
+            const PollDirection & s_direction,
+            const CallbackType & s_callback,
+            const std::function<bool(void)> & s_when_interested = [] () { return true; },
+            const std::function<void(void)> & fderror_callback = [] () {} );
 
     unsigned int service_count( void ) const;
   };

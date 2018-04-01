@@ -2,6 +2,7 @@
 
 #include "loop.hh"
 
+#include "net/http_response_parser.hh"
 #include "thunk/ggutils.hh"
 #include "util/exception.hh"
 #include "util/optional.hh"
@@ -10,13 +11,10 @@ using namespace std;
 using namespace PollerShortNames;
 
 using ReductionResult = gg::cache::ReductionResult;
-using SSLConnectionState = SSLConnectionContext::State;
 
 ExecutionLoop::ExecutionLoop()
   : signals_( { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT } ),
-    signal_fd_( signals_ ),
-    poller_(), child_processes_(), connection_contexts_(),
-    ssl_connection_contexts_()
+    signal_fd_( signals_ )
 {
   signals_.set_as_mask();
 
@@ -36,171 +34,180 @@ Poller::Result ExecutionLoop::loop_once( const int timeout_ms )
   return poller_.poll( timeout_ms );
 }
 
-uint64_t ExecutionLoop::add_child_process( const string & tag,
-                                           LocalCallbackFunc callback,
-                                           FailureCallbackFunc /* failure_callback */,
-                                           std::function<int()> && child_procedure )
-{
-  child_processes_.emplace_back( current_id_, callback, ChildProcess( tag, move( child_procedure ) ) );
-  return current_id_++;
-}
-
 template<>
-uint64_t ExecutionLoop::add_connection( const string & tag,
-                                        RemoteCallbackFunc callback,
-                                        FailureCallbackFunc failure_callback,
-                                        TCPSocket & socket,
-                                        const HTTPRequest & request )
+TCPConnectionContext &
+ExecutionLoop::make_connection<UNSECURE>( const Address & address,
+                                          const function<bool(string &&)> & data_callback,
+                                          const function<void()> & error_callback,
+                                          const function<void()> & close_callback )
 {
-  /* XXX not thread-safe */
-  const uint64_t connection_id = current_id_++;
+  TCPSocket socket;
+  socket.set_blocking( false );
+  socket.connect_nonblock( address );
+
   auto connection_it = connection_contexts_.emplace( connection_contexts_.end(),
-                                                     move( socket ), request );
+                                                     move( socket ) );
+
+  auto fderror_callback =
+    [connection_it, error_callback, close_callback, this]
+    {
+      error_callback();
+      close_callback();
+      connection_contexts_.erase( connection_it );
+    };
 
   poller_.add_action(
     Poller::Action(
-      connection_it->socket, Direction::Out,
+      connection_it->socket_, Direction::Out,
       [connection_it] ()
       {
-        connection_it->socket.verify_no_errors();
+        string::const_iterator last_write =
+          connection_it->socket_.write( connection_it->write_buffer_.begin(),
+                                        connection_it->write_buffer_.cend() );
 
-        if ( connection_it->state == ConnectionContext::State::needs_connect ) {
-          connection_it->state = ConnectionContext::State::ready;
-        }
-
-        connection_it->last_write = connection_it->socket.write( connection_it->last_write,
-                                                                 connection_it->request_str.cend() );
-
-        if ( connection_it->last_write == connection_it->request_str.cend() ) {
-          connection_it->something_to_write = false;
-        }
-
+        connection_it->write_buffer_.erase( 0, last_write - connection_it->write_buffer_.cbegin() );
         return ResultType::Continue;
       },
-      [connection_it] { return connection_it->something_to_write; },
-      [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
+      [connection_it] { return connection_it->write_buffer_.size(); },
+      fderror_callback
     )
   );
 
   poller_.add_action(
     Poller::Action(
-      connection_it->socket, Direction::In,
-      [connection_it, tag, callback, connection_id, this] ()
+      connection_it->socket_, Direction::In,
+      [connection_it, data_callback { move( data_callback ) },
+       close_callback { move( close_callback ) }, this] ()
       {
-        connection_it->responses.parse( connection_it->socket.read() );
-
-        if ( not connection_it->responses.empty() ) {
-          connection_it->state = ConnectionContext::State::closed;
-          callback( connection_id, tag, connection_it->responses.front() );
+        if ( not data_callback( move( connection_it->socket_.read() ) ) ) {
+          close_callback();
           connection_contexts_.erase( connection_it );
           return ResultType::CancelAll;
         }
 
         return ResultType::Continue;
       },
-      [connection_it]() { return connection_it->ready(); },
-      [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
+      [connection_it]() { return true; },
+      fderror_callback
     )
   );
 
-  return connection_id;
+  return *connection_it;
 }
 
 template<>
-uint64_t ExecutionLoop::add_connection( const string & tag,
-                                        RemoteCallbackFunc callback,
-                                        FailureCallbackFunc failure_callback,
-                                        SecureSocket & socket,
-                                        const HTTPRequest & request )
+SSLConnectionContext &
+ExecutionLoop::make_connection<SECURE>( const Address & address,
+                                        const function<bool(string &&)> & data_callback,
+                                        const function<void()> & error_callback,
+                                        const function<void()> & close_callback )
 {
-  /* XXX not thread-safe */
-  const uint64_t connection_id = current_id_++;
+  TCPSocket socket;
+  socket.set_blocking( false );
+  socket.connect_nonblock( address );
+
+  NBSecureSocket secure_socket { move( ssl_context_.new_secure_socket( move( socket ) ) ) };
+  secure_socket.connect();
+
   auto connection_it = ssl_connection_contexts_.emplace( ssl_connection_contexts_.end(),
-                                                         move( socket ), request );
+                                                         move( secure_socket ) );
+
+  auto fderror_callback =
+    [connection_it, error_callback, close_callback, this]
+    {
+      error_callback();
+      close_callback();
+      ssl_connection_contexts_.erase( connection_it );
+    };
 
   poller_.add_action(
     Poller::Action(
-      connection_it->socket, Direction::Out,
-      [connection_it, connection_id, tag, failure_callback]()
+      connection_it->socket_, Direction::Out,
+      [connection_it] ()
       {
-        try {
-          /* did it connect successfully? */
-          if ( not connection_it->connected() ) {
-            connection_it->continue_SSL_connect();
-          }
-          else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_write or
-                  ( connection_it->state == SSLConnectionState::ready and
-                    connection_it->something_to_write ) ) {
-            connection_it->continue_SSL_write();
-          }
-          else if ( connection_it->state == SSLConnectionState::needs_ssl_write_to_read ) {
-            connection_it->continue_SSL_read();
-          }
-        }
-        catch ( const ssl_error & ex ) {
-          failure_callback( connection_id, tag );
-          return ResultType::CancelAll;
-        }
-
+        connection_it->socket_.ezwrite( move( connection_it->write_buffer_ ) );
+        connection_it->write_buffer_ = string {};
         return ResultType::Continue;
       },
-      [connection_it]()
-      {
-        return ( connection_it->state == SSLConnectionState::needs_connect ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_write_to_connect ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_write_to_write ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_write_to_read ) or
-               ( connection_it->state == SSLConnectionState::ready and connection_it->something_to_write );
-      },
-      [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
+      [connection_it] { return connection_it->write_buffer_.size(); },
+      fderror_callback
     )
   );
 
-  /* what to do when socket is readable */
   poller_.add_action(
     Poller::Action(
-      connection_it->socket, Direction::In,
-      [connection_it, tag, callback, failure_callback, connection_id, this]()
+      connection_it->socket_, Direction::In,
+      [connection_it, data_callback, this] ()
       {
-        try {
-          if ( not connection_it->connected() ) {
-            connection_it->continue_SSL_connect();
-          }
-          else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_write ) {
-            connection_it->continue_SSL_write();
-          }
-          else if ( connection_it->state == SSLConnectionState::needs_ssl_read_to_read or
-                    connection_it->state == SSLConnectionState::ready ) {
-            connection_it->continue_SSL_read();
-          }
-        }
-        catch ( const ssl_error & error ) {
-          failure_callback( connection_id, tag );
-          return ResultType::CancelAll;
-        }
-
-        if ( not connection_it->responses.empty() ) {
-          connection_it->state = SSLConnectionContext::State::closed;
-          callback( connection_id, tag, connection_it->responses.front() );
+        if ( not data_callback( move( connection_it->socket_.ezread() ) ) ) {
           ssl_connection_contexts_.erase( connection_it );
           return ResultType::CancelAll;
         }
 
         return ResultType::Continue;
       },
-      [connection_it]()
-      {
-        return ( connection_it->state == SSLConnectionState::needs_connect ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_read_to_connect ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_read_to_write ) or
-               ( connection_it->state == SSLConnectionState::needs_ssl_read_to_read ) or
-               ( connection_it->state == SSLConnectionState::ready );
-      },
-      [connection_id, tag, failure_callback] { failure_callback( connection_id, tag ); }
+      [connection_it]() { return true; },
+      fderror_callback
     )
   );
 
+  return *connection_it;
+}
+
+template<ConnectionType is_secure>
+uint64_t ExecutionLoop::make_http_request( const string & tag,
+                                           const Address & address,
+                                           const HTTPRequest & request,
+                                           HTTPResponseCallbackFunc response_callback,
+                                           FailureCallbackFunc failure_callback )
+{
+  const uint64_t connection_id = current_id_++;
+
+  auto parser_it = http_response_parsers_.emplace( http_response_parsers_.end() );
+  parser_it->new_request_arrived( request );
+
+  auto data_callback =
+    [connection_id, tag, parser_it, response_callback]
+    ( string && data )
+    {
+      parser_it->parse( data );
+
+      if ( not parser_it->empty() ) {
+        response_callback( connection_id, tag, parser_it->front() );
+        parser_it->pop();
+        return false;
+      }
+
+      return true;
+    };
+
+  auto error_callback =
+    [connection_id, tag, failure_callback]
+    { failure_callback( connection_id, tag ); };
+
+  auto close_callback =
+    [parser_it, this]
+    {
+      http_response_parsers_.erase( parser_it );
+    };
+
+  auto & ctx = make_connection<is_secure>( address,
+                                           data_callback,
+                                           error_callback,
+                                           close_callback );
+
+  ctx.write_buffer_ = move( request.str() );
+
   return connection_id;
+}
+
+uint64_t ExecutionLoop::add_child_process( const string & tag,
+                                           LocalCallbackFunc callback,
+                                           FailureCallbackFunc /* failure_callback */,
+                                           function<int()> && child_procedure )
+{
+  child_processes_.emplace_back( current_id_, callback, ChildProcess( tag, move( child_procedure ) ) );
+  return current_id_++;
 }
 
 Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & sig )
@@ -257,3 +264,17 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
 
   return ResultType::Continue;
 }
+
+template
+uint64_t ExecutionLoop::make_http_request<UNSECURE>( const string &,
+                                                     const Address &,
+                                                     const HTTPRequest &,
+                                                     HTTPResponseCallbackFunc,
+                                                     FailureCallbackFunc );
+
+template
+uint64_t ExecutionLoop::make_http_request<SECURE>( const string &,
+                                                   const Address &,
+                                                   const HTTPRequest &,
+                                                   HTTPResponseCallbackFunc,
+                                                   FailureCallbackFunc );

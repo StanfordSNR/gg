@@ -19,4 +19,5 @@ gg-create-thunk
 gg-collect
 gg-put
 gg-get
+gg-meow-worker
 lambda-invoker

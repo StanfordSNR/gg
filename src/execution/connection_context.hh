@@ -4,72 +4,28 @@
 #define CONNECTION_CONTEXT_HH
 
 #include <string>
+#include <queue>
 
-#include "net/http_request.hh"
-#include "net/http_response_parser.hh"
-#include "net/secure_socket.hh"
+#include "loop.hh"
+#include "net/socket.hh"
+#include "net/nb_secure_socket.hh"
 
-struct ConnectionContext
+template<class SocketType>
+class ConnectionContext
 {
-  enum class State { needs_connect, ready, closed };
+  friend class ExecutionLoop;
 
-  State state { State::needs_connect };
+private:
+  SocketType socket_;
+  std::string write_buffer_ {};
 
-  TCPSocket socket;
-  HTTPResponseParser responses {};
-  std::string request_str {};
-  std::string::const_iterator last_write {};
-
-  bool something_to_write { true };
-
-  ConnectionContext( TCPSocket && sock, const HTTPRequest & request )
-    : socket( std::move( sock ) ), request_str( request.str() ),
-      last_write( request_str.cbegin() )
-  {
-    responses.new_request_arrived( request );
-  }
-
-  bool ready() const { return state == State::ready; }
+public:
+  ConnectionContext( SocketType && sock )
+    : socket_( std::move( sock ) )
+  {}
 };
 
-struct SSLConnectionContext
-{
-  enum class State { needs_connect,
-                     needs_ssl_read_to_connect,
-                     needs_ssl_write_to_connect,
-                     needs_ssl_write_to_write,
-                     needs_ssl_write_to_read,
-                     needs_ssl_read_to_write,
-                     needs_ssl_read_to_read,
-                     ready,
-                     closed };
-
-  State state { State::needs_connect };
-
-  SecureSocket socket;
-  HTTPResponseParser responses {};
-  std::string request_str {};
-
-  bool something_to_write { true };
-
-  SSLConnectionContext( SecureSocket && sock, const HTTPRequest & request )
-    : socket( std::move( sock ) ), request_str( request.str() )
-  {
-    responses.new_request_arrived( request );
-  }
-
-  bool ready() const { return state == State::ready; }
-
-  bool connected() const
-  {
-    return ( state != State::needs_connect ) and
-           ( state != State::needs_ssl_read_to_connect ) and
-           ( state != State::needs_ssl_write_to_connect );
-  }
-
-  void continue_SSL_connect();
-  void continue_SSL_write();
-  void continue_SSL_read();
-};
+using TCPConnectionContext = ConnectionContext<TCPSocket>;
+using SSLConnectionContext = ConnectionContext<NBSecureSocket>;
 
 #endif /* CONNECTION_CONTEXT_HH */

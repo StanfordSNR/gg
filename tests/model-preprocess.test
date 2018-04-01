@@ -22,7 +22,7 @@ cd ../..
 model-gcc gcc ${GCC_ARGS} -o ${OUTPUT_FILE}
 
 # execute thunk
-GG_SANDBOXED=1 gg-force ${OUTPUT_FILE}
+gg-force --sandboxed ${OUTPUT_FILE}
 
 # check difference
 diff ${OUTPUT_FILE} ${OUTPUT_FILE}.gold

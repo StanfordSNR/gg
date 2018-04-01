@@ -53,10 +53,9 @@ void GGExecutionEngine::force_thunk( const vector<Thunk> & thunk,
     comb_hash == t.hash();
   }
 
-  exec_loop.add_connection(
-    comb_hash,
+  exec_loop.make_http_request<UNSECURE>( comb_hash, address_, request,
     [this] ( const uint64_t, const string & thunk_hash,
-             const HTTPResponse & http_response )
+             const HTTPResponse & http_response ) -> bool
     {
       running_jobs_--;
 
@@ -101,12 +100,12 @@ void GGExecutionEngine::force_thunk( const vector<Thunk> & thunk,
                          response.outputs.at( th_iter - 1 ).at( 0 ).hash,
                          0 );
 
+      return false;
     },
     [this] ( const uint64_t, const string & thunk_hash )
     {
       failure_callback_( thunk_hash, JobStatus::SocketFailure );
-    },
-    socket, request
+    }
   );
 
   running_jobs_++;

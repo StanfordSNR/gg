@@ -1,12 +1,13 @@
 #!/bin/bash -e
 
-FIB_PATH=$(dirname $0)/fib
-ADD_PATH=$(dirname $0)/add
+USAGE="$0 <N> <FIB-PATH> <ADD-PATH>"
+
+N=${1?$USAGE}
+FIB_PATH=${2?$USAGE}
+ADD_PATH=${3?$USAGE}
 
 FIB_HASH=$(gg-hash $FIB_PATH)
 ADD_HASH=$(gg-hash $ADD_PATH)
-
-N=${1?"Usage: $0 <N>"}
 
 gg-create-thunk --envar FIB_FUNCTION_HASH=${FIB_HASH} \
                 --envar ADD_FUNCTION_HASH=${ADD_HASH} \

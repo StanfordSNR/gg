@@ -9,9 +9,6 @@
 #include <numeric>
 #include <chrono>
 
-#include "engine_local.hh"
-#include "engine_lambda.hh"
-#include "engine_gg.hh"
 #include "thunk/ggutils.hh"
 #include "net/s3.hh"
 #include "tui/status_bar.hh"
@@ -49,9 +46,7 @@ void Reductor::print_status() const
     ostringstream data;
 
     data << color_reset
-         << "[" << setw( 3 ) << right
-         << floor( 100.0 * finished_jobs_ / dep_graph_.size() ) << "\x25]"
-         << " in queue: " << BOLD << COLOR_YELLOW  << setw( 5 ) << left
+         << "in queue: " << BOLD << COLOR_YELLOW  << setw( 5 ) << left
          << job_queue_.size() << color_reset;
 
     for ( auto & ee : exec_engines_ ) {
@@ -61,7 +56,7 @@ void Reductor::print_status() const
 
     data << " done: "  << BOLD << COLOR_GREEN << setw( 5 ) << left
          << finished_jobs_ << color_reset
-         << " total: " << BOLD << COLOR_DEFAULT << dep_graph_.size();
+         << " remaining: " << BOLD << COLOR_DEFAULT << dep_graph_.size();
 
     data << "  |  cost: " << BOLD << COLOR_CYAN << "~$" << setw( 8 ) << fixed
          << setprecision( 2 ) << estimated_cost_;
@@ -76,7 +71,7 @@ void print_gg_message( const string & tag, const string & message )
 }
 
 Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
-                    const vector<ExecutionEnvironment> & execution_environments,
+                    vector<unique_ptr<ExecutionEngine>> && execution_engines,
                     std::unique_ptr<StorageBackend> && storage_backend,
                     const int base_timeout, const bool status_bar )
   : target_hashes_( target_hashes ),
@@ -84,6 +79,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     max_jobs_( max_jobs ), status_bar_( status_bar ),
     base_poller_timeout_( base_timeout ),
     poller_timeout_( base_timeout ),
+    exec_engines_( move( execution_engines ) ),
     storage_backend_( move( storage_backend ) )
 {
   unordered_set<string> all_o1_deps;
@@ -147,42 +143,15 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
       job_queue_.push_back( old_hash );
     };
 
-  for ( auto ee : execution_environments ) {
-    switch ( ee ) {
-    case ExecutionEnvironment::LOCAL:
-      exec_engines_.emplace_back(
-        make_unique<LocalExecutionEngine>( success_callback, failure_callback )
-      );
-
-      break;
-
-    case ExecutionEnvironment::LAMBDA:
-      exec_engines_.emplace_back(
-        make_unique<AWSLambdaExecutionEngine>(
-          AWSCredentials(), AWS::region(), success_callback,
-          failure_callback
-        )
-      );
-
-      break;
-
-    case ExecutionEnvironment::GG_RUNNER:
-      {
-        auto runner_server = gg::remote::runner_server();
-
-        exec_engines_.emplace_back(
-          make_unique<GGExecutionEngine>(
-            runner_server.first, runner_server.second, success_callback,
-            failure_callback
-          )
-        );
-      }
-      break;
-    }
-  }
 
   if ( exec_engines_.size() == 0 ) {
     throw runtime_error( "no execution engines are available" );
+  }
+
+  for ( auto & ee : exec_engines_ ) {
+    ee->set_success_callback( success_callback );
+    ee->set_failure_callback( failure_callback );
+    ee->init( exec_loop_ );
   }
 }
 

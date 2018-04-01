@@ -7,22 +7,27 @@
 #include <vector>
 #include <functional>
 #include <unordered_map>
+#include <type_traits>
 
 #include "connection_context.hh"
+#include "net/http_response.hh"
+#include "net/http_response_parser.hh"
 #include "net/socket.hh"
-#include "net/secure_socket.hh"
+#include "net/nb_secure_socket.hh"
 #include "util/signalfd.hh"
 #include "util/child_process.hh"
 #include "util/poller.hh"
+
+enum ConnectionType : bool { SECURE = true, UNSECURE = false };
 
 class ExecutionLoop
 {
 public:
   typedef std::function<void( const uint64_t /* id */,
                               const std::string & /* tag */ )> LocalCallbackFunc;
-  typedef std::function<void( const uint64_t id /* id */,
+  typedef std::function<bool( const uint64_t id /* id */,
                               const std::string & /* tag */,
-                              const HTTPResponse & )> RemoteCallbackFunc;
+                              const HTTPResponse & )> HTTPResponseCallbackFunc;
   typedef std::function<void( const uint64_t /* id */,
                               const std::string & /* tag */ )> FailureCallbackFunc;
 
@@ -32,14 +37,21 @@ private:
   SignalMask signals_;
   SignalFD signal_fd_;
 
-  Poller poller_;
-  std::list<std::tuple<uint64_t, LocalCallbackFunc, ChildProcess>> child_processes_;
-  std::list<ConnectionContext> connection_contexts_;
-  std::list<SSLConnectionContext> ssl_connection_contexts_;
+  Poller poller_ {};
+  std::list<std::tuple<uint64_t, LocalCallbackFunc, ChildProcess>> child_processes_ {};
+  std::list<TCPConnectionContext> connection_contexts_ {};
+  std::list<SSLConnectionContext> ssl_connection_contexts_ {};
+
+  std::list<HTTPResponseParser> http_response_parsers_ {};
+
+  SSLContext ssl_context_ {};
 
   Poller::Action::Result handle_signal( const signalfd_siginfo & );
 
 public:
+  typedef decltype( connection_contexts_ )::iterator HTTPConnectionIterator;
+  typedef decltype( ssl_connection_contexts_ )::iterator HTTPSConnectionIterator;
+
   ExecutionLoop();
 
   /* the add_* functions will return a 64-bit number as a unique id */
@@ -49,13 +61,21 @@ public:
                               FailureCallbackFunc failure_callback,
                               std::function<int()> && child_procedure );
 
-  template<class SocketType>
-  uint64_t add_connection( const std::string & tag,
-                           RemoteCallbackFunc callback,
-                           FailureCallbackFunc failure_callback,
-                           SocketType & socket,
-                           const HTTPRequest & request );
+  template<ConnectionType is_secure>
+  typename std::conditional<is_secure, SSLConnectionContext &, TCPConnectionContext &>::type
+  make_connection( const Address & address,
+                   const std::function<bool(std::string &&)> & data_callback,
+                   const std::function<void()> & error_callback = [](){},
+                   const std::function<void()> & close_callback = [](){} );
 
+  template<ConnectionType is_secure>
+  uint64_t make_http_request( const std::string & tag,
+                              const Address & address,
+                              const HTTPRequest & request,
+                              HTTPResponseCallbackFunc response_callback,
+                              FailureCallbackFunc failure_callback );
+
+  Poller & poller() { return poller_; }
   Poller::Result loop_once( const int timeout_ms = -1 );
 };
 

@@ -103,5 +103,5 @@ Now, to actually compile `mosh-server` on AWS Lambda with 100-way parallelism,
 you can execute:
 
 ~~~
-GG_LAMBDA=1 gg-force --jobs 100 --status src/frontend/mosh-server
+gg-force --engine=lambda --jobs 100 --status src/frontend/mosh-server
 ~~~
