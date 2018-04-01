@@ -203,3 +203,44 @@ string ExecutionGraph::original_hash( const string & updated_hash ) const
   return original_hashes_.count( updated_hash ) ? original_hashes_.at( updated_hash )
                                                 : updated_hash;
 }
+
+/* XXX: only finds groups with fan-in & fan-out of 1 */
+const vector<Thunk> ExecutionGraph::get_thunks( const string & hash,
+                                                const unordered_set<string> & rem_targs ) const
+{
+  deque<Thunk> thunk_candidates;
+  thunk_candidates.push_back( thunks_.at( hash ) );
+
+  vector<Thunk> group;
+  group.push_back( thunks_.at( hash ) );
+
+  while ( !thunk_candidates.empty() ) {
+    Thunk next_thunk = thunk_candidates.front();
+    thunk_candidates.pop_front();
+
+    if ( referencing_thunks_.find( next_thunk.hash() ) != referencing_thunks_.end() ) {
+      auto ref_thunks = referencing_thunks_.at( next_thunk.hash() );
+      if ( ref_thunks.size() == 1 ) {
+        string lone_ref = *( ref_thunks.begin() );
+        if ( rem_targs.find( lone_ref ) == rem_targs.end() ) {
+          auto thunk_thunks = thunks_.at ( lone_ref ).thunks();
+          if ( thunks_.at( lone_ref ).thunks().size() == 1 ) {
+            for ( const string & rh : rem_targs ) {
+              if ( thunks_.find( rh ) != thunks_.end() ) {
+                auto all_thunks = thunks_.at( rh ).thunks();
+                if ( all_thunks.find( lone_ref ) == all_thunks.end() ) {
+                  thunk_candidates.push_back( thunks_.at( lone_ref ) );
+                  group.push_back( thunks_.at( lone_ref ) );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // cout << "Group size: " << group.size() << endl;
+  return group;
+}
+

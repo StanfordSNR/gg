@@ -11,10 +11,10 @@
 using namespace std;
 using namespace gg::thunk;
 
-void LocalExecutionEngine::force_thunk( const Thunk & thunk,
+void LocalExecutionEngine::force_thunk( const vector<Thunk> & thunk,
                                         ExecutionLoop & exec_loop )
 {
-  exec_loop.add_child_process( thunk.hash(),
+  exec_loop.add_child_process( thunk[0].hash(),
     [this] ( const uint64_t, const string & hash )
     {
       running_jobs_--; /* XXX not thread-safe */
@@ -33,7 +33,7 @@ void LocalExecutionEngine::force_thunk( const Thunk & thunk,
     },
     [&thunk]()
     {
-      vector<string> command { "gg-execute", thunk.hash() };
+      vector<string> command { "gg-execute", thunk[0].hash() };
       return ezexec( command[ 0 ], command, {}, true, true );
     }
   );

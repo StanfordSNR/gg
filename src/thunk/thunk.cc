@@ -138,7 +138,7 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
     values_(),
     thunks_(),
     executables_(),
-    outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() )
+    outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() ) 
 {
   for ( const string & item : thunk_proto.values() ) {
     values_.emplace( string_to_data( item ) );

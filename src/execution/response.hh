@@ -46,8 +46,8 @@ private:
 public:
   JobStatus status {};
 
-  std::string thunk_hash {};
-  std::vector<Output> outputs {};
+  std::vector<std::string> thunk_hash {};
+  std::vector<std::vector<Output>> outputs {};
 
   std::string stdout {};
 

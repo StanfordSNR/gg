@@ -31,19 +31,26 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
     return response;
   }
 
+  /*
   if ( response_proto.executed_thunks_size() != 1 ) {
     throw runtime_error( "current implementation only supports one thunk execution per response" );
   }
+  */
+  for ( const auto & exec_thunks : response_proto.executed_thunks() ) {
+    response.thunk_hash.push_back( exec_thunks.thunk_hash() );
 
-  for ( const auto & output_proto : response_proto.executed_thunks( 0 ).outputs() ) {
-    response.outputs.push_back( { output_proto.tag(),
-                                  output_proto.hash(),
-                                  output_proto.size(),
-                                  output_proto.executable(),
-                                  output_proto.data() } );
+    for ( const auto & output_proto : exec_thunks.outputs() ) {
+      vector<Output> next_output;
+      next_output.push_back( { output_proto.tag(),
+                               output_proto.hash(),
+                               output_proto.size(),
+                               output_proto.executable(),
+                               output_proto.data() } );
+      response.outputs.push_back( next_output );
+    }
   }
 
-  response.thunk_hash = response_proto.executed_thunks( 0 ).thunk_hash();
+  // response.thunk_hash = response_proto.executed_thunks( 0 ).thunk_hash();
   response.stdout = response_proto.stdout();
 
   return response;

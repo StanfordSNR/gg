@@ -5,6 +5,7 @@
 
 #include <string>
 #include <functional>
+#include <vector>
 
 #include "loop.hh"
 #include "response.hh"
@@ -13,7 +14,7 @@
 class ExecutionEngine
 {
 public:
-  /* success_callback( source_hash, target_hash, estimated_cost ) */
+  /* success_callback( vector<source_hash, target_hash> estimated_cost ) */
   typedef std::function<void( const std::string &,
                               const std::string &,
                               const float )>
@@ -35,14 +36,14 @@ public:
       failure_callback_( failure_callback )
   {}
 
-  virtual void force_thunk( const gg::thunk::Thunk & thunk,
+  virtual void force_thunk( const std::vector<gg::thunk::Thunk> & thunk,
                             ExecutionLoop & exec_loop ) = 0;
 
   virtual size_t job_count() const = 0;
 
   virtual bool is_remote() const = 0;
   virtual std::string label() const = 0;
-  virtual bool can_execute( const gg::thunk::Thunk & thunk ) const = 0;
+  virtual bool can_execute( const std::vector<gg::thunk::Thunk> & thunk ) const = 0;
 
   virtual ~ExecutionEngine() {}
 };

@@ -7,6 +7,7 @@
 #include <memory>
 #include <map>
 #include <set>
+#include <deque>
 #include <unordered_map>
 #include <unordered_set>
 #include <mutex>
@@ -46,6 +47,10 @@ public:
 
   const gg::thunk::Thunk &
   get_thunk( const std::string & hash ) const { return thunks_.at( hash ); }
+
+  const std::vector<gg::thunk::Thunk>
+  get_thunks( const std::string & hash, 
+      const std::unordered_set<std::string> & rem_hash ) const;
 
   std::string updated_hash( const std::string & original_hash ) const;
   std::string original_hash( const std::string & updated_hash ) const;

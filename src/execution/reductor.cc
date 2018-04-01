@@ -215,7 +215,6 @@ void Reductor::finalize_execution( const string & old_hash,
     if ( gg::hash::type( new_hash ) == gg::ObjectType::Value ) {
       remaining_targets_.erase( dep_graph_.original_hash( old_hash ) );
     }
-
     finished_jobs_++;
   }
 }
@@ -246,7 +245,7 @@ vector<string> Reductor::reduce()
         finalize_execution( thunk_hash, cache_entry->hash, 0 );
       }
       else {
-        const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
+        vector<Thunk> thunk = dep_graph_.get_thunks( thunk_hash, remaining_targets_ );
 
         bool executing = false;
 
@@ -262,7 +261,10 @@ vector<string> Reductor::reduce()
           throw runtime_error( "no execution engine could execute " + thunk_hash );
         }
 
-        running_jobs_.insert( thunk_hash );
+        for ( Thunk & t : thunk ) {
+          running_jobs_.insert( t.hash() );
+        }
+        //running_jobs_.insert( thunk[thunk.size() - 1].hash() );
       }
     }
 
@@ -380,3 +382,4 @@ void Reductor::download_targets( const vector<string> & hashes ) const
 
   cerr << "done (" << download_time.count() << " ms)." << endl;
 }
+

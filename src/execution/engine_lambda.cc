@@ -16,7 +16,7 @@
 using namespace std;
 using namespace gg::thunk;
 
-HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk )
+HTTPRequest AWSLambdaExecutionEngine::generate_request( const vector<Thunk> & thunk )
 {
   string function_name;
 
@@ -24,7 +24,7 @@ HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk )
     function_name = "gg-function-generic";
   }
   else {
-    function_name = "gg-" + thunk.executable_hash();
+    function_name = "gg-" + thunk[0].executable_hash();
   }
 
   return LambdaInvocationRequest(
@@ -35,7 +35,7 @@ HTTPRequest AWSLambdaExecutionEngine::generate_request( const Thunk & thunk )
   ).to_http_request();
 }
 
-void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
+void AWSLambdaExecutionEngine::force_thunk( const vector<Thunk> & thunk,
                                             ExecutionLoop & exec_loop )
 {
   HTTPRequest request = generate_request( thunk );
@@ -55,8 +55,13 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
 
   SecureSocket lambda_socket = ssl_context_.new_secure_socket( move( sock ) );
 
+  string comb_hash = "";
+  for ( const Thunk & t : thunk ) {
+    comb_hash += t.hash();
+  }
+
   uint64_t exec_id = exec_loop.add_connection(
-    thunk.hash(),
+    comb_hash,
     [this] ( const uint64_t id, const string & thunk_hash,
              const HTTPResponse & http_response )
     {
@@ -83,28 +88,43 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
 
       switch ( response.status ) {
       case JobStatus::Success:
-        if ( response.thunk_hash != thunk_hash ) {
-          cerr << http_response.str() << endl;
-          throw runtime_error( "expected output for " +
-                               thunk_hash + ", got output for " +
-                               response.thunk_hash );
-        }
-
-        for ( const auto & output : response.outputs ) {
-          gg::cache::insert( gg::hash::for_output( response.thunk_hash, output.tag ), output.hash );
-
-          if ( output.data.length() ) {
-            roost::atomic_create( base64::decode( output.data ),
-                                  gg::paths::blob_path( output.hash ) );
+        {
+          string check_comb_hash = "";
+          for ( const string & hash : response.thunk_hash ) {
+            check_comb_hash += hash;
           }
+
+          if ( check_comb_hash != thunk_hash ) {
+            cerr << http_response.str() << endl;
+            throw runtime_error( "expected output for " +
+                                 thunk_hash + ", got output for " +
+                                 check_comb_hash );
+          }
+
+          uint32_t th_iter = 0;
+          for ( auto resp : response.outputs ) {
+            string next_hash = response.thunk_hash.at( th_iter );
+
+            for ( const auto & output : resp ) {
+              gg::cache::insert( gg::hash::for_output( next_hash, output.tag ), output.hash );
+
+              if ( output.data.length() ) {
+                roost::atomic_create( base64::decode( output.data ),
+                                      gg::paths::blob_path( output.hash ) );
+              }
+            }
+
+            gg::cache::insert( next_hash, response.outputs.at( th_iter ).at( 0 ).hash );
+
+            th_iter++;
+          }
+          success_callback_( response.thunk_hash.at( th_iter - 1 ), 
+                             response.outputs.at( th_iter - 1 ).at( 0 ).hash,
+                             compute_cost( start_times_.at( id ) ) );
+
+          start_times_.erase( id );
+          break;
         }
-
-        gg::cache::insert( response.thunk_hash, response.outputs.at( 0 ).hash );
-        success_callback_( response.thunk_hash, response.outputs.at( 0 ).hash,
-                           compute_cost( start_times_.at( id ) ) );
-
-        start_times_.erase( id );
-        break;
 
       default: /* in case of any other failure */
         failure_callback_( thunk_hash, response.status );
@@ -128,9 +148,14 @@ size_t AWSLambdaExecutionEngine::job_count() const
   return running_jobs_;
 }
 
-bool AWSLambdaExecutionEngine::can_execute( const gg::thunk::Thunk & thunk ) const
+bool AWSLambdaExecutionEngine::can_execute( const vector<gg::thunk::Thunk> & thunk ) const
 {
-  return thunk.infiles_size() < 200_MiB;
+  for ( const Thunk & t : thunk ) {
+    if ( t.infiles_size() >= 200_MiB ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 float AWSLambdaExecutionEngine::compute_cost( const chrono::steady_clock::time_point & begin,

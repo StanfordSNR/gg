@@ -40,7 +40,8 @@ vector<string> execute_thunk( const Thunk & original_thunk )
   if ( not thunk.can_be_executed() ) {
     /* Let's see if we can redudce this thunk to an order one thunk by updating
     the infiles */
-    for ( const Thunk::DataItem & dep_item : thunk.thunks() ) {
+    auto all_thunks = thunk.thunks();
+    for ( const Thunk::DataItem & dep_item : all_thunks ) {
       /* let's check if we have a reduction of this infile */
       auto result = gg::cache::check( dep_item.first );
 
@@ -297,6 +298,7 @@ int main( int argc, char * argv[] )
 
     gg::models::init();
 
+    uint32_t th_iter = 0;
     for ( const string & thunk_hash : thunk_hashes ) {
       /* take out an advisory lock on the thunk, in case
          other gg-execute processes are running at the same time */
@@ -311,7 +313,7 @@ int main( int argc, char * argv[] )
         storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
       }
 
-      if ( cleanup ) {
+      if ( cleanup and (th_iter == 0 ) ) {
         do_cleanup( thunk );
       }
 
@@ -324,6 +326,8 @@ int main( int argc, char * argv[] )
       if ( put_output ) {
         upload_output( storage_backend, output_hashes );
       }
+
+      th_iter++;
     }
 
     return to_underlying( JobStatus::Success );

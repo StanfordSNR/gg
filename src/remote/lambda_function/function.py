@@ -7,6 +7,8 @@ import shutil
 import subprocess as sub
 from base64 import b64decode, b64encode
 
+import glob
+
 # Set up environment variables necessary
 curdir = os.path.dirname(__file__)
 sys.path.append(curdir)
@@ -49,7 +51,7 @@ def handler(event, context):
 
     # Execute the thunk, and upload the result
     return_code, stdout = run_command(["gg-execute-static",
-         "--get-dependencies", "--put-output", "--cleanup",] +
+         "--get-dependencies", "--put-output"] +
          [x['hash'] for x in thunks])
 
     executed_thunks = []
