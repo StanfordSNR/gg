@@ -9,7 +9,7 @@ export GG_MODELPATH=${abs_srcdir}/../src/models/wrappers
 GG_DIR_ORIG=${GG_DIR}
 export GG_DIR=${TEST_TMPDIR}/test/.gg
 
-cp -R ${abs_builddir}/../tools/python_sdk/src ${abs_builddir}/../tools/python_sdk/test .
+cp -R ${abs_srcdir}/../tools/python_sdk/src ${abs_srcdir}/../tools/python_sdk/test .
 cd test
 
 ./run_test.sh
