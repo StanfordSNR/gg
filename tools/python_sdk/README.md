@@ -49,10 +49,8 @@ Users almost always will only need to call ```add_infile```.
 - Ensure ```gg``` is installed by cloning its project repository and following the installation instructions.
 Once ```gg``` is installed, no further action needs to be performed to make it work with ```ggSDK```.
 
-- ```ggSDK``` requires a few Python libraries that may not be installed on your machine: ```numpy``` and ```python_magic```. To install these two using pip3, you can run the command:
-```sudo pip3 install numpy python_magic```
-
-- ```ggSDK``` uses the same gg_pb2.py as ```gg``` to generate thunks. It requires gg_pb2.py to be in the working directory (i.e. the same directory as gg_sdk.py).
+- ```ggSDK``` requires a few Python libraries that may not be installed on your machine: ```numpy```, ```futures```, and ```python_magic```. To install these two using pip, you can run the command:
+```sudo pip install numpy futures python_magic```
 
 - To use ```ggSDK```, simply add the following line to the top of your python script:
 ```from gg_sdk import GG, GGThunk```
