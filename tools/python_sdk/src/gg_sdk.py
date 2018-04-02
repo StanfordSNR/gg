@@ -34,8 +34,6 @@ def threaded(fn):
         return future
     return wrapper
 
-# TODO: add GGThunk constructor for taking in groups of inputs and batch num
-
 """
 GGThunk class. Each function is represented through this IR.
 
@@ -441,6 +439,15 @@ class GG(object):
         cmd_start = ['gg-force']
         if showstatus:
             cmd_start.append('--status')
+        if env == 'lambda':
+            cmd_start.append('--engine=lambda')
+        elif env == 'remote':
+            cmd_start.append('--engine=remote')
+        elif env == 'local':
+            cmd_start.append('--engine=remote')
+        elif env == 'meow':
+            cmd_start.append('--engine=meow')
+
 
         cmd = cmd_start + nj_inp + inputs
         return cmd
