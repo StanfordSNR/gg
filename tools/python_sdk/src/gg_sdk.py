@@ -444,7 +444,7 @@ class GG(object):
         elif env == 'remote':
             cmd_start.append('--engine=remote')
         elif env == 'local':
-            cmd_start.append('--engine=remote')
+            cmd_start.append('--engine=local')
         elif env == 'meow':
             cmd_start.append('--engine=meow')
 
