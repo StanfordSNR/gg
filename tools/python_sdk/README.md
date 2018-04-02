@@ -23,7 +23,7 @@ Note: In this README, ```gg``` refers to the execution platform while GG refers 
 - **inputs**: one or more thunks to be starting point for thunk creations. For multiple thunks, pass in as a list. Function call will block until execution is completed.
 - **showstatus**: Append the status flag to ```gg```’s command arguments to show the thunk execution progress. Defaults to True.
 - **showcomm**: Print the command that ```ggSDK``` will use to invoke ```gg```. Defaults to True.
-- **env**: Environment to execute thunks in. Currently supports *lambda* (default) and *local*
+- **env**: Environment to execute thunks in. Currently supports *lambda* (default), *remote*, *meow*, and *local*
 - **numjobs**: Maximum number of workers executing thunks. For lambda environment, this means maximum number of lambda that are running at any given time. Default is 100
 - **isgen**: Is a generic function. By default, this is set to True since almost all pipelines and graphs written in ```ggSDK``` are not software builds. However, if you wish to do a software build graph with ```ggSDK```, set this to False.
 
