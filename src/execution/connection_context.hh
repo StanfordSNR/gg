@@ -31,6 +31,8 @@ public:
       std::cerr << "ConnectionContext destroyed with data left in write buffer" << std::endl;
     }
   }
+
+  void enqueue_write( const std::string & str ) { write_buffer_.append( str ); }
 };
 
 using TCPConnectionContext = ConnectionContext<TCPSocket>;
