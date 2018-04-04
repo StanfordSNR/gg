@@ -34,7 +34,7 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
 {
   HTTPRequest request = generate_request( thunk );
 
-  exec_loop.make_http_request<UNSECURE>( thunk.hash(), address_, request,
+  exec_loop.make_http_request<TCPConnection>( thunk.hash(), address_, request,
     [this] ( const uint64_t, const string & thunk_hash,
              const HTTPResponse & http_response ) -> bool
     {

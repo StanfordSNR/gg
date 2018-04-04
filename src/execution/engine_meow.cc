@@ -18,24 +18,8 @@ MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
     listen_addr_( listen_addr ), listen_socket_()
 {}
 
-void MeowExecutionEngine::init( ExecutionLoop & loop )
-{
-  listen_socket_.set_blocking( false );
-  listen_socket_.set_reuseaddr();
-  listen_socket_.bind( listen_addr_ );
-  listen_socket_.listen();
-
-  loop.poller().add_action( Poller::Action( listen_socket_, Direction::In,
-    [this, &loop]() -> ResultType
-    {
-      /* incoming connection. we accept this connection, and we will
-      add this to the looper */
-      TCPSocket socket { move( listen_socket_.accept() ) };
-
-      return ResultType::Continue;
-    } )
-  );
-}
+void MeowExecutionEngine::init( ExecutionLoop & )
+{}
 
 void MeowExecutionEngine::force_thunk( const Thunk &, ExecutionLoop & )
 {

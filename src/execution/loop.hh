@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <type_traits>
 
-#include "connection_context.hh"
+#include "connection.hh"
 #include "net/http_response.hh"
 #include "net/http_response_parser.hh"
 #include "net/socket.hh"
@@ -17,8 +17,6 @@
 #include "util/signalfd.hh"
 #include "util/child_process.hh"
 #include "util/poller.hh"
-
-enum ConnectionType : bool { SECURE = true, UNSECURE = false };
 
 class ExecutionLoop
 {
@@ -39,43 +37,41 @@ private:
 
   Poller poller_ {};
   std::list<std::tuple<uint64_t, LocalCallbackFunc, ChildProcess>> child_processes_ {};
-  std::list<TCPConnectionContext> connection_contexts_ {};
-  std::list<SSLConnectionContext> ssl_connection_contexts_ {};
-
-  std::list<HTTPResponseParser> http_response_parsers_ {};
+  std::list<std::shared_ptr<TCPConnection>> connections_ {};
+  std::list<std::shared_ptr<SSLConnection>> ssl_connections_ {};
 
   SSLContext ssl_context_ {};
 
   Poller::Action::Result handle_signal( const signalfd_siginfo & );
 
+  template<typename SocketType>
+  typename std::list<std::shared_ptr<Connection<SocketType>>>::iterator create_connection( SocketType && socket );
+
+  template<typename ConnectionType>
+  void remove_connection( const typename std::list<std::shared_ptr<ConnectionType>>::iterator & it );
+
 public:
-  typedef decltype( connection_contexts_ )::iterator HTTPConnectionIterator;
-  typedef decltype( ssl_connection_contexts_ )::iterator HTTPSConnectionIterator;
-
   ExecutionLoop();
-
-  /* the add_* functions will return a 64-bit number as a unique id */
 
   uint64_t add_child_process( const std::string & tag,
                               LocalCallbackFunc callback,
                               FailureCallbackFunc failure_callback,
                               std::function<int()> && child_procedure );
 
-  template<class SocketType>
-  ConnectionContext<SocketType> &
-  add_connection( SocketType && socket,
-                  const std::function<bool(std::string &&)> & data_callback,
-                  const std::function<void()> & error_callback = [](){},
-                  const std::function<void()> & close_callback = [](){} );
+  template<class ConnectionType>
+  void add_connection( const std::shared_ptr<ConnectionType> & connection,
+                       const std::function<bool(std::string &&)> & data_callback,
+                       const std::function<void()> & error_callback = [](){},
+                       const std::function<void()> & close_callback = [](){} );
 
-  template<ConnectionType is_secure>
-  typename std::conditional<is_secure, SSLConnectionContext &, TCPConnectionContext &>::type
+  template<class ConnectionType>
+  std::shared_ptr<ConnectionType>
   make_connection( const Address & address,
                    const std::function<bool(std::string &&)> & data_callback,
                    const std::function<void()> & error_callback = [](){},
                    const std::function<void()> & close_callback = [](){} );
 
-  template<ConnectionType is_secure>
+  template<class ConnectionType>
   uint64_t make_http_request( const std::string & tag,
                               const Address & address,
                               const HTTPRequest & request,
@@ -83,7 +79,7 @@ public:
                               FailureCallbackFunc failure_callback );
 
   uint64_t make_listener( const Address & address,
-                          const std::function<bool(TCPSocket &&)> & connection_callback );
+                          const std::function<bool(std::shared_ptr<TCPConnection> &)> & connection_callback );
 
   Poller::Result loop_once( const int timeout_ms = -1 );
 };
