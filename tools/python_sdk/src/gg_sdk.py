@@ -2,7 +2,6 @@ import sys
 import os
 import stat
 import shutil
-import numpy as np
 import subprocess as sp
 import json
 import hashlib
