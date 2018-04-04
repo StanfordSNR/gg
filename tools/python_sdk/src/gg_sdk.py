@@ -528,26 +528,3 @@ class GG(object):
         print("Time to generate thunks: %.3f seconds" % delta)
         return cmd_inp
 
-    """
-    Function called by user to execute thunks
-    Function will first create placeholders if needed
-    by first creating all thunks (i.e. generating graph)
-    """
-    def create_and_force(self, inputs, showstatus=True, showcomm=True,
-                        env='lambda', numjobs=100, genfunc=True):
-        cmd_inp = self.create_thunks(inputs)
-
-        cmd = self.__get_force_comm(cmd_inp, showstatus, env, genfunc, numjobs)
-        if showcomm:
-            jcomm = ' '.join(cmd)
-            print("Env variables already set. Command being run:", jcomm)
-
-        start = now()
-        in_proc = sp.Popen(cmd)
-        out = in_proc.communicate()[0]
-        end = now()
-        delta = end - start
-        print("Time to execute thunks: %.3f seconds" % delta)
-        return out
-
-
