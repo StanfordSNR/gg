@@ -25,12 +25,24 @@ FileDescriptor::FileDescriptor( const int fd )
 /* move constructor */
 FileDescriptor::FileDescriptor( FileDescriptor && other )
   : fd_( other.fd_ ),
-   eof_( other.eof_ ),
-   read_count_( other.read_count_ ),
-   write_count_( other.write_count_ )
+    eof_( other.eof_ ),
+    read_count_( other.read_count_ ),
+    write_count_( other.write_count_ )
 {
   /* mark other file descriptor as inactive */
   other.fd_ = -1;
+}
+
+FileDescriptor & FileDescriptor::operator=( FileDescriptor && other )
+{
+  fd_ = other.fd_;
+  eof_ = other.eof_;
+  read_count_ = other.read_count_;
+  write_count_ = other.write_count_;
+  
+  other.fd_ = -1;
+
+  return *this;
 }
 
 /* close method throws exception on failure */

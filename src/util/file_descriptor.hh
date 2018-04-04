@@ -31,6 +31,9 @@ public:
   /* move constructor */
   FileDescriptor( FileDescriptor && other );
 
+  /* move assignment operator */
+  FileDescriptor & operator=( FileDescriptor && other );
+
   /* close method throws exception on failure */
   void close();
 
