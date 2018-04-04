@@ -1,7 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#ifndef CONNECTION_HH
-#define CONNECTION_HH
+#ifndef NB_SECURE_SOCKET_HH
+#define NB_SECURE_SOCKET_HH
 
 #include <string>
 #include <deque>
@@ -81,4 +81,4 @@ public:
   }
 };
 
-#endif /* CONNECTION_HH */
+#endif /* NB_SECURE_SOCKET_HH */
