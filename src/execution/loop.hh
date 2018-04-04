@@ -79,7 +79,8 @@ public:
                               FailureCallbackFunc failure_callback );
 
   uint64_t make_listener( const Address & address,
-                          const std::function<bool(std::shared_ptr<TCPConnection> &)> & connection_callback );
+                          const std::function<bool(ExecutionLoop &,
+                                                   std::shared_ptr<TCPConnection> &)> & connection_callback );
 
   Poller::Result loop_once( const int timeout_ms = -1 );
 };

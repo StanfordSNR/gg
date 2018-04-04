@@ -241,7 +241,8 @@ uint64_t ExecutionLoop::make_http_request( const string & tag,
 }
 
 uint64_t ExecutionLoop::make_listener( const Address & address,
-                                       const function<bool(shared_ptr<TCPConnection> &)> & connection_callback )
+                                       const function<bool(ExecutionLoop &,
+                                                           shared_ptr<TCPConnection> &)> & connection_callback )
 {
   TCPSocket socket;
   socket.set_blocking( false );
@@ -258,7 +259,7 @@ uint64_t ExecutionLoop::make_listener( const Address & address,
     {
       auto new_connection = create_connection<TCPSocket>( move( connection_ptr->socket_.accept() ) );
 
-      if ( not connection_callback( *new_connection ) ) {
+      if ( not connection_callback( *this, *new_connection ) ) {
         return ResultType::CancelAll;
       }
 
