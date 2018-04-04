@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 # Copy gg_sdk.py into test directory
 cp ../src/gg_sdk.py .
@@ -57,10 +57,10 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     else
         num_failed=$[$num_failed + 1]
         echo "TEST FAILED"
-        echo "Expected: "${gold_line} 
+        echo "Expected: "${gold_line}
         echo "Read: "${check_line}
         echo "---"
-    fi 
+    fi
     file_ind=$[$file_ind + 1]
 done < test_lines.txt
 
@@ -76,5 +76,3 @@ echo "==="
 rm -rf .gg *.out gg_pb2.py* gg_sdk.py* test_program
 
 exit ${num_failed}
-
-
