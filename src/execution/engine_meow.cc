@@ -18,8 +18,30 @@ MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
     listen_addr_( listen_addr ), listen_socket_()
 {}
 
-void MeowExecutionEngine::init( ExecutionLoop & )
-{}
+void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
+{
+  exec_loop.make_listener( listen_addr_,
+    [] ( ExecutionLoop & loop, shared_ptr<TCPConnection> & connection ) {
+      cerr << "incoming connection: "
+           << connection->socket().peer_address().str() << endl;
+
+      loop.add_connection( connection,
+        [] ( const string & data ) {
+          cerr << "data received: " << data << endl;
+          return false;
+        },
+        [] () {
+          cerr << "Error occured!" << endl;
+        },
+        [] () {
+          cerr << "Connection closed." << endl;
+        }
+      );
+
+      return true;
+    }
+  );
+}
 
 void MeowExecutionEngine::force_thunk( const Thunk &, ExecutionLoop & )
 {

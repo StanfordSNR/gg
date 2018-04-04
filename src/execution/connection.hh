@@ -37,6 +37,7 @@ public:
   }
 
   void enqueue_write( const std::string & str ) { write_buffer_.append( str ); }
+  const SocketType & socket() const { return socket_; }
 };
 
 using TCPConnection = Connection<TCPSocket>;
