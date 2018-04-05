@@ -100,7 +100,9 @@ void ExecutionLoop::add_connection( const shared_ptr<TCPConnection> & connection
       [connection, data_callback { move( data_callback ) },
        close_callback { move( close_callback ) }, this] ()
       {
-        if ( not data_callback( move( connection->socket_.read() ) ) ) {
+        string data { move( connection->socket_.read() ) };
+
+        if ( data.empty() or not data_callback( move( data ) ) ) {
           close_callback();
           return ResultType::CancelAll;
         }
@@ -145,7 +147,9 @@ void ExecutionLoop::add_connection( const shared_ptr<SSLConnection> & connection
       connection->socket_, Direction::In,
       [connection, data_callback, close_callback] ()
       {
-        if ( not data_callback( move( connection->socket_.ezread() ) ) ) {
+        string data { move( connection->socket_.ezread() ) };
+
+        if ( data.empty() or not data_callback( move( data ) ) ) {
           close_callback();
           return ResultType::CancelAll;
         }
