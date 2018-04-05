@@ -31,7 +31,7 @@ private:
   std::map<uint64_t, Lambda> lambdas_ {};
   std::set<uint64_t> free_lambdas_ {};
 
-  HTTPRequest generate_request( const gg::thunk::Thunk & thunk );
+  HTTPRequest generate_request();
 
 public:
   MeowExecutionEngine( const AWSCredentials & credentials,
