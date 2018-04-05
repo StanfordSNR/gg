@@ -36,9 +36,26 @@ int main( int argc, char * argv[] )
       throw runtime_error( "invalid port" );
     }
 
-    Address destination_addr { argv[ 1 ], static_cast<uint16_t>( port_argv ) };
-
+    Address coordinator_addr { argv[ 1 ], static_cast<uint16_t>( port_argv ) };
     ExecutionLoop loop;
+
+    /* let's make a connection back to the coordinator */
+    shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
+      [] ( string && data ) {
+        cerr << "Got data: " << data << endl;
+        return true;
+      },
+      [] () {
+        cerr << "Error." << endl;
+      },
+      [] () {
+        cerr << "Closed." << endl;
+        exit( 0 );
+      } );
+
+    while( true ) {
+      loop.loop_once( -1 );
+    }
   }
   catch ( const exception & e ) {
     print_exception( argv[ 0 ], e );
