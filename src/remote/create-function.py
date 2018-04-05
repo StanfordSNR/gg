@@ -54,13 +54,16 @@ def gghash(filename, block_size=65536):
 
     return "V{}{:08x}".format(base64.urlsafe_b64encode(sha256.digest()).decode('ascii').replace('=','').replace('-', '.'), size)
 
-def create_function_package(label, output, function_execs, gg_execute_static):
+def create_function_package(label, output, function_execs, gg_execute_static, gg_meow_worker):
     PACKAGE_FILES = {
         "gg-execute-static": gg_execute_static,
         "function.py": "%s_function/function.py" % label,
         "ggpaths.py": "common/ggpaths.py",
         "common.py": "common/common.py"
     }
+
+    if label == 'meow':
+        PACKAGE_FILES['gg-meow-worker'] = gg_meow_worker
 
     for exe in function_execs:
         PACKAGE_FILES["executables/{}".format(exe[0])] = exe[1]
@@ -108,6 +111,8 @@ def main():
     parser.add_argument('--region', dest='region', default=os.environ.get('AWS_REGION'), action='store')
     parser.add_argument('--gg-execute-static', dest='gg_execute_static',
                         default=shutil.which("gg-execute-static"))
+    parser.add_argument('--gg-meow-worker', dest='gg_meow_worker',
+                        default=shutil.which("gg-meow-worker"))
     parser.add_argument('--toolchain-path', dest='toolchain_path', required=True)
 
     args = parser.parse_args()
@@ -131,7 +136,7 @@ def main():
             )
 
         function_file = "{}.zip".format(function_name)
-        create_function_package(label, function_file, function_execs, args.gg_execute_static)
+        create_function_package(label, function_file, function_execs, args.gg_execute_static, args.gg_meow_worker)
         print("Installing lambda function {}... ".format(function_name), end='')
         install_lambda_package(function_file, function_name, args.role, args.region,
                                delete=args.delete)
