@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+#include <queue>
 #include <limits>
 #include <stdexcept>
 #include <cstdlib>
@@ -41,18 +43,17 @@ int main( int argc, char * argv[] )
     ExecutionLoop loop;
 
     /* let's make a connection back to the coordinator */
-    auto message_parser = make_shared<meow::MessageParser>();
+    meow::MessageParser message_parser;
+    queue<meow::Message> message_queue;
 
     shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
-      [message_parser] ( string && data ) {
-        message_parser->parse( data );
+      [&message_parser, &message_queue] ( string && data ) {
+        message_parser.parse( data );
 
-        if ( not message_parser->empty() ) {
+        if ( not message_parser.empty() ) {
           /* we got a message! */
-          cerr << "==== MESSAGE ====" << endl;
-          cerr << message_parser->front().payload() << endl;
-          cerr << "=================" << endl;
-          message_parser->pop();
+          message_queue.emplace( move( message_parser.front() ) );
+          message_parser.pop();
         }
 
         return true;
@@ -67,6 +68,12 @@ int main( int argc, char * argv[] )
 
     while( true ) {
       loop.loop_once( -1 );
+
+      while ( not message_queue.empty() ) {
+        const meow::Message & message = message_queue.front();
+        cerr << "msg: " << message.payload() << endl;
+        message_queue.pop();
+      }
     }
   }
   catch ( const exception & e ) {
