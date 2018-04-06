@@ -10,6 +10,7 @@
 #include "net/http_response.hh"
 #include "net/http_request.hh"
 #include "execution/loop.hh"
+#include "execution/meow/message.hh"
 #include "util/exception.hh"
 
 using namespace std;
@@ -40,9 +41,20 @@ int main( int argc, char * argv[] )
     ExecutionLoop loop;
 
     /* let's make a connection back to the coordinator */
+    auto message_parser = make_shared<meow::MessageParser>();
+
     shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
-      [] ( string && data ) {
-        cerr << "Got data: " << data << endl;
+      [message_parser] ( string && data ) {
+        message_parser->parse( data );
+
+        if ( not message_parser->empty() ) {
+          /* we got a message! */
+          cerr << "==== MESSAGE ====" << endl;
+          cerr << message_parser->front().payload() << endl;
+          cerr << "=================" << endl;
+          message_parser->pop();
+        }
+
         return true;
       },
       [] () {

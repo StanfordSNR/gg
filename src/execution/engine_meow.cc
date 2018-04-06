@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "util/units.hh"
+#include "meow/message.hh"
 #include "protobufs/meow.pb.h"
 #include "protobufs/util.hh"
 
@@ -38,13 +39,24 @@ MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
 void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 {
   exec_loop.make_listener( listen_addr_,
-    [] ( ExecutionLoop & loop, shared_ptr<TCPConnection> & connection ) {
+    [this] ( ExecutionLoop & loop, shared_ptr<TCPConnection> & connection ) {
       cerr << "incoming connection: "
            << connection->socket().peer_address().str() << endl;
 
+      auto message_parser = make_shared<meow::MessageParser>();
+
       loop.add_connection( connection,
-        [] ( const string & data ) {
-          cerr << "data received: " << data << endl;
+        [message_parser] ( const string & data ) {
+          message_parser->parse( data );
+
+          if ( not message_parser->empty() ) {
+            /* we got a message! */
+            cerr << "==== MESSAGE ====" << endl;
+            cerr << message_parser->front().payload() << endl;
+            cerr << "=================" << endl;
+            message_parser->pop();
+          }
+
           return true;
         },
         [] () {
@@ -55,6 +67,12 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
         }
       );
 
+      meow::Message message { meow::Message::OpCode::Hey, "Hello, world!" };
+      connection->enqueue_write( message.to_string() );
+
+      lambdas_.emplace( make_pair( current_id_, connection ) );
+      free_lambdas_.emplace( current_id_ );
+      current_id_++;
       return true;
     }
   );
@@ -62,12 +80,12 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
   cerr << "[meow] listening for incoming connections on " << listen_addr_.str() << endl;
 }
 
-void MeowExecutionEngine::force_thunk( const Thunk &, ExecutionLoop & loop )
+void MeowExecutionEngine::force_thunk( const Thunk &, ExecutionLoop & )
 {
   cerr << "Not implemented" << endl;
 
   /* let's just launch one Lambda */
-  loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
+  /* loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
     generate_request(),
     [] ( const uint64_t, const string &, const HTTPResponse & response ) {
       cerr << response.str() << endl;
@@ -75,7 +93,7 @@ void MeowExecutionEngine::force_thunk( const Thunk &, ExecutionLoop & loop )
     [] ( const uint64_t, const string & ) {
       cerr << "invocation request failed" << endl;
     }
-  );
+  );*/
 }
 
 bool MeowExecutionEngine::can_execute( const gg::thunk::Thunk & thunk ) const

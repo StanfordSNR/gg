@@ -4,6 +4,7 @@
 #define ENGINE_MEOW_HH
 
 #include <vector>
+#include <memory>
 
 #include "engine.hh"
 #include "net/address.hh"
@@ -19,6 +20,10 @@ private:
     enum class State { UNINITIALIZED, FREE, BUSY };
 
     State state { State::UNINITIALIZED };
+    std::shared_ptr<TCPConnection> connection;
+
+    Lambda( std::shared_ptr<TCPConnection> && connection )
+      : connection( connection ) {}
   };
 
   AWSCredentials credentials_;
@@ -28,6 +33,7 @@ private:
   TCPSocket listen_socket_;
   SSLContext ssl_context_ {};
 
+  uint64_t current_id_ { 0 };
   std::map<uint64_t, Lambda> lambdas_ {};
   std::set<uint64_t> free_lambdas_ {};
 
