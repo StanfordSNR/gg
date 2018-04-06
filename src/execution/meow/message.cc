@@ -29,7 +29,7 @@ Message::Message( const Chunk & chunk )
 }
 
 Message::Message( const OpCode opcode, string && payload )
-  : payload_length_( payload.length() ), opcode_( opcode ), 
+  : payload_length_( payload.length() ), opcode_( opcode ),
     payload_( move( payload ) )
 {}
 
@@ -45,7 +45,7 @@ string Message::to_string() const
 
 uint32_t Message::expected_length( const Chunk & chunk )
 {
-  return ( chunk.size() < 5 ) ? 5 : chunk( 0, 4 ).be32();
+  return 5 + ( ( chunk.size() < 5 ) ? 0 : chunk( 0, 4 ).be32() );
 }
 
 void MessageParser::parse( const string & buf )
