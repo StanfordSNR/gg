@@ -44,7 +44,7 @@ def get_dur_fps(myvid):
 
 def main(args):
     vidStart = args.vidToProcess
-    all_chunks = glob.glob(vidStart + '_chunk*')[0:2]
+    all_chunks = glob.glob(vidStart + '_chunk*')
 
     # Get all durations
     all_dur = {}
