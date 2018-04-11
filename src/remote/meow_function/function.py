@@ -24,7 +24,10 @@ def handler(event, context):
     coordinator_address = event['coordinator']
     coordinator_host, coordinator_port = event['coordinator'].split(':')
 
-    return_code, stdout = run_command(["gg-meow-woker",
+    return_code, stdout = run_command(["gg-meow-worker",
         coordinator_host, coordinator_port])
 
-    return {}
+    return {
+        'returnCode': return_code,
+        'stdout': stdout,
+    }

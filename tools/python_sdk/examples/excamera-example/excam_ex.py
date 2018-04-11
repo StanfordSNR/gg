@@ -189,10 +189,5 @@ if __name__ == '__main__':
         out_thunks.extend(generate_batch(batch_start, batch_end, quality))
         batch_start = batch_end + 1
 
-<<<<<<< HEAD
     gg.create_thunks(out_thunks)
-=======
-    gg.create_and_force(out_thunks, showcomm=False, numjobs=nworkers)
-    # gg.create_thunks(out_thunks)
->>>>>>> af4676fbb01f5f54f20f631bcb19760397a5b7bb
 

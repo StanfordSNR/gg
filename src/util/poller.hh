@@ -8,6 +8,7 @@
 #include <cassert>
 #include <list>
 #include <set>
+#include <queue>
 #include <poll.h>
 
 #include "file_descriptor.hh"
@@ -37,10 +38,10 @@ public:
     bool active;
 
     Action( FileDescriptor & s_fd,
-        const PollDirection & s_direction,
-        const CallbackType & s_callback,
-        const std::function<bool(void)> & s_when_interested = [] () { return true; },
-        const std::function<void(void)> & fderror_callback = [] () {} )
+            const PollDirection & s_direction,
+            const CallbackType & s_callback,
+            const std::function<bool(void)> & s_when_interested = [] () { return true; },
+            const std::function<void(void)> & fderror_callback = [] () {} )
       : fd( s_fd ), direction( s_direction ), callback( s_callback ),
         when_interested( s_when_interested ),
         fderror_callback( fderror_callback ), active( true ) {}
@@ -55,8 +56,9 @@ public:
   };
 
 private:
-  std::list<Action> actions_;
-  std::vector<pollfd> pollfds_;
+  std::queue<Action> action_add_queue_ {};
+  std::list<Action> actions_ {};
+  std::vector<pollfd> pollfds_ {};
 
 public:
   struct Result
@@ -67,12 +69,13 @@ public:
       : result( s_result ), exit_status( s_status ) {}
   };
 
-  Poller() : actions_(), pollfds_() {}
+  Poller() {}
+
   void add_action( Action action );
   Result poll( const int timeout_ms );
 
   /* remove all actions for file descriptors in `fd_nums` */
-  void remove_actions( const std::set<int> fd_nums );
+  void remove_actions( const std::set<int> & fd_nums );
 };
 
 namespace PollerShortNames {

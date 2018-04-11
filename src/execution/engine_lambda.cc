@@ -61,7 +61,7 @@ void AWSLambdaExecutionEngine::force_thunk( const vector<Thunk> & thunk,
     comb_hash += t.hash();
   }
 
-  uint64_t connection_id = exec_loop.make_http_request<SECURE>( comb_hash,
+  uint64_t connection_id = exec_loop.make_http_request<SSLConnection>( comb_hash,
     address_, request,
     [this] ( const uint64_t id, const string & thunk_hash,
              const HTTPResponse & http_response ) -> bool

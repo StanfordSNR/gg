@@ -5,15 +5,12 @@ cd ${TEST_TMPDIR}
 export PATH=${abs_builddir}/../src/models:${abs_builddir}/../src/frontend:$PATH
 export GG_MODELPATH=${abs_srcdir}/../src/models/wrappers
 
-# Save for reseting
-GG_DIR_ORIG=${GG_DIR}
 export GG_DIR=${TEST_TMPDIR}/test/.gg
 
-cp -R ${abs_srcdir}/../tools/python_sdk/src ${abs_srcdir}/../tools/python_sdk/test .
+cp --no-preserve=mode,ownership -R ${abs_srcdir}/../tools/python_sdk/src ${abs_srcdir}/../tools/python_sdk/test .
+
+chmod +x test/run_test.sh test/test_gg_gen.py
+
 cd test
 
 ./run_test.sh
-
-# Reset to original
-export GG_DIR=${GG_DIR_ORIG}
-

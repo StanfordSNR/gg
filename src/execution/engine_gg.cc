@@ -53,7 +53,7 @@ void GGExecutionEngine::force_thunk( const vector<Thunk> & thunk,
     comb_hash == t.hash();
   }
 
-  exec_loop.make_http_request<UNSECURE>( comb_hash, address_, request,
+  exec_loop.make_http_request<TCPConnection>( comb_hash, address_, request,
     [this] ( const uint64_t, const string & thunk_hash,
              const HTTPResponse & http_response ) -> bool
     {

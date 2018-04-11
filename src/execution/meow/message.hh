@@ -51,7 +51,7 @@ namespace meow {
     void parse( const std::string & buf );
 
     bool empty() const { return completed_messages_.empty(); }
-    const Message & front() const { return completed_messages_.front(); }
+    Message & front() { return completed_messages_.front(); }
     void pop() { completed_messages_.pop(); }
   };
 

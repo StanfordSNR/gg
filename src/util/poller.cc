@@ -12,8 +12,9 @@ using namespace PollerShortNames;
 
 void Poller::add_action( Poller::Action action )
 {
-  actions_.push_back( action );
-  pollfds_.push_back( { action.fd.fd_num(), 0, 0 } );
+  /* the action won't be actually added until the next poll() function call.
+     this allows us to call add_action inside the callback functions */
+  action_add_queue_.push( action );
 }
 
 unsigned int Poller::Action::service_count( void ) const
@@ -23,6 +24,14 @@ unsigned int Poller::Action::service_count( void ) const
 
 Poller::Result Poller::poll( const int timeout_ms )
 {
+  /* first, let's add all the actions that are waiting in the queue */
+  while ( not action_add_queue_.empty() ) {
+    Action & action = action_add_queue_.front();
+    pollfds_.push_back( { action.fd.fd_num(), 0, 0 } );
+    actions_.emplace_back( move( action ) );
+    action_add_queue_.pop();
+  }
+
   assert( pollfds_.size() == actions_.size() );
 
   if ( timeout_ms == 0 ) {
@@ -64,10 +73,9 @@ Poller::Result Poller::poll( const int timeout_ms )
   for ( ; it_action != actions_.end() and it_pollfd != pollfds_.end()
         ; it_action++, it_pollfd++ ) {
     if ( it_pollfd->revents & (POLLERR | POLLHUP | POLLNVAL) ) {
-      //            throw Exception( "poll fd error" );
       it_action->fderror_callback();
-      remove_actions( { it_pollfd->fd } );
-      return Result::Type::FDError;
+      fds_to_remove.insert( it_pollfd->fd );
+      continue;
     }
 
     if ( it_pollfd->revents & it_pollfd->events ) {
@@ -98,7 +106,7 @@ Poller::Result Poller::poll( const int timeout_ms )
   return Result::Type::Success;
 }
 
-void Poller::remove_actions( const set<int> fd_nums )
+void Poller::remove_actions( const set<int> & fd_nums )
 {
   if ( fd_nums.size() == 0 ) {
     return;
