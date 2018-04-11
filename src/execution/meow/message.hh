@@ -34,7 +34,7 @@ namespace meow {
 
     OpCode opcode() const { return opcode_; }
     uint32_t payload_length() const { return payload_length_; }
-    const std::string payload() const { return payload_; }
+    const std::string & payload() const { return payload_; }
 
     std::string to_string() const;
 
