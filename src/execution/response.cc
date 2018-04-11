@@ -39,15 +39,15 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
   for ( const auto & exec_thunks : response_proto.executed_thunks() ) {
     response.thunk_hash.push_back( exec_thunks.thunk_hash() );
 
+    vector<Output> next_output;
     for ( const auto & output_proto : exec_thunks.outputs() ) {
-      vector<Output> next_output;
       next_output.push_back( { output_proto.tag(),
                                output_proto.hash(),
                                output_proto.size(),
                                output_proto.executable(),
                                output_proto.data() } );
-      response.outputs.push_back( next_output );
     }
+    response.outputs.push_back( next_output );
   }
 
   // response.thunk_hash = response_proto.executed_thunks( 0 ).thunk_hash();

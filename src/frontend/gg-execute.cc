@@ -313,10 +313,6 @@ int main( int argc, char * argv[] )
         storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
       }
 
-      if ( cleanup ) {
-        do_cleanup( thunk );
-      }
-
       if ( get_dependencies ) {
         fetch_dependencies( storage_backend, thunk );
       }
@@ -325,6 +321,10 @@ int main( int argc, char * argv[] )
 
       if ( put_output and ( th_iter == ( thunk_hashes.size() - 1 ) ) ) {
         upload_output( storage_backend, output_hashes );
+      }
+
+      if ( cleanup and ( th_iter == ( thunk_hashes.size() - 1 ) ) ) {
+        do_cleanup( thunk );
       }
 
       th_iter++;

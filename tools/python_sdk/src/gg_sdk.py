@@ -2,7 +2,6 @@ import sys
 import os
 import stat
 import shutil
-import numpy as np
 import subprocess as sp
 import json
 import hashlib
@@ -68,7 +67,7 @@ class GGThunk(object):
             for ea in self.args:
                 # Only add if a GGThunk or a string but not a flag
                 if (isinstance(ea, GGThunk) or
-                    (isinstance(ea, str) and 
+                    (isinstance(ea, str) and
                     '--' not in ea and
                     '-o' not in ea)):
                     self.add_infile([ea])
@@ -98,7 +97,7 @@ class GGThunk(object):
             _if_type = if_type
 
             if if_type != 'INVALID':
-                if ( if_type != 'FILE' or 
+                if ( if_type != 'FILE' or
                      if_type != 'EXECUTABLE' or
                      if_type != 'GGTHUNK' ):
                     self.__inv_file_print()
@@ -109,7 +108,7 @@ class GGThunk(object):
                     check_file = os.path.isfile(new_inf)
                     if not check_file:
                         print(new_inf + " not found")
-                        sys.exit(1) 
+                        sys.exit(1)
 
                     # If it is not an x86 ELF executable or a Python script,
                     # predict it to be a regular FILE
@@ -169,7 +168,7 @@ class GGThunk(object):
         all_infiles = self.__comb_infiles()
 
         cmd = ['gg-create-thunk']
- 
+
         # Add envars
         for ev in self.envars:
             cmd.extend(['-v', ev])
@@ -278,13 +277,16 @@ class GGThunk(object):
 
         if os.path.exists(hash_path):
             h_fd = open(hash_path, 'r')
-            h_file_cont = h_fd.readlines()[0].split()
+            h_readlines = h_fd.readlines()
+            while len(h_readlines) == 0:
+                h_readlines = h_fd.readlines()
+            h_file_cont = h_readlines[0].split()
             h_fd.close()
 
             if len(h_file_cont) != 6:
                 print("Bad cache entry:", hash_path)
                 sys.exit(1)
-            
+
             if (h_file_cont[0] == str(int(info.st_size)) and
                h_file_cont[1] == str(int(info.st_mtime)) and
                h_file_cont[3] == str(int(info.st_ctime))):
@@ -295,9 +297,9 @@ class GGThunk(object):
         outstr = "%d %d %d %d %d %s" % (info.st_size, info.st_mtime, 100, info.st_ctime, 101, next_hash)
         h_fd = open(hash_path, 'w')
         h_fd.write(outstr)
-        h_fd.close() 
+        h_fd.close()
 
-        return next_hash 
+        return next_hash
 
     """
     Function to merge infiles (since they can be a mix of
@@ -527,27 +529,3 @@ class GG(object):
         delta = end - start
         print("Time to generate thunks: %.3f seconds" % delta)
         return cmd_inp
-
-    """
-    Function called by user to execute thunks
-    Function will first create placeholders if needed
-    by first creating all thunks (i.e. generating graph)
-    """
-    def create_and_force(self, inputs, showstatus=True, showcomm=True,
-                        env='lambda', numjobs=100, genfunc=True):
-        cmd_inp = self.create_thunks(inputs)
-
-        cmd = self.__get_force_comm(cmd_inp, showstatus, env, genfunc, numjobs)
-        if showcomm:
-            jcomm = ' '.join(cmd)
-            print("Env variables already set. Command being run:", jcomm)
-
-        start = now()
-        in_proc = sp.Popen(cmd)
-        out = in_proc.communicate()[0]
-        end = now()
-        delta = end - start
-        print("Time to execute thunks: %.3f seconds" % delta)
-        return out
-
-

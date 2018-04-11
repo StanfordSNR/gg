@@ -107,7 +107,6 @@ void AWSLambdaExecutionEngine::force_thunk( const vector<Thunk> & thunk,
           uint32_t th_iter = 0;
           for ( auto resp : response.outputs ) {
             string next_hash = response.thunk_hash.at( th_iter );
-
             for ( const auto & output : resp ) {
               gg::cache::insert( gg::hash::for_output( next_hash, output.tag ), output.hash );
 
@@ -116,7 +115,6 @@ void AWSLambdaExecutionEngine::force_thunk( const vector<Thunk> & thunk,
                                       gg::paths::blob_path( output.hash ) );
               }
             }
-
             gg::cache::insert( next_hash, response.outputs.at( th_iter ).at( 0 ).hash );
 
             th_iter++;

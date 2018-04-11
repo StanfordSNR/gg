@@ -170,15 +170,14 @@ def generate_batch(start, end, quality):
         return list(thunk_dict.values())
 
 if __name__ == '__main__':
-    if len(sys.argv) != 6:
-        print("Usage: gen_makefile.py <start> <end> <batch-size> <cq-level> <nworkers>")
+    if len(sys.argv) != 5:
+        print("Usage: gen_makefile.py <start> <end> <batch-size> <cq-level>")
         sys.exit(1)
 
     start = int(sys.argv[1])
     end = int(sys.argv[2])
     batch_size = int(sys.argv[3])
     quality = int(sys.argv[4])
-    nworkers = int(sys.argv[5])
 
     gg = GG()
 
@@ -190,6 +189,10 @@ if __name__ == '__main__':
         out_thunks.extend(generate_batch(batch_start, batch_end, quality))
         batch_start = batch_end + 1
 
+<<<<<<< HEAD
+    gg.create_thunks(out_thunks)
+=======
     gg.create_and_force(out_thunks, showcomm=False, numjobs=nworkers)
     # gg.create_thunks(out_thunks)
+>>>>>>> af4676fbb01f5f54f20f631bcb19760397a5b7bb
 

@@ -13,13 +13,10 @@ CMD = "ffmpeg -loglevel panic -i {video} -frames:v {numout} frameout%03d_{ofile}
 CMD_IMREC = "li-static {myimage} inception_v3_2016_08_28_frozen.pb imagenet_slim_labels.txt {myoutput}"
 SUFFIX_TO_CLEAR = ['jpg', 'out']
 
+num_out = 2
+
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--numjobs', '-j', type=int, required=False,
-            dest='numJobs', default=50, help='Number of GG Workers (Def: 50)')
-    parser.add_argument('--execenv', '-e', type=str, required=False,
-            dest='execEnv', default='lambda', 
-            choices=['lambda', 'local'], help='GG execution environment (Def: lambda)')
     parser.add_argument('--video', '-v', type=str, required=False,
             dest='vidToProcess', default='4kvid', help='Video to process (Def: 4kvid)')
     return parser.parse_args()
@@ -47,24 +44,22 @@ def get_dur_fps(myvid):
 
 def main(args):
     vidStart = args.vidToProcess
-    execEnv = args.execEnv
-    nJobs = args.numJobs
-
     all_chunks = glob.glob(vidStart + '_chunk*')
 
     # Get all durations
     all_dur = {}
     for ac in all_chunks:
         ts = get_dur_fps(ac)
-        all_dur[ac] = ts
+        if ts > 1:
+          all_dur[ac] = ts
 
     gg = GG()
     all_thunks = []
 
     start = now()
     for vidind, myvid in enumerate(all_chunks):
-        ts = int(all_dur[myvid])
-        num_out = int(ts) * 2
+        if myvid not in all_dur:
+          continue
         all_outname = []
         for j in range(num_out):
             all_outname.append('frameout%03d_%03d.jpg' % (j + 1, vidind))
@@ -89,7 +84,7 @@ def main(args):
     end = now()
     delta = end - start
     print("Total time to declare thunks: %.3f seconds" % delta)
-    gg.create_and_force(all_thunks, showcomm=False, numjobs=nJobs, env=execEnv)
+    gg.create_thunks(all_thunks)
 
 if __name__ == '__main__':
     clear_chunks()

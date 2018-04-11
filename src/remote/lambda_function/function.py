@@ -63,6 +63,7 @@ def handler(event, context):
             output_hash = GGCache.check(thunk['hash'], output_tag)
 
             if not output_hash:
+                print("FAILURE: " + stdout)
                 return {
                     'returnCode': return_code,
                     'stdout': stdout
