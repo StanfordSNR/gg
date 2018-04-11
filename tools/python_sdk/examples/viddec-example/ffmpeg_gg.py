@@ -88,6 +88,7 @@ def main(args):
                       'imagenet_slim_labels.txt', (gen_jpg_thunk, all_outname[j])])
 
               all_thunks.append(last_thunk)
+          all_count += 1
 
     end = now()
     delta = end - start
