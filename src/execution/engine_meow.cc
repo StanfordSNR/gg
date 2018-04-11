@@ -40,7 +40,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 {
   exec_loop.make_listener( listen_addr_,
     [this] ( ExecutionLoop & loop, shared_ptr<TCPConnection> & connection ) {
-      cerr << "incoming connection: "
+      cerr << "[meow] Incoming connection: "
            << connection->socket().peer_address().str() << endl;
 
       auto message_parser = make_shared<meow::MessageParser>();
@@ -77,7 +77,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
     }
   );
 
-  cerr << "[meow] listening for incoming connections on " << listen_addr_.str() << endl;
+  cerr << "[meow] Listening for incoming connections on " << listen_addr_.str() << endl;
 }
 
 void MeowExecutionEngine::force_thunk( const Thunk &, ExecutionLoop & )
