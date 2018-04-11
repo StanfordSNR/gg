@@ -44,39 +44,42 @@ def get_dur_fps(myvid):
 
 def main(args):
     vidStart = args.vidToProcess
-    all_chunks = glob.glob(vidStart + '_chunk*')
+    all_chunks = glob.glob(vidStart + '_chunk*')[0:2]
 
     # Get all durations
     all_dur = {}
     for ac in all_chunks:
         ts = get_dur_fps(ac)
-        if ts > 1:
+        if ts > 4:
           all_dur[ac] = ts
 
     gg = GG()
     all_thunks = []
 
     start = now()
-    for vidind, myvid in enumerate(all_chunks):
+    all_count = 0
+    for myvid in all_chunks:
         if myvid not in all_dur:
           continue
         vid_dur = int(all_dur[myvid])
-        for i, vd in enumerate(np.arange(0, vid_dur, 0.04 + 0.04 * num_out)):
+        for vd in np.arange(0, vid_dur, 0.04 + 0.04 * num_out):
           next_min = '%02d' % int(vd / 60)
           next_sec = '%.2f' % (vd % 60)
           all_outname = []
           for j in range(num_out):
-              all_outname.append('frameout%03d_%03d.jpg' % (j + 1, i + vidind))
+              all_outname.append('frameout%03d_%03d.jpg' % (j + 1, all_count))
 
           next_cmd = CMD.format(video=myvid, min=next_min, sec=next_sec,
-              numout=num_out, ofile='%03d' % (i + vidind))
+              numout=num_out, ofile='%03d' % all_count)
           next_cmd_split = next_cmd.split()
           gen_jpg_thunk = GGThunk(exe=next_cmd_split[0], outname=all_outname,
                   exe_args=next_cmd_split[1:], args_infiles=False)
           gen_jpg_thunk.add_infile(myvid)
 
-          for j in range(num_out):
-              pic_out = 'frameout%03d_%03d_lab.out' % (j + 1, i + vidind)
+          for j in range(num_out): 
+              pic_out = 'frameout%03d_%03d_lab.out' % (j + 1, all_count)
+              all_count += 1
+
               last_cmd = CMD_IMREC.format(myimage=all_outname[j], myoutput=pic_out)
               last_cmd_split = last_cmd.split()
               last_thunk = GGThunk(exe=last_cmd_split[0], outname=pic_out,
