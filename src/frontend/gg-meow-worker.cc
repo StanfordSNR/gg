@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <queue>
 #include <limits>
 #include <stdexcept>
 #include <cstdlib>
@@ -46,18 +45,10 @@ int main( int argc, char * argv[] )
 
     /* let's make a connection back to the coordinator */
     meow::MessageParser message_parser;
-    queue<meow::Message> message_queue;
 
     shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
-      [&message_parser, &message_queue] ( string && data ) {
+      [&message_parser] ( string && data ) {
         message_parser.parse( data );
-
-        if ( not message_parser.empty() ) {
-          /* we got a message! */
-          message_queue.emplace( move( message_parser.front() ) );
-          message_parser.pop();
-        }
-
         return true;
       },
       [] () {
@@ -71,11 +62,11 @@ int main( int argc, char * argv[] )
     while( true ) {
       loop.loop_once( -1 );
 
-      while ( not message_queue.empty() ) {
-        const meow::Message & message = message_queue.front();
+      while ( not message_parser.empty() ) {
+        const meow::Message & message = message_parser.front();
         cerr << "[msg,opcode=" << static_cast<uint32_t>( message.opcode() ) << "]" << endl;
         meow::handle_message( message, connection );
-        message_queue.pop();
+        message_parser.pop();
       }
     }
   }
