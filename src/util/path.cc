@@ -413,6 +413,21 @@ namespace roost {
     CheckSystemCall( "chmod", ::chmod( pathn.string().c_str(), mode ) );
   }
 
+  string read_file( const path & pathn )
+  {
+    /* read input file into memory */
+    FileDescriptor in_file { CheckSystemCall( "open (" + pathn.string() + ")",
+                              open( pathn.string().c_str(), O_RDONLY ) ) };
+    struct stat pathn_info;
+    CheckSystemCall( "fstat", fstat( in_file.fd_num(), &pathn_info ) );
+
+    if ( not S_ISREG( pathn_info.st_mode ) ) {
+      throw runtime_error( pathn.string() + " is not a regular file" );
+    }
+
+    return in_file.read_exactly( pathn_info.st_size );
+  }
+
   void make_executable( const path & pathn )
   {
     struct stat file_info;
