@@ -5,8 +5,8 @@
 
 #include <memory>
 
-#include "connection.hh"
-#include "meow/message.hh"
+#include "execution/connection.hh"
+#include "execution/meow/message.hh"
 
 namespace meow {
 

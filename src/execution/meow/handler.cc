@@ -9,8 +9,8 @@ using namespace std;
 using namespace gg;
 using namespace meow;
 
-void handle_message( const Message & message,
-                     const shared_ptr<TCPConnection> & connection )
+void meow::handle_message( const Message & message,
+                           const shared_ptr<TCPConnection> & connection )
 {
   switch ( message.opcode() ) {
   case Message::OpCode::Put:

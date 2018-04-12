@@ -13,7 +13,9 @@
 #include "net/http_request.hh"
 #include "execution/loop.hh"
 #include "execution/meow/message.hh"
+#include "execution/meow/handler.hh"
 #include "util/exception.hh"
+#include "util/util.hh"
 
 using namespace std;
 
@@ -71,7 +73,8 @@ int main( int argc, char * argv[] )
 
       while ( not message_queue.empty() ) {
         const meow::Message & message = message_queue.front();
-        cerr << "msg: " << message.payload() << endl;
+        cerr << "[msg,opcode=" << static_cast<uint32_t>( message.opcode() ) << "]" << endl;
+        meow::handle_message( message, connection );
         message_queue.pop();
       }
     }
