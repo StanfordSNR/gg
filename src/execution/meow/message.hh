@@ -21,6 +21,7 @@ namespace meow {
       Ping,
       Pong,
       Execute,
+      Bye,
     };
 
   private:
