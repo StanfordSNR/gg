@@ -7,9 +7,10 @@
 #include <queue>
 #include <iostream>
 
-#include "loop.hh"
 #include "net/socket.hh"
 #include "net/nb_secure_socket.hh"
+
+class ExecutionLoop;
 
 template<class SocketType>
 class Connection
