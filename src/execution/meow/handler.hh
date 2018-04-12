@@ -3,13 +3,15 @@
 #ifndef MEOW_HANDLER_HH
 #define MEOW_HANDLER_HH
 
+#include <memory>
+
+#include "connection.hh"
 #include "meow/message.hh"
 
 namespace meow {
 
-  void handle_put( const Message & message );
-  Message handle_get( const Message & message );
-  void handle_execute( const Message & message );
+  void handle_message( const Message & message,
+                       const std::shared_ptr<TCPConnection> & connection );
 
 }
 

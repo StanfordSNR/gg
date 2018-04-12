@@ -9,15 +9,32 @@ using namespace std;
 using namespace gg;
 using namespace meow;
 
-void handle_put( const Message & message )
+void handle_message( const Message & message,
+                     const shared_ptr<TCPConnection> & connection )
 {
-  assert( message.opcode() == Message::OpCode::Put );
+  switch ( message.opcode() ) {
+  case Message::OpCode::Put:
+  {
+    const string & data = message.payload();
+    ObjectType type = data.compare( 0, thunk::MAGIC_NUMBER.length(), thunk::MAGIC_NUMBER )
+                      ? ObjectType::Value
+                      : ObjectType::Thunk;
 
-  const string & data = message.payload();
-  ObjectType type = data.compare( 0, thunk::MAGIC_NUMBER.length(), thunk::MAGIC_NUMBER )
-                    ? ObjectType::Value
-                    : ObjectType::Thunk;
+    const string hash = gg::hash::compute( data, type );
+    roost::atomic_create( data, gg::paths::blob_path( hash ) );
+    break;
+  }
 
-  const string hash = gg::hash::compute( data, type );
-  roost::atomic_create( data, gg::paths::blob_path( hash ) );  
+  case Message::OpCode::Get:
+  {
+    const string & hash = message.payload();
+    string requested_file = roost::read_file( gg::paths::blob_path( hash ) );
+    Message response { Message::OpCode::Put, move( requested_file ) };
+    connection->enqueue_write( response.to_string() );
+    break;
+  }
+
+  default:
+    throw runtime_error( "not implemented" );
+  }
 }
