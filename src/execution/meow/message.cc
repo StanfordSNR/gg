@@ -19,7 +19,7 @@ string put_field(const uint32_t n)
 
 Message::Message( const Chunk & chunk )
 {
-  if ( chunk.size() < 6 ) {
+  if ( chunk.size() < 5 ) {
     throw out_of_range( "incomplete header" );
   }
 
