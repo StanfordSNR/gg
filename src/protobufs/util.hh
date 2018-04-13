@@ -18,11 +18,21 @@ namespace protoutil {
     print_options.always_print_primitive_fields = true;
 
     std::string ret;
-    if ( not MessageToJsonString( protobuf, &ret ).ok() ) {
+    if ( not MessageToJsonString( protobuf, &ret, print_options ).ok() ) {
       throw std::runtime_error( "cannot convert protobuf to json" );
     }
 
     return ret;
+  }
+
+  template<class ProtobufType>
+  void from_json( const std::string & data, ProtobufType & dest )
+  {
+    using namespace google::protobuf::util;
+
+    if ( not JsonStringToMessage( data, &dest ).ok() ) {
+      throw std::runtime_error( "cannot convert json to protobuf" );
+    }
   }
 
 }
