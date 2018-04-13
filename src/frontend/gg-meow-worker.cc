@@ -7,16 +7,23 @@
 #include <stdexcept>
 #include <cstdlib>
 
+#include "protobufs/gg.pb.h"
+#include "protobufs/util.hh"
 #include "net/address.hh"
 #include "net/http_response.hh"
 #include "net/http_request.hh"
+#include "thunk/ggutils.hh"
 #include "execution/loop.hh"
 #include "execution/meow/message.hh"
 #include "execution/meow/util.hh"
+#include "util/base64.hh"
 #include "util/exception.hh"
+#include "util/path.hh"
+#include "util/system_runner.hh"
 #include "util/util.hh"
 
 using namespace std;
+using namespace gg;
 using namespace meow;
 
 void usage( char * argv0 )
@@ -70,6 +77,37 @@ int main( int argc, char * argv[] )
         case Message::OpCode::Put:
           handle_put_message( message );
           break;
+
+        case Message::OpCode::Execute:
+        {
+          protobuf::RequestItem execution_request;
+          protoutil::from_json( message.payload(), execution_request );
+
+          /* let's write the thunk to disk first */
+          roost::atomic_create( base64::decode( execution_request.data() ),
+                                gg::paths::blob_path( execution_request.hash() ) );
+
+          /* making it cheaper to copy */
+          execution_request.set_data( "" );
+
+          /* now we can execute it */
+          cerr << "[execute] " << execution_request.hash() << endl;
+          loop.add_child_process( execution_request.hash(),
+            [execution_request] ( const uint64_t, const string & ) { /* success callback */
+
+            },
+            [execution_request] ( const uint64_t, const string & ) { /* failure callback */
+
+            },
+            [hash=execution_request.hash()]()
+            {
+              vector<string> command { "gg-execute", "--fix-permissions", hash };
+              return ezexec( command[ 0 ], command, {}, true, true );
+            }
+          );
+
+          break;
+        }
 
         default:
           throw runtime_error( "unhandled opcode" );

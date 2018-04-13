@@ -32,7 +32,7 @@ Message meow::create_put_message( const string & hash )
   return { Message::OpCode::Put, move( requested_file ) };
 }
 
-Message meow::create_execute_message( const gg::thunk::Thunk & thunk )
+Message meow::create_execute_message( const Thunk & thunk )
 {
   string execution_payload = protoutil::to_json( Thunk::execution_request( thunk ) );
   return { Message::OpCode::Execute, move( execution_payload ) };
