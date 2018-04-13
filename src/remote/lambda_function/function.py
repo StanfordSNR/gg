@@ -7,6 +7,8 @@ import shutil
 import subprocess as sub
 from base64 import b64decode, b64encode
 
+import boto3
+
 import glob
 
 # Set up environment variables necessary
@@ -53,6 +55,14 @@ def handler(event, context):
     return_code, stdout = run_command(["gg-execute-static",
          "--get-dependencies", "--put-output"] +
          [x['hash'] for x in thunks])
+
+    s3_client = boto3.client('s3')
+    s3_client.put_object(
+        ACL='public-read',
+        Bucket='gg-2-us-west-2',
+        Key='runlogs/{}'.format(thunks[-1]['hash']),
+        Body=stdout.encode('utf-8')
+    )
 
     executed_thunks = []
 

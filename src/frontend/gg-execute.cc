@@ -309,19 +309,35 @@ int main( int argc, char * argv[] )
 
       Thunk thunk = ThunkReader::read( thunk_path );
 
+      auto start = chrono::system_clock::now();
       if ( get_dependencies or put_output ) {
         storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
       }
+      auto end = chrono::system_clock::now();
+      chrono::duration<double> elapsed_seconds = end-start;
+      cout << "Backend " << elapsed_seconds.count() << endl;
 
+      start = chrono::system_clock::now();
       if ( get_dependencies ) {
         fetch_dependencies( storage_backend, thunk );
       }
+      end = chrono::system_clock::now();
+      elapsed_seconds = end-start;
+      cout << "Fetch " << elapsed_seconds.count() << endl;
 
+      start = chrono::system_clock::now();
       vector<string> output_hashes = execute_thunk( thunk );
+      end = chrono::system_clock::now();
+      elapsed_seconds = end-start;
+      cout << "Execute " << elapsed_seconds.count() << endl;
 
+      start = chrono::system_clock::now();
       if ( put_output and ( th_iter == ( thunk_hashes.size() - 1 ) ) ) {
         upload_output( storage_backend, output_hashes );
       }
+      end = chrono::system_clock::now();
+      elapsed_seconds = end-start;
+      cout << "Upload " << elapsed_seconds.count() << endl;
 
       if ( cleanup and ( th_iter == ( thunk_hashes.size() - 1 ) ) ) {
         do_cleanup( thunk );
