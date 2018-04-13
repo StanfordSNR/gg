@@ -10,12 +10,16 @@
 using namespace std;
 using namespace meow;
 
-string put_field(const uint32_t n)
+string put_field( const uint32_t n )
 {
-  const uint32_t network_order = htobe32(n);
-  return string(reinterpret_cast<const char *>(&network_order),
-                sizeof(network_order));
+  const uint32_t network_order = htobe32( n );
+  return string( reinterpret_cast<const char *>( &network_order ),
+                 sizeof( network_order ) );
 }
+
+/* avoid implicit conversions */
+template<class T>
+string put_field( T n ) = delete;
 
 Message::Message( const Chunk & chunk )
 {
