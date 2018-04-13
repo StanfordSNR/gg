@@ -17,6 +17,7 @@
 #include "util/util.hh"
 
 using namespace std;
+using namespace meow;
 
 void usage( char * argv0 )
 {
@@ -43,7 +44,7 @@ int main( int argc, char * argv[] )
     Address coordinator_addr { argv[ 1 ], static_cast<uint16_t>( port_argv ) };
     ExecutionLoop loop;
 
-    meow::MessageParser message_parser;
+    MessageParser message_parser;
     /* let's make a connection back to the coordinator */
     shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
       [&message_parser] ( string && data ) {
@@ -62,9 +63,18 @@ int main( int argc, char * argv[] )
       loop.loop_once( -1 );
 
       while ( not message_parser.empty() ) {
-        const meow::Message & message = message_parser.front();
+        const Message & message = message_parser.front();
         cerr << "[msg,opcode=" << static_cast<uint32_t>( message.opcode() ) << "]" << endl;
-        meow::handle_message( message, connection, loop );
+
+        switch ( message.opcode() ) {
+        case Message::OpCode::Put:
+          handle_put_message( message );
+          break;
+
+        default:
+          throw runtime_error( "unhandled opcode" );
+        }
+
         message_parser.pop();
       }
     }

@@ -11,10 +11,7 @@
 
 namespace meow {
 
-  void handle_message( const Message & message,
-                       const std::shared_ptr<TCPConnection> & connection,
-                       ExecutionLoop & loop );
-
+  void handle_put_message( const Message & message );
   Message create_put_message( const std::string & hash );
   Message create_execute_message( const gg::thunk::Thunk & thunk );
 

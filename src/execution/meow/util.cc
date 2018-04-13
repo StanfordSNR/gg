@@ -13,46 +13,17 @@ using namespace gg;
 using namespace meow;
 using namespace gg::thunk;
 
-void meow::handle_message( const Message & message,
-                           const shared_ptr<TCPConnection> & connection,
-                           ExecutionLoop & )
+void meow::handle_put_message( const Message & message )
 {
-  switch ( message.opcode() ) {
-  case Message::OpCode::Hey:
-    break;
+  assert( message.opcode() == Message::OpCode::Put );
 
-  case Message::OpCode::Put:
-  {
-    const string & data = message.payload();
-    ObjectType type = data.compare( 0, thunk::MAGIC_NUMBER.length(), thunk::MAGIC_NUMBER )
-                      ? ObjectType::Value
-                      : ObjectType::Thunk;
+  const string & data = message.payload();
+  ObjectType type = data.compare( 0, thunk::MAGIC_NUMBER.length(), thunk::MAGIC_NUMBER )
+                    ? ObjectType::Value
+                    : ObjectType::Thunk;
 
-    const string hash = gg::hash::compute( data, type );
-    roost::atomic_create( data, gg::paths::blob_path( hash ) );
-    break;
-  }
-
-  case Message::OpCode::Get:
-  {
-    const string & hash = message.payload();
-    Message response = create_put_message( hash );
-    connection->enqueue_write( response.to_string() );
-    break;
-  }
-
-  case Message::OpCode::Execute:
-  {
-    protobuf::RequestItem request;
-    protoutil::from_json( message.payload(), request );
-
-    cerr << "[meow] execute " << request.hash() << endl;
-    break;
-  }
-
-  default:
-    throw runtime_error( "not implemented" );
-  }
+  const string hash = gg::hash::compute( data, type );
+  roost::atomic_create( data, gg::paths::blob_path( hash ) );
 }
 
 Message meow::create_put_message( const string & hash )
