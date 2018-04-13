@@ -2,6 +2,8 @@
 
 #include "util.hh"
 
+#include "protobufs/gg.pb.h"
+#include "protobufs/util.hh"
 #include "thunk/ggutils.hh"
 #include "util/path.hh"
 #include "thunk/thunk.hh"
@@ -12,9 +14,13 @@ using namespace meow;
 using namespace gg::thunk;
 
 void meow::handle_message( const Message & message,
-                           const shared_ptr<TCPConnection> & connection )
+                           const shared_ptr<TCPConnection> & connection,
+                           ExecutionLoop & )
 {
   switch ( message.opcode() ) {
+  case Message::OpCode::Hey:
+    break;
+
   case Message::OpCode::Put:
   {
     const string & data = message.payload();
@@ -35,6 +41,15 @@ void meow::handle_message( const Message & message,
     break;
   }
 
+  case Message::OpCode::Execute:
+  {
+    protobuf::RequestItem request;
+    protoutil::from_json( message.payload(), request );
+
+    cerr << "[meow] execute " << request.hash() << endl;
+    break;
+  }
+
   default:
     throw runtime_error( "not implemented" );
   }
@@ -48,6 +63,6 @@ Message meow::create_put_message( const string & hash )
 
 Message meow::create_execute_message( const gg::thunk::Thunk & thunk )
 {
-  string execution_payload = Thunk::execution_payload( thunk );
+  string execution_payload = protoutil::to_json( Thunk::execution_request( thunk ) );
   return { Message::OpCode::Execute, move( execution_payload ) };
 }

@@ -43,9 +43,8 @@ int main( int argc, char * argv[] )
     Address coordinator_addr { argv[ 1 ], static_cast<uint16_t>( port_argv ) };
     ExecutionLoop loop;
 
-    /* let's make a connection back to the coordinator */
     meow::MessageParser message_parser;
-
+    /* let's make a connection back to the coordinator */
     shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
       [&message_parser] ( string && data ) {
         message_parser.parse( data );
@@ -65,7 +64,7 @@ int main( int argc, char * argv[] )
       while ( not message_parser.empty() ) {
         const meow::Message & message = message_parser.front();
         cerr << "[msg,opcode=" << static_cast<uint32_t>( message.opcode() ) << "]" << endl;
-        meow::handle_message( message, connection );
+        meow::handle_message( message, connection, loop );
         message_parser.pop();
       }
     }
