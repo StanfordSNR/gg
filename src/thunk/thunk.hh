@@ -112,6 +112,7 @@ namespace gg {
 
       static std::string execution_payload( const Thunk & thunk );
       static std::string execution_payload( const std::vector<Thunk> & thunks );
+      static gg::protobuf::RequestItem execution_request( const Thunk & thunk );
 
       const Function & function() const { return function_; }
       const DataList & values() const { return values_; }
