@@ -17,13 +17,14 @@ class MeowExecutionEngine : public ExecutionEngine
 private:
   struct Lambda
   {
-    enum class State { UNINITIALIZED, FREE, BUSY };
+    enum class State { Free, Busy };
 
-    State state { State::UNINITIALIZED };
+    size_t id;
+    State state { State::Free };
     std::shared_ptr<TCPConnection> connection;
 
-    Lambda( std::shared_ptr<TCPConnection> && connection )
-      : connection( connection ) {}
+    Lambda( const size_t id, std::shared_ptr<TCPConnection> && connection )
+      : id( id ), connection( std::move( connection ) ) {}
   };
 
   AWSCredentials credentials_;
@@ -38,6 +39,8 @@ private:
   std::set<uint64_t> free_lambdas_ {};
 
   HTTPRequest generate_request();
+
+  void prepare_lambda( Lambda & lambda, const gg::thunk::Thunk & thunk );
 
 public:
   MeowExecutionEngine( const AWSCredentials & credentials,

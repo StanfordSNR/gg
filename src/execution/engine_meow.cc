@@ -4,8 +4,9 @@
 
 #include <iostream>
 
+#include "execution/meow/message.hh"
+#include "execution/meow/util.hh"
 #include "util/units.hh"
-#include "meow/message.hh"
 #include "protobufs/meow.pb.h"
 #include "protobufs/util.hh"
 
@@ -51,9 +52,10 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 
           if ( not message_parser->empty() ) {
             /* we got a message! */
-            cerr << "==== MESSAGE ====" << endl;
-            cerr << message_parser->front().payload() << endl;
-            cerr << "=================" << endl;
+            cerr << "[meow] msg,opcode="
+                 << static_cast<uint32_t>( message_parser->front().opcode() )
+                 << endl;
+
             message_parser->pop();
           }
 
@@ -67,10 +69,10 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
         }
       );
 
-      meow::Message message { meow::Message::OpCode::Hey, "Hello, world!" };
-      connection->enqueue_write( message.to_string() );
+      lambdas_.emplace( piecewise_construct,
+                        forward_as_tuple( current_id_ ),
+                        forward_as_tuple( current_id_, move( connection ) ) );
 
-      lambdas_.emplace( make_pair( current_id_, connection ) );
       free_lambdas_.emplace( current_id_ );
       current_id_++;
       return true;
@@ -80,9 +82,39 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
   cerr << "[meow] Listening for incoming connections on " << listen_addr_.str() << endl;
 }
 
-void MeowExecutionEngine::force_thunk( const Thunk &, ExecutionLoop & )
+void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
 {
-  cerr << "Not implemented" << endl;
+  /** (1) send all the dependencies **/
+  /* XXX should only send the stuff that are not there */
+  for ( const auto & item : thunk.values() ) {
+    lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+  }
+
+  for ( const auto & item : thunk.executables() ) {
+    lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+  }
+
+  /** (2) send the request for thunk execution */
+  lambda.connection->enqueue_write( meow::create_execute_message( thunk ).to_string() );
+
+  /** (3) update Lambda's state **/
+  lambda.state = Lambda::State::Busy;
+  free_lambdas_.erase( lambda.id );
+
+  /** (4) ??? **/
+
+  /** (5) PROFIT **/
+}
+
+void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & )
+{
+  /* do we have a free Lambda for this? */
+  if ( free_lambdas_.size() > 0 ) {
+    /* execute the job on that Lambda */
+    return prepare_lambda( lambdas_.at( *free_lambdas_.begin() ), thunk );
+  }
+
+  throw runtime_error( "No free Lambdas" );
 
   /* let's just launch one Lambda */
   /* loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
