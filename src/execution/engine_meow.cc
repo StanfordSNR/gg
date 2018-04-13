@@ -74,6 +74,12 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
                         forward_as_tuple( current_id_, move( connection ) ) );
 
       free_lambdas_.emplace( current_id_ );
+
+      if ( not thunks_queue_.empty() ) {
+        prepare_lambda( lambdas_.at( current_id_ ), thunks_queue_.front() );
+        thunks_queue_.pop();
+      }
+
       current_id_++;
       return true;
     }
@@ -114,9 +120,9 @@ void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & )
     return prepare_lambda( lambdas_.at( *free_lambdas_.begin() ), thunk );
   }
 
-  throw runtime_error( "No free Lambdas" );
+  /* there are no free Lambdas, let's launch one */
+  thunks_queue_.push( thunk );
 
-  /* let's just launch one Lambda */
   /* loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
     generate_request(),
     [] ( const uint64_t, const string &, const HTTPResponse & response ) {
