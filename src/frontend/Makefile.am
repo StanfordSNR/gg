@@ -3,11 +3,15 @@ AM_CPPFLAGS = -I$(srcdir)/. -I$(builddir)/.. -I$(srcdir)/.. $(CXX14_FLAGS) \
 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
-GG_LDADD = ../execution/libggexecution.a ../storage/libggstorage.a \
+GG_LDADD = ../execution/libggexecution.a \
+           ../storage/libggstorage.a \
            ../thunk/libthunk.a \
            ../sandbox/libggsandbox.a \
-           ../trace/libggtrace.a ../trace/libggsyscalltable.a \
-           ../protobufs/libggprotobufs.a ../net/libggnet.a ../tui/libggtui.a \
+           ../trace/libggtrace.a \
+           ../trace/libggsyscalltable.a \
+           ../protobufs/libggprotobufs.a \
+           ../net/libggnet.a \
+           ../tui/libggtui.a \
            ../util/libggutil.a
 
 BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS)
