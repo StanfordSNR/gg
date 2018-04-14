@@ -77,7 +77,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
             case Message::OpCode::Executed:
             {
               protobuf::ResponseItem execution_response;
-              protoutil::from_json( message.payload(), execution_response );
+              protoutil::from_string( message.payload(), execution_response );
 
               const string & thunk_hash = execution_response.thunk_hash();
 

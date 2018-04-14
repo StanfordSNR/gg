@@ -34,6 +34,6 @@ Message meow::create_put_message( const string & hash )
 
 Message meow::create_execute_message( const Thunk & thunk )
 {
-  string execution_payload = protoutil::to_json( Thunk::execution_request( thunk ) );
+  string execution_payload = protoutil::to_string( Thunk::execution_request( thunk ) );
   return { Message::OpCode::Execute, move( execution_payload ) };
 }

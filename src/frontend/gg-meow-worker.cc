@@ -90,7 +90,7 @@ int main( int argc, char * argv[] )
         case Message::OpCode::Execute:
         {
           protobuf::RequestItem execution_request;
-          protoutil::from_json( message.payload(), execution_request );
+          protoutil::from_string( message.payload(), execution_request );
 
           /* let's write the thunk to disk first */
           roost::atomic_create( base64::decode( execution_request.data() ),
@@ -128,7 +128,7 @@ int main( int argc, char * argv[] )
                 *execution_response.add_outputs() = output_item;
               }
 
-              Message message { Message::OpCode::Executed, protoutil::to_json( execution_response ) };
+              Message message { Message::OpCode::Executed, protoutil::to_string( execution_response ) };
               connection->enqueue_write( message.to_string() );
             },
             [hash=execution_request.hash(), &connection] ( const uint64_t, const string & ) mutable {
