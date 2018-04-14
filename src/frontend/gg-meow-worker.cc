@@ -93,11 +93,37 @@ int main( int argc, char * argv[] )
           /* now we can execute it */
           cerr << "[execute] " << execution_request.hash() << endl;
           loop.add_child_process( execution_request.hash(),
-            [execution_request] ( const uint64_t, const string & ) { /* success callback */
+            [execution_request, &connection] ( const uint64_t, const string & ) { /* success callback */
+              const string & hash = execution_request.hash();
+              protobuf::ResponseItem execution_response;
+              execution_response.set_thunk_hash( execution_request.hash() );
 
+              for ( const auto & tag : execution_request.outputs() ) {
+                protobuf::OutputItem output_item;
+
+                Optional<cache::ReductionResult> result = cache::check( gg::hash::for_output( hash, tag ) );
+
+                if ( not result.initialized() ) {
+                  throw runtime_error( "output not found" );
+                }
+
+                const auto output_path = paths::blob_path( result->hash );
+
+                output_item.set_tag( tag );
+                output_item.set_hash( result->hash );
+                output_item.set_size( roost::file_size( output_path ) );
+                output_item.set_executable( roost::is_executable( output_path ) );
+                output_item.set_data( "" );
+
+                *execution_response.add_outputs() = output_item;
+              }
+
+              Message message { Message::OpCode::Executed, protoutil::to_json( execution_response ) };
+              connection->enqueue_write( message.to_string() );
             },
-            [execution_request] ( const uint64_t, const string & ) { /* failure callback */
-
+            [hash=execution_request.hash(), &connection] ( const uint64_t, const string & ) mutable {
+              Message message { Message::OpCode::ExecutionFailed, move( hash ) };
+              connection->enqueue_write( message.to_string() );
             },
             [hash=execution_request.hash()]()
             {
