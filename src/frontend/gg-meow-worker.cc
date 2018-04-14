@@ -117,12 +117,13 @@ int main( int argc, char * argv[] )
                 }
 
                 const auto output_path = paths::blob_path( result->hash );
+                const string output_data = base64::encode( roost::read_file( output_path ) );
 
                 output_item.set_tag( tag );
                 output_item.set_hash( result->hash );
                 output_item.set_size( roost::file_size( output_path ) );
                 output_item.set_executable( roost::is_executable( output_path ) );
-                output_item.set_data( "" );
+                output_item.set_data( output_data );
 
                 *execution_response.add_outputs() = output_item;
               }
