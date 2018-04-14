@@ -4,13 +4,17 @@
 
 #include <iostream>
 
-#include "execution/meow/message.hh"
-#include "execution/meow/util.hh"
-#include "util/units.hh"
+#include "protobufs/gg.pb.h"
 #include "protobufs/meow.pb.h"
 #include "protobufs/util.hh"
+#include "thunk/ggutils.hh"
+#include "execution/meow/message.hh"
+#include "execution/meow/util.hh"
+#include "util/base64.hh"
+#include "util/units.hh"
 
 using namespace std;
+using namespace gg;
 using namespace meow;
 using namespace gg::thunk;
 using namespace PollerShortNames;
@@ -48,7 +52,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
       auto message_parser = make_shared<meow::MessageParser>();
 
       loop.add_connection( connection,
-        [message_parser] ( const string & data ) {
+        [message_parser, this] ( const string & data ) {
           message_parser->parse( data );
 
           while ( not message_parser->empty() ) {
@@ -65,7 +69,26 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
               break;
 
             case Message::OpCode::Executed:
+            {
+              protobuf::ResponseItem execution_response;
+              protoutil::from_json( message.payload(), execution_response );
+
+              const string & thunk_hash = execution_response.thunk_hash();
+
+              for ( const auto & output : execution_response.outputs() ) {
+                gg::cache::insert( gg::hash::for_output( thunk_hash, output.tag() ), output.hash() );
+
+                if ( output.data().length() ) {
+                  roost::atomic_create( base64::decode( output.data() ),
+                                        gg::paths::blob_path( output.hash() ) );
+                }
+              }
+
+              gg::cache::insert( thunk_hash, execution_response.outputs( 0 ).hash() );
+              success_callback_( thunk_hash, execution_response.outputs( 0 ).hash(), 0 );
+
               break;
+            }
 
             default:
               throw runtime_error( "unexpected opcode" );
