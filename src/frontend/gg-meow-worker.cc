@@ -78,6 +78,15 @@ int main( int argc, char * argv[] )
           handle_put_message( message );
           break;
 
+        case Message::OpCode::Get:
+        {
+          const string & hash = message.payload();
+          string object_data = roost::read_file( gg::paths::blob_path( hash ) );
+          Message message { Message::OpCode::Put, move( object_data ) };
+          connection->enqueue_write( message.to_string() );
+          break;
+        }
+
         case Message::OpCode::Execute:
         {
           protobuf::RequestItem execution_request;
