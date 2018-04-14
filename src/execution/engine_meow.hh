@@ -35,6 +35,7 @@ private:
   TCPSocket listen_socket_;
   SSLContext ssl_context_ {};
 
+  size_t running_jobs_ { 0 };
   uint64_t current_id_ { 0 };
   std::map<uint64_t, Lambda> lambdas_ {};
   std::set<uint64_t> free_lambdas_ {};

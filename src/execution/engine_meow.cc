@@ -93,6 +93,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
               gg::cache::insert( thunk_hash, execution_response.outputs( 0 ).hash() );
               lambdas_.at( id ).state = Lambda::State::Idle;
               free_lambdas_.insert( id );
+              running_jobs_--;
               success_callback_( thunk_hash, execution_response.outputs( 0 ).hash(), 0 );
 
               break;
@@ -146,7 +147,6 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   /** (3) update Lambda's state **/
   lambda.state = Lambda::State::Busy;
   free_lambdas_.erase( lambda.id );
-
   /** (4) ??? **/
 
   /** (5) PROFIT **/
@@ -154,6 +154,8 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
 
 void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & )
 {
+  cerr << "[meow] force " << thunk.hash() << endl;
+  running_jobs_++;
   /* do we have a free Lambda for this? */
   if ( free_lambdas_.size() > 0 ) {
     /* execute the job on that Lambda */
@@ -181,5 +183,5 @@ bool MeowExecutionEngine::can_execute( const gg::thunk::Thunk & thunk ) const
 
 size_t MeowExecutionEngine::job_count() const
 {
-  return 0;
+  return running_jobs_;
 }
