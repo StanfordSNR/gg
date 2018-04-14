@@ -2,12 +2,6 @@ syntax = 'proto3';
 
 package gg.protobuf;
 
-message LambdaInFile {
-  string hash = 1;
-  uint64 size = 3;
-  bool executable = 2;
-}
-
 message RequestItem {
   string hash = 1;
   string data = 2;

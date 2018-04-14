@@ -4,13 +4,18 @@
 
 #include <iostream>
 
-#include "execution/meow/message.hh"
-#include "execution/meow/util.hh"
-#include "util/units.hh"
+#include "protobufs/gg.pb.h"
 #include "protobufs/meow.pb.h"
 #include "protobufs/util.hh"
+#include "thunk/ggutils.hh"
+#include "execution/meow/message.hh"
+#include "execution/meow/util.hh"
+#include "util/base64.hh"
+#include "util/units.hh"
 
 using namespace std;
+using namespace gg;
+using namespace meow;
 using namespace gg::thunk;
 using namespace PollerShortNames;
 
@@ -47,14 +52,47 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
       auto message_parser = make_shared<meow::MessageParser>();
 
       loop.add_connection( connection,
-        [message_parser] ( const string & data ) {
+        [message_parser, this] ( const string & data ) {
           message_parser->parse( data );
 
-          if ( not message_parser->empty() ) {
+          while ( not message_parser->empty() ) {
             /* we got a message! */
             cerr << "[meow] msg,opcode="
                  << static_cast<uint32_t>( message_parser->front().opcode() )
                  << endl;
+
+            const Message & message = message_parser->front();
+
+            switch ( message.opcode() ) {
+            case Message::OpCode::Put:
+              handle_put_message( message );
+              break;
+
+            case Message::OpCode::Executed:
+            {
+              protobuf::ResponseItem execution_response;
+              protoutil::from_json( message.payload(), execution_response );
+
+              const string & thunk_hash = execution_response.thunk_hash();
+
+              for ( const auto & output : execution_response.outputs() ) {
+                gg::cache::insert( gg::hash::for_output( thunk_hash, output.tag() ), output.hash() );
+
+                if ( output.data().length() ) {
+                  roost::atomic_create( base64::decode( output.data() ),
+                                        gg::paths::blob_path( output.hash() ) );
+                }
+              }
+
+              gg::cache::insert( thunk_hash, execution_response.outputs( 0 ).hash() );
+              success_callback_( thunk_hash, execution_response.outputs( 0 ).hash(), 0 );
+
+              break;
+            }
+
+            default:
+              throw runtime_error( "unexpected opcode" );
+            }
 
             message_parser->pop();
           }
@@ -74,6 +112,12 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
                         forward_as_tuple( current_id_, move( connection ) ) );
 
       free_lambdas_.emplace( current_id_ );
+
+      if ( not thunks_queue_.empty() ) {
+        prepare_lambda( lambdas_.at( current_id_ ), thunks_queue_.front() );
+        thunks_queue_.pop();
+      }
+
       current_id_++;
       return true;
     }
@@ -116,9 +160,9 @@ void MeowExecutionEngine::force_thunk( const vector<Thunk> & thunks, ExecutionLo
     return prepare_lambda( lambdas_.at( *free_lambdas_.begin() ), thunk );
   }
 
-  throw runtime_error( "No free Lambdas" );
+  /* there are no free Lambdas, let's launch one */
+  thunks_queue_.push( thunk );
 
-  /* let's just launch one Lambda */
   /* loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
     generate_request(),
     [] ( const uint64_t, const string &, const HTTPResponse & response ) {

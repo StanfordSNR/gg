@@ -7,16 +7,24 @@
 #include <stdexcept>
 #include <cstdlib>
 
+#include "protobufs/gg.pb.h"
+#include "protobufs/util.hh"
 #include "net/address.hh"
 #include "net/http_response.hh"
 #include "net/http_request.hh"
+#include "thunk/ggutils.hh"
 #include "execution/loop.hh"
 #include "execution/meow/message.hh"
 #include "execution/meow/util.hh"
+#include "util/base64.hh"
 #include "util/exception.hh"
+#include "util/path.hh"
+#include "util/system_runner.hh"
 #include "util/util.hh"
 
 using namespace std;
+using namespace gg;
+using namespace meow;
 
 void usage( char * argv0 )
 {
@@ -43,9 +51,8 @@ int main( int argc, char * argv[] )
     Address coordinator_addr { argv[ 1 ], static_cast<uint16_t>( port_argv ) };
     ExecutionLoop loop;
 
+    MessageParser message_parser;
     /* let's make a connection back to the coordinator */
-    meow::MessageParser message_parser;
-
     shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
       [&message_parser] ( string && data ) {
         message_parser.parse( data );
@@ -63,9 +70,85 @@ int main( int argc, char * argv[] )
       loop.loop_once( -1 );
 
       while ( not message_parser.empty() ) {
-        const meow::Message & message = message_parser.front();
+        const Message & message = message_parser.front();
         cerr << "[msg,opcode=" << static_cast<uint32_t>( message.opcode() ) << "]" << endl;
-        meow::handle_message( message, connection );
+
+        switch ( message.opcode() ) {
+        case Message::OpCode::Put:
+          handle_put_message( message );
+          break;
+
+        case Message::OpCode::Get:
+        {
+          const string & hash = message.payload();
+          string object_data = roost::read_file( gg::paths::blob_path( hash ) );
+          Message message { Message::OpCode::Put, move( object_data ) };
+          connection->enqueue_write( message.to_string() );
+          break;
+        }
+
+        case Message::OpCode::Execute:
+        {
+          protobuf::RequestItem execution_request;
+          protoutil::from_json( message.payload(), execution_request );
+
+          /* let's write the thunk to disk first */
+          roost::atomic_create( base64::decode( execution_request.data() ),
+                                gg::paths::blob_path( execution_request.hash() ) );
+
+          /* making it cheaper to copy */
+          execution_request.set_data( "" );
+
+          /* now we can execute it */
+          cerr << "[execute] " << execution_request.hash() << endl;
+          loop.add_child_process( execution_request.hash(),
+            [execution_request, &connection] ( const uint64_t, const string & ) { /* success callback */
+              const string & hash = execution_request.hash();
+              protobuf::ResponseItem execution_response;
+              execution_response.set_thunk_hash( execution_request.hash() );
+
+              for ( const auto & tag : execution_request.outputs() ) {
+                protobuf::OutputItem output_item;
+
+                Optional<cache::ReductionResult> result = cache::check( gg::hash::for_output( hash, tag ) );
+
+                if ( not result.initialized() ) {
+                  throw runtime_error( "output not found" );
+                }
+
+                const auto output_path = paths::blob_path( result->hash );
+                const string output_data = base64::encode( roost::read_file( output_path ) );
+
+                output_item.set_tag( tag );
+                output_item.set_hash( result->hash );
+                output_item.set_size( roost::file_size( output_path ) );
+                output_item.set_executable( roost::is_executable( output_path ) );
+                output_item.set_data( output_data );
+
+                *execution_response.add_outputs() = output_item;
+              }
+
+              Message message { Message::OpCode::Executed, protoutil::to_json( execution_response ) };
+              connection->enqueue_write( message.to_string() );
+            },
+            [hash=execution_request.hash(), &connection] ( const uint64_t, const string & ) mutable {
+              Message message { Message::OpCode::ExecutionFailed, move( hash ) };
+              connection->enqueue_write( message.to_string() );
+            },
+            [hash=execution_request.hash()]()
+            {
+              vector<string> command { "gg-execute", "--fix-permissions", hash };
+              return ezexec( command[ 0 ], command, {}, true, true );
+            }
+          );
+
+          break;
+        }
+
+        default:
+          throw runtime_error( "unhandled opcode" );
+        }
+
         message_parser.pop();
       }
     }

@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <memory>
+#include <queue>
 
 #include "engine.hh"
 #include "net/address.hh"
@@ -37,6 +38,8 @@ private:
   uint64_t current_id_ { 0 };
   std::map<uint64_t, Lambda> lambdas_ {};
   std::set<uint64_t> free_lambdas_ {};
+
+  std::queue<gg::thunk::Thunk> thunks_queue_ {};
 
   HTTPRequest generate_request();
 

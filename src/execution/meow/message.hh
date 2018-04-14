@@ -21,6 +21,8 @@ namespace meow {
       Ping,
       Pong,
       Execute,
+      Executed,
+      ExecutionFailed,
       Bye,
     };
 

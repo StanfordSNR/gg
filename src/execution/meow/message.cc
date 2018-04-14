@@ -2,6 +2,7 @@
 
 #include "message.hh"
 
+#include <iostream>
 #include <stdexcept>
 #include <endian.h>
 
@@ -10,19 +11,22 @@
 using namespace std;
 using namespace meow;
 
-string put_field(const uint32_t n)
+string put_field( const uint32_t n )
 {
-  const uint32_t network_order = htobe32(n);
-  return string(reinterpret_cast<const char *>(&network_order),
-                sizeof(network_order));
+  const uint32_t network_order = htobe32( n );
+  return string( reinterpret_cast<const char *>( &network_order ),
+                 sizeof( network_order ) );
 }
+
+/* avoid implicit conversions */
+template<class T>
+string put_field( T n ) = delete;
 
 Message::Message( const Chunk & chunk )
 {
-  if ( chunk.size() < 6 ) {
+  if ( chunk.size() < 5 ) {
     throw out_of_range( "incomplete header" );
   }
-
   payload_length_ = chunk( 0, 4 ).be32();
   opcode_ = static_cast<OpCode>( chunk( 4, 1 ).octet() );
   payload_ = chunk( 5 ).to_string();
@@ -51,16 +55,17 @@ uint32_t Message::expected_length( const Chunk & chunk )
 void MessageParser::parse( const string & buf )
 {
   raw_buffer_.append( buf );
-  uint32_t expected_length = Message::expected_length( raw_buffer_ );
 
-  if ( raw_buffer_.length() < expected_length ) {
-    /* still need more bytes to have a complete message */
-    return;
+  while ( true ) {
+    uint32_t expected_length = Message::expected_length( raw_buffer_ );
+
+    if ( raw_buffer_.length() < expected_length ) {
+      /* still need more bytes to have a complete message */
+      break;
+    }
+
+    Message message { Chunk { reinterpret_cast<const uint8_t *>( raw_buffer_.data() ), expected_length } };
+    raw_buffer_.erase( 0, expected_length );
+    completed_messages_.emplace( move( message ) );
   }
-
-  Message message { Chunk { reinterpret_cast<const uint8_t *>( raw_buffer_.data() ),
-                            expected_length } };
-  raw_buffer_.erase( 0, expected_length );
-
-  completed_messages_.emplace( move( message ) );
 }

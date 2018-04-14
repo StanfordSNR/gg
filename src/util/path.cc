@@ -436,6 +436,13 @@ namespace roost {
     chmod( pathn, file_info.st_mode | S_IXUSR );
   }
 
+  bool is_executable( const path & pathn )
+  {
+    struct stat file_info;
+    CheckSystemCall( "stat", stat( pathn.string().c_str(), &file_info ) );
+    return file_info.st_mode & S_IXUSR;
+  }
+
   string readlink( const path & pathn )
   {
     char result[ PATH_MAX ];

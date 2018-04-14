@@ -215,6 +215,24 @@ int Thunk::execute() const
   return retval;
 }
 
+protobuf::RequestItem Thunk::execution_request( const Thunk & thunk )
+{
+  protobuf::RequestItem request_item;
+
+  string base64_thunk;
+  StringSource s( ThunkWriter::serialize( thunk ), true,
+                  new Base64Encoder( new StringSink( base64_thunk ), false ) );
+
+  request_item.set_data( base64_thunk );
+  request_item.set_hash( thunk.hash() );
+
+  for ( const string & output : thunk.outputs() ) {
+    request_item.add_outputs( output );
+  }
+
+  return request_item;
+}
+
 string Thunk::execution_payload( const Thunk & thunk )
 {
   return Thunk::execution_payload( vector<Thunk>{ thunk } );
@@ -222,26 +240,14 @@ string Thunk::execution_payload( const Thunk & thunk )
 
 string Thunk::execution_payload( const vector<Thunk> & thunks )
 {
-  protobuf::ExecutionRequest execution_request;
+  protobuf::ExecutionRequest request;
 
   for ( const Thunk & thunk : thunks ) {
-    string base64_thunk;
-    StringSource s( ThunkWriter::serialize( thunk ), true,
-                    new Base64Encoder( new StringSink( base64_thunk ), false ) );
-
-    protobuf::RequestItem request_item;
-    request_item.set_data( base64_thunk );
-    request_item.set_hash( thunk.hash() );
-
-    for ( const string & output : thunk.outputs() ) {
-      request_item.add_outputs( output );
-    }
-
-    *execution_request.add_thunks() = request_item;
+    *request.add_thunks() = execution_request( thunk );
   }
 
-  execution_request.set_storage_backend( gg::remote::storage_backend_uri() );
-  return protoutil::to_json( execution_request );
+  request.set_storage_backend( gg::remote::storage_backend_uri() );
+  return protoutil::to_json( request );
 }
 
 protobuf::Thunk Thunk::to_protobuf() const
