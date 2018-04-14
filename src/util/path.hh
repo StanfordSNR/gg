@@ -63,6 +63,7 @@ namespace roost {
   std::vector<std::string> get_directory_listing( const path & pathn );
   bool is_absolute( const path & pathn );
   void make_executable( const path & pathn );
+  bool is_executable( const path & pathn );
   std::string read_file( const path & pathn );
   void atomic_create( const std::string & contents, const path & dst,
                       const bool set_mode = false, const mode_t target_mode = 0 );
