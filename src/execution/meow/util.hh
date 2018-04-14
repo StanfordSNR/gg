@@ -11,7 +11,7 @@
 
 namespace meow {
 
-  void handle_put_message( const Message & message );
+  std::string handle_put_message( const Message & message );
   Message create_put_message( const std::string & hash );
   Message create_execute_message( const gg::thunk::Thunk & thunk );
 

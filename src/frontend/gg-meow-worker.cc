@@ -71,12 +71,14 @@ int main( int argc, char * argv[] )
 
       while ( not message_parser.empty() ) {
         const Message & message = message_parser.front();
-        cerr << "[msg,opcode=" << static_cast<uint32_t>( message.opcode() ) << "]" << endl;
 
         switch ( message.opcode() ) {
         case Message::OpCode::Put:
-          handle_put_message( message );
+        {
+          const string hash = handle_put_message( message );
+          cerr << "[put] " << hash << endl;
           break;
+        }
 
         case Message::OpCode::Get:
         {
@@ -84,6 +86,7 @@ int main( int argc, char * argv[] )
           string object_data = roost::read_file( gg::paths::blob_path( hash ) );
           Message message { Message::OpCode::Put, move( object_data ) };
           connection->enqueue_write( message.to_string() );
+          cerr << "[get] " << hash << endl;
           break;
         }
 
