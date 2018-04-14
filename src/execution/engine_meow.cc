@@ -51,8 +51,14 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 
       auto message_parser = make_shared<meow::MessageParser>();
 
-      loop.add_connection( connection,
-        [message_parser, this] ( const string & data ) {
+      lambdas_.emplace( piecewise_construct,
+                        forward_as_tuple( current_id_ ),
+                        forward_as_tuple( current_id_, move( connection ) ) );
+
+      free_lambdas_.emplace( current_id_ );
+
+      loop.add_connection( lambdas_.at( current_id_ ).connection,
+        [message_parser, id=current_id_, this] ( const string & data ) {
           message_parser->parse( data );
 
           while ( not message_parser->empty() ) {
@@ -85,6 +91,8 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
               }
 
               gg::cache::insert( thunk_hash, execution_response.outputs( 0 ).hash() );
+              lambdas_.at( id ).state = Lambda::State::Idle;
+              free_lambdas_.insert( id );
               success_callback_( thunk_hash, execution_response.outputs( 0 ).hash(), 0 );
 
               break;
@@ -106,12 +114,6 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
           cerr << "Connection closed." << endl;
         }
       );
-
-      lambdas_.emplace( piecewise_construct,
-                        forward_as_tuple( current_id_ ),
-                        forward_as_tuple( current_id_, move( connection ) ) );
-
-      free_lambdas_.emplace( current_id_ );
 
       if ( not thunks_queue_.empty() ) {
         prepare_lambda( lambdas_.at( current_id_ ), thunks_queue_.front() );

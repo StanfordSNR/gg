@@ -18,10 +18,10 @@ class MeowExecutionEngine : public ExecutionEngine
 private:
   struct Lambda
   {
-    enum class State { Free, Busy };
+    enum class State { Idle, Busy };
 
     size_t id;
-    State state { State::Free };
+    State state { State::Idle };
     std::shared_ptr<TCPConnection> connection;
 
     Lambda( const size_t id, std::shared_ptr<TCPConnection> && connection )
