@@ -11,6 +11,7 @@
 #include "protobufs/util.hh"
 
 using namespace std;
+using namespace meow;
 using namespace gg::thunk;
 using namespace PollerShortNames;
 
@@ -50,11 +51,25 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
         [message_parser] ( const string & data ) {
           message_parser->parse( data );
 
-          if ( not message_parser->empty() ) {
+          while ( not message_parser->empty() ) {
             /* we got a message! */
             cerr << "[meow] msg,opcode="
                  << static_cast<uint32_t>( message_parser->front().opcode() )
                  << endl;
+
+            const Message & message = message_parser->front();
+
+            switch ( message.opcode() ) {
+            case Message::OpCode::Put:
+              handle_put_message( message );
+              break;
+
+            case Message::OpCode::Executed:
+              break;
+
+            default:
+              throw runtime_error( "unexpected opcode" );
+            }
 
             message_parser->pop();
           }
