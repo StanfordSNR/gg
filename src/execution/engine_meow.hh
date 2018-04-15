@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <queue>
+#include <unordered_set>
 
 #include "engine.hh"
 #include "net/address.hh"
@@ -23,6 +24,7 @@ private:
     size_t id;
     State state { State::Idle };
     std::shared_ptr<TCPConnection> connection;
+    std::unordered_set<std::string> objects {};
 
     Lambda( const size_t id, std::shared_ptr<TCPConnection> && connection )
       : id( id ), connection( std::move( connection ) ) {}

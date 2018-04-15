@@ -136,13 +136,18 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
 {
   /** (1) send all the dependencies **/
-  /* XXX should only send the stuff that are not there */
   for ( const auto & item : thunk.values() ) {
-    lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+    if ( not lambda.objects.count( item.first ) ) {
+      lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+      lambda.objects.insert( item.first ); 
+    }
   }
 
   for ( const auto & item : thunk.executables() ) {
-    lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+    if ( not lambda.objects.count( item.first ) ) {
+      lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+      lambda.objects.insert( item.first );
+    }
   }
 
   /** (2) send the request for thunk execution */
