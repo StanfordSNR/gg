@@ -18,4 +18,5 @@ libggutil_a_SOURCES = exception.hh optional.hh chunk.hh \
                       poller.hh poller.cc \
                       signalfd.hh signalfd.cc \
                       tokenize.hh units.hh \
-                      timeit.hh timeit.cc
+                      timeit.hh timeit.cc \
+											iterator.hh
