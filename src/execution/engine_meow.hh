@@ -30,6 +30,11 @@ private:
       : id( id ), connection( std::move( connection ) ) {}
   };
 
+  enum class SelectionStrategy
+  {
+    First, Random, LargestObject, LRU,
+  };
+
   AWSCredentials credentials_;
   std::string region_;
   Address aws_addr_;
@@ -46,7 +51,9 @@ private:
 
   HTTPRequest generate_request();
 
-  uint64_t pick_lambda( const gg::thunk::Thunk & thunk );
+  uint64_t pick_lambda( const gg::thunk::Thunk & thunk,
+                        const SelectionStrategy s = SelectionStrategy::First );
+
   void prepare_lambda( Lambda & lambda, const gg::thunk::Thunk & thunk );
 
 public:

@@ -11,6 +11,7 @@
 #include "execution/meow/message.hh"
 #include "execution/meow/util.hh"
 #include "util/base64.hh"
+#include "util/iterator.hh"
 #include "util/units.hh"
 
 using namespace std;
@@ -25,7 +26,7 @@ HTTPRequest MeowExecutionEngine::generate_request()
 
   gg::protobuf::meow::InvocationRequest request;
   request.set_coordinator( listen_addr_.str() );
-  request.set_storage_backend( gg::remote::storage_backend_uri() ); 
+  request.set_storage_backend( gg::remote::storage_backend_uri() );
 
   return LambdaInvocationRequest(
     credentials_, region_, function_name,
@@ -74,7 +75,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
             case Message::OpCode::Put:
             {
               const string hash = handle_put_message( message );
-              cerr << "[meow:worker@" << id << ":put] " << hash << endl; 
+              cerr << "[meow:worker@" << id << ":put] " << hash << endl;
               break;
             }
 
@@ -137,15 +138,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
 {
   /** (1) send all the dependencies **/
-  for ( const auto & item : thunk.values() ) {
-    if ( not lambda.objects.count( item.first ) and 
-         not gg::remote::is_available( item.first ) ) {
-      lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
-      lambda.objects.insert( item.first );
-    }
-  }
-
-  for ( const auto & item : thunk.executables() ) {
+  for ( const auto & item : join_containers( thunk.values(), thunk.executables() ) ) {
     if ( not lambda.objects.count( item.first ) and
          not gg::remote::is_available( item.first ) ) {
       lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
@@ -165,10 +158,19 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   /** (5) PROFIT **/
 }
 
-uint64_t MeowExecutionEngine::pick_lambda( const Thunk & )
+uint64_t MeowExecutionEngine::pick_lambda( const Thunk &,
+                                           const SelectionStrategy s )
 {
   if ( free_lambdas_.size() == 0 ) {
     throw runtime_error( "No free lambdas to pick from." );
+  }
+
+  switch ( s ) {
+  case SelectionStrategy::First:
+    return *free_lambdas_.begin();
+
+  default:
+    throw runtime_error( "invalid selection strategy" );
   }
 
   return *free_lambdas_.begin();
@@ -187,12 +189,11 @@ void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & loop
 
   /* there are no free Lambdas, let's launch one */
   thunks_queue_.push( thunk );
-  
+
   loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
     generate_request(),
-    [] ( const uint64_t, const string &, const HTTPResponse & response ) {
+    [] ( const uint64_t, const string &, const HTTPResponse & ) {
       cerr << "[meow] invoked a lambda" << endl;
-      cerr << response.str() << endl;
     },
     [] ( const uint64_t, const string & ) {
       cerr << "invocation request failed" << endl;
