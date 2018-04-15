@@ -63,16 +63,19 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 
           while ( not message_parser->empty() ) {
             /* we got a message! */
-            cerr << "[meow] msg,opcode="
-                 << static_cast<uint32_t>( message_parser->front().opcode() )
-                 << endl;
-
             const Message & message = message_parser->front();
 
             switch ( message.opcode() ) {
-            case Message::OpCode::Put:
-              handle_put_message( message );
+            case Message::OpCode::Hey:
+              cerr << "[meow:worker@" << id << ":hey] " << message.payload() << endl;
               break;
+
+            case Message::OpCode::Put:
+            {
+              const string hash = handle_put_message( message );
+              cerr << "[meow:worker@" << id << ":put] " << hash << endl; 
+              break;
+            }
 
             case Message::OpCode::Executed:
             {
@@ -80,6 +83,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
               protoutil::from_string( message.payload(), execution_response );
 
               const string & thunk_hash = execution_response.thunk_hash();
+              cerr << "[meow:worker@" << id << ":executed] " << thunk_hash << endl;
 
               for ( const auto & output : execution_response.outputs() ) {
                 gg::cache::insert( gg::hash::for_output( thunk_hash, output.tag() ), output.hash() );
@@ -152,7 +156,7 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   /** (5) PROFIT **/
 }
 
-void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & )
+void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & loop )
 {
   cerr << "[meow] force " << thunk.hash() << endl;
   running_jobs_++;
@@ -164,16 +168,17 @@ void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & )
 
   /* there are no free Lambdas, let's launch one */
   thunks_queue_.push( thunk );
-
-  /* loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
+  
+  loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
     generate_request(),
     [] ( const uint64_t, const string &, const HTTPResponse & response ) {
+      cerr << "[meow] invoked a lambda" << endl;
       cerr << response.str() << endl;
     },
     [] ( const uint64_t, const string & ) {
       cerr << "invocation request failed" << endl;
     }
-  );*/
+  );
 }
 
 bool MeowExecutionEngine::can_execute( const gg::thunk::Thunk & thunk ) const
