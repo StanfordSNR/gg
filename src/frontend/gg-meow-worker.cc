@@ -66,6 +66,9 @@ int main( int argc, char * argv[] )
         exit( 0 );
       } );
 
+    Message hello_message { Message::OpCode::Hey, "" };
+    connection->enqueue_write( hello_message.to_string() );
+
     while( true ) {
       loop.loop_once( -1 );
 
@@ -140,7 +143,7 @@ int main( int argc, char * argv[] )
             },
             [hash=execution_request.hash()]()
             {
-              vector<string> command { "gg-execute", "--fix-permissions", hash };
+              vector<string> command { "gg-execute-static", "--fix-permissions", hash };
               return ezexec( command[ 0 ], command, {}, true, true );
             }
           );
