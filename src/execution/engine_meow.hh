@@ -46,6 +46,7 @@ private:
 
   HTTPRequest generate_request();
 
+  uint64_t pick_lambda( const gg::thunk::Thunk & thunk );
   void prepare_lambda( Lambda & lambda, const gg::thunk::Thunk & thunk );
 
 public:

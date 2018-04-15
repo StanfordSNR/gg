@@ -161,6 +161,15 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   /** (5) PROFIT **/
 }
 
+uint64_t MeowExecutionEngine::pick_lambda( const Thunk & )
+{
+  if ( free_lambdas_.size() == 0 ) {
+    throw runtime_error( "No free lambdas to pick from." );
+  }
+
+  return *free_lambdas_.begin();
+}
+
 void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & loop )
 {
   cerr << "[meow] force " << thunk.hash() << endl;
@@ -168,7 +177,8 @@ void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & loop
   /* do we have a free Lambda for this? */
   if ( free_lambdas_.size() > 0 ) {
     /* execute the job on that Lambda */
-    return prepare_lambda( lambdas_.at( *free_lambdas_.begin() ), thunk );
+    const uint64_t picked_lambda = pick_lambda( thunk );
+    return prepare_lambda( lambdas_.at( picked_lambda ), thunk );
   }
 
   /* there are no free Lambdas, let's launch one */
