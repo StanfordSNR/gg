@@ -143,7 +143,8 @@ int main( int argc, char * argv[] )
             },
             [hash=execution_request.hash()]()
             {
-              vector<string> command { "gg-execute-static", "--fix-permissions", hash };
+              vector<string> command { "gg-execute-static", "--get-dependencies",
+                                       "--fix-permissions", hash };
               return ezexec( command[ 0 ], command, {}, true, true );
             }
           );
