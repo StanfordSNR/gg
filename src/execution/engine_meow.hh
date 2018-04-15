@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <queue>
+#include <unordered_set>
 
 #include "engine.hh"
 #include "net/address.hh"
@@ -18,11 +19,12 @@ class MeowExecutionEngine : public ExecutionEngine
 private:
   struct Lambda
   {
-    enum class State { Free, Busy };
+    enum class State { Idle, Busy };
 
     size_t id;
-    State state { State::Free };
+    State state { State::Idle };
     std::shared_ptr<TCPConnection> connection;
+    std::unordered_set<std::string> objects {};
 
     Lambda( const size_t id, std::shared_ptr<TCPConnection> && connection )
       : id( id ), connection( std::move( connection ) ) {}
@@ -35,6 +37,7 @@ private:
   TCPSocket listen_socket_;
   SSLContext ssl_context_ {};
 
+  size_t running_jobs_ { 0 };
   uint64_t current_id_ { 0 };
   std::map<uint64_t, Lambda> lambdas_ {};
   std::set<uint64_t> free_lambdas_ {};

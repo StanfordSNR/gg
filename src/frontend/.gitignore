@@ -20,4 +20,5 @@ gg-collect
 gg-put
 gg-get
 gg-meow-worker
+gg-meow-worker-static
 lambda-invoker

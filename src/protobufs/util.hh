@@ -35,6 +35,18 @@ namespace protoutil {
     }
   }
 
+  template<class ProtobufType>
+  std::string to_string( const ProtobufType & protobuf )
+  {
+    return protobuf.SerializeAsString();
+  }
+
+  template<class ProtobufType>
+  void from_string( const std::string & data, ProtobufType & dest )
+  {
+    dest.ParseFromString( data );
+  }
+
 }
 
 #endif /* PROTOBUF_UTIL_HH */

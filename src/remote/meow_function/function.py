@@ -27,6 +27,9 @@ def handler(event, context):
     return_code, stdout = run_command(["gg-meow-worker",
         coordinator_host, coordinator_port])
 
+    print(stdout)
+    print(return_code)
+
     return {
         'returnCode': return_code,
         'stdout': stdout,

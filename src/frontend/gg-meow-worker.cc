@@ -66,17 +66,22 @@ int main( int argc, char * argv[] )
         exit( 0 );
       } );
 
+    Message hello_message { Message::OpCode::Hey, "" };
+    connection->enqueue_write( hello_message.to_string() );
+
     while( true ) {
       loop.loop_once( -1 );
 
       while ( not message_parser.empty() ) {
         const Message & message = message_parser.front();
-        cerr << "[msg,opcode=" << static_cast<uint32_t>( message.opcode() ) << "]" << endl;
 
         switch ( message.opcode() ) {
         case Message::OpCode::Put:
-          handle_put_message( message );
+        {
+          const string hash = handle_put_message( message );
+          cerr << "[put] " << hash << endl;
           break;
+        }
 
         case Message::OpCode::Get:
         {
@@ -84,13 +89,14 @@ int main( int argc, char * argv[] )
           string object_data = roost::read_file( gg::paths::blob_path( hash ) );
           Message message { Message::OpCode::Put, move( object_data ) };
           connection->enqueue_write( message.to_string() );
+          cerr << "[get] " << hash << endl;
           break;
         }
 
         case Message::OpCode::Execute:
         {
           protobuf::RequestItem execution_request;
-          protoutil::from_json( message.payload(), execution_request );
+          protoutil::from_string( message.payload(), execution_request );
 
           /* let's write the thunk to disk first */
           roost::atomic_create( base64::decode( execution_request.data() ),
@@ -128,7 +134,7 @@ int main( int argc, char * argv[] )
                 *execution_response.add_outputs() = output_item;
               }
 
-              Message message { Message::OpCode::Executed, protoutil::to_json( execution_response ) };
+              Message message { Message::OpCode::Executed, protoutil::to_string( execution_response ) };
               connection->enqueue_write( message.to_string() );
             },
             [hash=execution_request.hash(), &connection] ( const uint64_t, const string & ) mutable {
@@ -137,7 +143,7 @@ int main( int argc, char * argv[] )
             },
             [hash=execution_request.hash()]()
             {
-              vector<string> command { "gg-execute", "--fix-permissions", hash };
+              vector<string> command { "gg-execute-static", "--fix-permissions", hash };
               return ezexec( command[ 0 ], command, {}, true, true );
             }
           );

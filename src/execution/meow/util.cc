@@ -13,7 +13,7 @@ using namespace gg;
 using namespace meow;
 using namespace gg::thunk;
 
-void meow::handle_put_message( const Message & message )
+string meow::handle_put_message( const Message & message )
 {
   assert( message.opcode() == Message::OpCode::Put );
 
@@ -24,6 +24,8 @@ void meow::handle_put_message( const Message & message )
 
   const string hash = gg::hash::compute( data, type );
   roost::atomic_create( data, gg::paths::blob_path( hash ) );
+
+  return hash;
 }
 
 Message meow::create_put_message( const string & hash )
@@ -34,6 +36,6 @@ Message meow::create_put_message( const string & hash )
 
 Message meow::create_execute_message( const Thunk & thunk )
 {
-  string execution_payload = protoutil::to_json( Thunk::execution_request( thunk ) );
+  string execution_payload = protoutil::to_string( Thunk::execution_request( thunk ) );
   return { Message::OpCode::Execute, move( execution_payload ) };
 }

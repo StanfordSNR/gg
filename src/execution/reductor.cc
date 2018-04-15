@@ -338,7 +338,14 @@ void Reductor::download_targets( const vector<string> & hashes ) const
 
   vector<storage::GetRequest> download_requests;
   for ( const string & hash : hashes ) {
-    download_requests.push_back( { hash, gg::paths::blob_path( hash ) } );
+    if ( not roost::exists( gg::paths::blob_path( hash ) ) ) {
+      download_requests.push_back( { hash, gg::paths::blob_path( hash ) } );
+    }
+  }
+
+  if ( download_requests.size() == 0 ) {
+    cerr << "No files to download." << endl;
+    return;
   }
 
   cerr << "\u2198 Downloading output files... ";

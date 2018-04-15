@@ -51,29 +51,39 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 
       auto message_parser = make_shared<meow::MessageParser>();
 
-      loop.add_connection( connection,
-        [message_parser, this] ( const string & data ) {
+      lambdas_.emplace( piecewise_construct,
+                        forward_as_tuple( current_id_ ),
+                        forward_as_tuple( current_id_, move( connection ) ) );
+
+      free_lambdas_.emplace( current_id_ );
+
+      loop.add_connection( lambdas_.at( current_id_ ).connection,
+        [message_parser, id=current_id_, this] ( const string & data ) {
           message_parser->parse( data );
 
           while ( not message_parser->empty() ) {
             /* we got a message! */
-            cerr << "[meow] msg,opcode="
-                 << static_cast<uint32_t>( message_parser->front().opcode() )
-                 << endl;
-
             const Message & message = message_parser->front();
 
             switch ( message.opcode() ) {
-            case Message::OpCode::Put:
-              handle_put_message( message );
+            case Message::OpCode::Hey:
+              cerr << "[meow:worker@" << id << ":hey] " << message.payload() << endl;
               break;
+
+            case Message::OpCode::Put:
+            {
+              const string hash = handle_put_message( message );
+              cerr << "[meow:worker@" << id << ":put] " << hash << endl; 
+              break;
+            }
 
             case Message::OpCode::Executed:
             {
               protobuf::ResponseItem execution_response;
-              protoutil::from_json( message.payload(), execution_response );
+              protoutil::from_string( message.payload(), execution_response );
 
               const string & thunk_hash = execution_response.thunk_hash();
+              cerr << "[meow:worker@" << id << ":executed] " << thunk_hash << endl;
 
               for ( const auto & output : execution_response.outputs() ) {
                 gg::cache::insert( gg::hash::for_output( thunk_hash, output.tag() ), output.hash() );
@@ -85,6 +95,9 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
               }
 
               gg::cache::insert( thunk_hash, execution_response.outputs( 0 ).hash() );
+              lambdas_.at( id ).state = Lambda::State::Idle;
+              free_lambdas_.insert( id );
+              running_jobs_--;
               success_callback_( thunk_hash, execution_response.outputs( 0 ).hash(), 0 );
 
               break;
@@ -107,12 +120,6 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
         }
       );
 
-      lambdas_.emplace( piecewise_construct,
-                        forward_as_tuple( current_id_ ),
-                        forward_as_tuple( current_id_, move( connection ) ) );
-
-      free_lambdas_.emplace( current_id_ );
-
       if ( not thunks_queue_.empty() ) {
         prepare_lambda( lambdas_.at( current_id_ ), thunks_queue_.front() );
         thunks_queue_.pop();
@@ -129,13 +136,18 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
 {
   /** (1) send all the dependencies **/
-  /* XXX should only send the stuff that are not there */
   for ( const auto & item : thunk.values() ) {
-    lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+    if ( not lambda.objects.count( item.first ) ) {
+      lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+      lambda.objects.insert( item.first ); 
+    }
   }
 
   for ( const auto & item : thunk.executables() ) {
-    lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+    if ( not lambda.objects.count( item.first ) ) {
+      lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+      lambda.objects.insert( item.first );
+    }
   }
 
   /** (2) send the request for thunk execution */
@@ -144,15 +156,16 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   /** (3) update Lambda's state **/
   lambda.state = Lambda::State::Busy;
   free_lambdas_.erase( lambda.id );
-
   /** (4) ??? **/
 
   /** (5) PROFIT **/
 }
 
-void MeowExecutionEngine::force_thunk( const vector<Thunk> & thunks, ExecutionLoop & )
+void MeowExecutionEngine::force_thunk( const vector<Thunk> & thunks, ExecutionLoop & loop )
 {
   const Thunk & thunk = thunks[0];
+  cerr << "[meow] force " << thunk.hash() << endl;
+  running_jobs_++;
 
   /* do we have a free Lambda for this? */
   if ( free_lambdas_.size() > 0 ) {
@@ -162,16 +175,17 @@ void MeowExecutionEngine::force_thunk( const vector<Thunk> & thunks, ExecutionLo
 
   /* there are no free Lambdas, let's launch one */
   thunks_queue_.push( thunk );
-
-  /* loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
+  
+  loop.make_http_request<SSLConnection>( "start-worker", aws_addr_,
     generate_request(),
     [] ( const uint64_t, const string &, const HTTPResponse & response ) {
+      cerr << "[meow] invoked a lambda" << endl;
       cerr << response.str() << endl;
     },
     [] ( const uint64_t, const string & ) {
       cerr << "invocation request failed" << endl;
     }
-  );*/
+  );
 }
 
 bool MeowExecutionEngine::can_execute( const vector<gg::thunk::Thunk> & thunk ) const
@@ -186,5 +200,5 @@ bool MeowExecutionEngine::can_execute( const vector<gg::thunk::Thunk> & thunk ) 
 
 size_t MeowExecutionEngine::job_count() const
 {
-  return 0;
+  return running_jobs_;
 }
