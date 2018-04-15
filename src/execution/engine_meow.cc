@@ -26,6 +26,7 @@ HTTPRequest MeowExecutionEngine::generate_request()
   gg::protobuf::meow::InvocationRequest request;
   request.set_coordinator( listen_addr_.str() );
   request.set_storage_backend( gg::remote::storage_backend_uri() ); 
+
   return LambdaInvocationRequest(
     credentials_, region_, function_name,
     protoutil::to_json( request ),
@@ -137,14 +138,16 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
 {
   /** (1) send all the dependencies **/
   for ( const auto & item : thunk.values() ) {
-    if ( not lambda.objects.count( item.first ) ) {
+    if ( not lambda.objects.count( item.first ) and 
+         not gg::remote::is_available( item.first ) ) {
       lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
-      lambda.objects.insert( item.first ); 
+      lambda.objects.insert( item.first );
     }
   }
 
   for ( const auto & item : thunk.executables() ) {
-    if ( not lambda.objects.count( item.first ) ) {
+    if ( not lambda.objects.count( item.first ) and
+         not gg::remote::is_available( item.first ) ) {
       lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
       lambda.objects.insert( item.first );
     }
@@ -156,6 +159,7 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   /** (3) update Lambda's state **/
   lambda.state = Lambda::State::Busy;
   free_lambdas_.erase( lambda.id );
+
   /** (4) ??? **/
 
   /** (5) PROFIT **/
