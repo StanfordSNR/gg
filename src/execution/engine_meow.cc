@@ -25,7 +25,7 @@ HTTPRequest MeowExecutionEngine::generate_request()
 
   gg::protobuf::meow::InvocationRequest request;
   request.set_coordinator( listen_addr_.str() );
-
+  request.set_storage_backend( gg::remote::storage_backend_uri() ); 
   return LambdaInvocationRequest(
     credentials_, region_, function_name,
     protoutil::to_json( request ),
