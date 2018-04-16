@@ -123,7 +123,7 @@ int main( int argc, char * argv[] )
                 }
 
                 const auto output_path = paths::blob_path( result->hash );
-                const string output_data = base64::encode( roost::read_file( output_path ) );
+                const string output_data = ""; // base64::encode( roost::read_file( output_path ) );
 
                 output_item.set_tag( tag );
                 output_item.set_hash( result->hash );
@@ -143,7 +143,9 @@ int main( int argc, char * argv[] )
             },
             [hash=execution_request.hash()]()
             {
-              vector<string> command { "gg-execute-static", "--get-dependencies",
+              vector<string> command { "gg-execute-static",
+                                       "--get-dependencies",
+                                       "--put-output",
                                        "--fix-permissions", hash };
               return ezexec( command[ 0 ], command, {}, true, true );
             }

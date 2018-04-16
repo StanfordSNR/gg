@@ -89,6 +89,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 
               for ( const auto & output : execution_response.outputs() ) {
                 gg::cache::insert( gg::hash::for_output( thunk_hash, output.tag() ), output.hash() );
+                gg::remote::set_available( output.hash() );
 
                 if ( output.data().length() ) {
                   roost::atomic_create( base64::decode( output.data() ),
