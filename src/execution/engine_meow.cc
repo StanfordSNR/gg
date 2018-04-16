@@ -116,7 +116,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
           return true;
         },
         [] () {
-          cerr << "Error occured!" << endl;
+          throw runtime_error( "error occurred" );
         },
         [] () {
           cerr << "Connection closed." << endl;
