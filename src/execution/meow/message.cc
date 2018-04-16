@@ -37,7 +37,7 @@ Message::Message( const OpCode opcode, string && payload )
     payload_( move( payload ) )
 {}
 
-string Message::to_string() const
+string Message::str() const
 {
   string output;
   output += put_field( payload_length_ );

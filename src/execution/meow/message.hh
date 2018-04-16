@@ -39,7 +39,7 @@ namespace meow {
     uint32_t payload_length() const { return payload_length_; }
     const std::string & payload() const { return payload_; }
 
-    std::string to_string() const;
+    std::string str() const;
 
     static uint32_t expected_length( const Chunk & chunk );
   };

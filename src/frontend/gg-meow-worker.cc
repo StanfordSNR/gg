@@ -67,7 +67,7 @@ int main( int argc, char * argv[] )
       } );
 
     Message hello_message { Message::OpCode::Hey, "" };
-    connection->enqueue_write( hello_message.to_string() );
+    connection->enqueue_write( hello_message.str() );
 
     while( true ) {
       loop.loop_once( -1 );
@@ -88,7 +88,7 @@ int main( int argc, char * argv[] )
           const string & hash = message.payload();
           string object_data = roost::read_file( gg::paths::blob_path( hash ) );
           Message message { Message::OpCode::Put, move( object_data ) };
-          connection->enqueue_write( message.to_string() );
+          connection->enqueue_write( message.str() );
           cerr << "[get] " << hash << endl;
           break;
         }
@@ -135,11 +135,11 @@ int main( int argc, char * argv[] )
               }
 
               Message message { Message::OpCode::Executed, protoutil::to_string( execution_response ) };
-              connection->enqueue_write( message.to_string() );
+              connection->enqueue_write( message.str() );
             },
             [hash=execution_request.hash(), &connection] ( const uint64_t, const string & ) mutable {
               Message message { Message::OpCode::ExecutionFailed, move( hash ) };
-              connection->enqueue_write( message.to_string() );
+              connection->enqueue_write( message.str() );
             },
             [hash=execution_request.hash()]()
             {

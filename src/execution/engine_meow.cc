@@ -141,13 +141,13 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   for ( const auto & item : join_containers( thunk.values(), thunk.executables() ) ) {
     if ( not lambda.objects.count( item.first ) and
          not gg::remote::is_available( item.first ) ) {
-      lambda.connection->enqueue_write( meow::create_put_message( item.first ).to_string() );
+      lambda.connection->enqueue_write( meow::create_put_message( item.first ).str() );
       lambda.objects.insert( item.first );
     }
   }
 
   /** (2) send the request for thunk execution */
-  lambda.connection->enqueue_write( meow::create_execute_message( thunk ).to_string() );
+  lambda.connection->enqueue_write( meow::create_execute_message( thunk ).str() );
 
   /** (3) update Lambda's state **/
   lambda.state = Lambda::State::Busy;
