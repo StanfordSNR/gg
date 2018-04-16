@@ -159,7 +159,7 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   /** (5) PROFIT **/
 }
 
-uint64_t MeowExecutionEngine::pick_lambda( const Thunk &,
+uint64_t MeowExecutionEngine::pick_lambda( const Thunk & thunk,
                                            const SelectionStrategy s )
 {
   if ( free_lambdas_.size() == 0 ) {
@@ -169,6 +169,31 @@ uint64_t MeowExecutionEngine::pick_lambda( const Thunk &,
   switch ( s ) {
   case SelectionStrategy::First:
     return *free_lambdas_.begin();
+
+  case SelectionStrategy::LargestObject:
+  {
+    /* what's the largest object in this thunk? */
+    string largest_hash;
+    uint32_t largest_size = 0;
+
+    for ( const auto & item : join_containers( thunk.values(), thunk.executables() ) ) {
+      if ( gg::hash::size( item.first ) > largest_size ) {
+        largest_size = gg::hash::size( item.first );
+        largest_hash = item.first;
+      }
+    }
+
+    if ( largest_hash.length() ) {
+      for ( const auto & free_lambda : free_lambdas_ ) {
+        if ( lambdas_.at( free_lambda ).objects.count( largest_hash ) ) {
+          return free_lambda;
+        }
+      }
+    }
+
+    /* if we couldn't find anything */
+    return *free_lambdas_.begin();
+  }
 
   default:
     throw runtime_error( "invalid selection strategy" );
@@ -184,7 +209,7 @@ void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & loop
   /* do we have a free Lambda for this? */
   if ( free_lambdas_.size() > 0 ) {
     /* execute the job on that Lambda */
-    const uint64_t picked_lambda = pick_lambda( thunk );
+    const uint64_t picked_lambda = pick_lambda( thunk, SelectionStrategy::LargestObject );
     return prepare_lambda( lambdas_.at( picked_lambda ), thunk );
   }
 
