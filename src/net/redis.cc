@@ -38,7 +38,7 @@ void Redis::upload_files( const vector<storage::PutRequest> & upload_requests,
             throw runtime_error( "error connecting to redis server" );
           }
 
-          {
+          if ( config_.password.length() ) {
             shared_ptr<redisReply> auth_reply {
               (redisReply *)redisCommand( redis_context.get(), "AUTH %s", config_.password.c_str() ),
               freeReplyObject
@@ -139,7 +139,7 @@ void Redis::download_files( const vector<storage::GetRequest> & download_request
             throw runtime_error( "error connecting to redis server" );
           }
 
-          {
+          if ( config_.password.length() ) {
             shared_ptr<redisReply> auth_reply {
               (redisReply *)redisCommand( redis_context.get(), "AUTH %s", config_.password.c_str() ),
               freeReplyObject
