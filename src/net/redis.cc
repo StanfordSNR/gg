@@ -101,22 +101,6 @@ void Redis::upload_files( const vector<storage::PutRequest> & upload_requests,
   }
 }
 
-Optional<string> parse_bulk_string( char * str, int len )
-{
-  if ( len <= 0 or str[ 0 ] != '$' ) {
-    throw runtime_error( "invalid bulk string" );
-  }
-
-  char * end_of_length = strstr( str + 1, "\r\n" );
-  long length = strtol( str + 1, &end_of_length, 10 );
-
-  if ( length == -1 ) {
-    return { false };
-  }
-
-  return { true, string( end_of_length + 2, length ) };
-}
-
 void Redis::download_files( const vector<storage::GetRequest> & download_requests,
                             const function<void( const storage::GetRequest & )> & success_callback )
 {
@@ -177,20 +161,18 @@ void Redis::download_files( const vector<storage::GetRequest> & download_request
 
               shared_ptr<redisReply> reply { reply_ptr, freeReplyObject };
 
-              if ( reply->type != REDIS_REPLY_STRING ) {
+              if ( reply->type != REDIS_REPLY_STRING or
+                   reply->str == nullptr or
+                   reply->len < 0 ) {
                 throw runtime_error( "unexpected response from redis" );
               }
 
-              Optional<string> str_data = parse_bulk_string( reply->str, reply->len );
-
-              if ( not str_data.initialized() ) {
-                throw runtime_error( "object didn't exist in redis" );
-              }
+              string str_data { reply->str, static_cast<uint32_t>( reply->len ) };
 
               const size_t response_index = first_file_idx + response_count * thread_count;
               const string & filename = download_requests.at( response_index ).filename.string();
 
-              roost::atomic_create( *str_data, filename );
+              roost::atomic_create( str_data, filename );
               success_callback( download_requests[ response_index ] );
 
               response_count++;
