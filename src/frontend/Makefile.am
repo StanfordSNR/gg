@@ -14,7 +14,7 @@ GG_LDADD = ../execution/libggexecution.a \
            ../tui/libggtui.a \
            ../util/libggutil.a
 
-BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS)
+BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS) $(HIREDIS_LIBS)
 
 bin_PROGRAMS = gg-trace gg-describe gg-force-and-run gg-force gg-mock \
                gg-execute gg-infer gg-thunksummary gg-s3-upload \

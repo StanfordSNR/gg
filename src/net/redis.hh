@@ -11,8 +11,8 @@
 
 struct RedisClientConfig
 {
-  std::string ip {};
-  uint16_t port {};
+  std::string ip { "0.0.0.0" };
+  uint16_t port { 6379 };
 
   std::string username {};
   std::string password {};

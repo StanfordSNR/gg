@@ -1,7 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#ifndef STORAGE_BACKEND_S3_HH
-#define STORAGE_BACKEND_S3_HH
+#ifndef STORAGE_BACKEND_REDIS_HH
+#define STORAGE_BACKEND_REDIS_HH
 
 #include "storage/backend.hh"
 #include "net/redis.hh"
@@ -24,4 +24,4 @@ public:
 
 };
 
-#endif /* STORAGE_BACKEND_S3_HH */
+#endif /* STORAGE_BACKEND_REDIS_HH */
