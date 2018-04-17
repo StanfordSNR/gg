@@ -23,6 +23,7 @@ addons:
     - texinfo
     - python3
     - python3-pip
+    - libhiredis-dev
 
 before_script:
   - sudo add-apt-repository -y ppa:sfouladi/protobuf-backports
