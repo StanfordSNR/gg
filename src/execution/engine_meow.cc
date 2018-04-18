@@ -121,10 +121,13 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
         [id=current_id_, this] () {
           Lambda & lambda = lambdas_.at( id );
           if ( lambda.executing_thunk.initialized() ) {
-            /* this Lambda was executing the thunk, but it died! */
-            thunks_queue_.emplace( move( *lambda.executing_thunk ) );
-            lambda.executing_thunk.clear();
+            /* this Lambda was executing a thunk, but it died! */
+            failure_callback_( lambda.executing_thunk->hash(),
+                               JobStatus::OperationalFailure );
           }
+
+          free_lambdas_.erase( id );
+          lambdas_.erase( id );
         }
       );
 
