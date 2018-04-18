@@ -118,8 +118,13 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
         [] () {
           throw runtime_error( "error occurred" );
         },
-        [] () {
-          cerr << "Connection closed." << endl;
+        [id=current_id_, this] () {
+          Lambda & lambda = lambdas_.at( id );
+          if ( lambda.executing_thunk.initialized() ) {
+            /* this Lambda was executing the thunk, but it died! */
+            thunks_queue_.emplace( move( *lambda.executing_thunk ) );
+            lambda.executing_thunk.clear();
+          }
         }
       );
 
@@ -158,6 +163,7 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   /** (3) update Lambda's state **/
   lambda.state = Lambda::State::Busy;
   free_lambdas_.erase( lambda.id );
+  lambda.executing_thunk.reset( thunk );
 
   /** (4) ??? **/
 

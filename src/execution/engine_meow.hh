@@ -25,6 +25,7 @@ private:
     State state { State::Idle };
     std::shared_ptr<TCPConnection> connection;
     std::unordered_set<std::string> objects {};
+    Optional<gg::thunk::Thunk> executing_thunk {};
 
     Lambda( const size_t id, std::shared_ptr<TCPConnection> && connection )
       : id( id ), connection( std::move( connection ) ) {}
