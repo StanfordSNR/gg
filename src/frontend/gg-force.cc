@@ -36,7 +36,7 @@ void usage( const char * argv0 )
 {
   cerr << "Usage: " << argv0 << endl
        << "       " << "[-j|--jobs=<N>] [-s|--status] [-T|--timeout=<t>] [-S|--sandboxed]" << endl
-       << "       " << "[-e|--engine=<name>[=ENGINE_ARGS]]..." << endl
+       << "       " << "[-e|--engine=<name>[=ENGINE_ARGS]]... [-d,--no-download]" << endl
        << "       " << "THUNKS..." << endl
        << endl
        << "Available engines:" << endl
@@ -77,21 +77,23 @@ int main( int argc, char * argv[] )
 
     size_t max_jobs = thread::hardware_concurrency();
     bool status_bar = false;
+    bool no_download = false;
     int timeout = -1;
 
     vector<pair<string, string>> engines;
 
     struct option long_options[] = {
-      { "status",    no_argument,       nullptr, 's' },
-      { "sandboxed", no_argument,       nullptr, 'S' },
-      { "jobs",      required_argument, nullptr, 'j' },
-      { "timeout",   required_argument, nullptr, 'T' },
-      { "engine",    required_argument, nullptr, 'e' },
-      { nullptr,     0,                 nullptr,  0  },
+      { "status",      no_argument,       nullptr, 's' },
+      { "sandboxed",   no_argument,       nullptr, 'S' },
+      { "jobs",        required_argument, nullptr, 'j' },
+      { "timeout",     required_argument, nullptr, 'T' },
+      { "engine",      required_argument, nullptr, 'e' },
+      { "no-download", no_argument,       nullptr, 'd' },
+      { nullptr,       0,                 nullptr,  0  },
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "sSj:T:e:", long_options, NULL );
+      const int opt = getopt_long( argc, argv, "sSj:T:e:d", long_options, NULL );
 
       if ( opt == -1 ) {
         break;
@@ -129,6 +131,10 @@ int main( int argc, char * argv[] )
 
         break;
       }
+
+      case 'd':
+        no_download = true;
+        break;
 
       default:
         throw runtime_error( "invalid option" );
@@ -225,13 +231,15 @@ int main( int argc, char * argv[] )
 
     reductor.upload_dependencies();
     vector<string> reduced_hashes = reductor.reduce();
-    reductor.download_targets( reduced_hashes );
+    if ( not no_download ) {
+      reductor.download_targets( reduced_hashes );
 
-    for ( size_t i = 0; i < reduced_hashes.size(); i++ ) {
-      roost::copy_then_rename( gg::paths::blob_path( reduced_hashes[ i ] ), target_filenames[ i ] );
+      for ( size_t i = 0; i < reduced_hashes.size(); i++ ) {
+        roost::copy_then_rename( gg::paths::blob_path( reduced_hashes[ i ] ), target_filenames[ i ] );
 
-      /* HACK this is a just a dirty hack... it's not always right */
-      roost::make_executable( target_filenames[ i ] );
+        /* HACK this is a just a dirty hack... it's not always right */
+        roost::make_executable( target_filenames[ i ] );
+      }
     }
 
     return EXIT_SUCCESS;
