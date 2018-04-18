@@ -69,13 +69,13 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 
             switch ( message.opcode() ) {
             case Message::OpCode::Hey:
-              cerr << "[meow:worker@" << id << ":hey] " << message.payload() << endl;
+              // cerr << "[meow:worker@" << id << ":hey] " << message.payload() << endl;
               break;
 
             case Message::OpCode::Put:
             {
               const string hash = handle_put_message( message );
-              cerr << "[meow:worker@" << id << ":put] " << hash << endl;
+              // cerr << "[meow:worker@" << id << ":put] " << hash << endl;
               break;
             }
 
@@ -85,7 +85,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
               protoutil::from_string( message.payload(), execution_response );
 
               const string & thunk_hash = execution_response.thunk_hash();
-              cerr << "[meow:worker@" << id << ":executed] " << thunk_hash << endl;
+              // cerr << "[meow:worker@" << id << ":executed] " << thunk_hash << endl;
 
               for ( const auto & output : execution_response.outputs() ) {
                 gg::cache::insert( gg::hash::for_output( thunk_hash, output.tag() ), output.hash() );
@@ -149,7 +149,6 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
     if ( not lambda.objects.count( item.first ) and
          not gg::remote::is_available( item.first ) ) {
       lambda.connection->enqueue_write( meow::create_put_message( item.first ).str() );
-      lambda.objects.insert( item.first );
     }
 
     lambda_objects.insert( item.first );
@@ -180,6 +179,41 @@ uint64_t MeowExecutionEngine::pick_lambda( const Thunk & thunk,
   switch ( s ) {
   case SelectionStrategy::First:
     return *free_lambdas_.begin();
+
+  case SelectionStrategy::MostObjects:
+  {
+    size_t max_common_size = 0;
+    size_t selected_lambda = numeric_limits<size_t>::max();
+
+    unordered_set<string> thunk_objects;
+    for ( const auto & item : join_containers( thunk.values(), thunk.executables() ) ) {
+      thunk_objects.insert( item.first );
+    }
+
+    for ( const auto & free_lambda : free_lambdas_ ) {
+      const Lambda & lambda = lambdas_.at( free_lambda );
+      size_t common_size = 0;
+
+      for ( const string & obj : thunk_objects ) {
+        if ( lambda.objects.count( obj ) ) {
+          common_size += gg::hash::size( obj );
+        }
+      }
+
+      if ( common_size > max_common_size ) {
+        selected_lambda = free_lambda;
+        max_common_size = common_size;
+      }
+    }
+
+    if ( selected_lambda != numeric_limits<size_t>::max() ) {
+      cerr << "picked a lambda with " << max_common_size << " bytes in common" << endl;
+      return selected_lambda;
+    }
+    else {
+      return *free_lambdas_.begin();
+    }
+  }
 
   case SelectionStrategy::LargestObject:
   {
@@ -220,7 +254,7 @@ void MeowExecutionEngine::force_thunk( const Thunk & thunk, ExecutionLoop & loop
   /* do we have a free Lambda for this? */
   if ( free_lambdas_.size() > 0 ) {
     /* execute the job on that Lambda */
-    const uint64_t picked_lambda = pick_lambda( thunk, SelectionStrategy::LargestObject );
+    const uint64_t picked_lambda = pick_lambda( thunk, SelectionStrategy::MostObjects );
     return prepare_lambda( lambdas_.at( picked_lambda ), thunk );
   }
 

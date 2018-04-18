@@ -33,7 +33,7 @@ private:
 
   enum class SelectionStrategy
   {
-    First, Random, LargestObject, LRU,
+    First, Random, MostObjects, LargestObject, LRU,
   };
 
   AWSCredentials credentials_;
