@@ -146,6 +146,7 @@ int main( int argc, char * argv[] )
               vector<string> command { "gg-execute-static",
                                        "--get-dependencies",
                                        "--put-output",
+                                       "--cleanup",
                                        "--fix-permissions", hash };
               return ezexec( command[ 0 ], command, {}, true, true );
             }
