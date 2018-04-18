@@ -26,6 +26,8 @@ using namespace std;
 using namespace gg;
 using namespace meow;
 
+class ProgramFinished : public exception {};
+
 void usage( char * argv0 )
 {
   cerr << "Usage: " << argv0 << " DESTINATION PORT" << endl;
@@ -62,16 +64,13 @@ int main( int argc, char * argv[] )
         cerr << "Error." << endl;
       },
       [] () {
-        cerr << "Closed." << endl;
-        exit( 0 );
+        throw ProgramFinished();
       } );
 
     Message hello_message { Message::OpCode::Hey, "" };
     connection->enqueue_write( hello_message.str() );
 
-    while( true ) {
-      loop.loop_once( -1 );
-
+    while( loop.loop_once( -1 ).result == Poller::Result::Type::Success ) {
       while ( not message_parser.empty() ) {
         const Message & message = message_parser.front();
 
@@ -162,6 +161,9 @@ int main( int argc, char * argv[] )
         message_parser.pop();
       }
     }
+  }
+  catch ( const ProgramFinished & ) {
+    return EXIT_SUCCESS;
   }
   catch ( const exception & e ) {
     print_exception( argv[ 0 ], e );
