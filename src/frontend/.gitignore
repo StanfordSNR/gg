@@ -21,4 +21,6 @@ gg-put
 gg-get
 gg-meow-worker
 gg-meow-worker-static
+gg-object-server
+gg-object-server-static
 lambda-invoker
