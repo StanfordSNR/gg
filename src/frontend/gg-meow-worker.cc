@@ -56,7 +56,7 @@ int main( int argc, char * argv[] )
     MessageParser message_parser;
     /* let's make a connection back to the coordinator */
     shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
-      [&message_parser] ( string && data ) {
+      [&message_parser] ( TCPConnection &, string && data ) {
         message_parser.parse( data );
         return true;
       },

@@ -47,20 +47,14 @@ MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
 void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 {
   exec_loop.make_listener( listen_addr_,
-    [this] ( ExecutionLoop & loop, shared_ptr<TCPConnection> & connection ) {
+    [this] ( ExecutionLoop & loop, TCPSocket && socket ) {
       cerr << "[meow] Incoming connection: "
-           << connection->socket().peer_address().str() << endl;
+           << socket.peer_address().str() << endl;
 
       auto message_parser = make_shared<meow::MessageParser>();
 
-      lambdas_.emplace( piecewise_construct,
-                        forward_as_tuple( current_id_ ),
-                        forward_as_tuple( current_id_, move( connection ) ) );
-
-      free_lambdas_.emplace( current_id_ );
-
-      loop.add_connection( lambdas_.at( current_id_ ).connection,
-        [message_parser, id=current_id_, this] ( const string & data ) {
+      auto connection = loop.add_connection<TCPSocket>( move( socket ),
+        [message_parser, id=current_id_, this] ( TCPConnection &, string && data ) {
           message_parser->parse( data );
 
           while ( not message_parser->empty() ) {
@@ -130,6 +124,12 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
           lambdas_.erase( id );
         }
       );
+
+      lambdas_.emplace( piecewise_construct,
+                        forward_as_tuple( current_id_ ),
+                        forward_as_tuple( current_id_, move( connection ) ) );
+
+      free_lambdas_.emplace( current_id_ );
 
       if ( not thunks_queue_.empty() ) {
         prepare_lambda( lambdas_.at( current_id_ ), thunks_queue_.front() );
