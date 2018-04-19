@@ -112,16 +112,8 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
         [] () {
           throw runtime_error( "error occurred" );
         },
-        [id=current_id_, this] () {
-          Lambda & lambda = lambdas_.at( id );
-          if ( lambda.executing_thunk.initialized() ) {
-            /* this Lambda was executing a thunk, but it died! */
-            failure_callback_( lambda.executing_thunk->hash(),
-                               JobStatus::OperationalFailure );
-          }
-
-          free_lambdas_.erase( id );
-          lambdas_.erase( id );
+        [this] () {
+          throw runtime_error( "a lambda died" );
         }
       );
 
