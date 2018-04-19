@@ -75,6 +75,7 @@ namespace gg {
     class Thunk
     {
     public:
+      /* XXX maybe use unordered_multimap? */
       typedef std::multimap<std::string, std::string> DataList;
       typedef DataList::value_type DataItem;
 

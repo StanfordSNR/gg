@@ -206,13 +206,18 @@ std::string ThunkFactory::generate( const Function & function,
                                       move( thunk_outputs ) } );
 
   if ( create_placeholder ) {
-    ThunkPlaceholder placeholder { hash };
+    for ( size_t i = 0; i < outputs.size(); i++ ) {
+      const Output & output = outputs.at( i );
 
-    if ( outputs.at( 0 ).filename().initialized() ) {
-      placeholder.write( *outputs.at( 0 ).filename() );
-    }
-    else {
-      placeholder.write( outputs.at( 0 ).tag() );
+      const string output_hash = ( i == 0 ) ? hash : gg::hash::for_output( hash, output.tag() );
+      ThunkPlaceholder placeholder { output_hash };
+
+      if ( output.filename().initialized() ) {
+        placeholder.write( *output.filename() );
+      }
+      else {
+        placeholder.write( output.tag() );
+      }
     }
   }
 
