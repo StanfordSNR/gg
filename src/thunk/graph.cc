@@ -10,6 +10,7 @@
 #include "thunk_writer.hh"
 
 using namespace std;
+using namespace gg;
 using namespace gg::thunk;
 
 string ExecutionGraph::add_thunk( const string & hash )
@@ -49,7 +50,12 @@ string ExecutionGraph::add_thunk( const string & hash )
   }
 
   for ( const pair<string, string> & update : updates_to_thunk ) {
-    thunk.update_data( update.first, update.second );
+    vector<ThunkOutput> new_outputs;
+    for ( const auto & output : thunk.outputs() ) {
+      new_outputs.emplace_back( update.second, output );
+    }
+
+    thunk.update_data( update.first, new_outputs );
   }
 
   thunks_.emplace( piecewise_construct,
@@ -59,8 +65,11 @@ string ExecutionGraph::add_thunk( const string & hash )
   return hash;
 }
 
-void ExecutionGraph::update_hash( const string & old_hash, const string & new_hash )
+void ExecutionGraph::update_hash( const string & old_hash,
+                                  const vector<ThunkOutput> & outputs )
 {
+  const string & new_hash = outputs.front().hash;
+
   /* updating the hash chain */
   if ( gg::hash::type( new_hash ) == gg::ObjectType::Thunk ) {
     if ( original_hashes_.count( old_hash ) == 0 ) {
@@ -77,7 +86,7 @@ void ExecutionGraph::update_hash( const string & old_hash, const string & new_ha
   /* updating the thunks that are referencing this thunk */
   for ( const string & referencing_thunk_hash : referencing_thunks_.at( old_hash ) ) {
     Thunk & referencing_thunk = thunks_.at( referencing_thunk_hash );
-    referencing_thunk.update_data( old_hash, new_hash );
+    referencing_thunk.update_data( old_hash, outputs );
   }
 
   /* we don't need the old thunk entry */
@@ -89,32 +98,43 @@ void ExecutionGraph::update_hash( const string & old_hash, const string & new_ha
 }
 
 Optional<unordered_set<string>>
-ExecutionGraph::force_thunk( const string & old_hash, const string & new_hash )
+ExecutionGraph::force_thunk( const string & old_hash,
+                             vector<ThunkOutput> && original_outputs )
 {
   if ( thunks_.count( old_hash ) == 0 ) {
     return { false };
   }
 
-  string actual_new_hash = new_hash;
+  vector<ThunkOutput> outputs { move( original_outputs ) };
+
+  string & actual_new_hash = outputs.front().hash;
+
   unordered_set<string> next_to_execute;
-  const gg::ObjectType new_type = gg::hash::type( new_hash );
+  const gg::ObjectType new_type = gg::hash::type( actual_new_hash );
 
   /* the old thunk has returned a new thunk. this is not a pipe dream. */
   if ( new_type == gg::ObjectType::Thunk ) {
-    actual_new_hash = add_thunk( new_hash );
+    actual_new_hash = add_thunk( actual_new_hash );
   }
 
-  update_hash( old_hash, actual_new_hash );
+  update_hash( old_hash, outputs );
 
   for ( const string & referencing_thunk_hash : referencing_thunks_.at( actual_new_hash ) ) {
     Thunk & referencing_thunk = thunks_.at( referencing_thunk_hash );
 
     if ( referencing_thunk.can_be_executed() ) {
-      string referencing_thunk_new_hash = ThunkWriter::write( referencing_thunk );
+      const string referencing_thunk_new_hash = ThunkWriter::write( referencing_thunk );
+
+      vector<ThunkOutput> new_outputs;
+      for ( const auto & output : referencing_thunk.outputs() ) {
+        new_outputs.emplace_back( referencing_thunk_new_hash, output );
+      }
+
       thunks_.emplace( piecewise_construct,
                        forward_as_tuple( referencing_thunk_new_hash ),
                        forward_as_tuple( move( referencing_thunk ) ) );
-      update_hash( referencing_thunk_hash, referencing_thunk_new_hash );
+
+      update_hash( referencing_thunk_hash, new_outputs );
       next_to_execute.emplace( move( referencing_thunk_new_hash ) );
     }
   }

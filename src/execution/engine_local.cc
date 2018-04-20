@@ -9,23 +9,30 @@
 #include "util/system_runner.hh"
 
 using namespace std;
+using namespace gg;
 using namespace gg::thunk;
 
 void LocalExecutionEngine::force_thunk( const Thunk & thunk,
                                         ExecutionLoop & exec_loop )
 {
   exec_loop.add_child_process( thunk.hash(),
-    [this] ( const uint64_t, const string & hash )
+    [this, outputs=thunk.outputs()] ( const uint64_t, const string & hash )
     {
       running_jobs_--; /* XXX not thread-safe */
 
-      Optional<gg::cache::ReductionResult> result = gg::cache::check( hash );
+      vector<ThunkOutput> thunk_outputs;
 
-      if ( not result.initialized() ) {
-        throw runtime_error( "could not find the reduction entry" );
+      for ( const auto & tag : outputs ) {
+        Optional<cache::ReductionResult> result = cache::check( gg::hash::for_output( hash, tag ) );
+
+        if ( not result.initialized() ) {
+          throw runtime_error( "could not find the reduction entry" );
+        }
+
+        thunk_outputs.emplace_back( move( result->hash ), tag );
       }
 
-      success_callback_( hash, result->hash, 0 );
+      success_callback_( hash, move( thunk_outputs ), 0 );
     },
     [this] ( const uint64_t, const string & thunk_hash )
     {

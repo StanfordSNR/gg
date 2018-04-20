@@ -27,13 +27,15 @@ private:
   std::unordered_map<std::string, std::string> original_hashes_ {};
   std::unordered_map<std::string, std::string> updated_hashes_ {};
 
-  void update_hash( const std::string & old_hash, const std::string & new_hash );
+  void update_hash( const std::string & old_hash,
+                    const std::vector<gg::ThunkOutput> & outputs );
 
 public:
   std::string add_thunk( const std::string & hash );
 
   Optional<std::unordered_set<std::string>>
-  force_thunk( const std::string & old_hash, const std::string & new_hash );
+  force_thunk( const std::string & old_hash,
+               std::vector<gg::ThunkOutput> && outputs );
 
   const std::unordered_set<std::string> &
   value_dependencies() const { return value_dependencies_; }

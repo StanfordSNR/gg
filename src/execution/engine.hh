@@ -15,7 +15,7 @@ class ExecutionEngine
 public:
   /* success_callback( source_hash, target_hash, estimated_cost ) */
   typedef std::function<void( const std::string &,
-                              const std::string &,
+                              std::vector<gg::ThunkOutput> &&,
                               const float )>
           SuccessCallbackFunc;
 

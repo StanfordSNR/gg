@@ -95,7 +95,13 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
               lambdas_.at( id ).state = Lambda::State::Idle;
               free_lambdas_.insert( id );
               running_jobs_--;
-              success_callback_( thunk_hash, execution_response.outputs( 0 ).hash(), 0 );
+
+              vector<ThunkOutput> thunk_outputs;
+              for ( auto & output : execution_response.outputs() ) {
+                thunk_outputs.emplace_back( move( output.hash() ), move( output.tag() ) );
+              }
+
+              success_callback_( thunk_hash, move( thunk_outputs ), 0 );
 
               break;
             }

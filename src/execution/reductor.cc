@@ -10,6 +10,7 @@
 #include <chrono>
 
 #include "thunk/ggutils.hh"
+#include "thunk/thunk_reader.hh"
 #include "net/s3.hh"
 #include "tui/status_bar.hh"
 #include "util/optional.hh"
@@ -19,6 +20,7 @@
 #include "util/digest.hh"
 
 using namespace std;
+using namespace gg;
 using namespace gg::thunk;
 using namespace std::chrono;
 
@@ -94,8 +96,8 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
   job_queue_.insert( job_queue_.end(), all_o1_deps.begin(), all_o1_deps.end() );
 
   auto success_callback =
-    [this] ( const string & old_hash, const string & new_hash, const float cost )
-    { finalize_execution( old_hash, new_hash, cost ); };
+    [this] ( const string & old_hash, vector<ThunkOutput> && outputs, const float cost )
+    { finalize_execution( old_hash, move( outputs ), cost ); };
 
   auto failure_callback =
     [this] ( const string & old_hash, const JobStatus failure_reason )
@@ -170,18 +172,19 @@ bool Reductor::is_finished() const
 }
 
 void Reductor::finalize_execution( const string & old_hash,
-                                   const string & new_hash,
+                                   vector<ThunkOutput> && outputs,
                                    const float cost )
 {
   running_jobs_.erase( old_hash );
+  const string main_output_hash = outputs.at( 0 ).hash;
 
-  Optional<unordered_set<string>> new_o1s = dep_graph_.force_thunk( old_hash, new_hash );
+  Optional<unordered_set<string>> new_o1s = dep_graph_.force_thunk( old_hash, move ( outputs ) );
   estimated_cost_ += cost;
 
   if ( new_o1s.initialized() ) {
     job_queue_.insert( job_queue_.end(), new_o1s->begin(), new_o1s->end() );
 
-    if ( gg::hash::type( new_hash ) == gg::ObjectType::Value ) {
+    if ( gg::hash::type( main_output_hash ) == gg::ObjectType::Value ) {
       remaining_targets_.erase( dep_graph_.original_hash( old_hash ) );
     }
 
@@ -212,7 +215,20 @@ vector<string> Reductor::reduce()
       }
 
       if ( cache_entry.initialized() ) {
-        finalize_execution( thunk_hash, cache_entry->hash, 0 );
+        Thunk thunk { ThunkReader::read( gg::paths::blob_path( thunk_hash ), thunk_hash ) };
+        vector<ThunkOutput> new_outputs;
+
+        for ( const auto & tag : thunk.outputs() ) {
+          Optional<cache::ReductionResult> result = cache::check( gg::hash::for_output( thunk_hash, tag ) );
+
+          if ( not result.initialized() ) {
+            throw runtime_error( "inconsistent cache entries" );
+          }
+
+          new_outputs.emplace_back( result->hash, tag );
+        }
+
+        finalize_execution( thunk_hash, move( new_outputs ), 0 );
       }
       else {
         const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );

@@ -12,6 +12,7 @@
 #include "util/units.hh"
 
 using namespace std;
+using namespace gg;
 using namespace gg::thunk;
 
 HTTPRequest GGExecutionEngine::generate_request( const Thunk & thunk )
@@ -64,7 +65,13 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
       }
 
       gg::cache::insert( response.thunk_hash, response.outputs.at( 0 ).hash );
-      success_callback_( response.thunk_hash, response.outputs.at( 0 ).hash, 0 );
+
+      vector<ThunkOutput> thunk_outputs;
+      for ( auto & output : response.outputs ) {
+        thunk_outputs.emplace_back( move( output.hash ), move( output.tag ) );
+      }
+
+      success_callback_( response.thunk_hash, move( thunk_outputs ), 0 );
 
       return false;
     },

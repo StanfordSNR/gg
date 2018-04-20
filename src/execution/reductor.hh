@@ -38,7 +38,7 @@ private:
   std::unique_ptr<StorageBackend> storage_backend_;
 
   void finalize_execution( const std::string & old_hash,
-                           const std::string & new_hash,
+                           std::vector<gg::ThunkOutput> && outputs,
                            const float cost = 0.0 );
 
   size_t running_jobs() const;

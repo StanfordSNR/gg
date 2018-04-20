@@ -28,6 +28,20 @@ namespace gg {
     Thunk = 'T',
   };
 
+  struct ThunkOutput
+  {
+    std::string hash {};
+    std::string tag {};
+
+    ThunkOutput() {}
+
+    ThunkOutput( const std::string & hash, const std::string & tag )
+      : hash( hash ), tag( tag ) {}
+
+    ThunkOutput( std::string && hash, std::string && tag )
+      : hash( move( hash ) ), tag( move( tag ) ) {}
+  };
+
   namespace thunk {
 
     const std::string MAGIC_NUMBER = "##GGTHUNK##";
@@ -135,7 +149,7 @@ namespace gg {
       size_t infiles_size( const bool include_executables = true ) const;
 
       void update_data( const std::string & old_hash,
-                        const std::string & new_hash );
+                        const std::vector<ThunkOutput> & outputs );
 
       /* Returns a list of files that can be accessed while executing this
          thunk. */

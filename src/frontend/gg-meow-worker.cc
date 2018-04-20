@@ -114,7 +114,6 @@ int main( int argc, char * argv[] )
 
               for ( const auto & tag : execution_request.outputs() ) {
                 protobuf::OutputItem output_item;
-
                 Optional<cache::ReductionResult> result = cache::check( gg::hash::for_output( hash, tag ) );
 
                 if ( not result.initialized() ) {

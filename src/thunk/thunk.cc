@@ -297,48 +297,64 @@ string Thunk::executable_hash() const
   return digest::sha256( combined_hashes );
 }
 
-void Thunk::update_data( const string & old_hash, const string & new_hash )
+void Thunk::update_data( const string & original_hash,
+                         const vector<ThunkOutput> & outputs )
 {
   hash_.clear(); /* invalidating the cached hash */
-  auto result = thunks_.equal_range( old_hash );
 
-  for ( auto it = result.first; it != result.second; ) {
-    auto it_copy = it;
-    it++;
+  bool first_output = true;
 
-    string old_name { move( it_copy->second ) };
-    thunks_.erase( it_copy );
-    switch ( hash::type( new_hash ) ) {
-    case ObjectType::Thunk: thunks_.insert( { new_hash, old_name } ); break;
-    case ObjectType::Value: values_.insert( { new_hash, old_name } ); break;
-    }
-  }
+  /* NOTE Okay, to prevent a performance hit here, we say that the first output
+  must never be referenced with its tag */
+  for ( const auto & output : outputs ) {
+    const string old_hash = ( first_output )
+                          ? original_hash
+                          : hash::for_output( original_hash, output.tag );
 
-  /* let's update the args/envs as necessary */
-  const string srcstr = data_placeholder( old_hash );
-  const string dststr = data_placeholder( new_hash );
+    const string new_hash = ( first_output or hash::type( output.hash ) == ObjectType::Value )
+                          ? output.hash
+                          : hash::for_output( output.hash, output.tag );
 
-  assert( srcstr.length() == dststr.length() );
+    auto result = thunks_.equal_range( old_hash );
 
-  auto update_placeholder =
-    []( string & str, const string & src, const string & dst )
-    {
-      size_t index = 0;
+    for ( auto it = result.first; it != result.second; ) {
+      auto it_copy = it;
+      it++;
 
-      while ( true ) {
-        index = str.find( src, index );
-        if ( index == string::npos ) break;
-        str.replace( index, dst.length(), dst );
-        index += dst.length();
+      string old_name { move( it_copy->second ) };
+      thunks_.erase( it_copy );
+      switch ( hash::type( new_hash ) ) {
+      case ObjectType::Thunk: thunks_.insert( { new_hash, old_name } ); break;
+      case ObjectType::Value: values_.insert( { new_hash, old_name } ); break;
       }
-    };
+    }
 
-  for ( string & arg : function_.args() ) {
-    update_placeholder( arg, srcstr, dststr );
-  }
+    /* let's update the args/envs as necessary */
+    const string srcstr = data_placeholder( old_hash );
+    const string dststr = data_placeholder( new_hash );
 
-  for ( string & envar : function_.envars() ) {
-    update_placeholder( envar, srcstr, dststr );
+    auto update_placeholder =
+      []( string & str, const string & src, const string & dst )
+      {
+        size_t index = 0;
+
+        while ( true ) {
+          index = str.find( src, index );
+          if ( index == string::npos ) break;
+          str.replace( index, src.length(), dst );
+          index += dst.length();
+        }
+      };
+
+    for ( string & arg : function_.args() ) {
+      update_placeholder( arg, srcstr, dststr );
+    }
+
+    for ( string & envar : function_.envars() ) {
+      update_placeholder( envar, srcstr, dststr );
+    }
+
+    first_output = false;
   }
 }
 
