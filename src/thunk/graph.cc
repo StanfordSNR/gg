@@ -42,11 +42,12 @@ string ExecutionGraph::add_thunk( const string & full_hash )
   vector<pair<string, string>> updates_to_thunk;
 
   for ( const Thunk::DataItem & item : thunk.thunks() ) {
-    const string item_updated = add_thunk( item.first );
+    const string item_base = gg::hash::base( item.first );
+    const string item_updated = add_thunk( item_base );
     referencing_thunks_[ item_updated ].emplace( hash );
 
-    if ( item_updated != item.first ) {
-      updates_to_thunk.emplace_back( item.first, item_updated );
+    if ( item_updated != item_base ) {
+      updates_to_thunk.emplace_back( item_base, item_updated );
     }
   }
 
@@ -152,8 +153,10 @@ ExecutionGraph::force_thunk( const string & old_hash,
   return { true, move( next_to_execute ) };
 }
 
-unordered_set<string> ExecutionGraph::order_one_dependencies( const string & hash ) const
+unordered_set<string> ExecutionGraph::order_one_dependencies( const string & input_hash ) const
 {
+  const string hash = gg::hash::base( input_hash );
+
   if ( thunks_.count( hash ) == 0 ) {
     throw runtime_error( "thunk hash not found in the execution graph" );
   }
