@@ -5,4 +5,5 @@ package gg.protobuf.meow;
 message InvocationRequest {
   string coordinator = 1;
   string storage_backend = 2;
+  string secondary_backend = 3;
 }
