@@ -67,3 +67,13 @@ cd viddec-example
 ./fetch-deps.sh
 ./ffmpeg_gg.py 
 ```
+
+### Mapreduce: Word Count
+```
+cd wordcount
+./fetch-deps.sh
+./gen_wordcount.py [-r <num-reducers>]
+
+<num-reducers> defaults to 2
+Example: ./gen_wordcount.py -r 10
+```
