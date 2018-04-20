@@ -23,7 +23,9 @@ using namespace std;
 using namespace CryptoPP;
 
 namespace gg {
+
   namespace paths {
+
     roost::path get_gg_dir()
     {
       const char * envar = getenv( "GG_DIR" );
@@ -139,9 +141,11 @@ namespace gg {
         setenv( "PATH", getenv( "GG_REALPATH" ), true );
       }
     }
+
   }
 
   namespace remote {
+
     bool is_available( const string & hash )
     {
       return roost::exists( gg::paths::remote_index() / hash );
@@ -189,9 +193,11 @@ namespace gg {
 
       return { data.at( 0 ), stoul( data.at( 1 ) ) };
     }
+
   }
 
   namespace cache {
+
     Optional<ReductionResult> check( const string & thunk_hash )
     {
       roost::path reduction { gg::paths::reduction_path( thunk_hash ) };
@@ -211,9 +217,22 @@ namespace gg {
     {
       roost::atomic_create( new_hash, gg::paths::reduction_path( old_hash ) );
     }
+
   }
 
   namespace hash {
+
+    string base( const string & hash )
+    {
+      string::size_type hash_pos = hash.find( '#' );
+      if ( hash_pos == string::npos ) {
+        return hash;
+      }
+      else {
+        return hash.substr( 0, hash_pos );
+      }
+    }
+
     string for_output( const string & thunk_hash, const string & output_tag )
     {
       return thunk_hash + "#" + output_tag;
@@ -284,9 +303,11 @@ namespace gg {
       default: throw runtime_error( "invalid hash type" );
       }
     }
+
   }
 
   namespace models {
+
     void init()
     {
       int fd = open( gg::models::OPEN_TO_DETACH_PATH.c_str(), O_RDONLY );
@@ -316,4 +337,5 @@ namespace gg {
       return result;
     }
   }
+
 }

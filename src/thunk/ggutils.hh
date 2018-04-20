@@ -50,6 +50,7 @@ namespace gg {
   namespace hash {
     constexpr size_t length = 1 /* type */ + 256 / 6 /* base64(sha256) */ + 1 /* round up */ + 8 /* length */;
 
+    std::string base( const std::string & hash );
     std::string for_output( const std::string & thunk_hash, const std::string & output_tag );
 
     std::string compute( const std::string & input, const ObjectType type );
