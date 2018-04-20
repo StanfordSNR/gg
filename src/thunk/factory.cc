@@ -189,7 +189,7 @@ std::string ThunkFactory::generate( const Function & function,
       [] ( const Data & datum )
       {
         roost::path source_path = datum.real_filename();
-        roost::path target_path = gg::paths::blob_path( datum.hash() );
+        roost::path target_path = gg::paths::blob_path( gg::hash::base( datum.hash() ) );
 
         if ( not roost::exists( target_path ) ) {
           roost::copy_then_rename( source_path, target_path );
