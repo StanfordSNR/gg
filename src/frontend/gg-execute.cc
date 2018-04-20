@@ -144,16 +144,16 @@ vector<string> execute_thunk( const Thunk & original_thunk )
     const string & output = thunk.outputs().at( i );
     const string & outfile_hash = output_hashes.at( i );
 
+    gg::cache::insert( original_thunk.output_hash( output ), outfile_hash );
+    if ( original_thunk.hash() != thunk.hash() ) {
+      gg::cache::insert( thunk.output_hash( output ), outfile_hash );
+    }
+
     if ( i == 0 ) {
       gg::cache::insert( original_thunk.hash(), outfile_hash );
       if ( original_thunk.hash() != thunk.hash() ) {
         gg::cache::insert( thunk.hash(), outfile_hash );
       }
-    }
-
-    gg::cache::insert( original_thunk.output_hash( output ), outfile_hash );
-    if ( original_thunk.hash() != thunk.hash() ) {
-      gg::cache::insert( thunk.output_hash( output ), outfile_hash );
     }
   }
 
