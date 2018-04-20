@@ -318,6 +318,43 @@ void Thunk::update_data( const string & old_hash, const string & new_hash )
     }
   }
 
+  /* search for dependent thunks that have a hashtag.
+     If found, need to check args as well */
+  if ( hash::type( new_hash ) == ObjectType::Thunk ) {
+    bool search_args = false;
+    for ( auto t = thunks_.begin(); t != thunks_.end(); ) {
+      auto t_copy = t;
+      t++;
+
+      size_t found = t_copy->first.find( "#" );
+      if ( found != string::npos ) {
+        string check_hash = t_copy->first.substr( 0, found );
+        if ( check_hash == old_hash ) {
+          string nh = new_hash + t_copy->first.substr( found, t_copy->first.length() );
+          thunks_.erase( t_copy );
+          thunks_.insert( { nh, old_hash } );
+          search_args = true;
+        }
+      }
+    }
+    if ( search_args ) {
+      vector<string> args = function_.args();
+      for ( string & arg : args ) {
+        size_t found = arg.find( "#" );
+        if ( found != string::npos ) {
+          string hash_to_lu = regex_replace( arg, DATA_PLACEHOLDER_REGEX_POUND, "$1" );
+          size_t found_lu = hash_to_lu.find( "#" );
+          string check_hash = hash_to_lu.substr( 0, found_lu );
+          if ( check_hash == old_hash ) {
+            string nh = new_hash + hash_to_lu.substr( found_lu, hash_to_lu.length() );
+            string nh_dp = data_placeholder( nh );
+            function_.update_arg( arg, nh_dp );
+          }
+        }
+      }
+    }
+  }
+
   /* let's update the args/envs as necessary */
   const string srcstr = data_placeholder( old_hash );
   const string dststr = data_placeholder( new_hash );
