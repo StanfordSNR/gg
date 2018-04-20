@@ -48,6 +48,8 @@ void generate_thunk( const CLIDescription & cli_description,
 
   int opt;
   while ( ( opt = getopt_long( argc, argv, optstring.c_str(), long_options.data(), NULL ) ) != -1 ) {
+    if ( opt == '?' ) continue;
+
     for ( const CLIOption & option : cli_description.options() ) {
       if ( option.value == opt ) {
         if ( option.type == CLIOption::Type::OutFile ) {
