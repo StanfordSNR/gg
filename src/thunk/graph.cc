@@ -13,8 +13,9 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
-string ExecutionGraph::add_thunk( const string & hash )
+string ExecutionGraph::add_thunk( const string & full_hash )
 {
+  const string hash = gg::hash::base( full_hash );
   const string & updated = updated_hash( hash );
 
   if ( thunks_.count( updated ) ) {
