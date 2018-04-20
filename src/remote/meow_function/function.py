@@ -20,7 +20,7 @@ if not os.environ.get('GG_DIR'):
 from common import run_command
 
 def handler(event, context):
-    #os.environ['GG_STORAGE_URI'] = event['storageBackend']
+    os.environ['GG_STORAGE_URI'] = event['storageBackend']
     coordinator_address = event['coordinator']
     coordinator_host, coordinator_port = event['coordinator'].split(':')
 

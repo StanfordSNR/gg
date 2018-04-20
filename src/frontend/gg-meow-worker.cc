@@ -26,6 +26,8 @@ using namespace std;
 using namespace gg;
 using namespace meow;
 
+class ProgramFinished : public exception {};
+
 void usage( char * argv0 )
 {
   cerr << "Usage: " << argv0 << " DESTINATION PORT" << endl;
@@ -54,7 +56,7 @@ int main( int argc, char * argv[] )
     MessageParser message_parser;
     /* let's make a connection back to the coordinator */
     shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
-      [&message_parser] ( string && data ) {
+      [&message_parser] ( TCPConnection &, string && data ) {
         message_parser.parse( data );
         return true;
       },
@@ -62,16 +64,13 @@ int main( int argc, char * argv[] )
         cerr << "Error." << endl;
       },
       [] () {
-        cerr << "Closed." << endl;
-        exit( 0 );
+        throw ProgramFinished();
       } );
 
     Message hello_message { Message::OpCode::Hey, "" };
-    connection->enqueue_write( hello_message.to_string() );
+    connection->enqueue_write( hello_message.str() );
 
-    while( true ) {
-      loop.loop_once( -1 );
-
+    while( loop.loop_once( -1 ).result == Poller::Result::Type::Success ) {
       while ( not message_parser.empty() ) {
         const Message & message = message_parser.front();
 
@@ -88,7 +87,7 @@ int main( int argc, char * argv[] )
           const string & hash = message.payload();
           string object_data = roost::read_file( gg::paths::blob_path( hash ) );
           Message message { Message::OpCode::Put, move( object_data ) };
-          connection->enqueue_write( message.to_string() );
+          connection->enqueue_write( message.str() );
           cerr << "[get] " << hash << endl;
           break;
         }
@@ -123,7 +122,7 @@ int main( int argc, char * argv[] )
                 }
 
                 const auto output_path = paths::blob_path( result->hash );
-                const string output_data = base64::encode( roost::read_file( output_path ) );
+                const string output_data = ""; // base64::encode( roost::read_file( output_path ) );
 
                 output_item.set_tag( tag );
                 output_item.set_hash( result->hash );
@@ -135,15 +134,19 @@ int main( int argc, char * argv[] )
               }
 
               Message message { Message::OpCode::Executed, protoutil::to_string( execution_response ) };
-              connection->enqueue_write( message.to_string() );
+              connection->enqueue_write( message.str() );
             },
             [hash=execution_request.hash(), &connection] ( const uint64_t, const string & ) mutable {
               Message message { Message::OpCode::ExecutionFailed, move( hash ) };
-              connection->enqueue_write( message.to_string() );
+              connection->enqueue_write( message.str() );
             },
             [hash=execution_request.hash()]()
             {
-              vector<string> command { "gg-execute-static", "--fix-permissions", hash };
+              vector<string> command { "gg-execute-static",
+                                       "--get-dependencies",
+                                       "--put-output",
+                                       "--cleanup",
+                                       "--fix-permissions", hash };
               return ezexec( command[ 0 ], command, {}, true, true );
             }
           );
@@ -158,6 +161,9 @@ int main( int argc, char * argv[] )
         message_parser.pop();
       }
     }
+  }
+  catch ( const ProgramFinished & ) {
+    return EXIT_SUCCESS;
   }
   catch ( const exception & e ) {
     print_exception( argv[ 0 ], e );

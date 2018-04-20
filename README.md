@@ -21,6 +21,7 @@ To build `gg` you need the following packages:
 - `automake`
 - `libtool`
 - `pkg-config`
+- `libhiredis-dev`
 
 You can install this dependencies in Ubuntu (17.04 or newer) by running:
 
@@ -28,7 +29,7 @@ You can install this dependencies in Ubuntu (17.04 or newer) by running:
 sudo apt-get install gcc-7 g++-7 protobuf-compiler libprotobuf-dev \
                      libcrypto++-dev libcap-dev libkeyutils-dev \
                      libncurses5-dev libboost-dev libssl-dev autopoint help2man \
-                     texinfo automake libtool pkg-config
+                     libhiredis-dev texinfo automake libtool pkg-config
 ```
 
 To build `gg`, run the following commands:

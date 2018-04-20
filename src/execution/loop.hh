@@ -58,16 +58,17 @@ public:
                               FailureCallbackFunc failure_callback,
                               std::function<int()> && child_procedure );
 
-  template<class ConnectionType>
-  void add_connection( const std::shared_ptr<ConnectionType> & connection,
-                       const std::function<bool(std::string &&)> & data_callback,
-                       const std::function<void()> & error_callback = [](){},
-                       const std::function<void()> & close_callback = [](){} );
+  template<class SocketType>
+  std::shared_ptr<Connection<SocketType>>
+  add_connection( SocketType && socket,
+                  const std::function<bool(Connection<SocketType> &, std::string &&)> & data_callback,
+                  const std::function<void()> & error_callback = [](){},
+                  const std::function<void()> & close_callback = [](){} );
 
   template<class ConnectionType>
   std::shared_ptr<ConnectionType>
   make_connection( const Address & address,
-                   const std::function<bool(std::string &&)> & data_callback,
+                   const std::function<bool(ConnectionType &, std::string &&)> & data_callback,
                    const std::function<void()> & error_callback = [](){},
                    const std::function<void()> & close_callback = [](){} );
 
@@ -80,7 +81,7 @@ public:
 
   uint64_t make_listener( const Address & address,
                           const std::function<bool(ExecutionLoop &,
-                                                   std::shared_ptr<TCPConnection> &)> & connection_callback );
+                                                   TCPSocket &&)> & connection_callback );
 
   Poller::Result loop_once( const int timeout_ms = -1 );
 };

@@ -25,9 +25,15 @@ private:
     State state { State::Idle };
     std::shared_ptr<TCPConnection> connection;
     std::unordered_set<std::string> objects {};
+    Optional<gg::thunk::Thunk> executing_thunk {};
 
     Lambda( const size_t id, std::shared_ptr<TCPConnection> && connection )
       : id( id ), connection( std::move( connection ) ) {}
+  };
+
+  enum class SelectionStrategy
+  {
+    First, Random, MostObjects, LargestObject, LRU,
   };
 
   AWSCredentials credentials_;
@@ -45,6 +51,9 @@ private:
   std::queue<gg::thunk::Thunk> thunks_queue_ {};
 
   HTTPRequest generate_request();
+
+  uint64_t pick_lambda( const gg::thunk::Thunk & thunk,
+                        const SelectionStrategy s = SelectionStrategy::First );
 
   void prepare_lambda( Lambda & lambda, const gg::thunk::Thunk & thunk );
 

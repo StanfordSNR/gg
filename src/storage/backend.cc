@@ -6,8 +6,9 @@
 #include <regex>
 #include <stdexcept>
 
-#include "backend_local.hh"
-#include "backend_s3.hh"
+#include "storage/backend_local.hh"
+#include "storage/backend_s3.hh"
+#include "storage/backend_redis.hh"
 #include "util/optional.hh"
 #include "util/tokenize.hh"
 
@@ -16,7 +17,7 @@ using namespace std;
 unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
 {
   const static regex uri_regex {
-    R"RAWSTR(((s3)://)?(([^:\n\r]+):([^@\n\r]+)@)?(([^:/\n\r]+):?(\d*))/?([^?\n\r]+)?\??([^#\n\r]*)?#?([^\n\r]*))RAWSTR" };
+    R"RAWSTR((([A-Za-z0-9]+)://)?(([^:\n\r]+):([^@\n\r]+)@)?(([^:/\n\r]+):?(\d*))/?([^?\n\r]+)?\??([^#\n\r]*)?#?([^\n\r]*))RAWSTR" };
 
   smatch uri_match_result;
 
@@ -61,6 +62,15 @@ unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
     return make_unique<S3StorageBackend>( credentials, endpoint.host,
                                           endpoint.options.count( "region" ) ? endpoint.options[ "region" ]
                                                                              : "us-east-1" );
+  }
+  else if ( endpoint.protocol == "redis" ) {
+    RedisClientConfig config;
+    config.ip = endpoint.host;
+    config.port = endpoint.port.get_or( config.port );
+    config.username = endpoint.username;
+    config.password = endpoint.password;
+
+    return make_unique<RedisStorageBackend>( config );
   }
   else {
     throw runtime_error( "unknown storage backend" );
