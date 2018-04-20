@@ -70,7 +70,7 @@ cd viddec-example
 
 ### Mapreduce: Word Count
 ```
-cd wordcount
+cd wordcount-example
 ./fetch-deps.sh
 ./gen_wordcount.py [-r <num-reducers>]
 
