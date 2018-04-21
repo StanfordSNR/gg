@@ -235,10 +235,10 @@ void usage( const char * argv0 )
   cerr << "Usage: " << argv0 << "[options] THUNK-HASH..." << endl
   << endl
   << "Options: " << endl
-  << " -g, --get-dependencies  Fetch the missing dependencies from the remote storage" << endl
-  << " -p, --put-output        Upload the output to the remote storage" << endl
-  << " -F, --fix-permissions   Make sure that all the executables have correct permissions" << endl
-  << " -C, --cleanup           Remove unnecessary blobs in .gg dir" << endl
+  << " -g, --get-dependencies       Fetch the missing dependencies from the remote storage" << endl
+  << " -p, --put-output [<backend>] Upload the output to the remote storage" << endl
+  << " -F, --fix-permissions        Make sure that all the executables have correct permissions" << endl
+  << " -C, --cleanup                Remove unnecessary blobs in .gg dir" << endl
   << endl;
 }
 
@@ -259,12 +259,13 @@ int main( int argc, char * argv[] )
     bool cleanup = false;
     bool fix_permissions = false;
     unique_ptr<StorageBackend> storage_backend;
+    unique_ptr<StorageBackend> output_backend;
 
     const option command_line_options[] = {
-      { "get-dependencies", no_argument, nullptr, 'g' },
-      { "put-output",       no_argument, nullptr, 'p' },
-      { "cleanup",          no_argument, nullptr, 'C' },
-      { "fix-permissions",  no_argument, nullptr, 'F' },
+      { "get-dependencies", no_argument,       nullptr, 'g' },
+      { "put-output",       optional_argument, nullptr, 'p' },
+      { "cleanup",          no_argument,       nullptr, 'C' },
+      { "fix-permissions",  no_argument,       nullptr, 'F' },
       { nullptr, 0, nullptr, 0 },
     };
 
@@ -277,9 +278,17 @@ int main( int argc, char * argv[] )
 
       switch ( opt ) {
       case 'g': get_dependencies = fix_permissions = true; break;
-      case 'p': put_output = true; break;
       case 'C': cleanup = true; break;
       case 'F': fix_permissions = true; break;
+
+      case 'p':
+        put_output = true;
+
+        if ( optarg != NULL) {
+          output_backend = StorageBackend::create_backend( optarg );
+        }
+
+        break;
 
       default:
         throw runtime_error( "invalid option: " + string { argv[ optind - 1 ] } );
@@ -330,7 +339,8 @@ int main( int argc, char * argv[] )
       vector<string> output_hashes = execute_thunk( thunk );
 
       if ( put_output ) {
-        upload_output( storage_backend, output_hashes );
+        upload_output( ( output_backend == nullptr ) ? storage_backend : output_backend,
+                       output_hashes );
       }
     }
 
