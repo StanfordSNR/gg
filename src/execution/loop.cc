@@ -290,10 +290,11 @@ uint64_t ExecutionLoop::make_listener( const Address & address,
 
 uint64_t ExecutionLoop::add_child_process( const string & tag,
                                            LocalCallbackFunc callback,
-                                           FailureCallbackFunc /* failure_callback */,
-                                           function<int()> && child_procedure )
+                                           function<int()> && child_procedure,
+                                           const bool throw_if_failed )
 {
-  child_processes_.emplace_back( current_id_, callback, ChildProcess( tag, move( child_procedure ) ) );
+  child_processes_.emplace_back( current_id_, throw_if_failed, callback,
+                                 ChildProcess( tag, move( child_procedure ) ) );
   return current_id_++;
 }
 
@@ -302,7 +303,7 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
   switch ( sig.ssi_signo ) {
   case SIGCONT:
     for ( auto & child : child_processes_ ) {
-      get<2>( child ).resume();
+      get<3>( child ).resume();
     }
     break;
 
@@ -312,7 +313,7 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
     }
 
     for ( auto it = child_processes_.begin(); it != child_processes_.end(); it++ ) {
-      ChildProcess & child = get<2>( *it );
+      ChildProcess & child = get<3>( *it );
 
       if ( child.terminated() or ( not child.waitable() ) ) {
         continue;
@@ -321,12 +322,12 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
       child.wait( true );
 
       if ( child.terminated() ) {
-        if ( child.exit_status() != 0 ) {
+        if ( get<1>( *it ) and child.exit_status() != 0 ) {
           child.throw_exception();
         }
 
-        auto & callback = get<1>( *it );
-        callback( get<0>( *it ), child.name() );
+        auto & callback = get<2>( *it );
+        callback( get<0>( *it ), child.name(), child.exit_status() );
 
         it = child_processes_.erase( it );
         it--;

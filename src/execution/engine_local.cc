@@ -16,7 +16,7 @@ void LocalExecutionEngine::force_thunk( const Thunk & thunk,
                                         ExecutionLoop & exec_loop )
 {
   exec_loop.add_child_process( thunk.hash(),
-    [this, outputs=thunk.outputs()] ( const uint64_t, const string & hash )
+    [this, outputs=thunk.outputs()] ( const uint64_t, const string & hash, const int )
     {
       running_jobs_--; /* XXX not thread-safe */
 
@@ -34,15 +34,12 @@ void LocalExecutionEngine::force_thunk( const Thunk & thunk,
 
       success_callback_( hash, move( thunk_outputs ), 0 );
     },
-    [this] ( const uint64_t, const string & thunk_hash )
-    {
-      failure_callback_( thunk_hash, JobStatus::ChildProcessFailure );
-    },
     [&thunk]()
     {
       vector<string> command { "gg-execute", thunk.hash() };
       return ezexec( command[ 0 ], command, {}, true, true );
-    }
+    },
+    true
   );
 
   running_jobs_++;

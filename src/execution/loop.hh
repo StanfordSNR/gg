@@ -22,7 +22,8 @@ class ExecutionLoop
 {
 public:
   typedef std::function<void( const uint64_t /* id */,
-                              const std::string & /* tag */ )> LocalCallbackFunc;
+                              const std::string & /* tag */,
+                              const int /* exit_status */ )> LocalCallbackFunc;
   typedef std::function<void( const uint64_t id /* id */,
                               const std::string & /* tag */,
                               const HTTPResponse & )> HTTPResponseCallbackFunc;
@@ -36,7 +37,7 @@ private:
   SignalFD signal_fd_;
 
   Poller poller_ {};
-  std::list<std::tuple<uint64_t, LocalCallbackFunc, ChildProcess>> child_processes_ {};
+  std::list<std::tuple<uint64_t, bool, LocalCallbackFunc, ChildProcess>> child_processes_ {};
   std::list<std::shared_ptr<TCPConnection>> connections_ {};
   std::list<std::shared_ptr<SSLConnection>> ssl_connections_ {};
 
@@ -55,8 +56,8 @@ public:
 
   uint64_t add_child_process( const std::string & tag,
                               LocalCallbackFunc callback,
-                              FailureCallbackFunc failure_callback,
-                              std::function<int()> && child_procedure );
+                              std::function<int()> && child_procedure,
+                              const bool throw_if_failed = true );
 
   template<class SocketType>
   std::shared_ptr<Connection<SocketType>>

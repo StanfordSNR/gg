@@ -107,7 +107,15 @@ int main( int argc, char * argv[] )
           /* now we can execute it */
           cerr << "[execute] " << execution_request.hash() << endl;
           loop.add_child_process( execution_request.hash(),
-            [execution_request, &connection] ( const uint64_t, const string & ) { /* success callback */
+            [hash=execution_request.hash(), execution_request, &connection]
+            ( const uint64_t, const string &, const int status ) mutable {
+              if ( status ) {
+                /* execution failed */
+                Message message { Message::OpCode::ExecutionFailed, move( hash ) };
+                connection->enqueue_write( message.str() );
+                return;
+              }
+
               const string & hash = execution_request.hash();
               protobuf::ResponseItem execution_response;
               execution_response.set_thunk_hash( execution_request.hash() );
@@ -135,10 +143,6 @@ int main( int argc, char * argv[] )
               Message message { Message::OpCode::Executed, protoutil::to_string( execution_response ) };
               connection->enqueue_write( message.str() );
             },
-            [hash=execution_request.hash(), &connection] ( const uint64_t, const string & ) mutable {
-              Message message { Message::OpCode::ExecutionFailed, move( hash ) };
-              connection->enqueue_write( message.str() );
-            },
             [hash=execution_request.hash()]()
             {
               vector<string> command { "gg-execute-static",
@@ -147,7 +151,8 @@ int main( int argc, char * argv[] )
                                        "--cleanup",
                                        "--fix-permissions", hash };
               return ezexec( command[ 0 ], command, {}, true, true );
-            }
+            },
+            false
           );
 
           break;
