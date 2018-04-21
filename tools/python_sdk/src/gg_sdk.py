@@ -472,7 +472,9 @@ class GG(object):
             pool.close()
             pool.join()
 
-            tot_inp = len(cmd_inp) * len(cmd_inp[0])
+            tot_inp = 0
+            for i in cmd_inp:
+              tot_inp += len(i)
             if tot_inp != len(inputs):
                 print("Error: cmd_inp (len: %d) != inputs (len: %d)" % (tot_inp, len(inputs)))
                 sys.exit(1)
