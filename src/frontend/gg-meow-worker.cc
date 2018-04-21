@@ -159,17 +159,21 @@ int main( int argc, char * argv[] )
             [alt_objects_requests, hash=execution_request.hash(),
              &output_backend, &output_backend_uri, &storage_backends]()
             {
-              if ( output_backend != nullptr ) {
-                output_backend->get( alt_objects_requests );
-              }
 
               vector<string> command { "gg-execute-static",
                                        "--get-dependencies",
                                        "--put-output",
-                                       ( output_backend == nullptr ) ? storage_backends.at( 0 )
-                                                                     : output_backend_uri,
                                        "--cleanup",
-                                       "--fix-permissions", hash };
+                                       "--fix-permissions" };
+
+              if ( output_backend != nullptr ) {
+                command.emplace_back( "--output-backend" );
+                command.emplace_back( output_backend_uri );
+                output_backend->get( alt_objects_requests );
+              }
+
+              command.emplace_back( hash );
+
               return ezexec( command[ 0 ], command, {}, true, true );
             }
           );

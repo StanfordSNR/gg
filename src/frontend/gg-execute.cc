@@ -265,14 +265,15 @@ int main( int argc, char * argv[] )
 
     const option command_line_options[] = {
       { "get-dependencies", no_argument,       nullptr, 'g' },
-      { "put-output",       optional_argument, nullptr, 'p' },
+      { "put-output",       no_argument,       nullptr, 'p' },
+      { "output-backend",   required_argument, nullptr, 'O' },
       { "cleanup",          no_argument,       nullptr, 'C' },
       { "fix-permissions",  no_argument,       nullptr, 'F' },
       { nullptr, 0, nullptr, 0 },
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "gpCF", command_line_options, nullptr );
+      const int opt = getopt_long( argc, argv, "gpCFO:", command_line_options, nullptr );
 
       if ( opt == -1 ) {
         break;
@@ -280,16 +281,12 @@ int main( int argc, char * argv[] )
 
       switch ( opt ) {
       case 'g': get_dependencies = fix_permissions = true; break;
+      case 'p': put_output = true; break;
       case 'C': cleanup = true; break;
       case 'F': fix_permissions = true; break;
 
-      case 'p':
-        put_output = true;
-
-        if ( optarg != NULL) {
-          output_backend = StorageBackend::create_backend( optarg );
-        }
-
+      case 'O':
+        output_backend = StorageBackend::create_backend( optarg );
         break;
 
       default:
