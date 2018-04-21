@@ -6,6 +6,7 @@ message RequestItem {
   string hash = 1;
   string data = 2;
   repeated string outputs = 3;
+  map<string, uint32> alt_objects = 4;
 }
 
 message ExecutionRequest {
