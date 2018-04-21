@@ -6,13 +6,17 @@
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"
+#include "util/tokenize.hh"
 #include "util/path.hh"
+#include "util/util.hh"
 
 #include "toolchain.hh"
 
 using namespace std;
 using namespace gg;
 using namespace gg::thunk;
+
+const string extra_envar { "GG_GENERIC_EXTRA" };
 
 void usage( const char * argv0  )
 {
@@ -76,6 +80,13 @@ void generate_thunk( const CLIDescription & cli_description,
 
   if ( outfiles.size() == 0 ) {
     outfiles.emplace_back( "out" );
+  }
+
+  if ( getenv( extra_envar.c_str() ) != nullptr ) {
+    vector<string> extras = split( safe_getenv( extra_envar ), ":" );
+    for ( const string & extra : extras ) {
+      indata.emplace_back( "", extra );
+    }
   }
 
   ThunkFactory::Data executable =
