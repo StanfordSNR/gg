@@ -16,6 +16,7 @@
 #include "execution/loop.hh"
 #include "execution/meow/message.hh"
 #include "execution/meow/util.hh"
+#include "storage/backend.hh"
 #include "util/base64.hh"
 #include "util/exception.hh"
 #include "util/path.hh"
@@ -50,13 +51,23 @@ int main( int argc, char * argv[] )
       throw runtime_error( "invalid port" );
     }
 
+    vector<string> storage_backends = gg::remote::storage_backends();
+    unique_ptr<StorageBackend> output_backend;
+    string output_backend_uri;
+
+    if ( storage_backends.size() > 1 ) {
+      output_backend_uri = storage_backends.at( 1 );
+      output_backend = StorageBackend::create_backend( output_backend_uri );
+    }
+
     Address coordinator_addr { argv[ 1 ], static_cast<uint16_t>( port_argv ) };
     ExecutionLoop loop;
 
     MessageParser message_parser;
     /* let's make a connection back to the coordinator */
     shared_ptr<TCPConnection> connection = loop.make_connection<TCPConnection>( coordinator_addr,
-      [&message_parser] ( TCPConnection &, string && data ) {
+      [&message_parser, &output_backend, &output_backend_uri, &storage_backends]
+      ( TCPConnection &, string && data ) {
         message_parser.parse( data );
         return true;
       },
@@ -139,11 +150,13 @@ int main( int argc, char * argv[] )
               Message message { Message::OpCode::ExecutionFailed, move( hash ) };
               connection->enqueue_write( message.str() );
             },
-            [hash=execution_request.hash()]()
+            [hash=execution_request.hash(), &output_backend, &output_backend_uri, &storage_backends]()
             {
               vector<string> command { "gg-execute-static",
                                        "--get-dependencies",
                                        "--put-output",
+                                       ( output_backend == nullptr ) ? storage_backends.at( 0 )
+                                                                     : output_backend_uri,
                                        "--cleanup",
                                        "--fix-permissions", hash };
               return ezexec( command[ 0 ], command, {}, true, true );
