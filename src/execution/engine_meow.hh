@@ -13,6 +13,7 @@
 #include "net/aws.hh"
 #include "net/lambda.hh"
 #include "net/socket.hh"
+#include "thunk/graph.hh"
 
 class MeowExecutionEngine : public ExecutionEngine
 {
@@ -47,8 +48,9 @@ private:
   uint64_t current_id_ { 0 };
   std::map<uint64_t, Lambda> lambdas_ {};
   std::set<uint64_t> free_lambdas_ {};
-
   std::queue<gg::thunk::Thunk> thunks_queue_ {};
+
+  std::unordered_set<std::string> original_dependencies_ {};
 
   HTTPRequest generate_request();
 
@@ -62,7 +64,7 @@ public:
                        const std::string & region,
                        const Address & listen_addr );
 
-  void init( ExecutionLoop & loop ) override;
+  void init( ExecutionLoop & loop, const ExecutionGraph & graph ) override;
 
   void force_thunk( const gg::thunk::Thunk & thunk,
                     ExecutionLoop & exec_loop ) override;

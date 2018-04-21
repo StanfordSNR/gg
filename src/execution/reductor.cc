@@ -153,7 +153,7 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
   for ( auto & ee : exec_engines_ ) {
     ee->set_success_callback( success_callback );
     ee->set_failure_callback( failure_callback );
-    ee->init( exec_loop_ );
+    ee->init( exec_loop_, dep_graph_ );
   }
 }
 

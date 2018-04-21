@@ -9,6 +9,7 @@
 #include "loop.hh"
 #include "response.hh"
 #include "thunk/thunk.hh"
+#include "thunk/graph.hh"
 
 class ExecutionEngine
 {
@@ -32,7 +33,7 @@ public:
   void set_success_callback( SuccessCallbackFunc func ) { success_callback_ = func; }
   void set_failure_callback( FailureCallbackFunc func ) { failure_callback_ = func; }
 
-  virtual void init( ExecutionLoop & ) {}
+  virtual void init( ExecutionLoop &, const ExecutionGraph & ) {}
   virtual void force_thunk( const gg::thunk::Thunk & thunk, ExecutionLoop & exec_loop ) = 0;
   virtual bool is_remote() const = 0;
   virtual bool can_execute( const gg::thunk::Thunk & thunk ) const = 0;
