@@ -9,29 +9,21 @@ import base64
 import multiprocessing as mp # For getting number of cores
 import magic # pip install python_magic
 
-from threading import Thread
-from concurrent.futures import Future
+from multiprocessing import Pool
 from timeit import default_timer as now
 
 """
-Function used in conjunction with threaded for returning values
+Function to do multiprocessing
 """
-def call_with_future(fn, future, args, kwargs):
-    try:
-        result = fn(*args, **kwargs)
-        future.set_result(result)
-    except Exception as exc:
-        future.set_exception(exc)
+def mp_func(my_chunk):
+    for c in my_chunk:
+        c.generate_thunk(0)
 
-"""
-Function for multithreading thunk generation in force()
-"""
-def threaded(fn):
-    def wrapper(*args, **kwargs):
-        future = Future()
-        Thread(target=call_with_future, args=(fn, future, args, kwargs)).start()
-        return future
-    return wrapper
+    all_out = []
+    for inf in my_chunk:
+        all_out.extend(inf.get_all_outname())
+
+    return all_out
 
 """
 GGThunk class. Each function is represented through this IR.
@@ -221,7 +213,7 @@ class GGThunk(object):
     """
     def get_hash(self):
         if self.thunk_hash == '':
-            self.thunk_hash = __file_hash(self.exe)
+            self.thunk_hash = self.__file_hash(self.exe)
 
         return self.thunk_hash
 
@@ -402,29 +394,6 @@ class GG(object):
             print("Initialized gg directory at: " + os.getcwd() + "/.gg")
 
     """
-    Infer build from make builds
-    """
-    def infer_build_make(self, np=-1):
-        make_cmd = 'make -j'
-        if nproc != -1:
-            if nproc == 0:
-                make_cmd += '1'
-            else:
-                make_cmd += str(np)
-        in_proc = sp.Popen(['gg-infer', make_cmd], stdout=sp.PIPE)
-        out = in_proc.communicate()[0]
-        return out
-
-    """
-    Infer builds using model-gcc
-    """
-    def infer_build_mgcc(self, gcc_cmd):
-        cmd = ['model-gcc'] + gcc_cmd.split()
-        in_proc = sp.Popen(cmd, stdout=sp.PIPE)
-        out = in_proc.communicate()[0]
-        return out
-
-    """
     Generate gg-force command
     """
     def __get_force_comm(self, inputs, showstatus, env, genfunc, numjobs):
@@ -453,20 +422,6 @@ class GG(object):
 
         cmd = cmd_start + nj_inp + inputs
         return cmd
-
-    """
-    Multi-threading function for creating placeholders in parallel
-    """
-    @threaded
-    def __distr_thunk_gen(self, my_chunk):
-        for c in my_chunk:
-            c.generate_thunk(0)
-
-        all_out = []
-        for inf in my_chunk:
-            all_out.extend(inf.get_all_outname())
-
-        return all_out
 
     """
     Function called by user to create thunks.
@@ -499,24 +454,27 @@ class GG(object):
                     out_index += 1
 
             # Multithread thunk generation
-            all_threads = []
+            pool_inps = []
             num_cores = mp.cpu_count()
             if len(inputs) < num_cores:
                 for inp in inputs:
-                    all_threads.append(self.__distr_thunk_gen([inp]))
+                    pool_inps.extend([inp])
             else:
                 batch_size = int(len(inputs) / num_cores)
                 for i in range(num_cores):
                     if i < num_cores-1:
-                        all_threads.append(self.__distr_thunk_gen(inputs[i*batch_size:i*batch_size+batch_size]))
+                        pool_inps.extend([inputs[i*batch_size:i*batch_size+batch_size]])
                     else:
-                        all_threads.append(self.__distr_thunk_gen(inputs[i*batch_size:]))
+                        pool_inps.extend([inputs[i*batch_size:]])
 
-            for at in all_threads:
-                cmd_inp.extend(at.result())
+            pool = Pool(num_cores)
+            cmd_inp = pool.map(mp_func, pool_inps)
+            pool.close()
+            pool.join()
 
-            if len(cmd_inp) != len(inputs):
-                print("Error: cmd_inp != inputs")
+            tot_inp = len(cmd_inp) * len(cmd_inp[0])
+            if tot_inp != len(inputs):
+                print("Error: cmd_inp (len: %d) != inputs (len: %d)" % (tot_inp, len(inputs)))
                 sys.exit(1)
         elif isinstance(inputs[0], str):
             print("Nothing to generate...")
