@@ -28,6 +28,7 @@ struct StorageEndpoint
   std::unordered_map<std::string, std::string> options {};
 };
 
+/* TODO refactor this interface */
 class StorageBackend
 {
 public:
