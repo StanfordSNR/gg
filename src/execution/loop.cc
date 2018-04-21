@@ -67,11 +67,11 @@ void ExecutionLoop::remove_connection<SSLConnection>( const list<shared_ptr<SSLC
 template<>
 shared_ptr<TCPConnection>
 ExecutionLoop::add_connection( TCPSocket && socket,
-                               const function<bool(TCPConnection &, string &&)> & data_callback,
+                               const function<bool(shared_ptr<TCPConnection>, string &&)> & data_callback,
                                const function<void()> & error_callback,
                                const function<void()> & close_callback )
 {
-  const auto connection_it = create_connection<TCPSocket>( move( socket ) );
+  auto connection_it = create_connection<TCPSocket>( move( socket ) );
   shared_ptr<TCPConnection> & connection = *connection_it;
 
   auto real_close_callback =
@@ -114,7 +114,7 @@ ExecutionLoop::add_connection( TCPSocket && socket,
       {
         string data { move( connection->socket_.read() ) };
 
-        if ( data.empty() or not data_callback( *connection, move( data ) ) ) {
+        if ( data.empty() or not data_callback( connection, move( data ) ) ) {
           close_callback();
           return ResultType::CancelAll;
         }
@@ -132,7 +132,7 @@ ExecutionLoop::add_connection( TCPSocket && socket,
 template<>
 shared_ptr<SSLConnection>
 ExecutionLoop::add_connection( NBSecureSocket && socket,
-                               const function<bool(SSLConnection &, string &&)> & data_callback,
+                               const function<bool(shared_ptr<SSLConnection>, string &&)> & data_callback,
                                const function<void()> & error_callback,
                                const function<void()> & close_callback )
 {
@@ -177,7 +177,7 @@ ExecutionLoop::add_connection( NBSecureSocket && socket,
       {
         string data { move( connection->socket_.ezread() ) };
 
-        if ( data.empty() or not data_callback( *connection, move( data ) ) ) {
+        if ( data.empty() or not data_callback( connection, move( data ) ) ) {
           close_callback();
           return ResultType::CancelAll;
         }
@@ -195,7 +195,7 @@ ExecutionLoop::add_connection( NBSecureSocket && socket,
 template<>
 shared_ptr<TCPConnection>
 ExecutionLoop::make_connection( const Address & address,
-                                const function<bool(TCPConnection &, string &&)> & data_callback,
+                                const function<bool(shared_ptr<TCPConnection>, string &&)> & data_callback,
                                 const function<void()> & error_callback,
                                 const function<void()> & close_callback )
 {
@@ -203,13 +203,13 @@ ExecutionLoop::make_connection( const Address & address,
   socket.set_blocking( false );
   socket.connect_nonblock( address );
 
-  return add_connection( move( socket ), data_callback, error_callback, close_callback );
+  return add_connection<TCPSocket>( move( socket ), data_callback, error_callback, close_callback );
 }
 
 template<>
 shared_ptr<SSLConnection>
 ExecutionLoop::make_connection( const Address & address,
-                                const function<bool(SSLConnection &, string &&)> & data_callback,
+                                const function<bool(shared_ptr<SSLConnection>, string &&)> & data_callback,
                                 const function<void()> & error_callback,
                                 const function<void()> & close_callback )
 {
@@ -219,7 +219,7 @@ ExecutionLoop::make_connection( const Address & address,
   NBSecureSocket secure_socket { move( ssl_context_.new_secure_socket( move( socket ) ) ) };
   secure_socket.connect();
 
-  return add_connection( move( secure_socket ), data_callback, error_callback, close_callback );
+  return add_connection<NBSecureSocket>( move( secure_socket ), data_callback, error_callback, close_callback );
 }
 
 template<class ConnectionType>
@@ -235,7 +235,7 @@ uint64_t ExecutionLoop::make_http_request( const string & tag,
   parser->new_request_arrived( request );
 
   auto data_callback =
-    [parser, connection_id, tag, response_callback] ( ConnectionType &, string && data ) {
+    [parser, connection_id, tag, response_callback] ( shared_ptr<ConnectionType>, string && data ) {
       parser->parse( data );
 
       if ( not parser->empty() ) {

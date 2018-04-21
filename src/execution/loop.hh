@@ -62,14 +62,16 @@ public:
   template<class SocketType>
   std::shared_ptr<Connection<SocketType>>
   add_connection( SocketType && socket,
-                  const std::function<bool(Connection<SocketType> &, std::string &&)> & data_callback,
+                  const std::function<bool(std::shared_ptr<Connection<SocketType>>,
+                                           std::string &&)> & data_callback,
                   const std::function<void()> & error_callback = [](){},
                   const std::function<void()> & close_callback = [](){} );
 
   template<class ConnectionType>
   std::shared_ptr<ConnectionType>
   make_connection( const Address & address,
-                   const std::function<bool(ConnectionType &, std::string &&)> & data_callback,
+                   const std::function<bool(std::shared_ptr<ConnectionType>,
+                                            std::string &&)> & data_callback,
                    const std::function<void()> & error_callback = [](){},
                    const std::function<void()> & close_callback = [](){} );
 

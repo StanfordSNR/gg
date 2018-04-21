@@ -65,7 +65,7 @@ int main( int argc, char * argv[] )
         auto request_parser = make_shared<HTTPRequestParser>();
 
         auto connection = loop.add_connection<TCPSocket>( move( socket ),
-          [request_parser] ( TCPConnection & connection, string && data ) {
+          [request_parser] ( shared_ptr<TCPConnection> connection, string && data ) {
             request_parser->parse( data );
 
             while ( not request_parser->empty() ) {
@@ -78,13 +78,13 @@ int main( int argc, char * argv[] )
 
               if ( first_space == string::npos or last_space == string::npos ) {
                 /* wrong http request */
-                connection.enqueue_write( get_canned_response( 400, request ) );
+                connection->enqueue_write( get_canned_response( 400, request ) );
                 continue;
               }
 
               if ( first_line.substr( 0, first_space ) != "GET" ) {
                 /* only GET requests are supported */
-                connection.enqueue_write( get_canned_response( 405, request ) );
+                connection->enqueue_write( get_canned_response( 405, request ) );
                 continue;
               }
 
@@ -95,7 +95,7 @@ int main( int argc, char * argv[] )
               if ( not roost::exists( object_path ) or
                    roost::is_directory( object_path ) or
                    requested_object.find( '/' ) != string::npos ) {
-                connection.enqueue_write( get_canned_response( 404, request ) );
+                connection->enqueue_write( get_canned_response( 404, request ) );
                 continue;
               }
 
@@ -109,7 +109,7 @@ int main( int argc, char * argv[] )
               response.read_in_body( payload );
               assert( response.state() == COMPLETE );
 
-              connection.enqueue_write( response.str() );
+              connection->enqueue_write( response.str() );
               cerr << "served " << requested_object << endl;
             }
 

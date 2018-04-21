@@ -54,7 +54,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
       auto message_parser = make_shared<meow::MessageParser>();
 
       auto connection = loop.add_connection<TCPSocket>( move( socket ),
-        [message_parser, id=current_id_, this] ( TCPConnection &, string && data ) {
+        [message_parser, id=current_id_, this] ( shared_ptr<TCPConnection>, string && data ) {
           message_parser->parse( data );
 
           while ( not message_parser->empty() ) {
