@@ -34,8 +34,14 @@ Message meow::create_put_message( const string & hash )
   return { Message::OpCode::Put, move( requested_file ) };
 }
 
-Message meow::create_execute_message( const Thunk & thunk )
+Message meow::create_execute_message( const Thunk & thunk,
+                                      const vector<pair<string, uint32_t>> & alt_objects )
 {
-  string execution_payload = protoutil::to_string( Thunk::execution_request( thunk ) );
+  auto execution_request = Thunk::execution_request( thunk );
+
+  *execution_request.mutable_alt_objects() =
+    google::protobuf::Map<string, google::protobuf::uint32_t>( alt_objects.begin(), alt_objects.end() );
+
+  string execution_payload = protoutil::to_string( execution_request );
   return { Message::OpCode::Execute, move( execution_payload ) };
 }
