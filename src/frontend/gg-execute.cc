@@ -37,29 +37,31 @@ vector<string> execute_thunk( const Thunk & original_thunk )
 {
   Thunk thunk = original_thunk;
 
-  // if ( not thunk.can_be_executed() ) {
-  //   /* Let's see if we can redudce this thunk to an order one thunk by updating
-  //   the infiles */
-  //   for ( const Thunk::DataItem & dep_item : thunk.thunks() ) {
-  //     /* let's check if we have a reduction of this infile */
-  //     vector<ThunkOutput> new_outputs;
-  //
-  //     auto result = gg::cache::check( dep_item.first );
-  //
-  //     if ( not result.initialized() or
-  //          gg::hash::type( result->hash ) == gg::ObjectType::Thunk ) {
-  //       throw runtime_error( "thunk is not executable and cannot be "
-  //                            "reduced to an executable thunk" );
-  //     }
-  //
-  //     thunk.update_data( dep_item.first, result->hash );
-  //   }
-  //
-  //   thunk.set_hash( ThunkWriter::write( thunk ) );
-  //
-  //   cerr << "thunk:" << original_thunk.hash() << " reduced to "
-  //        << "thunk:" << thunk.hash() << "." << endl;
-  // }
+  if ( not thunk.can_be_executed() ) {
+    throw ExecutionError {};
+
+    /* Let's see if we can redudce this thunk to an order one thunk by updating
+    the infiles */
+    // for ( const Thunk::DataItem & dep_item : thunk.thunks() ) {
+    //   /* let's check if we have a reduction of this infile */
+    //   vector<ThunkOutput> new_outputs;
+    //
+    //   auto result = gg::cache::check( dep_item.first );
+    //
+    //   if ( not result.initialized() or
+    //        gg::hash::type( result->hash ) == gg::ObjectType::Thunk ) {
+    //     throw runtime_error( "thunk is not executable and cannot be "
+    //                          "reduced to an executable thunk" );
+    //   }
+    //
+    //   thunk.update_data( dep_item.first, result->hash );
+    // }
+    //
+    // thunk.set_hash( ThunkWriter::write( thunk ) );
+    //
+    // cerr << "thunk:" << original_thunk.hash() << " reduced to "
+    //      << "thunk:" << thunk.hash() << "." << endl;
+  }
 
   /* when executing the thunk, we create a temp directory, and execute the thunk
      in that directory. then we take the outfile, compute the hash, and move it
