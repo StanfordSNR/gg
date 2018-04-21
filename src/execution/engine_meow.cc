@@ -44,8 +44,13 @@ MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
     listen_addr_( listen_addr ), listen_socket_()
 {}
 
-void MeowExecutionEngine::init( ExecutionLoop & exec_loop, const ExecutionGraph & )
+void MeowExecutionEngine::init( ExecutionLoop & exec_loop, const ExecutionGraph & graph )
 {
+  original_dependencies_.insert( graph.value_dependencies().begin(),
+                                 graph.value_dependencies().end() );
+  original_dependencies_.insert( graph.executable_dependencies().begin(),
+                                 graph.executable_dependencies().end() );
+
   exec_loop.make_listener( listen_addr_,
     [this] ( ExecutionLoop & loop, TCPSocket && socket ) {
       cerr << "[meow] Incoming connection: "
