@@ -112,6 +112,12 @@ int main( int argc, char * argv[] )
           roost::atomic_create( base64::decode( execution_request.data() ),
                                 gg::paths::blob_path( execution_request.hash() ) );
 
+          /* list of objects to download from secondary storage */
+          vector<storage::GetRequest> alt_objects_requests;
+          for ( auto & item : execution_request.alt_objects() ) {
+            alt_objects_requests.emplace_back( item.first, gg::paths::blob_path( item.first ) );
+          }
+
           /* making it cheaper to copy */
           execution_request.set_data( "" );
 
@@ -150,8 +156,13 @@ int main( int argc, char * argv[] )
               Message message { Message::OpCode::ExecutionFailed, move( hash ) };
               connection->enqueue_write( message.str() );
             },
-            [hash=execution_request.hash(), &output_backend, &output_backend_uri, &storage_backends]()
+            [alt_objects_requests, hash=execution_request.hash(),
+             &output_backend, &output_backend_uri, &storage_backends]()
             {
+              if ( output_backend != nullptr ) {
+                output_backend->get( alt_objects_requests );
+              }
+
               vector<string> command { "gg-execute-static",
                                        "--get-dependencies",
                                        "--put-output",
