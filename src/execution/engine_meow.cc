@@ -150,11 +150,19 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop, const ExecutionGraph 
 void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
 {
   /** (1) send all the dependencies **/
+  vector<pair<string, uint32_t>> alt_objects;
+
   unordered_set<string> lambda_objects;
   for ( const auto & item : join_containers( thunk.values(), thunk.executables() ) ) {
     if ( not lambda.objects.count( item.first ) and
          not gg::remote::is_available( item.first ) ) {
       lambda.connection->enqueue_write( meow::create_put_message( item.first ).str() );
+    }
+
+    if ( not original_dependencies_.count( item.first ) ) {
+      /* this is an intermediate object--the Lambda should look for it in the
+         second storage backend */
+      alt_objects.emplace_back( item.first, 1 );
     }
 
     lambda_objects.insert( item.first );
@@ -163,7 +171,7 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   lambda.objects = move( lambda_objects );
 
   /** (2) send the request for thunk execution */
-  lambda.connection->enqueue_write( meow::create_execute_message( thunk ).str() );
+  lambda.connection->enqueue_write( meow::create_execute_message( thunk, alt_objects ).str() );
 
   /** (3) update Lambda's state **/
   lambda.state = Lambda::State::Busy;
