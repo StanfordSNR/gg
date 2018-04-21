@@ -174,13 +174,18 @@ namespace gg {
       return bucket;
     }
 
-    std::string storage_backend_uri()
+    string storage_backend_env()
     {
       const static string uri = safe_getenv( "GG_STORAGE_URI" );
       if ( uri.length() == 0 ) {
         throw runtime_error( "GG_STORAGE_URI environment variable not set" );
       }
       return uri;
+    }
+
+    vector<string> storage_backends()
+    {
+      return split( storage_backend_env(), ";" );
     }
 
     pair<string, uint16_t> runner_server()

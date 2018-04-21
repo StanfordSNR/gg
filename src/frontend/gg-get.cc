@@ -26,7 +26,7 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    unique_ptr<StorageBackend> storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
+    unique_ptr<StorageBackend> storage_backend = StorageBackend::create_backend( gg::remote::storage_backends().at( 0 ) );
 
     vector<storage::GetRequest> get_requests;
     for ( int i = 1; i < argc; i++ ) {

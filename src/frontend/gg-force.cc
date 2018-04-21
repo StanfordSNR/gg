@@ -220,7 +220,7 @@ int main( int argc, char * argv[] )
     }
 
     if ( remote_execution ) {
-      storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
+      storage_backend = StorageBackend::create_backend( gg::remote::storage_backends().at( 0 ) );
     }
 
     Reductor reductor { target_hashes, max_jobs,

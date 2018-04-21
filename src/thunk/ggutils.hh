@@ -33,7 +33,8 @@ namespace gg {
     bool is_available( const std::string & hash );
     void set_available( const std::string & hash );
 
-    std::string storage_backend_uri();
+    std::string storage_backend_env();
+    std::vector<std::string> storage_backends();
     std::pair<std::string, uint16_t> runner_server();
   }
 

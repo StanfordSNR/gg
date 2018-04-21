@@ -319,7 +319,7 @@ int main( int argc, char * argv[] )
       Thunk thunk = ThunkReader::read( thunk_path );
 
       if ( get_dependencies or put_output ) {
-        storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
+        storage_backend = StorageBackend::create_backend( gg::remote::storage_backends().at( 0 ) );
       }
 
       if ( cleanup ) {

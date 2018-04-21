@@ -242,7 +242,7 @@ string Thunk::execution_payload( const vector<Thunk> & thunks )
     *request.add_thunks() = execution_request( thunk );
   }
 
-  request.set_storage_backend( gg::remote::storage_backend_uri() );
+  request.set_storage_backend( gg::remote::storage_backend_env() );
   return protoutil::to_json( request );
 }
 
