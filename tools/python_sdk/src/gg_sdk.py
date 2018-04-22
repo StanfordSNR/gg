@@ -458,14 +458,14 @@ class GG(object):
             num_cores = mp.cpu_count()
             if len(inputs) < num_cores:
                 for inp in inputs:
-                    pool_inps.extend([inp])
+                    pool_inps.append([inp])
             else:
                 batch_size = int(len(inputs) / num_cores)
                 for i in range(num_cores):
                     if i < num_cores-1:
-                        pool_inps.extend([inputs[i*batch_size:i*batch_size+batch_size]])
+                        pool_inps.append(inputs[i*batch_size:i*batch_size+batch_size])
                     else:
-                        pool_inps.extend([inputs[i*batch_size:]])
+                        pool_inps.append(inputs[i*batch_size:])
 
             pool = Pool(num_cores)
             cmd_inp = pool.map(mp_func, pool_inps)
