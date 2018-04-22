@@ -59,6 +59,9 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
+    /* make sure that .gg directory exists */
+    gg::paths::blobs();
+
     int port_argv = stoi( argv[ 2 ] );
 
     if ( port_argv <= 0 or port_argv > numeric_limits<uint16_t>::max() ) {
