@@ -46,7 +46,7 @@ MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
 
 void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 {
-  exec_loop.make_listener( listen_addr_,
+  exec_loop.make_listener( { "0.0.0.0", listen_addr_.port() },
     [this] ( ExecutionLoop & loop, TCPSocket && socket ) {
       cerr << "[meow] Incoming connection: "
            << socket.peer_address().str() << endl;
