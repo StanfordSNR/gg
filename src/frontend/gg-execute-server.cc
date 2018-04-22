@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
+#include <map>
 
 #include "protobufs/gg.pb.h"
 #include "protobufs/util.hh"
@@ -20,6 +21,26 @@
 
 using namespace std;
 using namespace gg;
+
+string get_canned_response( const int status, const HTTPRequest & request )
+{
+  const static map<int, string> status_messages = {
+    { 400, "Bad Request" },
+    { 404, "Not Found" },
+    { 405, "Mehtod Not Allowed" },
+  };
+
+  HTTPResponse response;
+  response.set_request( request );
+  response.set_first_line( "HTTP/1.1 " + to_string( status ) + " " + status_messages.at( status ) );
+  response.add_header( HTTPHeader{ "Content-Length", "0" } );
+  response.add_header( HTTPHeader{ "Content-Type", "text/plain" } );
+  response.done_with_headers();
+  response.read_in_body( "" );
+  assert( response.state() == COMPLETE );
+
+  return response.str();
+}
 
 void usage( char * argv0 )
 {
@@ -63,7 +84,13 @@ int main( int argc, char * argv[] )
               request_parser->pop();
 
               protobuf::ExecutionRequest exec_request;
-              protoutil::from_json( http_request.body(), exec_request );
+
+              try {
+                protoutil::from_json( http_request.body(), exec_request );
+              }
+              catch (...) {
+                connection->enqueue_write( get_canned_response( 400, http_request ) );
+              }
 
               /* now we should execute the thunk */
               loop.add_child_process( "thunk-execution",
@@ -123,6 +150,9 @@ int main( int argc, char * argv[] )
                   http_response.done_with_headers();
                   http_response.read_in_body( response_json );
                   assert( http_response.state() == COMPLETE );
+
+                  auto conn = conn_weak.lock();
+                  conn->enqueue_write( http_response.str() );
                 },
                 [exec_request] () -> int { /* child process */
                   setenv( "GG_STORAGE_URI", exec_request.storage_backend().c_str(), true );

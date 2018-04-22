@@ -19,7 +19,7 @@ gg-create-thunk
 gg-collect
 gg-put
 gg-get
-gg-worker
+gg-execute-server
 gg-meow-worker
 gg-meow-worker-static
 gg-object-server
