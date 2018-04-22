@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rm -rf x* origtext *.out .gg 
+rm -rf x* origtext *.out *.zip .gg 
