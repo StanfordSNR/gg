@@ -191,10 +191,20 @@ int main( int argc, char * argv[] )
           AWSCredentials(), AWS::region() ) );
       }
       else if ( engine.first == "remote" ) {
-        auto runner_server = gg::remote::runner_server();
+        if ( engine.second.length() == 0 ) {
+          throw runtime_error( "remote: missing host ip" );
+        }
+
+        uint16_t port = 9924;
+        string::size_type colonpos = engine.second.find( ':' );
+        string host_ip = engine.second.substr( 0, colonpos );
+
+        if ( colonpos != string::npos ) {
+          port = stoi( engine.second.substr( colonpos + 1 ) );
+        }
 
         execution_engines.emplace_back( make_unique<GGExecutionEngine>(
-          runner_server.first, runner_server.second ) );
+          Address { host_ip, port } ) );
       }
       else if ( engine.first == "meow" ) {
         if ( engine.second.length() == 0 ) {

@@ -183,17 +183,6 @@ namespace gg {
       return uri;
     }
 
-    pair<string, uint16_t> runner_server()
-    {
-      const static string address = safe_getenv( "GG_RUNNER_SERVER" );
-      if ( address.length() == 0 ) {
-        throw runtime_error( "GG_RUNNER_SERVER environment variable not set" );
-      }
-      vector<string> data = split( address, ":" );
-
-      return { data.at( 0 ), stoul( data.at( 1 ) ) };
-    }
-
   }
 
   namespace cache {

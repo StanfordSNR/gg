@@ -17,8 +17,8 @@ private:
   HTTPRequest generate_request( const gg::thunk::Thunk & thunk );
 
 public:
-  GGExecutionEngine( const std::string & address, const uint16_t port )
-    : address_( address, port )
+  GGExecutionEngine( const Address & address )
+    : address_( address )
   {}
 
   void force_thunk( const gg::thunk::Thunk & thunk,
