@@ -243,10 +243,9 @@ void S3Client::download_files( const std::string & bucket,
                   const size_t response_index = first_file_idx + response_count * thread_count;
                   const string & filename = download_requests.at( response_index ).filename.string();
 
-                  UniqueFile temp_file { filename };
-                  temp_file.write( responses.front().body() );
-                  temp_file.fd().close();
-                  roost::rename( temp_file.name(), filename );
+                  roost::atomic_create( responses.front().body(), filename,
+                                        download_requests[ response_index ].mode.initialized(),
+                                        download_requests[ response_index ].mode.get_or( 0 ) );
 
                   success_callback( download_requests[ response_index ] );
                 }

@@ -172,7 +172,10 @@ void Redis::download_files( const vector<storage::GetRequest> & download_request
               const size_t response_index = first_file_idx + response_count * thread_count;
               const string & filename = download_requests.at( response_index ).filename.string();
 
-              roost::atomic_create( str_data, filename );
+              roost::atomic_create( str_data, filename,
+                                    download_requests[ response_index ].mode.initialized(),
+                                    download_requests[ response_index ].mode.get_or( 0 ) );
+
               success_callback( download_requests[ response_index ] );
 
               response_count++;
