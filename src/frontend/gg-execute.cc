@@ -187,21 +187,28 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
 {
   try {
     vector<storage::GetRequest> download_items;
+    bool executables = false;
 
     auto check_dep =
-      [&download_items]( const Thunk::DataItem & item ) -> void
+      [&download_items, &executables]( const Thunk::DataItem & item ) -> void
       {
         const auto target_path = gg::paths::blob_path( item.first );
 
         if ( not roost::exists( target_path )
              or roost::file_size( target_path ) != gg::hash::size( item.first ) ) {
-          download_items.push_back( { item.first, target_path } );
+          if ( executables ) {
+            download_items.push_back( { item.first, target_path, 0544 } );
+          }
+          else {
+            download_items.push_back( { item.first, target_path, 0444 } );
+          }
         }
       };
 
     for_each( thunk.values().cbegin(), thunk.values().cend(),
               check_dep );
 
+    executables = true;
     for_each( thunk.executables().cbegin(), thunk.executables().cend(),
               check_dep );
 
@@ -237,7 +244,6 @@ void usage( const char * argv0 )
   << "Options: " << endl
   << " -g, --get-dependencies  Fetch the missing dependencies from the remote storage" << endl
   << " -p, --put-output        Upload the output to the remote storage" << endl
-  << " -F, --fix-permissions   Make sure that all the executables have correct permissions" << endl
   << " -C, --cleanup           Remove unnecessary blobs in .gg dir" << endl
   << endl;
 }
@@ -257,29 +263,26 @@ int main( int argc, char * argv[] )
     bool get_dependencies = false;
     bool put_output = false;
     bool cleanup = false;
-    bool fix_permissions = false;
     unique_ptr<StorageBackend> storage_backend;
 
     const option command_line_options[] = {
       { "get-dependencies", no_argument, nullptr, 'g' },
       { "put-output",       no_argument, nullptr, 'p' },
       { "cleanup",          no_argument, nullptr, 'C' },
-      { "fix-permissions",  no_argument, nullptr, 'F' },
       { nullptr, 0, nullptr, 0 },
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "gpCF", command_line_options, nullptr );
+      const int opt = getopt_long( argc, argv, "gpC", command_line_options, nullptr );
 
       if ( opt == -1 ) {
         break;
       }
 
       switch ( opt ) {
-      case 'g': get_dependencies = fix_permissions = true; break;
+      case 'g': get_dependencies = true; break;
       case 'p': put_output = true; break;
       case 'C': cleanup = true; break;
-      case 'F': fix_permissions = true; break;
 
       default:
         throw runtime_error( "invalid option: " + string { argv[ optind - 1 ] } );
@@ -319,12 +322,6 @@ int main( int argc, char * argv[] )
 
       if ( get_dependencies ) {
         fetch_dependencies( storage_backend, thunk );
-      }
-
-      if ( fix_permissions ) {
-        for ( const Thunk::DataItem & item : thunk.executables() ) {
-          roost::make_executable( gg::paths::blob_path( item.first ) );
-        }
       }
 
       vector<string> output_hashes = execute_thunk( thunk );

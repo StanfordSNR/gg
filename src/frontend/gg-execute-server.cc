@@ -161,7 +161,6 @@ int main( int argc, char * argv[] )
                     "gg-execute-static",
                     "--get-dependencies",
                     "--put-output",
-                    "--fix-permissions",
                     // "--cleanup"
                   };
 

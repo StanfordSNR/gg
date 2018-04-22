@@ -149,7 +149,7 @@ int main( int argc, char * argv[] )
                                        "--get-dependencies",
                                        "--put-output",
                                        "--cleanup",
-                                       "--fix-permissions", hash };
+                                       hash };
               return ezexec( command[ 0 ], command, {}, true, true );
             },
             false
