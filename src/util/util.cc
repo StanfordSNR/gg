@@ -2,6 +2,8 @@
 
 #include "util.hh"
 
+#include <sstream>
+#include <iomanip>
 #include <cstdlib>
 #include <string>
 #include <stdexcept>
@@ -24,4 +26,19 @@ string safe_getenv_or( const string & key, const string & def_val )
     return def_val;
   }
   return value;
+}
+
+string format_bytes( size_t bytes )
+{
+  const char * sizes[] = { "B", "KB", "MB", "GB", "TB" };
+  double val = bytes;
+
+  size_t i;
+  for ( i = 0; i < 4 and bytes >= 1024; i++, bytes /= 1024 ) {
+    val = bytes / 1024.0;
+  }
+
+  ostringstream oss;
+  oss << fixed << setprecision( 1 ) << val << " " << sizes[ i ];
+  return oss.str();
 }
