@@ -89,6 +89,7 @@ AC_CONFIG_FILES([Makefile
                  src/remote/Makefile
                  examples/Makefile
                  examples/fibonacci/Makefile
+                 examples/objrec-example/Makefile
                  tests/Makefile])
 
 AC_OUTPUT
