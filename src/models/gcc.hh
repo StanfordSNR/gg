@@ -177,7 +177,8 @@ private:
   std::vector<std::string> parse_dependencies_file( const std::string & dep_filename,
                                                     const std::string & target_name );
 
-  std::vector<std::string> generate_dependencies_file( const std::vector<std::string> & option_args,
+  std::vector<std::string> generate_dependencies_file( const std::string & input_filename,
+                                                       const std::vector<std::string> & option_args,
                                                        const std::string & output_name,
                                                        const std::string & target_name );
 

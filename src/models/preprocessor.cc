@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "thunk/ggutils.hh"
+#include "thunk/thunk_writer.hh"
 #include "thunk/thunk_reader.hh"
 #include "thunk/thunk.hh"
 #include "util/exception.hh"
@@ -20,6 +21,26 @@
 
 using namespace std;
 using namespace boost;
+using namespace gg::thunk;
+
+vector<string> write_dependencies_file( const string & output_name,
+                                        const string & target_name,
+                                        const Thunk::DataList & data_items )
+{
+  /* always write a canonical dependencies file to make sure it matches our parse */
+  string output { target_name + ":" };
+  vector<string> filenames;
+  for ( const auto & item : data_items ) {
+    filenames.emplace_back( item.second );
+    output.append( " " );
+    output.append( item.second );
+  }
+  output.append( "\n" );
+
+  atomic_create( output, roost::path( output_name ) );
+  return filenames;
+}
+
 
 vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_filename,
                                                            const string & target_name )
@@ -72,7 +93,8 @@ vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_fi
   return dependencies;
 }
 
-vector<string> GCCModelGenerator::generate_dependencies_file( const vector<string> & option_args,
+vector<string> GCCModelGenerator::generate_dependencies_file( const string & input_filename,
+                                                              const vector<string> & option_args,
                                                               const string & output_name,
                                                               const string & target_name )
 {
@@ -124,7 +146,53 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const vector<strin
     args.push_back( target_name );
   }
 
+  /* do we have a valid cache for these dependencies? */
+  const string input_file_hash = gg::hash::file( input_filename );
+  const auto cache_entry_path = gg::paths::dependency_cache_entry( input_file_hash );
+
+  /* assemble the function */
+  const Function makedep_fn { args.front(), args, gcc_environment() };
+
+  if ( roost::exists( cache_entry_path ) ) {
+    /* abuse the thunk format to store a cache of dependencies */
+    const Thunk dep_cache_entry = ThunkReader::read( cache_entry_path );
+
+    /* do we have a possible cache hit? */
+    if ( makedep_fn == dep_cache_entry.function() ) {
+      bool cache_hit = true;
+
+      /* check if all the infiles are still the same */
+      for ( const auto & item : dep_cache_entry.values() ) {
+        if ( not Thunk::matches_filesystem( item ) ) {
+          cache_hit = false;
+          break;
+        }
+      }
+
+      if ( cache_hit ) {
+        return write_dependencies_file( output_name, target_name, dep_cache_entry.values() );
+      }
+    }
+  }
+
   run( args[ 0 ], args, {}, true, true );
 
-  return parse_dependencies_file( output_name, target_name );
+  /* write a cache entry for next time */
+
+  /* assemble the infiles */
+  const vector<string> infiles_list = parse_dependencies_file( output_name, target_name );
+  vector<Thunk::DataItem> dependencies;
+  for ( const auto & str : infiles_list ) {
+    dependencies.emplace_back( make_pair( gg::hash::file( str ), str ) );
+  }
+
+  Thunk dep_cache_entry( makedep_fn, dependencies,
+                         { make_pair( makedep_fn.hash(), "" ) },
+                         { "fake_output" } );
+
+  /* serialize and write the fake thunk */
+  string serialized_cache_entry { ThunkWriter::serialize( dep_cache_entry ) };
+  atomic_create( serialized_cache_entry, cache_entry_path );
+
+  return write_dependencies_file( output_name, target_name, dep_cache_entry.values() );
 }
