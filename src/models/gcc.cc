@@ -644,7 +644,7 @@ int main( int argc, char * argv[] )
 
     print_gcc_command( command_str( argc, argv ) );
 
-    const bool preprocess_locally = ( getenv( "GG_PREPROCESS_LOCALLY" ) != nullptr );
+    const bool preprocess_locally = ( getenv( "GG_GCC_PREPROCESS_LOCALLY" ) != nullptr );
     const bool merge_stages = ( getenv( "GG_GCC_MERGE_STAGES" ) != nullptr );
 
     GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, preprocess_locally, merge_stages };
