@@ -157,6 +157,8 @@ namespace gg {
 
       static std::pair<const std::string, std::string>
       string_to_data( const std::string & str );
+
+      static bool matches_filesystem( const DataItem & item );
     };
 
   } /* namespace thunk */

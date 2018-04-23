@@ -397,3 +397,23 @@ size_t Thunk::infiles_size( const bool include_executables ) const
 
   return total_size;
 }
+
+bool Thunk::matches_filesystem( const DataItem & item )
+{
+  const string & hash = item.first;
+  const string & filename = item.second;
+
+  if ( filename.length() == 0 ) {
+    return false;
+  }
+
+  if ( not roost::exists( filename ) ) {
+    return false;
+  }
+
+  if ( gg::hash::size( hash ) != roost::file_size( filename ) ) {
+    return false;
+  }
+
+  return hash == gg::hash::file( filename );
+}
