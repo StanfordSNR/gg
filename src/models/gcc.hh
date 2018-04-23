@@ -180,6 +180,8 @@ private:
                                                        const std::string & output_name,
                                                        const std::string & target_name );
 
+  std::string do_preprocessing( const InputFile & input );
+
   std::string generate_thunk( const GCCStage first_stage,
                               const GCCStage stage,
                               const InputFile & input,

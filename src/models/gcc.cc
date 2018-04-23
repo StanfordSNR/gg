@@ -81,6 +81,54 @@ bool has_include_or_incbin( const string & filename )
   return false;
 }
 
+string GCCModelGenerator::do_preprocessing( const InputFile & input )
+{
+  vector<string> args;
+  args.push_back( ( operation_mode_ == OperationMode::GCC ) ? "gcc-7" : "g++-7" );
+  args.insert( args.end(),
+               arguments_.option_args().begin(),
+               arguments_.option_args().end() );
+
+  args.erase(
+    remove_if(
+      args.begin(), args.end(),
+      []( const string & s ) { return ( s == "-E" or s == "-S" or s == "-c" ); }
+    ), args.end()
+  );
+
+  args.push_back( "-E" );
+
+  args.push_back( "-x" );
+  args.push_back( language_to_name( input.language ) );
+  args.push_back( input.name );
+
+  args.push_back( "-frandom-seed=" + BEGIN_REPLACE
+                  + input.name
+                  + END_REPLACE );
+
+
+  args.push_back( "-Wno-builtin-macro-redefined" );
+  args.push_back( "-D__TIMESTAMP__=\"REDACTED\"" );
+  args.push_back( "-D__DATE__=\"REDACTED\"" );
+  args.push_back( "-D__TIME__=\"REDACTED\"" );
+  args.push_back( "-fno-canonical-system-headers" );
+
+  const auto & temp_output_path_base = gg::paths::blob_path( input.name );
+  UniqueFile temp_output { temp_output_path_base.string() };
+  temp_output.fd().close();
+
+  args.push_back( "-o" );
+  args.push_back( temp_output.name() );
+
+  run( args[ 0 ], args, {}, true, true );
+
+  const string hash = gg::hash::file( temp_output.name() );
+  const auto & actual_path = gg::paths::blob_path( hash );
+  roost::move_file( temp_output.name(), actual_path );
+
+  return hash;
+}
+
 string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
                                           const GCCStage stage,
                                           const InputFile & input,
@@ -450,12 +498,24 @@ void GCCModelGenerator::generate()
                                 + "_" + to_string( stage_num );
       }
 
-      string last_stage_hash = generate_thunk( first_stage, stage, input, output_name, stage == last_stage );
+      string last_stage_hash;
+      const bool preprocess_this_locally = preprocess_locally_ and stage == PREPROCESS and stage != last_stage;
+
+      if ( preprocess_this_locally ) {
+        last_stage_hash = do_preprocessing( input );
+      }
+      else {
+        last_stage_hash = generate_thunk( first_stage, stage, input, output_name, stage == last_stage );
+      }
 
       switch ( stage ) {
       case PREPROCESS:
         /* generate preprocess thunk */
-        cerr << "\u251c\u2500 preprocessed: " << last_stage_hash << endl;
+        cerr << "\u251c\u2500 preprocessed: " << last_stage_hash;
+        if ( preprocess_this_locally ) {
+          cerr << " (done locally)";
+        }
+        cerr << endl;
 
         switch ( input.language ) {
         case Language::C:
