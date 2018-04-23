@@ -65,7 +65,7 @@ def get_dur_fps(myvid):
 
 def main(args):
     vidStart = args.vidToProcess
-    all_vid_raw = glob.glob(vidStart + '_chunk*')[21:25]
+    all_vid_raw = glob.glob(vidStart + '_chunk*')
 
     # Initialize gg-dir
     GG()
