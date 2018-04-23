@@ -2,6 +2,7 @@
 
 import sys
 import os
+import stat
 import glob
 import argparse
 import numpy as np
@@ -14,6 +15,8 @@ CMD_IMREC = "li-static {myimage} {incep_hash} {inet_hash} {myoutput}"
 SUFFIX_TO_CLEAR = ['jpg', 'out']
 
 num_out = 25
+
+out_script = 'gen_thunks.sh'
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -62,7 +65,10 @@ def get_dur_fps(myvid):
 
 def main(args):
     vidStart = args.vidToProcess
-    all_vid_raw = glob.glob(vidStart + '_chunk*')
+    all_vid_raw = glob.glob(vidStart + '_chunk*')[21:25]
+
+    # Initialize gg-dir
+    GG()
 
     # Get hashes of all files
     ffmpeg_hash = get_hash('ffmpeg')
@@ -71,11 +77,12 @@ def main(args):
     inet_hash = get_hash('imagenet_slim_labels.txt')
 
     # Collect all files
-    all_file_to_col = ['ffmpeg', 'li-static', 'inception_v3_2016_08_28_frozen.pb', \
+    all_files_to_col = ['ffmpeg', 'li-static', 'inception_v3_2016_08_28_frozen.pb', \
                        'imagenet_slim_labels.txt'] + all_vid_raw
+    collect_files(all_files_to_col)
 
     # Create output script
-    fd = open('gen_thunks.sh', 'w')
+    fd = open(out_script, 'w')
     fd.write('#!/bin/bash -e\n')
 
     all_chunks = []
@@ -89,7 +96,6 @@ def main(args):
           all_chunks.append(next_hash)
           all_dur[next_hash] = ts
 
-    gg = GG()
 
     start = now()
     all_count = 0
@@ -175,6 +181,10 @@ def main(args):
           all_count += 1
 
     fd.close()
+    # Make executable
+    st = os.stat(out_script)
+    os.chmod(out_script, st.st_mode | stat.S_IEXEC)
+
     end = now()
     delta = end - start
     print("Total time to create bash script: %.3f seconds" % delta)
