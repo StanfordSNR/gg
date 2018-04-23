@@ -328,10 +328,13 @@ void print_gcc_command( const string & command_str )
 }
 
 const bool force_strip = ( getenv( "GG_GCC_FORCE_STRIP" ) != nullptr );
+const bool preprocess_locally = ( getenv( "GG_PREPROCESS_LOCALLY" ) != nullptr );
 
 GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
-                                      int argc, char ** argv )
-  : operation_mode_( operation_mode ), arguments_( argc, argv, force_strip )
+                                      int argc, char ** argv,
+                                      const bool preprocess_locally )
+  : operation_mode_( operation_mode ), arguments_( argc, argv, force_strip ),
+    preprocess_locally_( preprocess_locally )
 {
   exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
 
@@ -360,6 +363,7 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
        ( arguments_.output_filename() == "-" or
          arguments_.output_filename().empty() ) ) {
     // preprocessing to the standard output, just do it, don't create a thunk.
+
     cerr << "\u2570\u257c output is stdout, executing gcc..." << endl;
     exec_original_gcc();
   }
@@ -557,7 +561,7 @@ int main( int argc, char * argv[] )
 
     print_gcc_command( command_str( argc, argv ) );
 
-    GCCModelGenerator gcc_model_generator { operation_mode, argc, argv };
+    GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, preprocess_locally };
     gcc_model_generator.generate();
 
     return EXIT_SUCCESS;

@@ -166,6 +166,8 @@ private:
   GCCArguments arguments_;
   TempFile specs_tempfile_ { "/tmp/gg-gccspecs" };
 
+  const bool preprocess_locally_ { false };
+
   std::vector<std::string> envars_ { { "PATH=" + GG_BIN_PREFIX }, };
 
   std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs,
@@ -191,7 +193,8 @@ private:
   static std::vector<std::string> gcc_environment();
 
 public:
-  GCCModelGenerator( const OperationMode operation_mode, int argc, char ** argv );
+  GCCModelGenerator( const OperationMode operation_mode, int argc, char ** argv,
+                     const bool preprocess_locally = false );
   void generate();
 
   /* static functions */
