@@ -30,7 +30,7 @@ string safe_getenv_or( const string & key, const string & def_val )
 
 string format_bytes( size_t bytes )
 {
-  const char * sizes[] = { "B", "KB", "MB", "GB", "TB" };
+  const char * sizes[] = { "B", "KiB", "MiB", "GiB", "TiB" };
   double val = bytes;
 
   size_t i;

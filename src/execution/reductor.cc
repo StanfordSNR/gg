@@ -303,12 +303,14 @@ void Reductor::upload_dependencies() const
   }
 
   vector<storage::PutRequest> upload_requests;
+  size_t total_size = 0;
 
   for ( const string & dep : dep_graph_.value_dependencies() ) {
     if ( gg::remote::is_available( dep ) ) {
       continue;
     }
 
+    total_size += gg::hash::size( dep );
     upload_requests.push_back( { gg::paths::blob_path( dep ), dep,
                                  gg::hash::to_hex( dep ) } );
   }
@@ -318,6 +320,7 @@ void Reductor::upload_dependencies() const
       continue;
     }
 
+    total_size += gg::hash::size( dep );
     upload_requests.push_back( { gg::paths::blob_path( dep ), dep,
                                  gg::hash::to_hex( dep ) } );
   }
@@ -328,7 +331,8 @@ void Reductor::upload_dependencies() const
   }
 
   const string plural = upload_requests.size() == 1 ? "" : "s";
-  cerr << "\u2197 Uploading " << upload_requests.size() << " file" << plural << "... ";
+  cerr << "\u2197 Uploading " << upload_requests.size() << " file" << plural
+       << " (" << format_bytes( total_size ) << ")... ";
 
   auto upload_time = time_it<chrono::milliseconds>(
     [&upload_requests, this]()
@@ -351,9 +355,12 @@ void Reductor::download_targets( const vector<string> & hashes ) const
   }
 
   vector<storage::GetRequest> download_requests;
+  size_t total_size = 0;
+
   for ( const string & hash : hashes ) {
     if ( not roost::exists( gg::paths::blob_path( hash ) ) ) {
       download_requests.push_back( { hash, gg::paths::blob_path( hash ) } );
+      total_size += gg::hash::size( hash );
     }
   }
 
@@ -362,7 +369,9 @@ void Reductor::download_targets( const vector<string> & hashes ) const
     return;
   }
 
-  cerr << "\u2198 Downloading output files... ";
+  const string plural = download_requests.size() == 1 ? "" : "s";
+  cerr << "\u2198 Downloading output file" << plural
+       << " (" << format_bytes( total_size ) << ")... ";
   auto download_time = time_it<chrono::milliseconds>(
     [&download_requests, this]()
     {
