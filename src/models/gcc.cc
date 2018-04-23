@@ -406,8 +406,8 @@ void GCCModelGenerator::generate()
       continue;
     }
 
-    GCCStage first_stage = language_to_stage( input.language );
-    GCCStage input_last_stage = ( last_stage == LINK ) ? ASSEMBLE : last_stage;
+    const GCCStage first_stage = language_to_stage( input.language );
+    const GCCStage input_last_stage = ( last_stage == LINK ) ? ASSEMBLE : last_stage;
 
     map<size_t, string> stage_output;
     stage_output[ first_stage - 1 ] = input.name;
@@ -416,7 +416,7 @@ void GCCModelGenerator::generate()
     cerr << "\u251c\u257c input: " << input.name << endl;
 
     for ( size_t stage_num = first_stage; stage_num <= input_last_stage; stage_num++ ) {
-      GCCStage stage = static_cast<GCCStage>( stage_num );
+      const GCCStage stage = static_cast<GCCStage>( stage_num );
       string output_name;
 
       if ( input.source_language == Language::ASSEMBLER_WITH_CPP and
