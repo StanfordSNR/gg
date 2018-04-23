@@ -133,7 +133,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
                                           const GCCStage stage,
                                           const InputFile & input,
                                           const string & output,
-                                          const bool write_placeholder )
+                                          const bool write_placeholder,
+                                          const Language prev_stage_language )
 {
   vector<string> args { arguments_.option_args() };
   auto & gcc_data = program_data.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX );
@@ -293,6 +294,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     );
   }
 
+  /******************************************************************/
+
   case COMPILE:
     args.push_back( "-S" );
 
@@ -321,6 +324,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         | ThunkFactory::Options::include_filenames
     );
 
+  /******************************************************************/
+
   case ASSEMBLE:
     if ( first_stage != ASSEMBLE and
          ( arguments_.option_argument( GCCOption::gdwarf_4 ).initialized() or
@@ -331,6 +336,15 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
           []( const string & s ) { return ( s == "-gdwarf-4" or s == "-g" ); }
         ), args.end()
       );
+    }
+
+    if ( merge_stages_ and stage != first_stage ) {
+      if ( prev_stage_language == Language::CPP_OUTPUT ) {
+        base_executables.push_back( program_data.at( CC1 ) );
+      }
+      else {
+        base_executables.push_back( program_data.at( CC1PLUS ) );
+      }
     }
 
     args.push_back( "-c" );
@@ -348,6 +362,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         | ThunkFactory::Options::generate_manifest
         | ThunkFactory::Options::include_filenames
     );
+
+  /******************************************************************/
 
   default: throw runtime_error( "not implemented" );
   }
@@ -376,13 +392,14 @@ void print_gcc_command( const string & command_str )
 }
 
 const bool force_strip = ( getenv( "GG_GCC_FORCE_STRIP" ) != nullptr );
-const bool preprocess_locally = ( getenv( "GG_PREPROCESS_LOCALLY" ) != nullptr );
 
 GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
                                       int argc, char ** argv,
-                                      const bool preprocess_locally )
+                                      const bool preprocess_locally,
+                                      const bool merge_stages )
   : operation_mode_( operation_mode ), arguments_( argc, argv, force_strip ),
-    preprocess_locally_( preprocess_locally )
+    preprocess_locally_( preprocess_locally ),
+    merge_stages_( merge_stages )
 {
   exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
 
@@ -439,6 +456,8 @@ void GCCModelGenerator::generate()
   vector<string> args = arguments_.all_args();
 
   vector<InputFile> input_files = arguments_.input_files();
+
+  Language prev_stage_language = Language::NONE;
 
   /* count non-object input files */
   const size_t source_inputs = std::count_if( input_files.begin(),
@@ -504,8 +523,12 @@ void GCCModelGenerator::generate()
       if ( preprocess_this_locally ) {
         last_stage_hash = do_preprocessing( input );
       }
+      else if ( merge_stages_ and stage == COMPILE and stage != last_stage ) {
+        prev_stage_language = input.language;
+        continue;
+      }
       else {
-        last_stage_hash = generate_thunk( first_stage, stage, input, output_name, stage == last_stage );
+        last_stage_hash = generate_thunk( first_stage, stage, input, output_name, stage == last_stage, prev_stage_language );
       }
 
       switch ( stage ) {
@@ -621,7 +644,10 @@ int main( int argc, char * argv[] )
 
     print_gcc_command( command_str( argc, argv ) );
 
-    GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, preprocess_locally };
+    const bool preprocess_locally = ( getenv( "GG_PREPROCESS_LOCALLY" ) != nullptr );
+    const bool merge_stages = ( getenv( "GG_GCC_MERGE_STAGES" ) != nullptr );
+
+    GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, preprocess_locally, merge_stages };
     gcc_model_generator.generate();
 
     return EXIT_SUCCESS;
