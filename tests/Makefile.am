@@ -29,7 +29,7 @@ dist_check_SCRIPTS = fetch-vectors.test \
                      model-compile.test model-assemble.test model-link.test \
                      model-ar.test model-ranlib.test model-strip.test \
                      model-ld.test gnu-hello.test mosh.test \
-                     mosh-local-preprocess.test fibonacci.test \
+                     mosh-fewer-thunks.test fibonacci.test \
                      sdk.test cleanup.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
@@ -48,12 +48,12 @@ model-strip.log: fetch-vectors.log
 model-ld.log: fetch-vectors.log
 gnu-hello.log: fetch-vectors.log
 mosh.log: fetch-vectors.log
-mosh-local-preprocess.log: fetch-vectors.log
+mosh-fewer-thunks.log: fetch-vectors.log
 
 cleanup.log: model-preprocess.log \
              model-compile.log model-assemble.log model-link.log model-ar.log \
              model-ranlib.log model-strip.log model-ld.log gnu-hello.log \
-             mosh.log mosh-local-preprocess.log fibonacci.log sdk.log
+             mosh.log mosh-fewer-thunks.log fibonacci.log sdk.log
 
 clean-local:
 	-rm -rf $(abs_builddir)/test_temp
