@@ -113,7 +113,7 @@ string GCCModelGenerator::do_preprocessing( const InputFile & input )
   args.push_back( "-D__TIME__=\"REDACTED\"" );
   args.push_back( "-fno-canonical-system-headers" );
 
-  const auto & temp_output_path_base = gg::paths::blob_path( input.name );
+  const auto & temp_output_path_base = gg::paths::blob_path( roost::rbasename( input.name ).string() );
   UniqueFile temp_output { temp_output_path_base.string() };
   temp_output.fd().close();
 
