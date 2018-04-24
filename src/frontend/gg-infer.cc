@@ -40,6 +40,7 @@ int main( int argc, char * argv[] )
     string new_path = models_path + ":" + system_path;
     setenv( "PATH", new_path.c_str(), true );
     setenv( "GG_REALPATH", system_path.c_str(), true );
+    setenv( "GG_BASEPATH", roost::current_working_directory().string().c_str(), true );
 
     CheckSystemCall( "execvp", execvp( argv[ 1 ], argv + 1 ) );
   }
