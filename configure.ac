@@ -89,6 +89,7 @@ AC_CONFIG_FILES([Makefile
                  src/remote/Makefile
                  examples/Makefile
                  examples/fibonacci/Makefile
+                 examples/viddec/Makefile
                  examples/thunk_profile/Makefile
                  tests/Makefile])
 

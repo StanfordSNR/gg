@@ -1,1 +1,1 @@
-SUBDIRS = fibonacci thunk_profile
+SUBDIRS = fibonacci thunk_profile viddec
