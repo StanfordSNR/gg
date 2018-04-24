@@ -17,12 +17,14 @@ namespace gg {
   namespace paths {
     roost::path blobs();
     roost::path reductions();
+    roost::path metadata();
     roost::path remote_index();
     roost::path hash_cache();
     roost::path dependency_cache();
 
     roost::path blob( const std::string & hash );
     roost::path reduction( const std::string & hash );
+    roost::path metadata( const std::string & hash );
     roost::path hash_cache_entry( const std::string & filename, const struct stat & stat_entry );
     roost::path dependency_cache_entry( const std::string & cache_key );
 

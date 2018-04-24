@@ -95,6 +95,12 @@ namespace gg {
       return reductions_path;
     }
 
+    roost::path metadata()
+    {
+      const static roost::path metadata_path = get_inner_directory( "metadata" );
+      return metadata_path;
+    }
+
     roost::path remote_index()
     {
       const static roost::path index_path = get_inner_directory( "remote" );
@@ -121,6 +127,11 @@ namespace gg {
     roost::path reduction( const string & hash )
     {
       return reductions() / hash;
+    }
+
+    roost::path metadata( const string & hash )
+    {
+      return metadata() / hash;
     }
 
     roost::path hash_cache_entry( const string & filename, const struct stat & stat_entry )
