@@ -199,8 +199,7 @@ private:
 
 public:
   GCCModelGenerator( const OperationMode operation_mode, int argc, char ** argv,
-                     const bool preprocess_locally = false,
-                     const bool merge_stages = false );
+                     const bool preprocess_locally = false );
   void generate();
 
   /* static functions */

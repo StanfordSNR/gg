@@ -395,11 +395,10 @@ const bool force_strip = ( getenv( "GG_GCC_FORCE_STRIP" ) != nullptr );
 
 GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
                                       int argc, char ** argv,
-                                      const bool preprocess_locally,
-                                      const bool merge_stages )
+                                      const bool preprocess_locally )
   : operation_mode_( operation_mode ), arguments_( argc, argv, force_strip ),
     preprocess_locally_( preprocess_locally ),
-    merge_stages_( merge_stages )
+    merge_stages_( false )
 {
   exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
 
@@ -645,9 +644,8 @@ int main( int argc, char * argv[] )
     print_gcc_command( command_str( argc, argv ) );
 
     const bool preprocess_locally = ( getenv( "GG_GCC_PREPROCESS_LOCALLY" ) != nullptr );
-    const bool merge_stages = ( getenv( "GG_GCC_MERGE_STAGES" ) != nullptr );
 
-    GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, preprocess_locally, merge_stages };
+    GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, preprocess_locally };
     gcc_model_generator.generate();
 
     return EXIT_SUCCESS;
