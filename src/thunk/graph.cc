@@ -26,7 +26,7 @@ string ExecutionGraph::add_thunk( const string & full_hash )
     return hash;
   }
 
-  Thunk thunk { move( ThunkReader::read( gg::paths::blob_path( hash ), hash ) ) };
+  Thunk thunk { move( ThunkReader::read( gg::paths::blob( hash ), hash ) ) };
 
   /* creating the entry */
   referencing_thunks_[ hash ];

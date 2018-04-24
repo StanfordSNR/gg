@@ -113,12 +113,12 @@ namespace gg {
       return cache_path;
     }
 
-    roost::path blob_path( const string & hash )
+    roost::path blob( const string & hash )
     {
       return blobs() / hash;
     }
 
-    roost::path reduction_path( const string & hash )
+    roost::path reduction( const string & hash )
     {
       return reductions() / hash;
     }
@@ -189,7 +189,7 @@ namespace gg {
 
     Optional<ReductionResult> check( const string & thunk_hash )
     {
-      roost::path reduction { gg::paths::reduction_path( thunk_hash ) };
+      roost::path reduction { gg::paths::reduction( thunk_hash ) };
 
       if ( not roost::exists( reduction ) ) {
         return {}; // no reductions are available
@@ -204,7 +204,7 @@ namespace gg {
 
     void insert( const string & old_hash, const string & new_hash )
     {
-      roost::atomic_create( new_hash, gg::paths::reduction_path( old_hash ) );
+      roost::atomic_create( new_hash, gg::paths::reduction( old_hash ) );
     }
 
   }

@@ -129,7 +129,7 @@ vector<string> execute_thunk( const Thunk & original_thunk )
 
     /* let's check if the output is a thunk or not */
     string outfile_hash = gg::hash::file( outfile );
-    roost::path outfile_gg = gg::paths::blob_path( outfile_hash );
+    roost::path outfile_gg = gg::paths::blob( outfile_hash );
 
     if ( not roost::exists( outfile_gg ) ) {
       roost::move_file( outfile, outfile_gg );
@@ -175,7 +175,7 @@ void do_cleanup( const Thunk & thunk )
   }
 
   for ( const string & blob : roost::list_directory( gg::paths::blobs() ) ) {
-    const roost::path path = gg::paths::blob_path( blob );
+    const roost::path path = gg::paths::blob( blob );
     if ( ( not roost::is_directory( path ) ) and infile_hashes.count( blob ) == 0 ) {
       roost::remove( path );
     }
@@ -192,7 +192,7 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
     auto check_dep =
       [&download_items, &executables]( const Thunk::DataItem & item ) -> void
       {
-        const auto target_path = gg::paths::blob_path( item.first );
+        const auto target_path = gg::paths::blob( item.first );
 
         if ( not roost::exists( target_path )
              or roost::file_size( target_path ) != gg::hash::size( item.first ) ) {
@@ -227,7 +227,7 @@ void upload_output( unique_ptr<StorageBackend> & storage_backend,
   try {
     vector<storage::PutRequest> requests;
     for ( const string & output_hash : output_hashes ) {
-      requests.push_back( { gg::paths::blob_path( output_hash ), output_hash,
+      requests.push_back( { gg::paths::blob( output_hash ), output_hash,
                             gg::hash::to_hex( output_hash ) } );
     }
     storage_backend->put( requests );
@@ -305,7 +305,7 @@ int main( int argc, char * argv[] )
     for ( const string & thunk_hash : thunk_hashes ) {
       /* take out an advisory lock on the thunk, in case
          other gg-execute processes are running at the same time */
-      const string thunk_path = gg::paths::blob_path( thunk_hash ).string();
+      const string thunk_path = gg::paths::blob( thunk_hash ).string();
       FileDescriptor raw_thunk { CheckSystemCall( "open( " + thunk_path + " )",
                                                   open( thunk_path.c_str(), O_RDONLY ) ) };
       raw_thunk.block_for_exclusive_lock();

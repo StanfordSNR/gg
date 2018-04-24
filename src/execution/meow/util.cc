@@ -23,14 +23,14 @@ string meow::handle_put_message( const Message & message )
                     : ObjectType::Thunk;
 
   const string hash = gg::hash::compute( data, type );
-  roost::atomic_create( data, gg::paths::blob_path( hash ) );
+  roost::atomic_create( data, gg::paths::blob( hash ) );
 
   return hash;
 }
 
 Message meow::create_put_message( const string & hash )
 {
-  string requested_file = roost::read_file( gg::paths::blob_path( hash ) );
+  string requested_file = roost::read_file( gg::paths::blob( hash ) );
   return { Message::OpCode::Put, move( requested_file ) };
 }
 

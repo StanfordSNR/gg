@@ -70,7 +70,7 @@ void GGExecutionEngine::force_thunk( const Thunk & thunk,
 
           if ( output.data.length() ) {
             roost::atomic_create( base64::decode( output.data ),
-                                  gg::paths::blob_path( output.hash ) );
+                                  gg::paths::blob( output.hash ) );
           }
         }
 

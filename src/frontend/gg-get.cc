@@ -31,7 +31,7 @@ int main( int argc, char * argv[] )
     vector<storage::GetRequest> get_requests;
     for ( int i = 1; i < argc; i++ ) {
       const string hash { argv[ i ] };
-      get_requests.emplace_back( hash, gg::paths::blob_path( hash ) );
+      get_requests.emplace_back( hash, gg::paths::blob( hash ) );
     }
     storage_backend->get( get_requests,
       []( const storage::GetRequest & request )

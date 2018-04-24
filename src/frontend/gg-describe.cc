@@ -61,7 +61,7 @@ int main( int argc, char * argv[] )
     roost::path thunk_path { argv[ optind ] };
 
     if ( not roost::exists( thunk_path ) ) {
-      thunk_path = gg::paths::blob_path( argv[ optind ] );
+      thunk_path = gg::paths::blob( argv[ optind ] );
 
       if ( not roost::exists( thunk_path ) ) {
         roost::path pattern { thunk_path.string() + "*" };

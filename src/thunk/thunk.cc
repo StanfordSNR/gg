@@ -166,7 +166,7 @@ int Thunk::execute() const
     []( string & str ) -> void
     {
       if ( regex_search( str, DATA_PLACEHOLDER_REGEX ) ) {
-        string new_path = regex_replace( str, DATA_PLACEHOLDER_REGEX, gg::paths::blob_path( "$1" ).string() );
+        string new_path = regex_replace( str, DATA_PLACEHOLDER_REGEX, gg::paths::blob( "$1" ).string() );
         swap( str, new_path );
       }
     };
@@ -180,7 +180,7 @@ int Thunk::execute() const
     replace_data_placeholder( envar );
   }
 
-  const roost::path thunk_path = gg::paths::blob_path( hash() );
+  const roost::path thunk_path = gg::paths::blob( hash() );
 
   // preparing envp
   envars.insert( envars.end(), {
@@ -203,7 +203,7 @@ int Thunk::execute() const
     cerr << exec_string;
   }
 
-  if ( ( retval = ezexec( gg::paths::blob_path( function_.hash() ).string(),
+  if ( ( retval = ezexec( gg::paths::blob( function_.hash() ).string(),
                           args, envars ) ) < 0 ) {
     throw runtime_error( "execvpe failed" );
   }
@@ -364,15 +364,15 @@ Thunk::get_allowed_files() const
   unordered_map<string, Permissions> allowed_files;
 
   for ( const DataItem & item : values_ ) {
-    allowed_files[ gg::paths::blob_path( item.first ).string() ] = { true, false, false };
+    allowed_files[ gg::paths::blob( item.first ).string() ] = { true, false, false };
   }
 
   for ( const DataItem & item : executables_ ) {
-    allowed_files[ gg::paths::blob_path( item.first ).string() ] = { true, false, true };
+    allowed_files[ gg::paths::blob( item.first ).string() ] = { true, false, true };
   }
 
   allowed_files[ gg::paths::blobs().string() ] = { true, false, false };
-  allowed_files[ gg::paths::blob_path( hash() ).string() ] = { true, false, false };
+  allowed_files[ gg::paths::blob( hash() ).string() ] = { true, false, false };
 
   for ( const string & output : outputs_ ) {
     allowed_files[ output ] = { true, true, false };

@@ -124,7 +124,7 @@ int main( int argc, char * argv[] )
                         break;
                       }
 
-                      const auto output_path = paths::blob_path( result->hash );
+                      const auto output_path = paths::blob( result->hash );
                       const string output_data = ""; // base64::encode( roost::read_file( output_path ) );
 
                       output_item.set_tag( tag );
@@ -169,7 +169,7 @@ int main( int argc, char * argv[] )
 
                   for ( auto & request_item : exec_request.thunks() ) {
                     roost::atomic_create( base64::decode( request_item.data() ),
-                                          paths::blob_path( request_item.hash() ) );
+                                          paths::blob( request_item.hash() ) );
 
                     command.emplace_back( request_item.hash() );
                   }

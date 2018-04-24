@@ -180,7 +180,7 @@ std::string ThunkFactory::generate( const Function & function,
                                               ObjectType::Value );
     thunk_data.emplace_back( manifest_hash, string {} );
     roost::atomic_create( manifest_data,
-                          gg::paths::blob_path( manifest_hash ) );
+                          gg::paths::blob( manifest_hash ) );
     thunk_function.envars().push_back( "GG_MANIFEST=" + thunk::data_placeholder( manifest_hash ) );
   }
 
@@ -189,7 +189,7 @@ std::string ThunkFactory::generate( const Function & function,
       [] ( const Data & datum )
       {
         roost::path source_path = datum.real_filename();
-        roost::path target_path = gg::paths::blob_path( gg::hash::base( datum.hash() ) );
+        roost::path target_path = gg::paths::blob( gg::hash::base( datum.hash() ) );
 
         if ( not roost::exists( target_path ) ) {
           roost::copy_then_rename( source_path, target_path );

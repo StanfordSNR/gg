@@ -39,7 +39,7 @@ int main( int argc, char * const argv[] )
 
   string object_key;
   while ( cin >> object_key ) {
-    files.push_back( { object_key, gg::paths::blob_path( object_key ) } );
+    files.push_back( { object_key, gg::paths::blob( object_key ) } );
   }
 
   S3ClientConfig client_config;

@@ -85,7 +85,7 @@ int main( int argc, char * argv[] )
         case Message::OpCode::Get:
         {
           const string & hash = message.payload();
-          string object_data = roost::read_file( gg::paths::blob_path( hash ) );
+          string object_data = roost::read_file( gg::paths::blob( hash ) );
           Message message { Message::OpCode::Put, move( object_data ) };
           connection->enqueue_write( message.str() );
           cerr << "[get] " << hash << endl;
@@ -99,7 +99,7 @@ int main( int argc, char * argv[] )
 
           /* let's write the thunk to disk first */
           roost::atomic_create( base64::decode( execution_request.data() ),
-                                gg::paths::blob_path( execution_request.hash() ) );
+                                gg::paths::blob( execution_request.hash() ) );
 
           /* making it cheaper to copy */
           execution_request.set_data( "" );
@@ -128,7 +128,7 @@ int main( int argc, char * argv[] )
                   throw runtime_error( "output not found" );
                 }
 
-                const auto output_path = paths::blob_path( result->hash );
+                const auto output_path = paths::blob( result->hash );
                 const string output_data = ""; // base64::encode( roost::read_file( output_path ) );
 
                 output_item.set_tag( tag );

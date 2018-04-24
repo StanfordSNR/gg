@@ -87,7 +87,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 
                 if ( output.data().length() ) {
                   roost::atomic_create( base64::decode( output.data() ),
-                                        gg::paths::blob_path( output.hash() ) );
+                                        gg::paths::blob( output.hash() ) );
                 }
               }
 

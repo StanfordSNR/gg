@@ -22,7 +22,7 @@ string ThunkWriter::write( const Thunk & thunk, const roost::path & path )
   thunk.set_hash( thunk_hash );
 
   roost::path target_path { ( not path.empty() ) ? path
-                                                 : paths::blob_path( thunk_hash ) };
+                                                 : paths::blob( thunk_hash ) };
 
   if ( not roost::exists( target_path ) ) {
     roost::atomic_create( serialized_thunk, target_path );

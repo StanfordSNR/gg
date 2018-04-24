@@ -31,7 +31,7 @@ int main( int argc, char * argv[] )
     for ( int i = 1; i < argc; i++ ) {
       roost::path src { argv[ i ] };
       string hash = gg::hash::file( src );
-      roost::path dst = gg::paths::blob_path( hash );
+      roost::path dst = gg::paths::blob( hash );
 
       if ( not roost::exists( dst ) ) {
         roost::copy_then_rename( src, dst );

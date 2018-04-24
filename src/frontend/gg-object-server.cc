@@ -91,7 +91,7 @@ int main( int argc, char * argv[] )
               const string requested_object = first_line.substr( first_space + 2,
                                                                  last_space - first_space - 2 );
 
-              const roost::path object_path = gg::paths::blob_path( requested_object );
+              const roost::path object_path = gg::paths::blob( requested_object );
               if ( not roost::exists( object_path ) or
                    roost::is_directory( object_path ) or
                    requested_object.find( '/' ) != string::npos ) {
