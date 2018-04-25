@@ -413,6 +413,11 @@ namespace roost {
     CheckSystemCall( "chmod", ::chmod( pathn.string().c_str(), mode ) );
   }
 
+  void chdir( const path & pathn )
+  {
+    CheckSystemCall( "chdir", ::chdir( pathn.string().c_str() ) );
+  }
+
   string read_file( const path & pathn )
   {
     /* read input file into memory */
