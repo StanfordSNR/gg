@@ -306,6 +306,12 @@ namespace gg {
 
   }
 
+  namespace meta {
+
+    bool metainfer() { return ( getenv( "GG_METAINFER" ) != nullptr ); }
+
+  }
+
   namespace models {
 
     void init()
@@ -336,6 +342,7 @@ namespace gg {
 
       return result;
     }
+
   }
 
 }

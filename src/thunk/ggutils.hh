@@ -66,6 +66,10 @@ namespace gg {
     void store( const Thunk & thunk, const FileManifest & manifest );
   }
 
+  namespace meta {
+    bool metainfer();
+  }
+
   namespace models {
     void init();
     static const std::string OPEN_TO_DETACH_PATH = "/__gg__detach_from_tracing__/";
