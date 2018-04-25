@@ -14,8 +14,8 @@ using namespace std;
 static const std::string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-force-and-run" };
 static const std::string LIBRARY_DIRECTIVE { "OUTPUT_FORMAT(\"elf64-x86-64\") /*" };
 
-ThunkPlaceholder::ThunkPlaceholder( const string & hash )
-  : content_hash_( hash )
+ThunkPlaceholder::ThunkPlaceholder( const string & hash, const string & metadata )
+  : content_hash_( hash ), metadata_( metadata )
 {}
 
 void ThunkPlaceholder::write( const string & filename ) const
@@ -41,11 +41,12 @@ void ThunkPlaceholder::write( const string & filename, const Type type ) const
     ? LIBRARY_DIRECTIVE
     : SHEBANG_DIRECTIVE;
 
-  ostringstream sout;
+  ostringstream sout { ios::out | ios::binary };
   sout << header
        << endl
        << content_hash_ << ( type == Type::LinkerScript ? " */" : "" )
-       << endl;
+       << endl
+       << metadata_;
 
   roost::atomic_create( sout.str(), filename );
 
@@ -56,7 +57,7 @@ void ThunkPlaceholder::write( const string & filename, const Type type ) const
 
 Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
 {
-  ifstream fin { filename };
+  ifstream fin { filename, ios::in | ios::binary };
   string line;
   getline( fin, line );
 
@@ -72,7 +73,23 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
     throw runtime_error( "failed reading from " + filename );
   }
 
-  return ThunkPlaceholder { hash };
+  /* finish the line */
+  getline( fin, line );
+
+  /* now let's see if there's metadata */
+  string metadata;
+  char read_buffer[ 1024 * 1024 ];
+
+  while ( true ) {
+    fin.read( read_buffer, sizeof( read_buffer ) );
+    metadata.append( read_buffer, fin.gcount() );
+    if ( not fin.good() ) {
+      break;
+    }
+  }
+
+
+  return ThunkPlaceholder { hash, metadata };
 }
 
 bool ThunkPlaceholder::is_placeholder( FileDescriptor && fd )
