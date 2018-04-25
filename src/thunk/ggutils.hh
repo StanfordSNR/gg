@@ -68,6 +68,7 @@ namespace gg {
 
   namespace meta {
     bool metainfer();
+    roost::path relative_cwd();
   }
 
   namespace models {

@@ -310,6 +310,19 @@ namespace gg {
 
     bool metainfer() { return ( getenv( "GG_METAINFER" ) != nullptr ); }
 
+    roost::path relative_cwd()
+    {
+      const string cwd = roost::current_working_directory().string();
+      const string base_path = safe_getenv( "GG_BASEPATH" );
+
+      if ( mismatch( base_path.begin(), base_path.end(), cwd.begin() ).first != base_path.end() ) {
+        throw runtime_error( "cannot get the relative working directory for '"
+                             + cwd + "' with '" + base_path + "' as base path" );
+      }
+
+      return cwd.substr( base_path.length() );
+    }
+
   }
 
   namespace models {
