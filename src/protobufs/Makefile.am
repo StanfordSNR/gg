@@ -1,4 +1,4 @@
-source = thunk.proto gg.proto meow.proto
+source = thunk.proto gg.proto meow.proto meta.proto
 
 SUFFIXES = .proto .pb.cc
 
