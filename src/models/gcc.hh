@@ -7,8 +7,10 @@
 #include <vector>
 #include <unordered_map>
 
-#include "thunk/factory.hh"
+#include "protobufs/meta.pb.h"
 #include "thunk/thunk.hh"
+#include "thunk/factory.hh"
+#include "thunk/ggutils.hh"
 #include "util/optional.hh"
 #include "util/temp_file.hh"
 
@@ -170,6 +172,15 @@ private:
   const bool merge_stages_ { false };
 
   std::vector<std::string> envars_ { { "PATH=" + GG_BIN_PREFIX }, };
+
+  /** METAINFER **/
+  struct {
+    bool enabled { gg::meta::metainfer() };
+    
+    std::vector<std::string> args {};
+    std::string cwd {};
+    std::vector<ThunkFactory::Data> objects {};
+  } metadata_ {};
 
   std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs,
                                                   const std::vector<std::string> & args );

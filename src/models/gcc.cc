@@ -150,10 +150,15 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   vector<ThunkFactory::Data> base_infiles = { input.indata };
   vector<ThunkFactory::Data> base_executables = { gcc_data };
 
+  if ( metadata_.enabled and input.indata.type() == gg::ObjectType::Value ) {
+    metadata_.objects.push_back( input.indata );
+  }
+
   base_infiles.emplace_back( "/__gg__/gcc-specs", specs_tempfile_.name() );
 
   for ( const string & extra_infile : arguments_.extra_infiles( stage ) ) {
     base_infiles.emplace_back( extra_infile );
+    if ( metadata_.enabled ) { metadata_.objects.emplace_back( extra_infile ); }
   }
 
   /* Common dummy directories */
@@ -269,6 +274,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     for ( const string & dep : dependencies ) {
       base_infiles.emplace_back( dep );
+      if ( metadata_.enabled ) { metadata_.objects.emplace_back( dep ); }
     }
 
     for ( const string & dir : include_path ) {

@@ -7,7 +7,7 @@
 #include <vector>
 #include <sys/types.h>
 
-#include "thunk.hh"
+#include "thunk/thunk.hh"
 
 class ThunkFactory
 {

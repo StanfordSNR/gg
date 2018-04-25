@@ -73,11 +73,13 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
          link_input.language == Language::SHARED_OBJECT or
          link_input.language == Language::ARCHIVE_LIBRARY ) {
       infiles.push_back( link_input.indata );
+      if ( metadata_.enabled ) { metadata_.objects.push_back( link_input.indata ); }
     }
   }
 
   for ( const string & dep : dependencies ) {
     infiles.emplace_back( dep );
+    if ( metadata_.enabled ) { metadata_.objects.emplace_back( dep ); }
   }
 
   /* ARGS */
@@ -135,6 +137,7 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
 
   for ( const string & infile : arguments_.extra_infiles( LINK ) ) {
     infiles.emplace_back( infile );
+    if ( metadata_.enabled ) { metadata_.objects.emplace_back( infile ); }
   }
 
   if ( include_gompspec ) {
