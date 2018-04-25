@@ -452,6 +452,11 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
   }
 
   dump_gcc_specs( specs_tempfile_ );
+
+  if ( metadata_.enabled ) {
+    metadata_.cwd = gg::meta::relative_cwd().string();
+    metadata_.args = gg::models::args_to_vector( argc, argv );
+  }
 }
 
 void GCCModelGenerator::generate()
