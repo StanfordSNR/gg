@@ -44,10 +44,8 @@ void ThunkPlaceholder::write( const string & filename, const Type type ) const
   ostringstream sout;
   sout << header
        << endl
-       << content_hash_ << " "
-       << "\n" << '*' << '/'
+       << content_hash_ << ( type == Type::LinkerScript ? " */" : "" )
        << endl;
-
 
   roost::atomic_create( sout.str(), filename );
 
