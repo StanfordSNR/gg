@@ -7,7 +7,6 @@
 #include <vector>
 #include <unordered_map>
 
-#include "protobufs/meta.pb.h"
 #include "thunk/thunk.hh"
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
@@ -176,7 +175,7 @@ private:
   /** METAINFER **/
   struct {
     bool enabled { gg::meta::metainfer() };
-    
+
     std::vector<std::string> args {};
     std::string cwd {};
     std::vector<ThunkFactory::Data> objects {};

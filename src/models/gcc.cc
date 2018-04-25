@@ -16,7 +16,10 @@
 #include <libgen.h>
 #include <sys/ioctl.h>
 
+#include "protobufs/meta.pb.h"
+#include "protobufs/util.hh"
 #include "thunk/factory.hh"
+#include "thunk/placeholder.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"
 #include "util/digest.hh"
@@ -27,6 +30,7 @@
 
 using namespace std;
 using namespace gg::thunk;
+using namespace gg::protobuf;
 
 void dump_gcc_specs( TempFile & target_file )
 {
@@ -184,6 +188,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       }
     ) != end( args );
 
+  string generated_thunk_hash;
+
   switch ( stage ) {
   case PREPROCESS:
   {
@@ -287,17 +293,18 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     dummy_dirs.push_back( "." );
 
-    return ThunkFactory::generate(
+    generated_thunk_hash = ThunkFactory::generate(
       gcc_function( operation_mode_, all_args, envars_ ),
       base_infiles,
       base_executables,
       { { "output", output } },
       dummy_dirs,
-      ( write_placeholder ? ThunkFactory::Options::create_placeholder : 0 )
-        | ThunkFactory::Options::collect_data
+        ThunkFactory::Options::collect_data
         | ThunkFactory::Options::generate_manifest
         | ThunkFactory::Options::include_filenames
     );
+
+    break;
   }
 
   /******************************************************************/
@@ -318,17 +325,18 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       base_executables.push_back( program_data.at( CC1PLUS ) );
     }
 
-    return ThunkFactory::generate(
+    generated_thunk_hash = ThunkFactory::generate(
       gcc_function( operation_mode_, args, envars_ ),
       base_infiles,
       base_executables,
       { { "output", output } },
       dummy_dirs,
-      ( write_placeholder ? ThunkFactory::Options::create_placeholder : 0 )
-        | ThunkFactory::Options::collect_data
+        ThunkFactory::Options::collect_data
         | ThunkFactory::Options::generate_manifest
         | ThunkFactory::Options::include_filenames
     );
+
+    break;
 
   /******************************************************************/
 
@@ -357,22 +365,47 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     args = prune_makedep_flags( args );
     base_executables.push_back( program_data.at( AS ) );
 
-    return ThunkFactory::generate(
+    generated_thunk_hash = ThunkFactory::generate(
       gcc_function( operation_mode_, args, envars_ ),
       base_infiles,
       base_executables,
       { { "output", output } },
       dummy_dirs,
-      ( write_placeholder ? ThunkFactory::Options::create_placeholder : 0 )
-        | ThunkFactory::Options::collect_data
+        ThunkFactory::Options::collect_data
         | ThunkFactory::Options::generate_manifest
         | ThunkFactory::Options::include_filenames
     );
+
+    break;
 
   /******************************************************************/
 
   default: throw runtime_error( "not implemented" );
   }
+
+  if ( write_placeholder ) {
+    string metadata_str {};
+
+    if ( metadata_.enabled ) {
+      meta::Metadata metadata_proto;
+      *metadata_proto.mutable_args() = { metadata_.args.begin(), metadata_.args.end() };
+      metadata_proto.set_working_directory( metadata_.cwd );
+
+      for ( const auto & object : metadata_.objects ) {
+        meta::Object object_proto;
+        object_proto.set_hash( object.hash() );
+        object_proto.set_filename( object.real_filename() );
+        *metadata_proto.add_dependencies() = object_proto;
+      }
+
+      metadata_str = protoutil::to_json( metadata_proto );
+    }
+
+    ThunkPlaceholder placeholder { generated_thunk_hash, metadata_str };
+    placeholder.write( output, ThunkPlaceholder::Type::ShellScript );
+  }
+
+  return generated_thunk_hash;
 }
 
 void print_gcc_command( const string & command_str )
