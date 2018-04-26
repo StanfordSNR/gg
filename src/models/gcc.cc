@@ -110,7 +110,6 @@ string GCCModelGenerator::do_preprocessing( const InputFile & input )
                   + input.name
                   + END_REPLACE );
 
-
   args.push_back( "-Wno-builtin-macro-redefined" );
   args.push_back( "-D__TIMESTAMP__=\"REDACTED\"" );
   args.push_back( "-D__DATE__=\"REDACTED\"" );
@@ -154,15 +153,15 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   vector<ThunkFactory::Data> base_infiles = { input.indata };
   vector<ThunkFactory::Data> base_executables = { gcc_data };
 
-  if ( metadata_.enabled and input.indata.type() == gg::ObjectType::Value ) {
-    metadata_.objects.push_back( input.indata );
+  if ( metadata_.initialized() and input.indata.type() == gg::ObjectType::Value ) {
+    metadata_->add_object( input.indata );
   }
 
   base_infiles.emplace_back( "/__gg__/gcc-specs", specs_tempfile_.name() );
 
   for ( const string & extra_infile : arguments_.extra_infiles( stage ) ) {
     base_infiles.emplace_back( extra_infile );
-    if ( metadata_.enabled ) { metadata_.objects.emplace_back( extra_infile ); }
+    if ( metadata_.initialized() ) { metadata_->add_object( extra_infile ); }
   }
 
   /* Common dummy directories */
@@ -280,7 +279,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     for ( const string & dep : dependencies ) {
       base_infiles.emplace_back( dep );
-      if ( metadata_.enabled ) { metadata_.objects.emplace_back( dep ); }
+      if ( metadata_.initialized() ) { metadata_->add_object( dep ); }
     }
 
     for ( const string & dir : include_path ) {
@@ -386,23 +385,12 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   if ( write_placeholder ) {
     string metadata_str {};
 
-    if ( metadata_.enabled ) {
-      meta::Metadata metadata_proto;
-      *metadata_proto.mutable_args() = { metadata_.args.begin(), metadata_.args.end() };
-      metadata_proto.set_working_directory( metadata_.cwd );
-
-      for ( const auto & object : metadata_.objects ) {
-        meta::Object object_proto;
-        object_proto.set_hash( object.hash() );
-        object_proto.set_filename( object.real_filename() );
-        *metadata_proto.add_dependencies() = object_proto;
-      }
-
-      metadata_str = protoutil::to_json( metadata_proto );
+    if ( metadata_.initialized() ) {
+      metadata_str = metadata_->str();
     }
 
     ThunkPlaceholder placeholder { generated_thunk_hash, metadata_str };
-    placeholder.write( output, ThunkPlaceholder::Type::ShellScript );
+    placeholder.write( output );
   }
 
   return generated_thunk_hash;
@@ -486,9 +474,9 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
 
   dump_gcc_specs( specs_tempfile_ );
 
-  if ( metadata_.enabled ) {
-    metadata_.cwd = gg::meta::relative_cwd().string();
-    metadata_.args = gg::models::args_to_vector( argc, argv );
+  if ( gg::meta::metainfer() ) {
+    metadata_.reset( gg::models::args_to_vector( argc, argv ),
+                     gg::meta::relative_cwd().string() );
   }
 }
 

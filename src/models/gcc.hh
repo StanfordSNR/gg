@@ -9,6 +9,7 @@
 
 #include "thunk/thunk.hh"
 #include "thunk/factory.hh"
+#include "thunk/metadata.hh"
 #include "thunk/ggutils.hh"
 #include "util/optional.hh"
 #include "util/temp_file.hh"
@@ -173,13 +174,7 @@ private:
   std::vector<std::string> envars_ { { "PATH=" + GG_BIN_PREFIX }, };
 
   /** METAINFER **/
-  struct {
-    bool enabled { gg::meta::metainfer() };
-
-    std::vector<std::string> args {};
-    std::string cwd {};
-    std::vector<ThunkFactory::Data> objects {};
-  } metadata_ {};
+  Optional<PlaceholderMetadata> metadata_ {};
 
   std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs,
                                                   const std::vector<std::string> & args );
