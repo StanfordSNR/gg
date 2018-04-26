@@ -24,6 +24,10 @@ public:
 
   void add_object( const ThunkFactory::Data & object );
   std::string str() const;
+
+  const decltype( objects_ ) & objects() const { return objects_; }
+  const decltype( args_ ) & args() const { return args_; }
+  const decltype( cwd_ ) & cwd() const { return cwd_; }
 };
 
 #endif /* THUNK_METADATA_HH */
