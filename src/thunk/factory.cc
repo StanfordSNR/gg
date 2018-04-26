@@ -212,7 +212,8 @@ std::string ThunkFactory::generate( const Function & function,
       const Output & output = outputs.at( i );
 
       const string output_hash = ( i == 0 ) ? hash : gg::hash::for_output( hash, output.tag() );
-      ThunkPlaceholder placeholder { output_hash };
+      ThunkPlaceholder placeholder { output_hash, write_metadata ? metadata
+                                                                 : string {} };
 
       if ( output.filename().initialized() ) {
         placeholder.write( *output.filename() );
@@ -221,10 +222,6 @@ std::string ThunkFactory::generate( const Function & function,
         placeholder.write( output.tag() );
       }
     }
-  }
-
-  if ( write_metadata and metadata.length() > 0 ) {
-    atomic_create( metadata, gg::paths::metadata( hash ) );
   }
 
   return hash;
