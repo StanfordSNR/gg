@@ -7,6 +7,8 @@
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"
+#include "thunk/metadata.hh"
+#include "util/exception.hh"
 #include "util/path.hh"
 
 #include "toolchain.hh"
@@ -19,6 +21,13 @@ const int PLUGIN_FLAG = 1000;
 /* this function is based on ar source code */
 void generate_thunk( int argc, char * argv[] )
 {
+  Optional<PlaceholderMetadata> metadata_ {};
+
+  if ( gg::meta::metainfer() ) {
+    metadata_.reset( gg::models::args_to_vector( argc, argv ),
+                     gg::meta::relative_cwd().string() );
+  }
+
   if ( argc < 2 ) {
     throw runtime_error( "not enough arguments" );
   }
@@ -107,6 +116,7 @@ void generate_thunk( int argc, char * argv[] )
 
     case PLUGIN_FLAG:
       data.emplace_back( optarg );
+      if ( metadata_.initialized() ) { metadata_->add_object( ThunkFactory::Data( optarg ) ); }
       break;
     }
   }
@@ -119,6 +129,7 @@ void generate_thunk( int argc, char * argv[] )
   if ( members_infile ) {
     for ( ; i < argc; i++ ) {
       data.emplace_back( argv[ i ] );
+      if ( metadata_.initialized() ) { metadata_->add_object( ThunkFactory::Data( argv[ i ] ) ); }
     }
   }
 
@@ -127,6 +138,7 @@ void generate_thunk( int argc, char * argv[] )
     /* this means that the ar command might want change an existing library, so
     we have to list that as an infile */
     data.push_back( outfile );
+    if ( metadata_.initialized() ) { throw runtime_error( "ar: unhandled case for metadata" ); }
   }
 
   ThunkFactory::generate(
@@ -143,12 +155,21 @@ void generate_thunk( int argc, char * argv[] )
       | ThunkFactory::Options::collect_data
       | ThunkFactory::Options::generate_manifest
       | ThunkFactory::Options::include_filenames
+      | ( ( metadata_.initialized() ) ? ThunkFactory::Options::write_metadata : 0 ),
+    metadata_.initialized() ? metadata_->str() : string {}
   );
 }
 
 int main( int argc, char * argv[] )
 {
-  gg::models::init();
-  generate_thunk( argc, argv );
-  return 0;
+  try {
+    gg::models::init();
+    generate_thunk( argc, argv );
+  }
+  catch ( const exception & e ) {
+    print_exception( argv[ 0 ], e );
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }
