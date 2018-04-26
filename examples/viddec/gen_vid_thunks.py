@@ -16,6 +16,8 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--video', '-v', type=str, required=False,
             dest='vidToProcess', default='4kvid', help='Video to process (Def: 4kvid)')
+    parser.add_argument('--libin', '-l', type=str, required=False,
+            dest='listaticbin', default='li25-static', help='Label Image Binary (li25-static or li-static)')
     return parser.parse_args()
 
 def get_hash(filename):
@@ -47,21 +49,28 @@ def clear_chunks():
 
 def main(args):
     vidStart = args.vidToProcess
+    listatic = args.listaticbin
     all_vid_raw = glob.glob(vidStart + '_chunk*')
 
     # Get hashes of all files
     ffmpeg_hash = get_hash('ffmpeg')
-    listatic_hash = get_hash('li-static')
+    listatic_hash = get_hash(listatic)
     incept_hash = get_hash('inception_v3_2016_08_28_frozen.pb')
     inet_hash = get_hash('imagenet_slim_labels.txt')
 
     # Collect all files
-    all_files_to_col = ['ffmpeg', 'li-static', 'inception_v3_2016_08_28_frozen.pb', \
+    all_files_to_col = ['ffmpeg', listatic, 'inception_v3_2016_08_28_frozen.pb', \
                        'imagenet_slim_labels.txt'] + all_vid_raw
     collect_files(all_files_to_col)
 
     # Build command
-    cmd = ['./gen_vid_thunks', ffmpeg_hash, listatic_hash, incept_hash, inet_hash]
+    cmd = []
+    if listatic == 'li-static':
+      cmd.append('./gen_vid_thunks')
+    else:
+      cmd.append('./gen_vid_thunks25')
+
+    cmd.extend([ffmpeg_hash, listatic_hash, incept_hash, inet_hash])
 
     for ac in all_vid_raw:
         next_hash = get_hash(ac)

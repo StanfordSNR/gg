@@ -11,12 +11,17 @@ BASE_LDADD = ../../src/thunk/libthunk.a \
              ../../src/util/libggutil.a \
              $(CRYPTO_LIBS) $(PROTOBUF_LIBS)
 
-bin_PROGRAMS = gen_vid_thunks
+bin_PROGRAMS = gen_vid_thunks gen_vid_thunks25
 
 gen_vid_thunks_SOURCES = gen_vid_thunks.cc
 gen_vid_thunks_LDADD = $(BASE_LDADD)
 gen_vid_thunks_LDFLAGS = -s
 
+gen_vid_thunks25_SOURCES = gen_vid_thunks25.cc
+gen_vid_thunks25_LDADD = $(BASE_LDADD)
+gen_vid_thunks25_LDFLAGS = -s
+
 if BUILD_STATIC_BINS
   gen_vid_thunks_LDFLAGS += -static
+  gen_vid_thunks25_LDFLAGS += -static
 endif
