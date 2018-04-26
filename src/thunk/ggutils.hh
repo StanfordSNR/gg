@@ -15,6 +15,7 @@
 
 namespace gg {
   namespace paths {
+    roost::path root();
     roost::path blobs();
     roost::path reductions();
     roost::path metadata();

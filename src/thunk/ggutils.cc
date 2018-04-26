@@ -83,6 +83,12 @@ namespace gg {
       return inner_dir;
     }
 
+    roost::path root()
+    {
+      const static roost::path gg_dir = get_gg_dir();
+      return gg_dir;
+    }
+
     roost::path blobs()
     {
       const static roost::path blobs_path = get_inner_directory( "blobs" );
