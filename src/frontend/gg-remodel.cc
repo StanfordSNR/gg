@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <map>
+#include <tuple>
+#include <sys/stat.h>
 
 #include "protobufs/meta.pb.h"
 #include "protobufs/util.hh"
@@ -23,6 +26,60 @@ void usage( const char * argv0 )
 {
   cerr << argv0 << " THUNK-PLACEHOLDER" << endl;
 }
+
+string hash_file( const string & filename )
+{
+  typedef tuple<string, off_t, time_t, long, time_t, long> NodeInfo;
+  static map<string, NodeInfo> hash_cache;
+
+  /* do we have this hash in cache? */
+  struct stat file_stat;
+  CheckSystemCall( "stat", stat( filename.c_str(), &file_stat ) );
+
+  if ( hash_cache.count( filename ) ) {
+    NodeInfo & info = hash_cache[ filename ];
+
+    if ( get<1>( info ) == file_stat.st_size and
+         get<2>( info ) == file_stat.st_mtim.tv_sec and
+         get<3>( info ) == file_stat.st_mtim.tv_nsec and
+         get<4>( info ) == file_stat.st_ctim.tv_sec and
+         get<5>( info ) == file_stat.st_ctim.tv_nsec ) {
+      return get<0>( info );
+    }
+  }
+
+  /* okay, let just cache it and save it */
+  const string hash = gg::hash::file( filename );
+  hash_cache[ filename ] = make_tuple( hash,
+                                       file_stat.st_size,
+                                       file_stat.st_mtim.tv_sec,
+                                       file_stat.st_mtim.tv_nsec,
+                                       file_stat.st_ctim.tv_sec,
+                                       file_stat.st_ctim.tv_nsec );
+
+  return hash;
+}
+
+bool matches_filesystem( const Thunk::DataItem & item )
+{
+  const string & hash = item.first;
+  const string & filename = item.second;
+
+  if ( filename.length() == 0 ) {
+    return false;
+  }
+
+  if ( not roost::exists( filename ) ) {
+    return false;
+  }
+
+  if ( gg::hash::size( hash ) != roost::file_size( filename ) ) {
+    return false;
+  }
+
+  return hash == hash_file( filename );
+}
+
 
 bool remodel( const string & path )
 {
@@ -54,7 +111,7 @@ bool remodel( const string & path )
       roost::chdir( target_dir );
     }
     else if ( not something_changed ) {
-      if ( not Thunk::matches_filesystem( { object.hash(), object.filename() } ) ) {
+      if ( not matches_filesystem( { object.hash(), object.filename() } ) ) {
         /* it seems that something's changed, we need to re-run the model */
         something_changed = true;
       }
