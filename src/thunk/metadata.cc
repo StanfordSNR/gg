@@ -2,6 +2,8 @@
 
 #include "metadata.hh"
 
+#include <sstream>
+
 #include "protobufs/meta.pb.h"
 #include "protobufs/util.hh"
 #include "thunk/ggutils.hh"
@@ -9,16 +11,38 @@
 using namespace std;
 using namespace gg::protobuf;
 
+/* Metadata format:
+   line 0: current working directory
+   line 1: <N> the number of arguments
+   line 2..(N+1): arguments
+   line (N+2)..(end): <HASH> <FILENAME>  */
+
 PlaceholderMetadata::PlaceholderMetadata( const string & metadata_str )
 {
-  meta::Metadata proto;
-  protoutil::from_json( metadata_str, proto );
-  args_.insert( args_.end(), proto.args().begin(), proto.args().end() );
-  cwd_ = proto.working_directory();
+  istringstream iss { metadata_str };
+  string line;
 
-  for ( const auto & object : proto.dependencies() ) {
-    objects_.emplace_back( object.filename(), object.filename(),
-                           gg::hash::type( object.hash() ), object.hash() );
+  size_t index = 0;
+  size_t arg_count = 0;
+
+  while ( getline( iss, line ) ) {
+    if ( index == 0 ) {
+      cwd_ = line;
+    }
+    else if ( index == 1 ) {
+      arg_count = stoul( line );
+    }
+    else if ( 1 < index and index < arg_count + 2 ) {
+      args_.emplace_back( line );
+    }
+    else {
+      const auto space_pos = line.find( ' ' );
+      string hash = line.substr( 0, space_pos );
+      string filename = line.substr( space_pos + 1 );
+      objects_.emplace_back( move( filename ), "", gg::hash::type( hash ), hash );
+    }
+
+    index++;
   }
 }
 
@@ -29,16 +53,18 @@ void PlaceholderMetadata::add_object( const ThunkFactory::Data & object )
 
 std::string PlaceholderMetadata::str() const
 {
-  meta::Metadata proto;
-  proto.set_working_directory( cwd_ );
-  *proto.mutable_args() = { args_.begin(), args_.end() };
+  ostringstream oss;
 
-  for ( const auto & object : objects_ ) {
-    meta::Object object_proto;
-    object_proto.set_hash( object.hash() );
-    object_proto.set_filename( object.real_filename() );
-    *proto.add_dependencies() = object_proto;
+  oss << cwd_ << endl;
+  oss << args_.size() << endl;
+
+  for ( const auto & arg : args_ ) {
+    oss << arg << endl;
   }
 
-  return protoutil::to_json( proto );
+  for ( const auto & object : objects_ ) {
+    oss << object.hash() << " " << object.real_filename() << endl;
+  }
+
+  return oss.str();
 }
