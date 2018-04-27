@@ -49,6 +49,9 @@ bool remodel( const string & path )
   for ( const ThunkFactory::Data & object : metadata.objects() ) {
     if ( object.type() == ObjectType::Thunk ) {
       something_changed |= remodel( object.filename() );
+
+      /* let's go back to our directory */
+      roost::chdir( target_dir );
     }
     else if ( not something_changed ) {
       if ( not Thunk::matches_filesystem( { object.hash(), object.filename() } ) ) {
