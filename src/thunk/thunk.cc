@@ -12,6 +12,7 @@
 
 #include "protobufs/util.hh"
 #include "thunk/ggutils.hh"
+#include "thunk/factory.hh"
 #include "thunk/placeholder.hh"
 #include "thunk/thunk_writer.hh"
 #include "util/digest.hh"
@@ -415,5 +416,5 @@ bool Thunk::matches_filesystem( const DataItem & item )
     return false;
   }
 
-  return hash == gg::hash::file( filename );
+  return hash == ThunkFactory::Data::compute_hash( filename, gg::hash::type( hash ) );
 }
