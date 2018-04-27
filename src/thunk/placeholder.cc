@@ -44,9 +44,10 @@ void ThunkPlaceholder::write( const string & filename, const Type type ) const
   ostringstream sout { ios::out | ios::binary };
   sout << header
        << endl
-       << content_hash_ << ( type == Type::LinkerScript ? " */" : "" )
+       << content_hash_
        << endl
-       << metadata_;
+       << metadata_
+       << ( type == Type::LinkerScript ? "*/" : "" );
 
   roost::atomic_create( sout.str(), filename );
 
@@ -61,8 +62,15 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
   string line;
   getline( fin, line );
 
-  if ( line != SHEBANG_DIRECTIVE
-       and line != LIBRARY_DIRECTIVE ) {
+  Type type;
+
+  if ( line == SHEBANG_DIRECTIVE ) {
+    type = Type::ShellScript;
+  }
+  else if ( line == LIBRARY_DIRECTIVE ) {
+    type = Type::LinkerScript;
+  }
+  else {
     return {};
   }
 
@@ -88,6 +96,10 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
     }
   }
 
+  if ( type == Type::LinkerScript and metadata.length() >= 2 ) {
+    metadata.pop_back();
+    metadata.pop_back();
+  }
 
   return ThunkPlaceholder { hash, metadata };
 }
