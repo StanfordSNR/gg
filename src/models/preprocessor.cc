@@ -37,7 +37,7 @@ vector<string> write_dependencies_file( const string & output_name,
   }
   output.append( "\n" );
 
-  atomic_create( output, roost::path( output_name ) );
+  roost::atomic_create( output, roost::path( output_name ) );
   return filenames;
 }
 
@@ -140,8 +140,6 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
   }
   else {
     args.push_back( "-M" );
-    args.push_back( "-MF" );
-    args.push_back( output_name );
     args.push_back( "-MT" );
     args.push_back( target_name );
   }
@@ -175,7 +173,17 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
     }
   }
 
+  if ( not has_dependencies_option ) {
+    args.push_back( "-MF" );
+    args.push_back( output_name );
+  }
+
   run( args[ 0 ], args, {}, true, true );
+
+  if ( not has_dependencies_option ) {
+    args.pop_back();
+    args.pop_back();
+  }
 
   /* write a cache entry for next time */
 
@@ -192,7 +200,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
 
   /* serialize and write the fake thunk */
   string serialized_cache_entry { ThunkWriter::serialize( dep_cache_entry ) };
-  atomic_create( serialized_cache_entry, cache_entry_path );
+  roost::atomic_create( serialized_cache_entry, cache_entry_path );
 
   return write_dependencies_file( output_name, target_name, dep_cache_entry.values() );
 }
