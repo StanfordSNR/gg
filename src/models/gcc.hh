@@ -69,7 +69,7 @@ enum class GCCOption
   pthread, shared,
   param, pipe, pedantic, dashstatic, s,
   nostdlib, nostdinc, std,
-  Xlinker, mcmodel, mfentry, gdwarf_4, pg, P,
+  u, Xlinker, mcmodel, mfentry, gdwarf_4, pg, P,
 
   mno_sse, mno_mmx, mno_sse2, mno_3dnow, mno_avx, m32, m64, mno_80387,
   mno_fp_ret_in_387, mno_red_zone, msoft_float, mregparm,

@@ -86,6 +86,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     { GCCOption::mfentry,    "mfentry",  no_argument, false, 'X' },
     { GCCOption::gdwarf_4,   "gdwarf-4", no_argument, false, 'X' },
     { GCCOption::rdynamic,   "rdynamic", no_argument, false, 'X' },
+    { GCCOption::u,          "u",  required_argument, false, ' ' },
 
     { GCCOption::mno_sse,           "mno-sse",           no_argument, false, 'X' },
     { GCCOption::mno_mmx,           "mno-mmx",           no_argument, false, 'X' },
