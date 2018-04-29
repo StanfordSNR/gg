@@ -22,17 +22,21 @@ void generate_thunk( int argc, char * argv[] )
     { 0, 0, 0, 0 },
   };
 
+  string strip_output;
+
   optind = 1; /* reset getopt */
   opterr = 0; /* turn off error messages */
   int opt;
   while ( ( opt = getopt_long( argc, argv, "o:wN:", long_options, NULL ) ) != -1 ) {
     switch ( opt ) {
     case 'o':
-      throw runtime_error( "-o argument not supported" );
+      strip_output = optarg;
+      break;
     }
   }
 
   string stripf = argv[ optind ];
+  if ( strip_output.length() == 0 ) { strip_output = stripf; }
 
   ThunkFactory::generate(
     {
@@ -42,7 +46,7 @@ void generate_thunk( int argc, char * argv[] )
     },
     { stripf },
     { program_data.at( STRIP ) },
-    { { "output", stripf } },
+    { { "output", strip_output } },
     {},
     ThunkFactory::Options::create_placeholder
       | ThunkFactory::Options::collect_data
