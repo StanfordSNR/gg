@@ -25,6 +25,7 @@ using namespace gg;
 string get_canned_response( const int status, const HTTPRequest & request )
 {
   const static map<int, string> status_messages = {
+    { 200, "OK" },
     { 400, "Bad Request" },
     { 404, "Not Found" },
     { 405, "Mehtod Not Allowed" },
@@ -86,6 +87,19 @@ int main( int argc, char * argv[] )
               HTTPRequest http_request { move( request_parser->front() ) };
               request_parser->pop();
 
+              const static string reset_line { "GET /reset HTTP/1.1" };
+              cerr << http_request.first_line() << endl;
+              if ( http_request.first_line().compare( 0, reset_line.length(), reset_line ) == 0 ) {
+                /* the user wants us to clean up the .gg directory */
+                roost::empty_directory( gg::paths::blobs() );
+                roost::empty_directory( gg::paths::reductions() );
+                roost::empty_directory( gg::paths::remote_index() );
+                cerr << "cleared" << endl;
+
+                connection->enqueue_write( get_canned_response( 200, http_request ) );
+                continue;
+              }
+
               protobuf::ExecutionRequest exec_request;
 
               try {
@@ -93,6 +107,7 @@ int main( int argc, char * argv[] )
               }
               catch (...) {
                 connection->enqueue_write( get_canned_response( 400, http_request ) );
+                continue;
               }
 
               /* now we should execute the thunk */
