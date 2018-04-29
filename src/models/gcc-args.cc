@@ -94,6 +94,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     { GCCOption::mno_avx,           "mno-avx",           no_argument, false, 'X' },
     { GCCOption::m32,               "m32",               no_argument, false, 'X' },
     { GCCOption::m64,               "m64",               no_argument, false, 'X' },
+    { GCCOption::mmmx,              "mmmx",              no_argument, false, 'X' },
     { GCCOption::mno_80387,         "mno-80387",         no_argument, false, 'X' },
     { GCCOption::mno_fp_ret_in_387, "mno-fp-ret-in-387", no_argument, false, 'X' },
     { GCCOption::mno_red_zone,      "mno-red-zone",      no_argument, false, 'X' },
@@ -122,7 +123,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     { GCCOption::print_file_name, "print-file-name", required_argument, false, '=' },
   };
 
-  constexpr size_t option_count = sizeof( gcc_options_data ) / sizeof( GCCOptionData);
+  constexpr size_t option_count = sizeof( gcc_options_data ) / sizeof( GCCOptionData );
   constexpr auto gcc_options = getopt_options<option_count>{ gcc_options_data };
 
   map<GCCOption, GCCOptionData> options_map;
