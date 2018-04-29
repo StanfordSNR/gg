@@ -317,8 +317,8 @@ namespace roost {
     return true;
   }
 
-  void empty_directory_relative( const Directory & parent_directory,
-                                 const string & pathn )
+  void empty_directory_recursive( const Directory & parent_directory,
+                                  const string & pathn )
   {
     Directory directory( parent_directory, pathn );
 
@@ -340,7 +340,7 @@ namespace roost {
       bool is_dir = is_directory_at( directory, name );
 
       if ( is_dir ) {
-        empty_directory_relative( directory, name );
+        empty_directory_recursive( directory, name );
       }
 
       remove_at( directory, name, is_dir );
@@ -354,8 +354,38 @@ namespace roost {
   void remove_directory( const path & pathn )
   {
     Directory directory { pathn.string() };
-    empty_directory_relative( directory, "." );
+    empty_directory_recursive( directory, "." );
     remove( pathn );
+  }
+
+  void empty_directory( const path & pathn )
+  {
+    Directory directory { pathn.string() };
+    shared_ptr<DIR> dir { fdopendir( directory.num() ), closedir };
+
+    if ( dir.get() == nullptr ) {
+      throw unix_error( "fdopendir" );
+    }
+
+    struct dirent * entry = NULL;
+
+    while ( ( errno = 0, entry = readdir( dir.get() ) ) != NULL ) {
+      string name { entry->d_name };
+
+      if ( name == "." or name  == ".." ) {
+        continue;
+      }
+
+      bool is_dir = is_directory_at( directory, name );
+
+      if ( not is_dir ) {
+        remove_at( directory, name, is_dir );
+      }
+    }
+
+    if ( errno ) {
+      throw unix_error( "readdir" );
+    }
   }
 
   vector<string> list_directory( const path & pathn )
