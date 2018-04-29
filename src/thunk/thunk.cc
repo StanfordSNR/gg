@@ -308,6 +308,7 @@ void Thunk::update_data( const string & original_hash,
   /* NOTE Okay, to prevent a performance hit here, we say that the first output
   must never be referenced with its tag */
   for ( const auto & output : outputs ) {
+    cerr << "Update data: " << original_hash << " -> " << output.hash << endl;
     const string old_hash = ( first_output )
                           ? original_hash
                           : hash::for_output( original_hash, output.tag );
@@ -318,12 +319,14 @@ void Thunk::update_data( const string & original_hash,
 
     auto result = thunks_.equal_range( old_hash );
 
-    for ( auto it = result.first; it != result.second; ) {
-      auto it_copy = it;
-      it++;
+    vector<string> old_names;
 
-      string old_name { move( it_copy->second ) };
-      thunks_.erase( it_copy );
+    for ( auto it = result.first; it != result.second; ) {
+      old_names.emplace_back( move( it->second ) );
+      it = thunks_.erase( it );
+    }
+
+    for ( const auto & old_name : old_names ) {
       switch ( hash::type( new_hash ) ) {
       case ObjectType::Thunk: thunks_.insert( { new_hash, old_name } ); break;
       case ObjectType::Value: values_.insert( { new_hash, old_name } ); break;
