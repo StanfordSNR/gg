@@ -308,7 +308,6 @@ void Thunk::update_data( const string & original_hash,
   /* NOTE Okay, to prevent a performance hit here, we say that the first output
   must never be referenced with its tag */
   for ( const auto & output : outputs ) {
-    cerr << "Update data: " << original_hash << " -> " << output.hash << endl;
     const string old_hash = ( first_output )
                           ? original_hash
                           : hash::for_output( original_hash, output.tag );
