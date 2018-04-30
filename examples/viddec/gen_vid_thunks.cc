@@ -62,19 +62,20 @@ int main( int argc, char * argv[] )
       const string ffmpeg_thunk_hash = ThunkWriter::write( next_ffmpeg_thunk );
 
       for ( int j = 0; j < out_size; ++j ) {
+        string t_name = ( j == 0 ) ? ffmpeg_thunk_hash
+                                   : ffmpeg_thunk_hash + "#" + all_outname[j];
         char pic_out[50];
         sprintf( pic_out, "frameout%03d_%03d_lab.out", j + 1, all_count );
 
         vector<string> listatic_args = { "li-static",
-                                         thunk::data_placeholder( ffmpeg_thunk_hash + "#" +
-                                             all_outname[j] ),
+                                         thunk::data_placeholder( t_name ),
                                          thunk::data_placeholder( incept_hash ),
                                          thunk::data_placeholder( inet_hash ),
                                          { pic_out } };
 
         const Thunk next_listatic_thunk {
           { listatic_hash, listatic_args, {} },
-          { { ffmpeg_thunk_hash + "#" + all_outname[j], "" },
+          { { t_name, "" },
             { incept_hash, "" }, {inet_hash, "" } },
           { { listatic_hash, "" } },
           { { pic_out } }
@@ -96,4 +97,3 @@ int main( int argc, char * argv[] )
 
   return EXIT_SUCCESS;
 }
-

@@ -63,9 +63,10 @@ int main( int argc, char * argv[] )
       vector<string>listatic_args = { "li25-static" };
       vector<pair<const string, string>>listatic_values;
       for ( int j = 0; j < num_out; ++j ) {
-        listatic_args.push_back( thunk::data_placeholder( 
-                                   ffmpeg_thunk_hash + "#" + all_outname[j] ) );
-        listatic_values.push_back( make_pair( ffmpeg_thunk_hash + "#" + all_outname[j], "" ) );
+        string t_name = ( j == 0 ) ? ffmpeg_thunk_hash
+                                   : ( ffmpeg_thunk_hash + "#" + all_outname[j] );
+        listatic_args.push_back( thunk::data_placeholder( t_name ) );
+        listatic_values.push_back( make_pair( t_name, "" ) );
       }
 
       listatic_args.push_back( thunk::data_placeholder( incept_hash ) );
@@ -96,4 +97,3 @@ int main( int argc, char * argv[] )
 
   return EXIT_SUCCESS;
 }
-
