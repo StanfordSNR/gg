@@ -24,7 +24,7 @@ roost::path base_path;
 
 void usage( const char * argv0 )
 {
-  cerr << argv0 << " THUNK-PLACEHOLDER" << endl;
+  cerr << argv0 << " THUNK-PLACEHOLDER..." << endl;
 }
 
 string hash_file( const string & filename )
@@ -80,10 +80,18 @@ bool matches_filesystem( const Thunk::DataItem & item )
   return hash == hash_file( filename );
 }
 
+set<string> remodeled_placeholders;
 
 bool remodel( const string & path )
 {
+  const auto placeholder_canonical_path = roost::canonical( path ).string();
+
+  if ( remodeled_placeholders.count( placeholder_canonical_path ) ) {
+    return false;
+  }
+
   auto placeholder = ThunkPlaceholder::read( path );
+
   if ( not placeholder.initialized() ) {
     throw runtime_error( "not a placeholder: " + path );
   }
@@ -125,6 +133,7 @@ bool remodel( const string & path )
     cerr << ">> remodeled: " << path << endl;
   }
 
+  remodeled_placeholders.insert( placeholder_canonical_path );
   return something_changed;
 }
 
@@ -135,15 +144,23 @@ int main( int argc, char ** argv )
       abort();
     }
 
-    if ( argc != 2 ) {
+    if ( argc < 2 ) {
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
 
     base_path = roost::current_working_directory();
-    const string target_placeholder = argv[ 1 ];
 
-    remodel( target_placeholder );
+    vector<string> target_placeholders;
+
+    for ( int i = 1; i < argc; i++ ) {
+      target_placeholders.emplace_back( argv[ i ] );
+    }
+
+    for ( const auto & target_placeholder : target_placeholders ) {
+      roost::chdir( base_path );
+      remodel( target_placeholder );
+    }
 
     return EXIT_SUCCESS;
   }
