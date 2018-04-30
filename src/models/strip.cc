@@ -2,6 +2,7 @@
 
 #include <getopt.h>
 
+#include "thunk/metadata.hh"
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"
@@ -16,6 +17,13 @@ void generate_thunk( int argc, char * argv[] )
 {
   if ( argc < 2 ) {
     throw runtime_error( "not enough arguments" );
+  }
+
+  Optional<PlaceholderMetadata> metadata_ {};
+
+  if ( gg::meta::metainfer() ) {
+    metadata_.reset( gg::models::args_to_vector( argc, argv ),
+                     gg::meta::relative_cwd().string() );
   }
 
   struct option long_options[] = {
@@ -36,7 +44,15 @@ void generate_thunk( int argc, char * argv[] )
   }
 
   string stripf = argv[ optind ];
-  if ( strip_output.length() == 0 ) { strip_output = stripf; }
+  if ( metadata_.initialized() ) { metadata_->add_object( stripf ); }
+
+  if ( strip_output.length() == 0 ) {
+    if ( metadata_.initialized() ) {
+      throw runtime_error( "strip: unhandled case for metadata" );
+    }
+
+    strip_output = stripf;
+  }
 
   ThunkFactory::generate(
     {
@@ -52,6 +68,8 @@ void generate_thunk( int argc, char * argv[] )
       | ThunkFactory::Options::collect_data
       | ThunkFactory::Options::generate_manifest
       | ThunkFactory::Options::include_filenames
+      | ( ( metadata_.initialized() ) ? ThunkFactory::Options::write_metadata : 0 ),
+    metadata_.initialized() ? metadata_->str() : string {}
   );
 }
 
