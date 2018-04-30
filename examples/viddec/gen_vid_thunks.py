@@ -15,7 +15,7 @@ out_script = 'gen_thunks.sh'
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--video', '-v', type=str, required=False,
-            dest='vidToProcess', default='4kvid', help='Video to process (Def: 4kvid)')
+            dest='vidToProcess', default='all_vid.txt', help='file with all vid hashes')
     parser.add_argument('--libin', '-l', type=str, required=False,
             dest='listaticbin', default='li25-static', help='Label Image Binary (li25-static or li-static)')
     return parser.parse_args()
@@ -48,9 +48,9 @@ def clear_chunks():
             os.remove(todel)
 
 def main(args):
-    vidStart = args.vidToProcess
+    all_hashes = args.vidToProcess
     listatic = args.listaticbin
-    all_vid_raw = glob.glob(vidStart + '_chunk*')
+    all_vid_raw = open(all_hashes, 'r').readlines()
 
     # Get hashes of all files
     ffmpeg_hash = get_hash('ffmpeg')
@@ -60,7 +60,7 @@ def main(args):
 
     # Collect all files
     all_files_to_col = ['ffmpeg', listatic, 'inception_v3_2016_08_28_frozen.pb', \
-                       'imagenet_slim_labels.txt'] + all_vid_raw
+                       'imagenet_slim_labels.txt']
     collect_files(all_files_to_col)
 
     # Build command
@@ -72,9 +72,9 @@ def main(args):
 
     cmd.extend([ffmpeg_hash, listatic_hash, incept_hash, inet_hash])
 
-    for ac in all_vid_raw:
-        next_hash = get_hash(ac)
-        cmd.append(next_hash)
+    all_chunks = 60*(all_vid_raw[4:8])
+    for ac in all_chunks:
+        cmd.append(ac.strip())
 
     # Create output script
     fd = open(out_script, 'w')
