@@ -1,1 +1,1 @@
-SUBDIRS = fibonacci
+SUBDIRS = fibonacci viddec
