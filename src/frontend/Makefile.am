@@ -20,7 +20,7 @@ bin_PROGRAMS = gg-trace gg-describe gg-force-and-run gg-force gg-mock \
                gg-execute gg-infer gg-thunksummary gg-s3-upload \
                gg-s3-download gg-init gg-hash gg-create-thunk gg-collect \
                gg-put gg-get gg-execute-server gg-meow-worker gg-object-server \
-               gg-remodel lambda-invoker
+               gg-remodel gg-list-dist lambda-invoker
 
 if BUILD_STATIC_BINS
   bin_PROGRAMS += gg-execute-static gg-meow-worker-static
@@ -93,6 +93,9 @@ gg_object_server_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 gg_remodel_SOURCES = gg-remodel.cc
 gg_remodel_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
+
+gg_list_dist_SOURCES = gg-list-dist.cc
+gg_list_dist_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 lambda_invoker_SOURCES = lambda-invoker.cc
 lambda_invoker_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
