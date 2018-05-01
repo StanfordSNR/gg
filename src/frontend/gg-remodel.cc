@@ -149,6 +149,10 @@ int main( int argc, char ** argv )
       return EXIT_FAILURE;
     }
 
+    setenv( "GG_REMODELING", "1", true );
+    setenv( "GG_METAINFER", "1", true );
+    setenv( "GG_BASEPATH", roost::current_working_directory().string().c_str(), true );
+
     base_path = roost::current_working_directory();
 
     vector<string> target_placeholders;
