@@ -108,6 +108,10 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
     args.push_back( "g++-7" );
   }
 
+  if ( getenv( "GG_REMODELING" ) != nullptr ) {
+    roost::create_directories( roost::dirname( output_name ) );
+  }
+
   args.insert( args.end(), option_args.begin(), option_args.end() );
 
   string output_filename;
