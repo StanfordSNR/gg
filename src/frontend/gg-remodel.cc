@@ -100,8 +100,8 @@ bool remodel( const string & path )
     throw runtime_error( "no metadata found: " + path );
   }
 
-  cerr << "Remodeling " << path << " (" << placeholder->content_hash() << ")"
-       << endl;
+  // cerr << "Remodeling " << path << " (" << placeholder->content_hash() << ")"
+  //     << endl;
 
   PlaceholderMetadata metadata { placeholder->metadata() };
 
