@@ -237,6 +237,7 @@ string Thunk::execution_payload( const Thunk & thunk )
 
 string Thunk::execution_payload( const vector<Thunk> & thunks )
 {
+  static const bool timelog = ( getenv( "GG_TIMELOG" ) != nullptr );
   protobuf::ExecutionRequest request;
 
   for ( const Thunk & thunk : thunks ) {
@@ -244,6 +245,7 @@ string Thunk::execution_payload( const vector<Thunk> & thunks )
   }
 
   request.set_storage_backend( gg::remote::storage_backend_uri() );
+  request.set_timelog( timelog );
   return protoutil::to_json( request );
 }
 

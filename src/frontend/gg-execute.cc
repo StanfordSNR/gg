@@ -240,7 +240,7 @@ void upload_output( unique_ptr<StorageBackend> & storage_backend,
 
 void usage( const char * argv0 )
 {
-  cerr << "Usage: " << argv0 << "[options] THUNK-HASH..." << endl
+  cerr << "Usage: " << argv0 << " [options] THUNK-HASH..." << endl
   << endl
   << "Options: " << endl
   << " -g, --get-dependencies  Fetch the missing dependencies from the remote storage" << endl
@@ -351,7 +351,7 @@ int main( int argc, char * argv[] )
         tmplog.fd().close();
 
         vector<storage::PutRequest> requests;
-        requests.emplace_back( tmplog.name(), "runlog/" + thunk_hash );
+        requests.emplace_back( tmplog.name(), "timelog/" + thunk_hash );
         storage_backend->put( requests );
       }
       else if ( timelog.initialized() ) {
