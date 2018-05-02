@@ -22,6 +22,7 @@
 #include "util/path.hh"
 #include "util/temp_dir.hh"
 #include "util/temp_file.hh"
+#include "util/timelog.hh"
 #include "util/util.hh"
 
 using namespace std;
@@ -245,6 +246,7 @@ void usage( const char * argv0 )
   << " -g, --get-dependencies  Fetch the missing dependencies from the remote storage" << endl
   << " -p, --put-output        Upload the output to the remote storage" << endl
   << " -C, --cleanup           Remove unnecessary blobs in .gg dir" << endl
+  << " -T, --timelog           Produce timing log for this execution" << endl
   << endl;
 }
 
@@ -263,17 +265,19 @@ int main( int argc, char * argv[] )
     bool get_dependencies = false;
     bool put_output = false;
     bool cleanup = false;
+    Optional<TimeLog> timelog;
     unique_ptr<StorageBackend> storage_backend;
 
     const option command_line_options[] = {
       { "get-dependencies", no_argument, nullptr, 'g' },
       { "put-output",       no_argument, nullptr, 'p' },
       { "cleanup",          no_argument, nullptr, 'C' },
+      { "timelog",          no_argument, nullptr, 'T' },
       { nullptr, 0, nullptr, 0 },
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "gpC", command_line_options, nullptr );
+      const int opt = getopt_long( argc, argv, "gpCT", command_line_options, nullptr );
 
       if ( opt == -1 ) {
         break;
@@ -283,6 +287,7 @@ int main( int argc, char * argv[] )
       case 'g': get_dependencies = true; break;
       case 'p': put_output = true; break;
       case 'C': cleanup = true; break;
+      case 'T': timelog.reset(); break;
 
       default:
         throw runtime_error( "invalid option: " + string { argv[ optind - 1 ] } );
@@ -312,6 +317,8 @@ int main( int argc, char * argv[] )
 
       Thunk thunk = ThunkReader::read( thunk_path );
 
+      if ( timelog.initialized() ) { timelog->add_point( "read_thunk" ); }
+
       if ( get_dependencies or put_output ) {
         storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
       }
@@ -320,14 +327,35 @@ int main( int argc, char * argv[] )
         do_cleanup( thunk );
       }
 
+      if ( timelog.initialized() ) { timelog->add_point( "do_cleanup" ); }
+
       if ( get_dependencies ) {
         fetch_dependencies( storage_backend, thunk );
       }
 
+      if ( timelog.initialized() ) { timelog->add_point( "get_dependencies" ); }
+
       vector<string> output_hashes = execute_thunk( thunk );
+
+      if ( timelog.initialized() ) { timelog->add_point( "execute" ); }
 
       if ( put_output ) {
         upload_output( storage_backend, output_hashes );
+      }
+
+      if ( timelog.initialized() ) { timelog->add_point( "upload_output" ); }
+
+      if ( timelog.initialized() and storage_backend != nullptr ) {
+        TempFile tmplog { "/tmp/timelog" };
+        tmplog.fd().write( timelog->str(), true );
+        tmplog.fd().close();
+
+        vector<storage::PutRequest> requests;
+        requests.emplace_back( tmplog.name(), "runlog/" + thunk_hash );
+        storage_backend->put( requests );
+      }
+      else if ( timelog.initialized() ) {
+        cout << timelog->str() << endl;
       }
     }
 
