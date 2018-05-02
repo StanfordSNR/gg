@@ -11,9 +11,9 @@
 class TimeLog
 {
 private:
-  std::chrono::system_clock::time_point start_;
-  std::chrono::system_clock::time_point prev_;
-  std::vector<std::pair<std::string, std::time_t>> points_ {};
+  std::chrono::milliseconds start_;
+  std::chrono::milliseconds prev_;
+  std::vector<std::pair<std::string, std::chrono::milliseconds>> points_ {};
 
 public:
   TimeLog();

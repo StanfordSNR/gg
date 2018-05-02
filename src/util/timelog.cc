@@ -5,27 +5,28 @@
 #include <sstream>
 
 using namespace std;
+using namespace std::chrono;
 
 TimeLog::TimeLog()
-  : start_( chrono::system_clock::now() ), prev_( start_ )
+  : start_( duration_cast<milliseconds>( system_clock::now().time_since_epoch() ) ),
+    prev_( start_ )
 {}
 
 void TimeLog::add_point( const std::string & title )
 {
-  auto now = chrono::system_clock::now();
-  points_.emplace_back( title,
-                        chrono::system_clock::to_time_t( now ) -
-                        chrono::system_clock::to_time_t( prev_ ) );
+  auto now = duration_cast<milliseconds>( system_clock::now().time_since_epoch() );
+
+  points_.emplace_back( title, now - prev_ );
   prev_ = now;
 }
 
 string TimeLog::str() const
 {
   ostringstream oss;
-  oss << chrono::system_clock::to_time_t( start_ ) << endl;
+  oss << start_.count() << endl;
 
   for ( const auto & point : points_ ) {
-    oss << point.first << " " << point.second << endl;
+    oss << point.first << " " << point.second.count() << endl;
   }
 
   return oss.str();
