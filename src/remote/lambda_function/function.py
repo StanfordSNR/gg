@@ -26,6 +26,7 @@ def is_hash_for_thunk(hash):
 def handler(event, context):
     os.environ['GG_STORAGE_URI'] = event['storageBackend']
     thunks = event['thunks']
+    timelog = event.get('timelog')
 
     # Write thunks to disk
     for thunk_item in thunks:
@@ -48,8 +49,15 @@ def handler(event, context):
     os.system("rm -rf /tmp/thunk-execute.*")
 
     # Execute the thunk, and upload the result
-    return_code, stdout = run_command(["gg-execute-static",
-         "--get-dependencies", "--put-output", "--cleanup",] +
+    command = ["gg-execute-static",
+               "--get-dependencies",
+               "--put-output",
+               "--cleanup"]
+
+    if timelog:
+        command += ["--timelog"]
+
+    return_code, stdout = run_command(command +
          [x['hash'] for x in thunks])
 
     executed_thunks = []
