@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(srcdir)/. $(CXX14_FLAGS)
+AM_CPPFLAGS = -I$(srcdir)/. -I$(srcdir)/.. $(CXX14_FLAGS)
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(EXTRA_CXXFLAGS)
 
 noinst_LIBRARIES = libggutil.a
@@ -19,4 +19,5 @@ libggutil_a_SOURCES = exception.hh optional.hh chunk.hh \
                       signalfd.hh signalfd.cc \
                       tokenize.hh units.hh \
                       timeit.hh timeit.cc \
-											iterator.hh
+                      timelog.hh timelog.cc \
+                      iterator.hh
