@@ -22,11 +22,14 @@ using namespace PollerShortNames;
 
 HTTPRequest MeowExecutionEngine::generate_request()
 {
+  static const bool timelog = ( getenv( "GG_TIMELOG" ) != nullptr );
+
   string function_name = "gg-meow-function";
 
   gg::protobuf::meow::InvocationRequest request;
   request.set_coordinator( listen_addr_.str() );
   request.set_storage_backend( gg::remote::storage_backend_uri() );
+  request.set_timelog( timelog );
 
   return LambdaInvocationRequest(
     credentials_, region_, function_name,
