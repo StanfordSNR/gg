@@ -24,6 +24,9 @@ def handler(event, context):
     coordinator_address = event['coordinator']
     coordinator_host, coordinator_port = event['coordinator'].split(':')
 
+    if event.get('timelog'):
+        os.environ['GG_EXECUTE_TIMELOG'] = '1'
+
     return_code, stdout = run_command(["gg-meow-worker",
         coordinator_host, coordinator_port])
 

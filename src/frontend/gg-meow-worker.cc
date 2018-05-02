@@ -26,6 +26,8 @@ using namespace std;
 using namespace gg;
 using namespace meow;
 
+const bool timelog = ( getenv( "GG_EXECUTE_TIMELOG" ) != nullptr );
+
 class ProgramFinished : public exception {};
 
 void usage( char * argv0 )
@@ -150,6 +152,11 @@ int main( int argc, char * argv[] )
                                        "--put-output",
                                        "--cleanup",
                                        hash };
+
+              if ( timelog ) {
+                command.push_back( "--timelog" );
+              }
+
               return ezexec( command[ 0 ], command, {}, true, true );
             },
             false
