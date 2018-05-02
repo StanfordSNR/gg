@@ -138,7 +138,7 @@ void generate_thunk( int argc, char * argv[] )
     /* this means that the ar command might want change an existing library, so
     we have to list that as an infile */
     data.push_back( outfile );
-    if ( metadata_.initialized() ) { throw runtime_error( "ar: unhandled case for metadata" ); }
+    // if ( metadata_.initialized() ) { throw runtime_error( "ar: unhandled case for metadata" ); }
   }
 
   ThunkFactory::generate(
