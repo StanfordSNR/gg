@@ -18,6 +18,8 @@ private:
 public:
   TimeLog();
   void add_point( const std::string & title );
+
+  std::string str() const;
 };
 
 #endif /* UTIL_TIMELOG_HH */

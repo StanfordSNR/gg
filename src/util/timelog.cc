@@ -2,6 +2,8 @@
 
 #include "util/timelog.hh"
 
+#include <sstream>
+
 using namespace std;
 
 TimeLog::TimeLog()
@@ -15,4 +17,16 @@ void TimeLog::add_point( const std::string & title )
                         chrono::system_clock::to_time_t( now ) -
                         chrono::system_clock::to_time_t( prev_ ) );
   prev_ = now;
+}
+
+string TimeLog::str() const
+{
+  ostringstream oss;
+  oss << chrono::system_clock::to_time_t( start_ ) << endl;
+
+  for ( const auto & point : points_ ) {
+    oss << point.first << " " << point.second << endl;
+  }
+
+  return oss.str();
 }
