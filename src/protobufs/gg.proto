@@ -11,6 +11,7 @@ message RequestItem {
 message ExecutionRequest {
   repeated RequestItem thunks = 1;
   string storage_backend = 2;
+  bool timelog = 3;
 }
 
 message OutputItem {
