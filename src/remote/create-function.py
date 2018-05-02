@@ -95,7 +95,7 @@ def install_lambda_package(package_file, function_name, role, region, delete=Fal
             'ZipFile': package_data
         },
         Timeout=300,
-        MemorySize=1536,
+        MemorySize=3008,
         Tags={
             'gg': 'generic',
         }
