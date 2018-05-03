@@ -16,7 +16,6 @@
 #include <libgen.h>
 #include <sys/ioctl.h>
 
-#include "protobufs/meta.pb.h"
 #include "protobufs/util.hh"
 #include "thunk/factory.hh"
 #include "thunk/placeholder.hh"

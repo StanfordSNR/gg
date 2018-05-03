@@ -6,7 +6,6 @@
 #include <tuple>
 #include <sys/stat.h>
 
-#include "protobufs/meta.pb.h"
 #include "protobufs/util.hh"
 #include "thunk/placeholder.hh"
 #include "thunk/thunk.hh"

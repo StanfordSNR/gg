@@ -5,7 +5,6 @@
 #include <map>
 #include <tuple>
 
-#include "protobufs/meta.pb.h"
 #include "protobufs/util.hh"
 #include "thunk/placeholder.hh"
 #include "thunk/thunk.hh"

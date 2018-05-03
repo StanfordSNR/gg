@@ -4,7 +4,6 @@
 
 #include <sstream>
 
-#include "protobufs/meta.pb.h"
 #include "protobufs/util.hh"
 #include "thunk/ggutils.hh"
 
