@@ -26,7 +26,7 @@ public:
   // FIXME, this leads to very misleading results when constructing optional ints
   template <typename... Targs>
   Optional( const bool is_present, Targs&&... Fargs )
-    : initialized_( is_present )
+    : initialized_( is_present ), missing_()
   {
     if ( initialized_ ) {
       new( &object_ ) T( std::forward<Targs>( Fargs )... );
@@ -35,7 +35,7 @@ public:
 
   /* move constructor */
   Optional( Optional<T> && other ) noexcept( std::is_nothrow_move_constructible<T>::value )
-    : initialized_( other.initialized_ )
+    : initialized_( other.initialized_ ), missing_()
   {
     if ( initialized_ ) {
       new( &object_ ) T( std::move( other.object_ ) );
@@ -44,7 +44,7 @@ public:
 
   /* copy constructor */
   Optional( const Optional<T> & other )
-    : initialized_( other.initialized_ )
+    : initialized_( other.initialized_ ), missing_()
   {
     if ( initialized_ ) {
       new( &object_ ) T( other.object_ );
