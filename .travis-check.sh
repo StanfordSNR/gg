@@ -1,8 +1,6 @@
 #!/bin/bash -ex
 
-git clone --depth=3 https://github.com/stanfordsnr/gg /home/user/gg
 cd /home/user/gg
-git checkout $COMMIT
 
 ./fetch-toolchain.sh
 ./autogen.sh

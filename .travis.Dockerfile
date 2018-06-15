@@ -13,11 +13,12 @@ RUN pip3 install python_magic
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 99
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 99
 
-COPY .travis-check.sh check.sh
-
 RUN useradd --create-home --shell /bin/bash user
-USER user
+COPY . /home/user/gg/
+RUN chown user -R /home/user/gg/
 
 ENV LANG C.UTF-8
 ENV LANGUAGE C:en
 ENV LC_ALL C.UTF-8
+
+USER user

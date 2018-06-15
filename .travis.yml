@@ -10,7 +10,7 @@ before_install:
   - docker build -t gg-travis -f .travis.Dockerfile .
 
 script:
-  - docker run -e COMMIT=${TRAVIS_COMMIT} --cap-add=SYS_PTRACE -ti gg-travis:latest ./check.sh
+  - docker run --cap-add=SYS_PTRACE -ti gg-travis:latest /home/user/gg/.travis-check.sh
 
 notifications:
   slack: keithw:RFEz0IvxWUHbHFan10UNb3Qo
