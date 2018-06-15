@@ -11,6 +11,3 @@ before_install:
 
 script:
   - docker run --cap-add=SYS_PTRACE -ti gg-travis:latest /home/user/gg/.travis-check.sh
-
-notifications:
-  slack: keithw:RFEz0IvxWUHbHFan10UNb3Qo
