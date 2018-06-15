@@ -6,39 +6,11 @@ git:
   depth: 3
   submodules: false
 
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-7
-    - g++-7
-    - libcap-dev
-    - libkeyutils-dev
-    - libncurses5-dev
-    - libboost-dev
-    - libssl-dev
-    - autopoint
-    - help2man
-    - texinfo
-    - python3
-    - python3-pip
-    - libhiredis-dev
-
-before_script:
-  - sudo add-apt-repository -y ppa:sfouladi/protobuf-backports
-  - sudo add-apt-repository -y ppa:sfouladi/libcrypto++-backports
-  - sudo apt-get update -qq
-  - sudo apt-get install -y --allow-unauthenticated protobuf-compiler libprotobuf-dev libcrypto++-dev
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 99
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 99
-  - sudo pip3 install python_magic
+before_install:
+  - docker build -t gg-travis -f .travis.Dockerfile .
 
 script:
-  - ./fetch-toolchain.sh
-  - ./autogen.sh
-  - ./configure --enable-sanitize
-  - make -j3 distcheck V=1 || (cat gg-0.01/_build/tests/test-suite.log && exit 1)
+  - docker run -e COMMIT=${TRAVIS_COMMIT} --cap-add=SYS_PTRACE -ti gg-travis:latest ./check.sh
 
 notifications:
   slack: keithw:RFEz0IvxWUHbHFan10UNb3Qo
