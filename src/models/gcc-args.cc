@@ -169,7 +169,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     case 'i':
       if ( startswith( optarg, "system" ) ) {
         string optarg_str { optarg };
-        include_dirs_.push_back( optarg_str.substr( strlen( "system" ) ) );
+        system_include_dirs_.push_back( optarg_str.substr( strlen( "system" ) ) );
       }
       else {
         flag_processed = false;
@@ -241,7 +241,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
         break;
 
       case GCCOption::isystem:
-        include_dirs_.emplace_back( optarg );
+        system_include_dirs_.emplace_back( optarg );
         break;
 
       case GCCOption::nostdlib:

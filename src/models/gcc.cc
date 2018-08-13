@@ -289,6 +289,10 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       dummy_dirs.push_back( dir );
     }
 
+    for ( const string & dir : arguments_.system_include_dirs() ) {
+      dummy_dirs.push_back( dir );
+    }
+
     dummy_dirs.push_back( "." );
 
     generated_thunk_hash = ThunkFactory::generate(
