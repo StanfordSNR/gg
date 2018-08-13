@@ -255,8 +255,38 @@ namespace gg {
       return output_sstr.str();
     }
 
-    string file( const roost::path & path )
+    string file( const roost::path & path, const bool use_cache )
     {
+      struct stat file_stat;
+      roost::path cache_entry_path;
+
+      if ( use_cache ) {
+        CheckSystemCall( "stat", stat( path.string().c_str(), &file_stat ) );
+        cache_entry_path = gg::paths::hash_cache_entry( path.string(), file_stat );
+
+        if ( roost::exists( cache_entry_path ) ) {
+          FileDescriptor cache_file { CheckSystemCall( "open",
+                                                       open( cache_entry_path.string().c_str(), O_RDONLY ) ) };
+          string cache_entry;
+          while ( not cache_file.eof() ) { cache_entry += cache_file.read(); }
+
+          vector<string> cache_contents = split( cache_entry, " " );
+
+          if ( cache_contents.size() != 6 ) {
+            throw runtime_error( "bad cache entry: " + cache_entry_path.string() );
+          }
+
+          if ( cache_contents.at( 0 ) == to_string( file_stat.st_size )
+               and cache_contents.at( 1 ) == to_string( file_stat.st_mtim.tv_sec )
+               and cache_contents.at( 2 ) == to_string( file_stat.st_mtim.tv_nsec )
+               and cache_contents.at( 3 ) == to_string( file_stat.st_ctim.tv_sec )
+               and cache_contents.at( 4 ) == to_string( file_stat.st_ctim.tv_nsec ) ) {
+            /* cache hit! */
+            return cache_contents.at( 5 );
+          }
+        }
+      }
+
       FileDescriptor file { CheckSystemCall( "open (" + path.string() + ")",
                                              open( path.string().c_str(), O_RDONLY ) ) };
 
@@ -267,7 +297,20 @@ namespace gg {
                                 contents.compare( 0, thunk::MAGIC_NUMBER.size(), gg::thunk::MAGIC_NUMBER ) == 0 )
                               ? ObjectType::Thunk : ObjectType::Value;
 
-      return gg::hash::compute( contents, type );
+      const auto computed_hash = gg::hash::compute( contents, type );
+
+      if ( use_cache ) {
+        /* make a cache entry */
+        roost::atomic_create( to_string( file_stat.st_size ) + " "
+                              + to_string( file_stat.st_mtim.tv_sec ) + " "
+                              + to_string( file_stat.st_mtim.tv_nsec ) + " "
+                              + to_string( file_stat.st_ctim.tv_sec ) + " "
+                              + to_string( file_stat.st_ctim.tv_nsec ) + " "
+                              + computed_hash,
+                              cache_entry_path );
+      }
+
+      return computed_hash;
     }
 
     string to_hex( const string & gghash )
