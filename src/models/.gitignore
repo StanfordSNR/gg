@@ -9,3 +9,4 @@ model-ranlib
 model-strip
 model-ld
 model-generic
+gen-deps
