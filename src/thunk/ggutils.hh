@@ -57,7 +57,7 @@ namespace gg {
     std::string for_output( const std::string & thunk_hash, const std::string & output_tag );
 
     std::string compute( const std::string & input, const ObjectType type );
-    std::string file( const roost::path & path, const bool use_cache = false );
+    std::string file( const roost::path & path, Optional<ObjectType> type = {} );
     std::string to_hex( const std::string & gghash );
 
     uint32_t size( const std::string & gghash );

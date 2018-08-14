@@ -41,7 +41,7 @@ ThunkFactory::Data::Data( const string & filename,
   }
   else {
     type_ = type;
-    hash_ = compute_hash( real_filename_, type_ );
+    hash_ = gg::hash::file( real_filename_, { true, type_ } );
   }
 }
 
