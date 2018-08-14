@@ -22,13 +22,14 @@ namespace gg {
     roost::path remote_index();
     roost::path hash_cache();
     roost::path dependency_cache();
+    roost::path inclue_cache();
 
     roost::path blob( const std::string & hash );
     roost::path reduction( const std::string & hash );
     roost::path metadata( const std::string & hash );
     roost::path hash_cache_entry( const std::string & filename, const struct stat & stat_entry );
     roost::path dependency_cache_entry( const std::string & cache_key );
-    roost::path include_cache( const std::string & hash );
+    roost::path include_cache_entry( const std::string & hash );
 
     void fix_path_envar();
   }

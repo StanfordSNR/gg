@@ -125,6 +125,12 @@ namespace gg {
       return cache_path;
     }
 
+    roost::path include_cache()
+    {
+      const static roost::path include_cache_path = get_inner_directory( "include_cache" );
+      return include_cache_path;
+    }
+
     roost::path blob( const string & hash )
     {
       return blobs() / hash;
@@ -150,6 +156,11 @@ namespace gg {
     roost::path dependency_cache_entry( const string & cache_key )
     {
       return dependency_cache() / cache_key;
+    }
+
+    roost::path include_cache_entry( const string & cache_key )
+    {
+      return include_cache() / cache_key;
     }
 
     void fix_path_envar()
