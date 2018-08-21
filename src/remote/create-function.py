@@ -57,7 +57,7 @@ def gghash(filename, block_size=65536):
 def create_function_package(label, output, function_execs, gg_execute_static, gg_meow_worker):
     PACKAGE_FILES = {
         "gg-execute-static": gg_execute_static,
-        "function.py": "%s_function/function.py" % label,
+        "main.py": "%s_function/main.py" % label,
         "ggpaths.py": "common/ggpaths.py",
         "common.py": "common/common.py"
     }
@@ -90,7 +90,7 @@ def install_lambda_package(package_file, function_name, role, region, delete=Fal
         FunctionName=function_name,
         Runtime='python3.6',
         Role=role,
-        Handler='function.handler',
+        Handler='main.handler',
         Code={
             'ZipFile': package_data
         },
