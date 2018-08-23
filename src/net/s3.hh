@@ -26,7 +26,7 @@ class S3PutRequest : public AWSRequest
 {
 public:
   S3PutRequest( const AWSCredentials & credentials,
-                const std::string & region, const std::string & bucket,
+                const std::string & endpoint, const std::string & region,
                 const std::string & object, const std::string & contents,
                 const std::string & content_hash = {} );
 };
@@ -35,7 +35,7 @@ class S3GetRequest : public AWSRequest
 {
 public:
   S3GetRequest( const AWSCredentials & credentials,
-                const std::string & region, const std::string & bucket,
+                const std::string & endpoint, const std::string & region,
                 const std::string & object );
 };
 
