@@ -20,4 +20,5 @@ libggutil_a_SOURCES = exception.hh optional.hh chunk.hh \
                       tokenize.hh units.hh \
                       timeit.hh timeit.cc \
                       timelog.hh timelog.cc \
-                      iterator.hh
+                      iterator.hh \
+                      uri.hh uri.cc

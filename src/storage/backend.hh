@@ -7,26 +7,12 @@
 #include <string>
 #include <functional>
 #include <memory>
-#include <unordered_map>
 
 #include "net/requests.hh"
-#include "util/path.hh"
 #include "util/optional.hh"
 
 typedef std::function<void( const storage::PutRequest & )> PutCallback;
 typedef std::function<void( const storage::GetRequest & )> GetCallback;
-
-struct StorageEndpoint
-{
-  std::string protocol {};
-  std::string username {};
-  std::string password {};
-  std::string host {};
-  Optional<uint16_t> port { 0 };
-  std::string path {};
-
-  std::unordered_map<std::string, std::string> options {};
-};
 
 class StorageBackend
 {
