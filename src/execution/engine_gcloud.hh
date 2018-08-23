@@ -8,15 +8,14 @@
 
 #include "engine.hh"
 #include "thunk/thunk.hh"
-#include "net/aws.hh"
-#include "net/lambda.hh"
 #include "net/http_request.hh"
+#include "util/uri.hh"
 
+/* Engine for Google Cloud Functions */
 class GCFExecutionEngine : public ExecutionEngine
 {
 private:
-  AWSCredentials credentials_;
-  std::string region_;
+  ParsedURI parsed_url_;
   Address address_;
   SSLContext ssl_context_ {};
 
@@ -30,8 +29,7 @@ private:
 
 public:
   GCFExecutionEngine( const std::string & function_url )
-    : credentials_( credentials ), region_( region ),
-      address_( LambdaInvocationRequest::endpoint( region_ ), "https" )
+    : parsed_url_( function_url ), address_( parsed_url_.host, parsed_url_.protocol )
   {}
 
   void force_thunk( const gg::thunk::Thunk & thunk,
@@ -39,7 +37,7 @@ public:
 
   bool is_remote() const { return true; }
   bool can_execute( const gg::thunk::Thunk & thunk ) const override;
-  std::string label() const override { return "lambda"; }
+  std::string label() const override { return "gcloud"; }
   size_t job_count() const override;
 };
 
