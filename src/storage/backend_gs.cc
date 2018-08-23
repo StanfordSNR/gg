@@ -8,7 +8,7 @@ using namespace storage;
 GoogleStorageBackend::GoogleStorageBackend( const GoogleStorageCredentials & credentials,
                                             const string & bucket )
   : client_( { credentials.access_key(), credentials.secret_key() },
-             { "", bucket + ".storage.googleapis.com" } ), bucket_( bucket )
+             { "", bucket + ".storage.googleapis.com", 32, 1 } ), bucket_( bucket )
 {}
 
 void GoogleStorageBackend::put( const std::vector<PutRequest> & requests,
