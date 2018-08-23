@@ -21,6 +21,7 @@
 #include "execution/engine_lambda.hh"
 #include "execution/engine_gg.hh"
 #include "execution/engine_meow.hh"
+#include "execution/engine_gcloud.hh"
 #include "tui/status_bar.hh"
 #include "util/digest.hh"
 #include "util/exception.hh"
@@ -44,6 +45,7 @@ void usage( const char * argv0 )
        << "  - lambda  Executes the jobs on AWS Lambda" << endl
        << "  - remote  Executes the jobs on a remote machine" << endl
        << "  - meow    Executes the jobs on AWS Lambda with long-running workers" << endl
+       << "  - gcloud  Executes the jobs on Google Cloud Functions" << endl
        << endl;
 }
 
@@ -221,6 +223,10 @@ int main( int argc, char * argv[] )
 
         execution_engines.emplace_back( make_unique<MeowExecutionEngine>(
           AWSCredentials(), AWS::region(), Address { host_ip, port } ) );
+      }
+      else if ( engine.first == "gcloud" ) {
+        execution_engines.emplace_back( make_unique<GCFExecutionEngine>(
+          safe_getenv("GG_GCLOUD_FUNCTION") ) );
       }
       else {
         throw runtime_error( "unknown execution engine" );
