@@ -27,6 +27,7 @@ HTTPRequest GCFExecutionEngine::generate_request( const Thunk & thunk )
   req.set_first_line( "POST /" + parsed_url_.path + " HTTP/1.1" );
   req.add_header( HTTPHeader { "Host", parsed_url_.host } );
   req.add_header( HTTPHeader { "Content-Length", to_string( payload.length() ) } );
+  req.add_header( HTTPHeader { "Content-Type", "application/json" } );
   req.done_with_headers();
 
   req.read_in_body( payload );
@@ -48,6 +49,9 @@ void GCFExecutionEngine::force_thunk( const Thunk & thunk,
       running_jobs_--;
 
       if ( http_response.status_code() != "200" ) {
+        cerr << "======== HTTP Response ========" << endl;
+        cerr << http_response.str() << endl;
+        cerr << "===============================" << endl;
         failure_callback_( thunk_hash, JobStatus::ExecutionFailure );
         return false;
       }
