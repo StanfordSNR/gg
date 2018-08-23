@@ -5,6 +5,8 @@ import sys
 import time
 import shutil
 import subprocess as sub
+import logging
+import json
 from base64 import b64decode, b64encode
 
 # Set up environment variables necessary
@@ -71,10 +73,10 @@ def handler(request):
             output_hash = GGCache.check(thunk['hash'], output_tag)
 
             if not output_hash:
-                return {
+                return json.dumps({
                     'returnCode': return_code,
                     'stdout': stdout
-                }
+                })
 
             data = None
             if is_hash_for_thunk(output_hash):
@@ -94,8 +96,8 @@ def handler(request):
             'outputs': outputs
         }]
 
-    return {
+    return json.dumps({
         'returnCode': 0,
         'stdout': '',
         'executedThunks': executed_thunks
-    }
+    })
