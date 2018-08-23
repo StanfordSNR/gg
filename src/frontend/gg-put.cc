@@ -31,7 +31,7 @@ int main( int argc, char * argv[] )
     vector<storage::PutRequest> put_requests;
     for ( int i = 1; i < argc; i++ ) {
       const string filename { argv[ i ] };
-      const string file_hash = gg::hash::file( filename );
+      const string file_hash = gg::hash::file_force( filename );
       put_requests.emplace_back( filename, file_hash, gg::hash::to_hex( file_hash ) );
     }
     storage_backend->put( put_requests,

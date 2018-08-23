@@ -202,7 +202,7 @@ namespace gg {
       return bucket;
     }
 
-    std::string storage_backend_uri()
+    string storage_backend_uri()
     {
       const static string uri = safe_getenv( "GG_STORAGE_URI" );
       if ( uri.length() == 0 ) {
@@ -266,6 +266,24 @@ namespace gg {
       return output_sstr.str();
     }
 
+    string file_force( const roost::path & path, Optional<ObjectType> type )
+    {
+      FileDescriptor file { CheckSystemCall( "open (" + path.string() + ")",
+                                             open( path.string().c_str(), O_RDONLY ) ) };
+
+      string contents;
+      while ( not file.eof() ) { contents += file.read(); }
+
+      if ( not type.initialized() ) {
+        type = ( contents.size() >= thunk::MAGIC_NUMBER.size() and
+                 contents.compare( 0, thunk::MAGIC_NUMBER.size(),
+                                   gg::thunk::MAGIC_NUMBER ) == 0 )
+               ? ObjectType::Thunk : ObjectType::Value;
+      }
+
+      return gg::hash::compute( contents, *type );
+    }
+
     string file( const roost::path & path, Optional<ObjectType> type )
     {
       struct stat file_stat;
@@ -294,20 +312,7 @@ namespace gg {
         }
       }
 
-      FileDescriptor file { CheckSystemCall( "open (" + path.string() + ")",
-                                             open( path.string().c_str(), O_RDONLY ) ) };
-
-      string contents;
-      while ( not file.eof() ) { contents += file.read(); }
-
-      if ( not type.initialized() ) {
-        type = ( contents.size() >= thunk::MAGIC_NUMBER.size() and
-                 contents.compare( 0, thunk::MAGIC_NUMBER.size(),
-                                   gg::thunk::MAGIC_NUMBER ) == 0 )
-               ? ObjectType::Thunk : ObjectType::Value;
-      }
-
-      const auto computed_hash = gg::hash::compute( contents, *type );
+      const string computed_hash = gg::hash::file_force( path, type );
 
       roost::atomic_create( to_string( file_stat.st_size ) + " "
                             + to_string( file_stat.st_mtim.tv_sec ) + " "
