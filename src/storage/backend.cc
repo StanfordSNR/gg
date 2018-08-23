@@ -8,6 +8,7 @@
 
 #include "storage/backend_local.hh"
 #include "storage/backend_s3.hh"
+#include "storage/backend_gs.hh"
 #include "storage/backend_redis.hh"
 #include "util/optional.hh"
 #include "util/tokenize.hh"
@@ -53,15 +54,21 @@ unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
   }
 
   if ( endpoint.protocol == "s3" ) {
-    AWSCredentials credentials;
-
-    if ( endpoint.username.length() or endpoint.password.length() ) {
-      credentials = AWSCredentials { endpoint.username, endpoint.password };
-    }
-
-    return make_unique<S3StorageBackend>( credentials, endpoint.host,
-                                          endpoint.options.count( "region" ) ? endpoint.options[ "region" ]
-                                                                             : "us-east-1" );
+    return make_unique<S3StorageBackend>(
+      ( endpoint.username.length() or endpoint.password.length() )
+        ? AWSCredentials { endpoint.username, endpoint.password }
+        : AWSCredentials {},
+      endpoint.host,
+      endpoint.options.count( "region" )
+        ? endpoint.options[ "region" ]
+        : "us-east-1" );
+  }
+  else if ( endpoint.protocol == "gs" ) {
+    return make_unique<GoogleStorageBackend>(
+      ( endpoint.username.length() or endpoint.password.length() )
+        ? GoogleStorageCredentials { endpoint.username, endpoint.password }
+        : GoogleStorageCredentials {},
+      endpoint.host );
   }
   else if ( endpoint.protocol == "redis" ) {
     RedisClientConfig config;
