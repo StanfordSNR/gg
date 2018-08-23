@@ -83,7 +83,7 @@ void S3Client::download_file( const string & bucket, const string & object,
                               const roost::path & filename )
 {
   const string endpoint = ( config_.endpoint.length() > 0 )
-                          ? endpoint : S3::endpoint( config_.region, bucket );
+                          ? config_.endpoint : S3::endpoint( config_.region, bucket );
   const Address s3_address { endpoint, "https" };
 
   SSLContext ssl_context;
@@ -117,7 +117,7 @@ void S3Client::upload_files( const string & bucket,
                              const function<void( const PutRequest & )> & success_callback )
 {
   const string endpoint = ( config_.endpoint.length() > 0 )
-                          ? endpoint : S3::endpoint( config_.region, bucket );
+                          ? config_.endpoint : S3::endpoint( config_.region, bucket );
   const Address s3_address { endpoint, "https" };
 
   const size_t thread_count = config_.max_threads;
@@ -193,7 +193,7 @@ void S3Client::download_files( const std::string & bucket,
                                const std::function<void( const storage::GetRequest & )> & success_callback )
 {
   const string endpoint = ( config_.endpoint.length() > 0 )
-                          ? endpoint : S3::endpoint( config_.region, bucket );
+                          ? config_.endpoint : S3::endpoint( config_.region, bucket );
   const Address s3_address { endpoint, "https" };
 
   const size_t thread_count = config_.max_threads;
