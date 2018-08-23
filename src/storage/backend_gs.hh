@@ -14,7 +14,7 @@ private:
   std::string bucket_;
 
 public:
-  GoogleStorageBackend( const GCloudStorageCredentials & credentials,
+  GoogleStorageBackend( const GoogleStorageCredentials & credentials,
                         const std::string & bucket );
 
   void put( const std::vector<storage::PutRequest> & requests,

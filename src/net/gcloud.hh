@@ -5,15 +5,15 @@
 
 #include <string>
 
-class GCloudStorageCredentials
+class GoogleStorageCredentials
 {
 private:
   std::string access_key_;
   std::string secret_key_;
 
 public:
-  GCloudStorageCredentials();
-  GCloudStorageCredentials( const std::string & access_key,
+  GoogleStorageCredentials();
+  GoogleStorageCredentials( const std::string & access_key,
                             const std::string & secret_key );
 
   const std::string & access_key() const { return access_key_; }

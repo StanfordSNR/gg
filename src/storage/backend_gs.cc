@@ -5,7 +5,7 @@
 using namespace std;
 using namespace storage;
 
-GoogleStorageBackend::GoogleStorageBackend( const GCloudStorageCredentials & credentials,
+GoogleStorageBackend::GoogleStorageBackend( const GoogleStorageCredentials & credentials,
                                             const string & bucket )
   : client_( { credentials.access_key(), credentials.secret_key() },
              { "", bucket + ".storage.googleapis.com" } ), bucket_( bucket )
