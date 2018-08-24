@@ -10,17 +10,32 @@
 #include "storage/backend_s3.hh"
 #include "storage/backend_gs.hh"
 #include "storage/backend_redis.hh"
+#include "thunk/ggutils.hh"
+#include "util/digest.hh"
 #include "util/optional.hh"
 #include "util/uri.hh"
 
 using namespace std;
 
+bool StorageBackend::is_available( const std::string & hash )
+{
+  return roost::exists( remote_index_path_ / hash );
+}
+
+void StorageBackend::set_available( const std::string & hash )
+{
+  roost::atomic_create( "", remote_index_path_ / hash );
+}
+
+
 unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
 {
   ParsedURI endpoint { uri };
 
+  unique_ptr<StorageBackend> backend;
+
   if ( endpoint.protocol == "s3" ) {
-    return make_unique<S3StorageBackend>(
+    backend = make_unique<S3StorageBackend>(
       ( endpoint.username.length() or endpoint.password.length() )
         ? AWSCredentials { endpoint.username, endpoint.password }
         : AWSCredentials {},
@@ -30,7 +45,7 @@ unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
         : "us-east-1" );
   }
   else if ( endpoint.protocol == "gs" ) {
-    return make_unique<GoogleStorageBackend>(
+    backend = make_unique<GoogleStorageBackend>(
       ( endpoint.username.length() or endpoint.password.length() )
         ? GoogleStorageCredentials { endpoint.username, endpoint.password }
         : GoogleStorageCredentials {},
@@ -43,11 +58,15 @@ unique_ptr<StorageBackend> StorageBackend::create_backend( const string & uri )
     config.username = endpoint.username;
     config.password = endpoint.password;
 
-    return make_unique<RedisStorageBackend>( config );
+    backend = make_unique<RedisStorageBackend>( config );
   }
   else {
     throw runtime_error( "unknown storage backend" );
   }
 
-  return {};
+  if ( backend != nullptr ) {
+    backend->remote_index_path_ = gg::paths::remote( digest::sha256( uri ) );
+  }
+
+  return backend;
 }

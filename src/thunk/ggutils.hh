@@ -19,7 +19,7 @@ namespace gg {
     roost::path blobs();
     roost::path reductions();
     roost::path metadata();
-    roost::path remote_index();
+    roost::path remotes();
     roost::path hash_cache();
     roost::path dependency_cache();
     roost::path inclue_cache();
@@ -27,6 +27,7 @@ namespace gg {
     roost::path blob( const std::string & hash );
     roost::path reduction( const std::string & hash );
     roost::path metadata( const std::string & hash );
+    roost::path remote( const std::string & hash );
     roost::path hash_cache_entry( const std::string & filename, const struct stat & stat_entry );
     roost::path dependency_cache_entry( const std::string & cache_key );
     roost::path include_cache_entry( const std::string & hash );
@@ -35,9 +36,6 @@ namespace gg {
   }
 
   namespace remote {
-    bool is_available( const std::string & hash );
-    void set_available( const std::string & hash );
-
     std::string storage_backend_uri();
   }
 

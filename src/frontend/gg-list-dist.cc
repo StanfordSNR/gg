@@ -102,12 +102,20 @@ int main( int argc, char ** argv )
       }
     }
 
-    for ( const auto & remote : list_directory( gg::paths::remote_index() ) ) {
+    for ( const auto & remote : list_directory( gg::paths::remotes() ) ) {
       if ( remote.length() == 0 or remote == "." or remote == ".." ) {
         continue;
       }
 
-      cout << roost::canonical( gg::paths::remote_index() / remote ).string().substr( base_path_length ) << endl;
+      const auto remote_dir = gg::paths::remotes() / remote;
+
+      for ( const auto & remote_obj : list_directory( remote_dir ) ) {
+        if ( remote_obj.length() == 0 or remote_obj == "." or remote_obj == ".." ) {
+          continue;
+        }
+
+        cout << roost::canonical( remote_dir / remote_obj ).string().substr( base_path_length ) << endl;
+      }
     }
 
     for ( const auto & reduction : list_directory( gg::paths::reductions() ) ) {

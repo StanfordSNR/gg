@@ -107,9 +107,9 @@ namespace gg {
       return metadata_path;
     }
 
-    roost::path remote_index()
+    roost::path remotes()
     {
-      const static roost::path index_path = get_inner_directory( "remote" );
+      const static roost::path index_path = get_inner_directory( "remotes" );
       return index_path;
     }
 
@@ -146,6 +146,21 @@ namespace gg {
       return metadata() / hash;
     }
 
+    roost::path remote( const string & hash )
+    {
+      const roost::path remote_dir = remotes() / hash;
+
+      if ( roost::exists( remote_dir ) ) {
+        if ( not roost::is_directory( remote_dir ) ) {
+          throw runtime_error( remote_dir.string() + " is not a directory" );
+        }
+      } else {
+        roost::create_directories( remote_dir );
+      }
+
+      return remote_dir;
+    }
+
     roost::path hash_cache_entry( const string & filename, const struct stat & stat_entry )
     {
       const string cache_key = to_string( stat_entry.st_dev ) + "-"
@@ -173,34 +188,6 @@ namespace gg {
   }
 
   namespace remote {
-
-    bool is_available( const string & hash )
-    {
-      return roost::exists( gg::paths::remote_index() / hash );
-    }
-
-    void set_available( const string & hash )
-    {
-      roost::atomic_create( "", gg::paths::remote_index() / hash );
-    }
-
-    string s3_bucket()
-    {
-      const static string bucket = safe_getenv( "GG_S3_BUCKET" );
-      if ( bucket.length() == 0 ) {
-        throw runtime_error( "GG_S3_BUCKET environment variable not set" );
-      }
-      return bucket;
-    }
-
-    string s3_region()
-    {
-      const static string bucket = safe_getenv( "GG_S3_REGION" );
-      if ( bucket.length() == 0 ) {
-        throw runtime_error( "GG_S3_REGION environment variable not set" );
-      }
-      return bucket;
-    }
 
     string storage_backend_uri()
     {

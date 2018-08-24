@@ -306,7 +306,7 @@ void Reductor::upload_dependencies() const
   size_t total_size = 0;
 
   for ( const string & dep : dep_graph_.value_dependencies() ) {
-    if ( gg::remote::is_available( dep ) ) {
+    if ( storage_backend_->is_available( dep ) ) {
       continue;
     }
 
@@ -316,7 +316,7 @@ void Reductor::upload_dependencies() const
   }
 
   for ( const string & dep : dep_graph_.executable_dependencies() ) {
-    if ( gg::remote::is_available( dep ) ) {
+    if ( storage_backend_->is_available( dep ) ) {
       continue;
     }
 
@@ -339,8 +339,8 @@ void Reductor::upload_dependencies() const
     {
       storage_backend_->put(
         upload_requests,
-        [] ( const storage::PutRequest & upload_request )
-        { gg::remote::set_available( upload_request.object_key ); }
+        [this] ( const storage::PutRequest & upload_request )
+        { storage_backend_->set_available( upload_request.object_key ); }
       );
     }
   );

@@ -93,7 +93,7 @@ int main( int argc, char * argv[] )
                 /* the user wants us to clean up the .gg directory */
                 roost::empty_directory( gg::paths::blobs() );
                 roost::empty_directory( gg::paths::reductions() );
-                roost::empty_directory( gg::paths::remote_index() );
+                // XXX roost::empty_directory( gg::paths::remotes() );
                 cerr << "cleared" << endl;
 
                 connection->enqueue_write( get_canned_response( 200, http_request ) );

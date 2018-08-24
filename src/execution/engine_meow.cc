@@ -86,7 +86,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
 
               for ( const auto & output : execution_response.outputs() ) {
                 gg::cache::insert( gg::hash::for_output( thunk_hash, output.tag() ), output.hash() );
-                gg::remote::set_available( output.hash() );
+                // XXX gg::remote::set_available( output.hash() );
 
                 if ( output.data().length() ) {
                   roost::atomic_create( base64::decode( output.data() ),
@@ -150,8 +150,8 @@ void MeowExecutionEngine::prepare_lambda( Lambda & lambda, const Thunk & thunk )
   /** (1) send all the dependencies **/
   unordered_set<string> lambda_objects;
   for ( const auto & item : join_containers( thunk.values(), thunk.executables() ) ) {
-    if ( not lambda.objects.count( item.first ) and
-         not gg::remote::is_available( item.first ) ) {
+    if ( not lambda.objects.count( item.first ) /* XXX and
+         not gg::remote::is_available( item.first ) */ ) {
       lambda.connection->enqueue_write( meow::create_put_message( item.first ).str() );
     }
 
