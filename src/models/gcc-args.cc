@@ -106,6 +106,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     { GCCOption::mbmi2,             "mbmi2",             no_argument, false, 'X' },
     { GCCOption::mf16c,             "mf16c",             no_argument, false, 'X' },
     { GCCOption::mfma,              "mfma",              no_argument, false, 'X' },
+    { GCCOption::mssse3,            "mssse3",            no_argument, false, 'X' },
     { GCCOption::mno_80387,         "mno-80387",         no_argument, false, 'X' },
     { GCCOption::mno_fp_ret_in_387, "mno-fp-ret-in-387", no_argument, false, 'X' },
     { GCCOption::mno_red_zone,      "mno-red-zone",      no_argument, false, 'X' },
@@ -114,6 +115,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     { GCCOption::dumpmachine,       "dumpmachine",       no_argument, false, 'X' },
 
     { GCCOption::mskip_rax_setup,   "mskip-rax-setup",   no_argument, false, 'X' },
+    { GCCOption::msse4_1,           "msse4.1",           no_argument, false, 'X' },
     { GCCOption::msse4_2,           "msse4.2",           no_argument, false, 'X' },
 
     { GCCOption::include, "include", required_argument, false, ' ' },

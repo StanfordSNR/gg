@@ -73,7 +73,7 @@ enum class GCCOption
 
   mno_sse, mno_mmx, mno_sse2, mno_3dnow, mno_avx, m32, m64, mno_80387,
   mno_fp_ret_in_387, mno_red_zone, msoft_float, mregparm,
-  msse4_2, mmmx, mavx, mavx2, mbmi, mbmi2, mf16c, mfma,
+  msse4_2, mmmx, mavx, mavx2, mbmi, mbmi2, mf16c, mfma, mssse3, msse4_1,
   mno_tls_direct_seg_refs,
 
   mpreferred_stack_boundary,
