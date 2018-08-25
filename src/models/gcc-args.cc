@@ -101,6 +101,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     { GCCOption::m64,               "m64",               no_argument, false, 'X' },
     { GCCOption::mmmx,              "mmmx",              no_argument, false, 'X' },
     { GCCOption::mavx,              "mavx",              no_argument, false, 'X' },
+    { GCCOption::mavx2,             "mavx2",             no_argument, false, 'X' },
     { GCCOption::mno_80387,         "mno-80387",         no_argument, false, 'X' },
     { GCCOption::mno_fp_ret_in_387, "mno-fp-ret-in-387", no_argument, false, 'X' },
     { GCCOption::mno_red_zone,      "mno-red-zone",      no_argument, false, 'X' },
