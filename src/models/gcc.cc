@@ -215,16 +215,23 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     vector<string> all_args;
     all_args.reserve( c_include_path.size() + args.size() + 2 );
 
-    if ( not arguments_.no_stdinc() ) {
+    if ( arguments_.no_stdinc() ) {
+      /* do nothing */
+    }
+    else if ( arguments_.no_stdincpp() ) {
+      if ( input.language == Language::CXX or
+           input.language == Language::CXX_HEADER ) {
+        all_args.push_back( "-nostdinc" );
+        for ( const auto & p : c_include_path ) {
+          all_args.push_back( "-isystem" + p );
+        }
+      }
+    }
+    else {
       all_args.push_back( "-nostdinc" );
 
       for ( const auto & p : include_path ) {
         all_args.push_back( "-isystem" + p );
-      }
-
-      if ( input.language == Language::CXX or
-           input.language == Language::CXX_HEADER ) {
-        all_args.push_back( "-nostdinc++" );
       }
     }
 

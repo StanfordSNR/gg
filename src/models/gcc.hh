@@ -68,7 +68,7 @@ enum class GCCOption
   include, isystem,
   pthread, shared,
   param, pipe, pedantic, dashstatic, s,
-  nostdlib, nostdinc, std,
+  nostdlib, nostdinc, nostdincpp, std,
   u, Xlinker, mcmodel, mfentry, gdwarf_4, pg, P,
 
   mno_sse, mno_mmx, mno_sse2, mno_3dnow, mno_avx, m32, m64, mno_80387,
@@ -124,6 +124,7 @@ private:
 
   bool no_stdlib_ { false };
   bool no_stdinc_ { false };
+  bool no_stdincpp_ { false };
 
   const bool force_strip_ { false };
 
@@ -149,6 +150,7 @@ public:
   const std::vector<std::string> & extra_infiles( const GCCStage stage );
   bool no_stdlib() const { return no_stdlib_; }
   bool no_stdinc() const { return no_stdinc_; }
+  bool no_stdincpp() const { return no_stdincpp_; }
 
   const std::vector<std::string> & option_args() const { return args_; }
   std::vector<std::string> all_args() const;
