@@ -411,7 +411,6 @@ void print_gcc_command( const string & command_str )
   ioctl( STDOUT_FILENO, TIOCGWINSZ, &size );
   size_t window_width = size.ws_col - 5;
 
-  cerr << "\u256d\u257c generating model for:" << endl;
   cerr << "\u2503  ";
 
   size_t line_count = static_cast<size_t>( ceil( 1.0 * command_str.length() / window_width ) );
@@ -682,7 +681,8 @@ int main( int argc, char * argv[] )
     argv++;
     argc--;
 
-    print_gcc_command( command_str( argc, argv ) );
+    cerr << "\u256d\u257c generating model for " << argv[ 0 ] << endl;
+    /* print_gcc_command( command_str( argc, argv ) ); */
 
     const bool preprocess_locally = ( getenv( "GG_GCC_PREPROCESS_LOCALLY" ) != nullptr );
 
