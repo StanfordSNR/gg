@@ -3,6 +3,7 @@
 #include <string>
 #include <cstring>
 #include <getopt.h>
+#include <wordexp.h>
 
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
@@ -51,29 +52,61 @@ void generate_thunk( int argc, char * argv[] )
   vector<char *> new_argv;
   vector<vector<char>> argv_data;
 
-  if ( argc > 1 and argv[ 1 ][ 0 ] != '-' ) {
-    int new_argc;
-    char * const * in; /* cursor into original argv */
-    const char * letter; /* cursor into old option letters */
-
-    new_argc = argc - 1 + strlen( argv[ 1 ] );
-
-    in = argv;
+  /* step one: put all args in to this vector */
+  char * const * in = argv;
+  while ( in < argv + argc ) {
     new_argv.push_back( *in++ );
+  }
 
-    for ( letter = *in++; *letter; letter++ ) {
+  /* step two: expand all the args starting with @ */
+  for ( size_t i = 0; i < new_argv.size(); i++ ) {
+    if ( new_argv[ i ][ 0 ] == '@' ) {
+      /* this needs to be expanded */
+      roost::path file_path { new_argv[ i ] + 1 };
+
+      if ( not roost::exists( file_path ) ) {
+        /* leave it be */
+        continue;
+      }
+
+      const string content = roost::read_file( file_path );
+      wordexp_t p;
+      unique_ptr<wordexp_t, decltype( wordfree ) *> p_ptr { &p, wordfree };
+
+      if ( wordexp( content.c_str(), p_ptr.get(), WRDE_NOCMD ) ) {
+        throw runtime_error( "error while expanding argument" );
+      }
+
+      vector<char *> expanded_args;
+      for ( size_t i = 0; i < p.we_wordc; i++ ) {
+        vector<char> new_str;
+        for ( const char * letter = p.we_wordv[ i ]; *letter; letter++ ) {
+          new_str.push_back( *letter );
+        }
+        new_str.push_back( '\0' );
+        argv_data.push_back( new_str );
+        expanded_args.push_back( &argv_data.back()[ 0 ] );
+      }
+
+      new_argv[ i ] = expanded_args.back();
+      new_argv.insert( new_argv.begin() + i, expanded_args.begin(), expanded_args.end() - 1 );
+      i--;
+    }
+  }
+
+  /* step three: convert the old format args to the new format */
+  if ( argc > 1 and argv[ 1 ][ 0 ] != '-' ) {
+    for ( const char * letter = argv[ 1 ]; *letter; letter++ ) {
       vector<char> new_str { '-', *letter, '\0' };
       argv_data.push_back( new_str );
-      new_argv.push_back( &argv_data.back()[ 0 ] );
+      new_argv.insert( new_argv.begin() + 2, &argv_data.back()[ 0 ] );
     }
 
-    while ( in < argv + argc ) {
-      new_argv.push_back( *in++ );
-    }
-
-    argc = new_argc;
-    argv = &new_argv[ 0 ];
+    new_argv.erase( new_argv.begin() + 1 );
   }
+
+  argc = new_argv.size();
+  argv = &new_argv[ 0 ];
 
   vector<ThunkFactory::Data> data;
 
@@ -129,23 +162,8 @@ void generate_thunk( int argc, char * argv[] )
 
   if ( members_infile ) {
     for ( ; i < argc; i++ ) {
-      if ( argv[ i ][ 0 ] == '@' ) {
-        /* this needs to be expanded */
-        ifstream fin { argv[ i ] + 1 };
-        string line;
-        while ( getline( fin, line ) ) {
-          if ( line.length() > 0 and line[ 0 ] == '-' ) {
-            throw runtime_error( "cannot expand an option" );
-          }
-
-          data.emplace_back( line );
-          if ( metadata_.initialized() ) { metadata_->add_object( ThunkFactory::Data( line ) ); }
-        }
-      }
-      else {
-        data.emplace_back( argv[ i ] );
-        if ( metadata_.initialized() ) { metadata_->add_object( ThunkFactory::Data( argv[ i ] ) ); }
-      }
+      data.emplace_back( argv[ i ] );
+      if ( metadata_.initialized() ) { metadata_->add_object( ThunkFactory::Data( argv[ i ] ) ); }
     }
   }
 
