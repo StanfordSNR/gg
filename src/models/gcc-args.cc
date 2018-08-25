@@ -76,21 +76,22 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     { GCCOption::MF,  "MF", required_argument, false, ' ' },
     { GCCOption::MMD, "MMD", no_argument, false, ' ' },
 
-    { GCCOption::P,          "P",          no_argument, false, 'X' },
-    { GCCOption::pg,         "pg",         no_argument, false, 'X' },
-    { GCCOption::pie,        "pie",        no_argument, false, 'X' },
-    { GCCOption::pthread,    "pthread",    no_argument, false, 'X' },
-    { GCCOption::shared,     "shared",     no_argument, false, 'X' },
-    { GCCOption::pipe,       "pipe",       no_argument, false, 'X' },
-    { GCCOption::pedantic,   "pedantic",   no_argument, false, 'X' },
-    { GCCOption::nostdlib,   "nostdlib",   no_argument, false, 'X' },
-    { GCCOption::nostdinc,   "nostdinc",   no_argument, false, 'X' },
-    { GCCOption::nostdincpp, "nostdinc++", no_argument, false, 'X' },
-    { GCCOption::dashstatic, "static",     no_argument, false, 'X' },
-    { GCCOption::mfentry,    "mfentry",    no_argument, false, 'X' },
-    { GCCOption::gdwarf_4,   "gdwarf-4",   no_argument, false, 'X' },
-    { GCCOption::rdynamic,   "rdynamic",   no_argument, false, 'X' },
-    { GCCOption::u,          "u",    required_argument, false, ' ' },
+    { GCCOption::P,             "P",             no_argument, false, 'X' },
+    { GCCOption::pg,            "pg",            no_argument, false, 'X' },
+    { GCCOption::pie,           "pie",           no_argument, false, 'X' },
+    { GCCOption::pthread,       "pthread",       no_argument, false, 'X' },
+    { GCCOption::shared,        "shared",        no_argument, false, 'X' },
+    { GCCOption::pipe,          "pipe",          no_argument, false, 'X' },
+    { GCCOption::pedantic,      "pedantic",      no_argument, false, 'X' },
+    { GCCOption::nostdlib,      "nostdlib",      no_argument, false, 'X' },
+    { GCCOption::nostdinc,      "nostdinc",      no_argument, false, 'X' },
+    { GCCOption::nostdincpp,    "nostdinc++",    no_argument, false, 'X' },
+    { GCCOption::dashstatic,    "static",        no_argument, false, 'X' },
+    { GCCOption::mfentry,       "mfentry",       no_argument, false, 'X' },
+    { GCCOption::gdwarf_4,      "gdwarf-4",      no_argument, false, 'X' },
+    { GCCOption::rdynamic,      "rdynamic",      no_argument, false, 'X' },
+    { GCCOption::u,             "u",       required_argument, false, ' ' },
+    { GCCOption::nodefaultlibs, "nodefaultlibs", no_argument, false, 'X' },
 
     { GCCOption::mno_sse,           "mno-sse",           no_argument, false, 'X' },
     { GCCOption::mno_mmx,           "mno-mmx",           no_argument, false, 'X' },
@@ -268,6 +269,10 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
 
       case GCCOption::nostdincpp:
         no_stdincpp_ = true;
+        break;
+
+      case GCCOption::nodefaultlibs:
+        no_defaultlibs_ = true;
         break;
 
       default:

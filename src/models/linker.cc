@@ -109,7 +109,7 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
   all_args.reserve( args.size() + gcc_library_path.size() );
   all_args.push_back( program_data.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX ).filename() );
 
-  if ( not arguments_.no_stdlib() ) {
+  if ( not arguments_.no_stdlib() and not arguments_.no_defaultlibs() ) {
     for ( const string & dir : gcc_library_path ) {
       dummy_dirs.push_back( dir );
       all_args.push_back( "-L" + dir );
