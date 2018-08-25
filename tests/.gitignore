@@ -2,3 +2,4 @@ thunk-roundtrip
 sandbox-test
 path-test
 test_vectors/
+test_temp/
