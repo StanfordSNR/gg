@@ -5,6 +5,7 @@
 #include <iostream>
 #include <getopt.h>
 
+#include "util/args.hh"
 #include "util/util.hh"
 
 using namespace std;
@@ -42,9 +43,20 @@ struct getopt_options
   option list[ N + 1 ];
 };
 
-GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip )
+GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool force_strip )
   : force_strip_( force_strip )
 {
+  ExpandedArgs e_args;
+
+  int argc = argc_orig;
+  char ** argv = argv_orig;
+
+  if ( ExpandedArgs::needs_expansion( argc, argv ) ) {
+    e_args = ExpandedArgs::expand( argc, argv );
+    argc = e_args.args.size();
+    argv = &e_args.args[ 0 ];
+  }
+
   optind = 1;
   opterr = 0;
 
