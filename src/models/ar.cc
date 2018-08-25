@@ -10,6 +10,7 @@
 #include "thunk/metadata.hh"
 #include "util/exception.hh"
 #include "util/path.hh"
+#include "util/system_runner.hh"
 
 #include "toolchain.hh"
 
@@ -128,8 +129,23 @@ void generate_thunk( int argc, char * argv[] )
 
   if ( members_infile ) {
     for ( ; i < argc; i++ ) {
-      data.emplace_back( argv[ i ] );
-      if ( metadata_.initialized() ) { metadata_->add_object( ThunkFactory::Data( argv[ i ] ) ); }
+      if ( argv[ i ][ 0 ] == '@' ) {
+        /* this needs to be expanded */
+        ifstream fin { argv[ i ] + 1 };
+        string line;
+        while ( getline( fin, line ) ) {
+          if ( line.length() > 0 and line[ 0 ] == '-' ) {
+            throw runtime_error( "cannot expand an option" );
+          }
+
+          data.emplace_back( line );
+          if ( metadata_.initialized() ) { metadata_->add_object( ThunkFactory::Data( line ) ); }
+        }
+      }
+      else {
+        data.emplace_back( argv[ i ] );
+        if ( metadata_.initialized() ) { metadata_->add_object( ThunkFactory::Data( argv[ i ] ) ); }
+      }
     }
   }
 
