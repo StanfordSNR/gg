@@ -174,6 +174,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
     case 'i':
       if ( startswith( optarg, "system" ) ) {
         string optarg_str { optarg };
+        args_.emplace_back( string( "-i" ) + optarg );
         system_include_dirs_.push_back( optarg_str.substr( strlen( "system" ) ) );
       }
       else {
@@ -246,6 +247,7 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
         break;
 
       case GCCOption::isystem:
+        args_.emplace_back( string( "isystem" ) + optarg );
         system_include_dirs_.emplace_back( optarg );
         break;
 

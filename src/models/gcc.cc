@@ -214,6 +214,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     vector<string> all_args;
     all_args.reserve( c_include_path.size() + args.size() + 2 );
+    all_args.insert( all_args.end(), args.begin(), args.end() );
 
     if ( arguments_.no_stdinc() ) {
       /* do nothing */
@@ -234,8 +235,6 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         all_args.push_back( "-isystem" + p );
       }
     }
-
-    all_args.insert( all_args.end(), args.begin(), args.end() );
 
     /* Generate dependency list */
     TempFile makedep_tempfile { "/tmp/gg-makedep" };
