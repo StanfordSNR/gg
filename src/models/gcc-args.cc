@@ -48,10 +48,13 @@ GCCArguments::GCCArguments( const int argc, char ** argv, const bool force_strip
   optind = 1;
   opterr = 0;
 
-  constexpr const char * gcc_optstring = "-l:B:o:gO::D:U:f:I:W::L:i:";
+  constexpr const char * gcc_optstring = "-l:B:o:O::D:U:f:I:W::L:i:";
 
   constexpr GCCOptionData gcc_options_data[] = {
     { GCCOption::x,  "x",  required_argument, false, ' ' },
+
+    { GCCOption::g,  "g",  no_argument, false, ' ' },
+    { GCCOption::g1, "g1", no_argument, false, ' ' },
 
     { GCCOption::dM, "dM", no_argument, false, 'X' },
 
