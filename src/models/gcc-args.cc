@@ -120,6 +120,7 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
     { GCCOption::mbmi2,             "mbmi2",             no_argument, false, 'X' },
     { GCCOption::mf16c,             "mf16c",             no_argument, false, 'X' },
     { GCCOption::mfma,              "mfma",              no_argument, false, 'X' },
+    { GCCOption::msse2,             "msse2",             no_argument, false, 'X' },
     { GCCOption::mssse3,            "mssse3",            no_argument, false, 'X' },
     { GCCOption::mno_80387,         "mno-80387",         no_argument, false, 'X' },
     { GCCOption::mno_fp_ret_in_387, "mno-fp-ret-in-387", no_argument, false, 'X' },
