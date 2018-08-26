@@ -270,7 +270,7 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
         break;
 
       case GCCOption::isystem:
-        args_.emplace_back( string( "isystem" ) + optarg );
+        args_.emplace_back( string( "-isystem" ) + optarg );
         system_include_dirs_.emplace_back( optarg );
         break;
 
