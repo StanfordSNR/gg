@@ -10,4 +10,5 @@ model-strip
 model-ld
 model-generic
 model-nm
+model-readelf
 gen-deps
