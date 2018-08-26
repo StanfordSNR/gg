@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include "thunk/placeholder.hh"
+#include "thunk/ggutils.hh"
 #include "util/path.hh"
 #include "util/file_descriptor.hh"
 #include "util/system_runner.hh"
@@ -25,6 +26,8 @@ int main( int argc, char * argv[] )
   if ( argc < 2 ) {
     throw runtime_error( "not enough arguments" );
   }
+
+  gg::models::init();
 
   for ( int i = 1; i < argc; i++ ) {
     if ( argv[ i ][ 0 ] == '-' ) {
