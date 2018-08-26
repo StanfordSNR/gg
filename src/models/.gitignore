@@ -9,4 +9,5 @@ model-ranlib
 model-strip
 model-ld
 model-generic
+model-nm
 gen-deps
