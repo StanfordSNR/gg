@@ -93,11 +93,13 @@ vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_fi
   return dependencies;
 }
 
-vector<string> GCCModelGenerator::generate_dependencies_file( const string & input_filename,
+vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & input,
                                                               const vector<string> & option_args,
                                                               const string & output_name,
                                                               const string & target_name )
 {
+  const string & input_filename = input.name;
+
   vector<string> args;
   args.reserve( 1 + option_args.size() );
 
@@ -172,6 +174,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
       }
 
       if ( cache_hit ) {
+        cerr << "Dependency cache hit!\n";
         return write_dependencies_file( output_name, target_name, dep_cache_entry.values() );
       }
     }
@@ -182,6 +185,11 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
     args.push_back( output_name );
   }
 
+  /* DEBUG: also run fast path and compare */
+  const vector<string> fast_infiles_list = scan_dependencies( input_filename,
+                                                              input.language );
+
+  cerr << "Running gcc to find dependencies.\n";
   run( args[ 0 ], args, {}, true, true );
 
   if ( not has_dependencies_option ) {
@@ -193,6 +201,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
 
   /* assemble the infiles */
   const vector<string> infiles_list = parse_dependencies_file( output_name, target_name );
+
   vector<Thunk::DataItem> dependencies;
   for ( const auto & str : infiles_list ) {
     dependencies.emplace_back( make_pair( gg::hash::file( str ), str ) );
@@ -205,120 +214,219 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
   /* serialize and write the fake thunk */
   string serialized_cache_entry { ThunkWriter::serialize( dep_cache_entry ) };
   roost::atomic_create( serialized_cache_entry, cache_entry_path );
+  cerr << "Creating dependency cache entry.\n";
 
   return write_dependencies_file( output_name, target_name, dep_cache_entry.values() );
 }
 
-bool GCCModelGenerator::scan_dependencies_recursive( const roost::path & filename,
-                                                     vector<string> & dependencies,
-                                                     unordered_set<string> & processed,
-                                                     const Language source_language )
+class CouldNotParse : public runtime_error
 {
-  static const string prefixes[] = { "#include_next" , "#include" };
-  if ( processed.count( filename.string() ) ) {
-    return false;
+public: using runtime_error::runtime_error;
+};
+
+/* this is a fast (but imperfect) dependency scanner that is
+   faster than gcc -M */
+/* the goal is to bias in favor of false positives (header files that
+   aren't actually used */
+/* this way the thunk will at least contain all the necessary files
+   needed at compile time */
+/* we need to emulate gcc's search behavior exactly to make sure we
+   find the *right* path for each include statement */
+
+Optional<pair<roost::path, size_t>> find_file_in_path_list( const roost::path & filename,
+                                                            const vector<roost::path> & search_path,
+                                                            const size_t start_index )
+{
+  cerr << "searching for file " << filename.string() << " in directory path ";
+  for ( size_t i = start_index; i < search_path.size(); i++ ) {
+    cerr << search_path[ i ].string() << ":";
   }
 
+<<<<<<< HEAD
   const vector<string> & default_include_path =
     ( source_language == Language::C or
       source_language == Language::C_HEADER or
       source_language == Language::ASSEMBLER_WITH_CPP )
       ? c_include_path
       : cxx_include_path;
-
-  auto skip_spaces =
-    [] ( const string & str, size_t & i )
-    {
-      while ( str[ i ] == ' ' or str[ i ] == '\t' ) { i++; }
-    };
-
-  auto check_path =
-    [&] ( const string & include_dir,
-          const string & included_filename ) -> bool
-    {
-      const roost::path included_file { include_dir + "/" + included_filename };
-
-      if ( roost::exists( included_file ) ) {
-        if ( scan_dependencies_recursive( included_file, dependencies, processed, source_language ) ) {
-          dependencies.push_back( included_file.string() );
-        }
-
-        return true;
-      }
-
-      return false;
-    };
-
-  processed.insert( filename.string() );
-  const string file_data = roost::read_file( filename );
-
-  for ( size_t i = 0; i < file_data.size(); ) {
-    skip_spaces( file_data, i );
-
-    for ( const auto & prefix : prefixes ) {
-      i += prefix.length();
-      skip_spaces( file_data, i );
-
-      char closing_char;
-      switch ( file_data[ i ] ) {
-      case '"': closing_char = '"'; break;
-      case '<': closing_char = '>'; break;
-      default: throw runtime_error( "invalid syntax" );
-      }
-
-      const size_t closing_loc = file_data.find( closing_char, i + 1 );
-      const string included_filename = file_data.substr( i + 1, closing_loc - i - 1 );
-
-      if ( check_path( ".", included_filename ) ) {
-        break;
-      }
-
-      bool found = true;
-
-      for ( const auto & include_dir : arguments_.include_dirs() ) {
-        if ( check_path( include_dir, included_filename ) ) {
-          found = true;
-          break;
-        }
-      }
-
-      if ( found ) { break; }
-
-      for ( const auto & include_dir : arguments_.system_include_dirs() ) {
-        if ( check_path( include_dir, included_filename ) ) {
-          found = true;
-          break;
-        }
-      }
-
-      if ( found ) { break; }
-
-      for ( const auto & include_dir : default_include_path ) {
-        if ( check_path( include_dir, included_filename ) ) {
-          found = true;
-          break;
-        }
-      }
-
-      break; /* prefixes */
+=======
+  for ( size_t i = start_index; i < search_path.size(); i++ ) {
+    const auto candidate = search_path[ i ] / filename;
+    if ( roost::exists( candidate ) ) {
+      cerr << "-> found " << candidate.string() << "\n";
+      return { true, make_pair( candidate, i ) };
     }
+  }
+>>>>>>> 24b079f... preprocessor.cc: Implement scan_dependencies_recursive from scratch.
 
-    i = file_data.find( '\n', i ) + 1; /* next line */
+  cerr << "-> not found\n";
+  return {};
+}
+
+void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filename,
+                                                     unordered_set<string> & dependencies,
+                                                     const Language source_language,
+                                                     const vector<roost::path> & include_path,
+                                                     const size_t current_include_path_index )
+{
+  cerr << "scan_dependencies_recursive called on " << filename.string() << "\n";
+
+  /* base case: if we've already looked at this file, ignore */
+  if ( dependencies.count( filename.string() ) ) {
+    return;
   }
 
-  return true;
+  /* otherwise, recursive case: add this file as a dependency, and recurse */
+  dependencies.insert( filename.string() );
+
+  /* now recurse */
+
+  /* read the file */
+  const string file_data = roost::read_file( filename );
+
+  /* scan for #include or #include_next */
+  size_t index = 0;
+  while ( index < file_data.size() ) {
+    //    cerr << "index = " << index << "\n";
+    /* search for # */
+    const size_t hash_index = file_data.find( '#', index );
+    if ( hash_index == string::npos ) {
+      break;
+    }
+
+    //    cerr << "hash_index = " << hash_index << "\n";
+
+    /* search past whitespace */
+    const size_t directive_index = file_data.find_first_not_of( " \t", hash_index + 1 );
+    if ( directive_index == string::npos ) {
+      break;
+    }
+
+    //    cerr << "directive_index = " << directive_index << "\n";
+
+    bool is_include_next = false;
+    constexpr const char str_include_next[] = "include_next";
+    constexpr const char str_include[] = "include";
+
+    /* is it an include_next? */
+    constexpr size_t len_include_next = sizeof( str_include_next ) - 1;
+    constexpr size_t len_include = sizeof( str_include ) - 1;
+    if ( file_data.compare( directive_index, len_include_next, str_include_next ) ) {
+      /* it's not include next, could it be include? */
+      if ( file_data.compare( directive_index, len_include, str_include ) ) {
+        /* skip ahead */
+        index = directive_index + 1;
+        continue;
+      }
+
+      /* it's include! */
+      is_include_next = false;
+    }
+    else {
+      /* it's include_next */
+      is_include_next = true;
+    }
+
+    // cerr << "found include at position " << directive_index << "\n";
+
+    index = directive_index + ( is_include_next ? len_include_next : len_include );
+
+    /* we found an include statement */
+    /* search past whitespace again */
+    const size_t bracketed_filename_index = file_data.find_first_not_of( " \t", index );
+    if ( bracketed_filename_index == string::npos ) {
+      throw CouldNotParse( "include prefix without filename" );
+    }
+
+    cerr << "found bracketed include filename at position " << bracketed_filename_index << "\n";
+
+    const char open_bracket = file_data.at( bracketed_filename_index );
+    char closing_bracket;
+    if ( open_bracket == '<' ) {
+      closing_bracket = '>';
+    } else if ( open_bracket == '"' ) {
+      closing_bracket = '"';
+    } else {
+      cerr << "could not parse file because of unexpected open bracket: " << open_bracket << "\n";
+      throw CouldNotParse( "unexpected bracket character: " + to_string( open_bracket ) );
+    }
+
+    /* find closing bracket */
+    const size_t closing_bracket_index = file_data.find( closing_bracket, bracketed_filename_index + 1 );
+    if ( closing_bracket_index == string::npos ) {
+      throw CouldNotParse( "missing closing bracket" );
+    }
+
+    /* extract filename */
+    const string included_filename = file_data.substr( bracketed_filename_index + 1, closing_bracket_index - bracketed_filename_index - 1 );
+    cerr << "found included filename: {" << included_filename << "}\n";
+
+    /* step 2a: search for the file in the include path */
+    const size_t search_start_index = max( ( open_bracket == '"' ) ? 0ul : 1ul,
+                                           is_include_next ? ( current_include_path_index + 1 ) : 0u );
+
+    const auto full_filename = find_file_in_path_list( included_filename,
+                                                       include_path,
+                                                       search_start_index );
+
+    /* step 2: recurse to scan this resolved pathname */
+    if ( full_filename.initialized() ) {
+      scan_dependencies_recursive( full_filename->first, dependencies, source_language,
+                                   include_path, full_filename->second );
+    }
+  }
 }
 
 vector<string> GCCModelGenerator::scan_dependencies( const roost::path & filename,
                                                      const Language source_language )
 {
-  /* XXX check if we have this information cached on disk */
+  /* step 1: assemble the include path */
+  vector<roost::path> include_path;
+
+  /* lookup order from `info gcc 'Directory Options'` */
+
+  /* 1: current directory for #include "file" */
+  include_path.emplace_back( "." );
+
+  /* 2: skip -iquote */
+
+  /* 3: -I */
+  include_path.insert( include_path.end(),
+                       arguments_.include_dirs().begin(),
+                       arguments_.include_dirs().end() );
+
+  /* 4: -isystem */
+  include_path.insert( include_path.end(),
+                       arguments_.system_include_dirs().begin(),
+                       arguments_.system_include_dirs().end() );
+
+  /* 5: standard system directories */
+  if ( arguments_.no_stdinc() ) {
+    /* do nothing */
+  } else if ( arguments_.no_stdincpp() ) {
+    include_path.insert( include_path.end(),
+                         c_include_path.begin(),
+                         c_include_path.end() );
+  } else if ( source_language == Language::C or
+              source_language == Language::C_HEADER or
+              source_language == Language::ASSEMBLER_WITH_CPP ) {
+    include_path.insert( include_path.end(),
+                         c_include_path.begin(),
+                         c_include_path.end() );
+  } else {
+    include_path.insert( include_path.end(),
+                         cpp_include_path.begin(),
+                         cpp_include_path.end() );
+  }
+
+  /* 6: skip -idirafter */
 
   /* recursively find the dependencies for this file */
-  vector<string> dependencies;
-  unordered_set<string> processed;
-  scan_dependencies_recursive( filename, dependencies, processed, source_language );
+  unordered_set<string> dependencies;
+  scan_dependencies_recursive( filename, dependencies, source_language,
+                               include_path, 0 );
 
   /* XXX cache the results */
-  return dependencies;
+
+  return { dependencies.begin(), dependencies.end() };
 }

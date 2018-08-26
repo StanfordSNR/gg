@@ -154,7 +154,7 @@ private:
   std::vector<std::string> parse_dependencies_file( const std::string & dep_filename,
                                                     const std::string & target_name );
 
-  std::vector<std::string> generate_dependencies_file( const std::string & input_filename,
+  std::vector<std::string> generate_dependencies_file( const InputFile & input,
                                                        const std::vector<std::string> & option_args,
                                                        const std::string & output_name,
                                                        const std::string & target_name );
@@ -174,10 +174,11 @@ private:
   static std::vector<std::string> gcc_environment();
 
   /* SCAN DEPENDENCIES */
-  bool scan_dependencies_recursive( const roost::path & filename,
-                                    std::vector<std::string> & dependencies,
-                                    std::unordered_set<std::string> & processed,
-                                    const Language source_language );
+  void scan_dependencies_recursive( const roost::path & filename,
+                                    std::unordered_set<std::string> & dependencies,
+                                    const Language source_language,
+                                    const std::vector<roost::path> & include_path,
+                                    const size_t current_include_path_index );
 
   std::vector<std::string> scan_dependencies( const roost::path & filename,
                                               const Language source_language );
