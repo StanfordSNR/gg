@@ -34,8 +34,6 @@ void generate_thunk( int argc, char * argv[] )
     throw runtime_error( "not enough arguments" );
   }
 
-  vector<string> original_args = gg::models::args_to_vector( argc, argv, program_data.at( AR ).filename() );
-
   struct option long_options[] = {
     { "plugin", required_argument, nullptr, PLUGIN_FLAG },
     { 0, 0, 0, 0 },
@@ -65,7 +63,7 @@ void generate_thunk( int argc, char * argv[] )
   argc = e_args.args.size();
   argv = &e_args.args[ 0 ];
 
-  cerr << command_str( argc, argv ) << endl;
+  vector<string> original_args = gg::models::args_to_vector( argc, argv, program_data.at( AR ).filename() );
 
   vector<ThunkFactory::Data> data;
 
