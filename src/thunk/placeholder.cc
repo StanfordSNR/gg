@@ -12,7 +12,7 @@
 using namespace std;
 
 static const std::string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-force-and-run" };
-static const std::string LIBRARY_DIRECTIVE { "OUTPUT_FORMAT(\"elf64-x86-64\") /*" };
+static const std::string LIBRARY_DIRECTIVE { "OUTPUT_FORMAT(\"elf64-x86-64\")/*" };
 
 ThunkPlaceholder::ThunkPlaceholder( const string & hash, const string & metadata )
   : content_hash_( hash ), metadata_( metadata )
