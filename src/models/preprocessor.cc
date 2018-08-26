@@ -23,6 +23,11 @@ using namespace std;
 using namespace boost;
 using namespace gg::thunk;
 
+class CouldNotParse : public runtime_error
+{
+public: using runtime_error::runtime_error;
+};
+
 vector<string> write_dependencies_file( const string & output_name,
                                         const string & target_name,
                                         const Thunk::DataList & data_items )
@@ -174,7 +179,6 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
       }
 
       if ( cache_hit ) {
-        cerr << "Dependency cache hit!\n";
         return write_dependencies_file( output_name, target_name, dep_cache_entry.values() );
       }
     }
@@ -186,8 +190,14 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
   }
 
   /* DEBUG: also run fast path and compare */
-  const vector<string> fast_infiles_list = scan_dependencies( input_filename,
-                                                              input.language );
+  Optional<vector<string>> fast_infiles_list;
+
+  try {
+    fast_infiles_list.reset( move( scan_dependencies( input_filename, input.language ) ) );
+  }
+  catch ( const CouldNotParse & ex ) {
+    cerr << "[ERROR] " << ex.what() << endl;
+  }
 
   cerr << "Running gcc to find dependencies.\n";
   run( args[ 0 ], args, {}, true, true );
@@ -201,6 +211,20 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
 
   /* assemble the infiles */
   const vector<string> infiles_list = parse_dependencies_file( output_name, target_name );
+
+  /* let's compare this list and the fast list */
+  if ( fast_infiles_list.initialized() ) {
+    for ( const string & file : infiles_list ) {
+      if ( find( fast_infiles_list->begin(), fast_infiles_list->end(), file ) == fast_infiles_list->end() ) {
+        for ( const string & found_files : *fast_infiles_list ) {
+          cerr << "* " << found_files << endl;
+        }
+        throw runtime_error( "could not find " + file + " in fast infiles list." );
+      }
+    }
+
+    cerr << "[INFO] found everything for '" << input_filename << "'" << endl;
+  }
 
   vector<Thunk::DataItem> dependencies;
   for ( const auto & str : infiles_list ) {
@@ -219,11 +243,6 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
   return write_dependencies_file( output_name, target_name, dep_cache_entry.values() );
 }
 
-class CouldNotParse : public runtime_error
-{
-public: using runtime_error::runtime_error;
-};
-
 /* this is a fast (but imperfect) dependency scanner that is
    faster than gcc -M */
 /* the goal is to bias in favor of false positives (header files that
@@ -233,13 +252,23 @@ public: using runtime_error::runtime_error;
 /* we need to emulate gcc's search behavior exactly to make sure we
    find the *right* path for each include statement */
 
-Optional<pair<roost::path, size_t>> find_file_in_path_list( const roost::path & filename,
+Optional<pair<roost::path, size_t>> find_file_in_path_list( const roost::path & parent_filename,
+                                                            const roost::path & filename,
                                                             const vector<roost::path> & search_path,
-                                                            const size_t start_index )
+                                                            size_t start_index )
 {
-  cerr << "searching for file " << filename.string() << " in directory path ";
+  /* cerr << "searching for file " << filename.string() << " in directory path ";
   for ( size_t i = start_index; i < search_path.size(); i++ ) {
     cerr << search_path[ i ].string() << ":";
+  } */
+
+  if ( start_index == 0 ) {
+    start_index++;
+
+    const auto candidate = roost::dirname( parent_filename ) / filename;
+    if ( roost::exists( candidate ) ) {
+      return { true, make_pair( candidate, 0 ) };
+    }
   }
 
 <<<<<<< HEAD
@@ -253,13 +282,13 @@ Optional<pair<roost::path, size_t>> find_file_in_path_list( const roost::path & 
   for ( size_t i = start_index; i < search_path.size(); i++ ) {
     const auto candidate = search_path[ i ] / filename;
     if ( roost::exists( candidate ) ) {
-      cerr << "-> found " << candidate.string() << "\n";
+      // cerr << "-> found " << candidate.string() << "\n";
       return { true, make_pair( candidate, i ) };
     }
   }
 >>>>>>> 24b079f... preprocessor.cc: Implement scan_dependencies_recursive from scratch.
 
-  cerr << "-> not found\n";
+  // cerr << "-> not found\n";
   return {};
 }
 
@@ -269,7 +298,7 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
                                                      const vector<roost::path> & include_path,
                                                      const size_t current_include_path_index )
 {
-  cerr << "scan_dependencies_recursive called on " << filename.string() << "\n";
+  // cerr << "scan_dependencies_recursive called on " << filename.string() << "\n";
 
   /* base case: if we've already looked at this file, ignore */
   if ( dependencies.count( filename.string() ) ) {
@@ -292,6 +321,16 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
     const size_t hash_index = file_data.find( '#', index );
     if ( hash_index == string::npos ) {
       break;
+    }
+
+    if ( hash_index > 0 and not isspace( file_data[ hash_index - 1 ] ) and
+         file_data[ hash_index - 1 ] != '/' ) {
+      /* this is not the # we're looking for. */
+      /* this line is mainly added to protect again lines like this:
+         "This is a Standard C++ Library file.  You should @c \#include this file"
+         that can be found in a lot of system libraries */
+      index = hash_index + 1;
+      continue;
     }
 
     //    cerr << "hash_index = " << hash_index << "\n";
@@ -338,7 +377,7 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
       throw CouldNotParse( "include prefix without filename" );
     }
 
-    cerr << "found bracketed include filename at position " << bracketed_filename_index << "\n";
+    // cerr << "found bracketed include filename at position " << bracketed_filename_index << "\n";
 
     const char open_bracket = file_data.at( bracketed_filename_index );
     char closing_bracket;
@@ -347,8 +386,8 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
     } else if ( open_bracket == '"' ) {
       closing_bracket = '"';
     } else {
-      cerr << "could not parse file because of unexpected open bracket: " << open_bracket << "\n";
-      throw CouldNotParse( "unexpected bracket character: " + to_string( open_bracket ) );
+      // cerr << "could not parse file because of unexpected open bracket: " << open_bracket << "\n";
+      throw CouldNotParse( "unexpected bracket character in '" + filename.string() + "'" );
     }
 
     /* find closing bracket */
@@ -359,13 +398,14 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
 
     /* extract filename */
     const string included_filename = file_data.substr( bracketed_filename_index + 1, closing_bracket_index - bracketed_filename_index - 1 );
-    cerr << "found included filename: {" << included_filename << "}\n";
+    // cerr << "found included filename: {" << included_filename << "}\n";
 
     /* step 2a: search for the file in the include path */
     const size_t search_start_index = max( ( open_bracket == '"' ) ? 0ul : 1ul,
                                            is_include_next ? ( current_include_path_index + 1 ) : 0u );
 
-    const auto full_filename = find_file_in_path_list( included_filename,
+    const auto full_filename = find_file_in_path_list( filename,
+                                                       included_filename,
                                                        include_path,
                                                        search_start_index );
 
@@ -386,7 +426,7 @@ vector<string> GCCModelGenerator::scan_dependencies( const roost::path & filenam
   /* lookup order from `info gcc 'Directory Options'` */
 
   /* 1: current directory for #include "file" */
-  include_path.emplace_back( "." );
+  include_path.emplace_back( "" );
 
   /* 2: skip -iquote */
 
