@@ -67,6 +67,7 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
 
     { GCCOption::g,  "g",  no_argument, false, ' ' },
     { GCCOption::g1, "g1", no_argument, false, ' ' },
+    { GCCOption::g0, "g0", no_argument, false, ' ' },
 
     { GCCOption::dM, "dM", no_argument, false, 'X' },
 
