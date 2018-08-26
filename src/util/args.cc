@@ -85,9 +85,15 @@ ExpandedArgs ExpandedArgs::expand( const int argc, char * const * argv )
       }
       wordfree( &p );
 
-      output.args[ i ] = expanded_args.back();
-      output.args.insert( output.args.begin() + i,
-                          expanded_args.begin(), expanded_args.end() - 1 );
+      if ( expanded_args.size() ) {
+        output.args[ i ] = expanded_args.back();
+        output.args.insert( output.args.begin() + i,
+                            expanded_args.begin(), expanded_args.end() - 1 );
+      }
+      else {
+        output.args.erase( output.args.begin() + i );
+      }
+
       i--;
     }
   }
