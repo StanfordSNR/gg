@@ -197,7 +197,7 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
     case 'i':
       if ( startswith( optarg, "system" ) ) {
         string optarg_str { optarg };
-        args_.emplace_back( string( "-i" ) + optarg );
+        option_args_.emplace_back( string( "-i" ) + optarg );
         system_include_dirs_.push_back( optarg_str.substr( strlen( "system" ) ) );
       }
       else {
@@ -210,12 +210,12 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
       break;
 
     case 'I':
-      args_.push_back( string( "-I" ) + optarg );
+      option_args_.push_back( string( "-I" ) + optarg );
       include_dirs_.emplace_back( optarg );
       break;
 
     case 'L':
-      args_.push_back( string( "-L" ) + optarg );
+      option_args_.push_back( string( "-L" ) + optarg );
       library_dirs_.emplace_back( optarg );
       break;
 
@@ -270,7 +270,7 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
         break;
 
       case GCCOption::isystem:
-        args_.emplace_back( string( "-isystem" ) + optarg );
+        option_args_.emplace_back( string( "-isystem" ) + optarg );
         system_include_dirs_.emplace_back( optarg );
         break;
 
@@ -303,7 +303,7 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
   }
 
   for ( InputFile & input : input_files_ ) {
-    input.index += args_.size() + ( output_.empty() ? 0 : 2 );
+    input.index += option_args_.size() + ( output_.empty() ? 0 : 2 );
   }
 }
 
@@ -312,7 +312,7 @@ void GCCArguments::process_W_option( const string & optarg )
   bool accepted = true;
 
   if ( optarg.size() == 0 ) {
-    args_.push_back( "-W" );
+    option_args_.push_back( "-W" );
     return;
   }
 
@@ -368,7 +368,7 @@ void GCCArguments::process_W_option( const string & optarg )
   }
 
   if ( accepted ) {
-    args_.push_back( "-W" + optarg );
+    option_args_.push_back( "-W" + optarg );
   }
   else {
     throw runtime_error( "not implemented: -W" + optarg );
@@ -387,24 +387,24 @@ void GCCArguments::add_option( const GCCOption option, const string & optstr,
                                const char * value, const char arg_separator,
                                const bool double_dash )
 {
-  const size_t index = args_.size();
+  const size_t index = option_args_.size();
 
   const string actual_optstr = ( double_dash ? "--" : "-" ) + optstr;
   const string actual_value = value ? value : string();
 
   if ( arg_separator == 'X' ) {
     /* this option doesn't have an argument */
-    args_.emplace_back( actual_optstr );
+    option_args_.emplace_back( actual_optstr );
   }
   else if ( arg_separator == ' ' ) {
-    args_.emplace_back( actual_optstr );
-    args_.emplace_back( actual_value );
+    option_args_.emplace_back( actual_optstr );
+    option_args_.emplace_back( actual_value );
   }
   else if ( arg_separator == '\0') {
-    args_.emplace_back( actual_optstr + actual_value );
+    option_args_.emplace_back( actual_optstr + actual_value );
   }
   else {
-    args_.emplace_back( actual_optstr + arg_separator + actual_value );
+    option_args_.emplace_back( actual_optstr + arg_separator + actual_value );
   }
 
   opt_map_.insert( { option, { index, actual_value } } );
@@ -429,9 +429,9 @@ void GCCArguments::add_input( const string & filename, const Language language )
 vector<string> GCCArguments::all_args() const
 {
   vector<string> result;
-  result.reserve( args_.size() + input_args_.size() + output_.empty() ? 0 : 2 );
+  result.reserve( option_args_.size() + input_args_.size() + output_.empty() ? 0 : 2 );
 
-  result.insert( result.end(), args_.begin(), args_.end() );
+  result.insert( result.end(), option_args_.begin(), option_args_.end() );
 
   if ( not output_.empty() ) {
     result.emplace_back( "-o" );

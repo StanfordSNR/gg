@@ -86,7 +86,7 @@ private:
   std::vector<InputFile> input_files_ {};
 
   std::map<GCCOption, std::pair<size_t, std::string>> opt_map_ {};
-  std::vector<std::string> args_ {};
+  std::vector<std::string> option_args_ {};
   std::vector<std::string> input_args_ {};
   std::string output_ {};
 
@@ -128,7 +128,7 @@ public:
   bool no_stdincpp() const { return no_stdincpp_; }
   bool no_defaultlibs() const { return no_defaultlibs_; }
 
-  const std::vector<std::string> & option_args() const { return args_; }
+  const std::vector<std::string> & option_args() const { return option_args_; }
   std::vector<std::string> all_args() const;
 
   Optional<std::string> option_argument( const GCCOption option ) const;
