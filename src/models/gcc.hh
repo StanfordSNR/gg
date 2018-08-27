@@ -18,27 +18,16 @@
 
 enum GCCStage
 {
-  PREPROCESS = 1,
-  COMPILE,
-  ASSEMBLE,
-  LINK
+  PREPROCESS = 1, COMPILE, ASSEMBLE, LINK
 };
 
 enum class Language
 {
   NONE,
-  C,
-  C_HEADER,
-  CPP_OUTPUT,
-  CXX,
-  CXX_HEADER,
-  CXX_CPP_OUTPUT,
-  ASSEMBLER,
-  ASSEMBLER_WITH_CPP,
-  OBJECT,
-  SHARED_OBJECT,
-  ARCHIVE_LIBRARY,
-  SHARED_LIBRARY,
+  C, C_HEADER, CPP_OUTPUT,
+  CXX, CXX_HEADER, CXX_CPP_OUTPUT,
+  ASSEMBLER, ASSEMBLER_WITH_CPP,
+  OBJECT, SHARED_OBJECT, ARCHIVE_LIBRARY, SHARED_LIBRARY,
 };
 
 struct InputFile
@@ -53,8 +42,7 @@ struct InputFile
 
 enum class OperationMode
 {
-  GCC,
-  GXX,
+  GCC, GXX
 };
 
 enum class GCCOption
