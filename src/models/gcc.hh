@@ -59,30 +59,15 @@ enum class OperationMode
 
 enum class GCCOption
 {
-  x = 1000,
-  g, g0, g1, O, D, U, f, w, v,
-  o,
-  E, S, c, C,
-  M, MD, MP, MT, MF, MMD,
-  pie,
-  include, isystem,
-  pthread, shared,
-  param, pipe, pedantic, dashstatic, s,
-  nostdlib, nostdinc, nostdincpp, std,
-  u, Xlinker, mcmodel, mfentry, gdwarf_4, pg, P,
-  nodefaultlibs,
-
-  mno_sse, mno_mmx, mno_sse2, mno_3dnow, mno_avx, m32, m64, mno_80387,
-  mno_fp_ret_in_387, mno_red_zone, msoft_float, mregparm,
-  msse4_2, mmmx, mavx, mavx2, mbmi, mbmi2, mf16c, mfma, msse2, mssse3, msse4_1,
-  mpclmul, mno_tls_direct_seg_refs,
-
-  mpreferred_stack_boundary,
-  mskip_rax_setup, mtune, march,
-
-  print_file_name,
-
-  dM, rdynamic, dumpversion, dumpmachine
+  c = 1000, C, D, dashstatic, dM, dumpmachine, dumpversion, E, f, g, g0, g1,
+  gdwarf_4, include, isystem, M, m32, m64, march, mavx, mavx2, mbmi, mbmi2,
+  mcmodel, MD, MF, mf16c, mfentry, mfma, MMD, mmmx, mno_3dnow, mno_80387,
+  mno_avx, mno_fp_ret_in_387, mno_mmx, mno_red_zone, mno_sse, mno_sse2,
+  mno_tls_direct_seg_refs, MP, mpclmul, mpreferred_stack_boundary, mregparm,
+  mskip_rax_setup, msoft_float, msse2, msse4_1, msse4_2, mssse3, MT, mtune,
+  nodefaultlibs, nostdinc, nostdincpp, nostdlib, o, O, P, param, pedantic, pg,
+  pie, pipe, print_file_name, pthread, rdynamic, s, S, shared, std, u, U, v, w,
+  x, Xlinker
 };
 
 struct GCCOptionData;
