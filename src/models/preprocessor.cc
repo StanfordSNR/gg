@@ -224,7 +224,7 @@ bool GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
       source_language == Language::C_HEADER or
       source_language == Language::ASSEMBLER_WITH_CPP )
       ? c_include_path
-      : cpp_include_path;
+      : cxx_include_path;
 
   auto skip_spaces =
     [] ( const string & str, size_t & i )

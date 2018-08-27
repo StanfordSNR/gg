@@ -196,7 +196,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         input.language == Language::C_HEADER or
         input.language == Language::ASSEMBLER_WITH_CPP )
         ? c_include_path
-        : cpp_include_path;
+        : cxx_include_path;
 
      /* ARGS */
     args.push_back( "-E" );

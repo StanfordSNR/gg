@@ -84,7 +84,7 @@ def get_gcc_envars():
     return res
 
 c_include_path = get_include_path()
-cpp_include_path = get_include_path(language='c++')
+cxx_include_path = get_include_path(language='c++')
 ld_search_path = get_library_path()
 gcc_envars = get_gcc_envars()
 
@@ -115,7 +115,7 @@ print_hh()
 print_hh("""\
 const std::string & program_hash( const std::string & name );
 extern const std::vector<std::string> c_include_path;
-extern const std::vector<std::string> cpp_include_path;
+extern const std::vector<std::string> cxx_include_path;
 extern const std::vector<std::string> ld_search_path;
 extern const std::vector<std::string> gcc_library_path;
 extern const std::string gcc_install_path;
@@ -195,8 +195,8 @@ for path in c_include_path:
     print_cc('  "{}",'.format(path))
 print_cc("};\n")
 
-print_cc("const vector<string> cpp_include_path = {")
-for path in cpp_include_path:
+print_cc("const vector<string> cxx_include_path = {")
+for path in cxx_include_path:
     print_cc('  "{}",'.format(path))
 print_cc("};\n")
 
