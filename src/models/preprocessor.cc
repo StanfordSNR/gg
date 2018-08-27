@@ -312,14 +312,6 @@ Optional<pair<roost::path, size_t>> find_file_in_path_list( const roost::path & 
     }
   }
 
-<<<<<<< HEAD
-  const vector<string> & default_include_path =
-    ( source_language == Language::C or
-      source_language == Language::C_HEADER or
-      source_language == Language::ASSEMBLER_WITH_CPP )
-      ? c_include_path
-      : cxx_include_path;
-=======
   for ( size_t i = start_index; i < search_path.size(); i++ ) {
     const auto candidate = search_path[ i ] / filename;
     if ( roost::exists( candidate ) ) {
@@ -327,7 +319,6 @@ Optional<pair<roost::path, size_t>> find_file_in_path_list( const roost::path & 
       return { true, make_pair( candidate, i ) };
     }
   }
->>>>>>> 24b079f... preprocessor.cc: Implement scan_dependencies_recursive from scratch.
 
   // cerr << "-> not found\n";
   return {};
@@ -522,8 +513,8 @@ vector<string> GCCModelGenerator::scan_dependencies( const roost::path & filenam
                          c_include_path.end() );
   } else {
     include_path.insert( include_path.end(),
-                         cpp_include_path.begin(),
-                         cpp_include_path.end() );
+                         cxx_include_path.begin(),
+                         cxx_include_path.end() );
   }
 
   /* 6: skip -idirafter */

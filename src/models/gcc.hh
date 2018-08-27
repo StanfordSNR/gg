@@ -52,10 +52,10 @@ enum class GCCOption
   mcmodel, MD, MF, mf16c, mfentry, mfma, MMD, mmmx, mno_3dnow, mno_80387,
   mno_avx, mno_fp_ret_in_387, mno_mmx, mno_red_zone, mno_sse, mno_sse2,
   mno_tls_direct_seg_refs, MP, mpclmul, mpreferred_stack_boundary, mregparm,
-  mskip_rax_setup, msoft_float, msse2, msse4_1, msse4_2, mssse3, MT, mtune,
-  nodefaultlibs, nostdinc, nostdincpp, nostdlib, o, O, P, param, pedantic, pg,
-  pie, pipe, print_file_name, pthread, rdynamic, s, S, shared, std, u, U, v, w,
-  x, Xlinker
+  mskip_rax_setup, msoft_float, msse, msse2, msse4_1, msse4_2, mssse3, MT,
+  mtune, nodefaultlibs, nostdinc, nostdincpp, nostdlib, o, O, P, param,
+  pedantic, pg, pie, pipe, print_file_name, pthread, rdynamic, s, S, shared,
+  std, u, U, v, w, x, Xlinker
 };
 
 struct GCCOptionData;
