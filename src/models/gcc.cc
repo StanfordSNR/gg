@@ -492,7 +492,6 @@ void GCCModelGenerator::generate()
 {
   string final_output = arguments_.output_filename();
   GCCStage last_stage = arguments_.last_stage();
-  vector<string> args = arguments_.all_args();
 
   vector<InputFile> input_files = arguments_.input_files();
 
@@ -634,9 +633,7 @@ void GCCModelGenerator::generate()
       final_output = "a.out";
     }
 
-    vector<string> link_args { args };
-
-    vector<string> dependencies = get_link_dependencies( input_files, args );
+    vector<string> dependencies = get_link_dependencies( input_files, arguments_.all_args() );
 
     string last_stage_hash = generate_link_thunk( input_files, dependencies, final_output );
 
