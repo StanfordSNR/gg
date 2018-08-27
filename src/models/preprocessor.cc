@@ -46,6 +46,24 @@ vector<string> write_dependencies_file( const string & output_name,
   return filenames;
 }
 
+vector<string> write_dependencies_file( const string & output_name,
+                                        const string & target_name,
+                                        const vector<string> & files )
+{
+  /* always write a canonical dependencies file to make sure it matches our parse */
+  string output { target_name + ":" };
+  vector<string> filenames;
+  for ( const auto & item : files ) {
+    filenames.emplace_back( item );
+    output.append( " " );
+    output.append( item );
+  }
+  output.append( "\n" );
+
+  roost::atomic_create( output, roost::path( output_name ) );
+  return filenames;
+}
+
 
 vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_filename,
                                                            const string & target_name )
@@ -97,6 +115,8 @@ vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_fi
 
   return dependencies;
 }
+
+const bool FAST_DEPS = ( getenv( "GG_FAST_DEPS") != nullptr );
 
 vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & input,
                                                               const vector<string> & option_args,
@@ -189,18 +209,29 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
     args.push_back( output_name );
   }
 
-  /* DEBUG: also run fast path and compare */
-  Optional<vector<string>> fast_infiles_list;
+  vector<string> infiles_list;
+  bool fast_deps_successful = false;
 
-  try {
-    fast_infiles_list.reset( move( scan_dependencies( input_filename, input.language ) ) );
-  }
-  catch ( const CouldNotParse & ex ) {
-    cerr << "[ERROR] " << ex.what() << endl;
+  if ( FAST_DEPS ) {
+    Optional<vector<string>> fast_infiles_list;
+
+    try {
+      fast_infiles_list.reset( move( scan_dependencies( input_filename, input.language ) ) );
+
+      if ( has_dependencies_option ) {
+        write_dependencies_file( output_name, target_name, *fast_infiles_list );
+      }
+
+      infiles_list = move( *fast_infiles_list );
+      fast_deps_successful = true;
+    }
+    catch ( const CouldNotParse & ex ) {}
   }
 
-  cerr << "Running gcc to find dependencies.\n";
-  run( args[ 0 ], args, {}, true, true );
+  if ( not fast_deps_successful ) {
+    run( args[ 0 ], args, {}, true, true );
+    infiles_list = parse_dependencies_file( output_name, target_name );
+  }
 
   if ( not has_dependencies_option ) {
     args.pop_back();
@@ -210,10 +241,9 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
   /* write a cache entry for next time */
 
   /* assemble the infiles */
-  const vector<string> infiles_list = parse_dependencies_file( output_name, target_name );
 
   /* let's compare this list and the fast list */
-  if ( fast_infiles_list.initialized() ) {
+  /* if ( fast_infiles_list.initialized() ) {
     bool failed = false;
     for ( const string & file : infiles_list ) {
       if ( find( fast_infiles_list->begin(), fast_infiles_list->end(), file ) == fast_infiles_list->end() ) {
@@ -229,8 +259,8 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
       throw runtime_error( "^^" );
     }
 
-    cerr << "[INFO] found everything for '" << input_filename << "'" << endl;
-  }
+    cerr << "[info] found everything for '" << input_filename << "'" << endl;
+  } */
 
   vector<Thunk::DataItem> dependencies;
   for ( const auto & str : infiles_list ) {
