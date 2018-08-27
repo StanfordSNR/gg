@@ -206,7 +206,7 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
       break;
 
     case 'o':
-      output_ = optarg;
+      output_ = { optarg, 0 };
       break;
 
     case 'I':
@@ -303,7 +303,7 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
   }
 
   for ( InputFile & input : input_files_ ) {
-    input.index += option_args_.size() + ( output_.empty() ? 0 : 2 );
+    input.index += option_args_.size() + ( output_.name.empty() ? 0 : 2 );
   }
 }
 
@@ -429,13 +429,13 @@ void GCCArguments::add_input( const string & filename, const Language language )
 vector<string> GCCArguments::all_args() const
 {
   vector<string> result;
-  result.reserve( option_args_.size() + input_args_.size() + output_.empty() ? 0 : 2 );
+  result.reserve( option_args_.size() + input_args_.size() + output_.name.empty() ? 0 : 2 );
 
   result.insert( result.end(), option_args_.begin(), option_args_.end() );
 
-  if ( not output_.empty() ) {
+  if ( not output_.name.empty() ) {
     result.emplace_back( "-o" );
-    result.push_back( output_ );
+    result.push_back( output_.name );
   }
 
   result.insert( result.end(), input_args_.begin(), input_args_.end() );

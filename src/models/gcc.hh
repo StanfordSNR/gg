@@ -40,6 +40,12 @@ struct InputFile
   ThunkFactory::Data indata;
 };
 
+struct OutputFile
+{
+  std::string name;
+  size_t index;
+};
+
 enum class OperationMode
 {
   GCC, GXX
@@ -88,7 +94,7 @@ private:
   std::map<GCCOption, std::pair<size_t, std::string>> opt_map_ {};
   std::vector<std::string> option_args_ {};
   std::vector<std::string> input_args_ {};
-  std::string output_ {};
+  OutputFile output_ { "", 0 };
 
   std::vector<std::string> include_dirs_ {};
   std::vector<std::string> library_dirs_ {};
@@ -116,7 +122,7 @@ public:
 
   void process_W_option( const std::string & optarg );
 
-  const std::string & output_filename() const { return output_; }
+  const std::string & output_filename() const { return output_.name; }
   const std::vector<InputFile> & input_files() const { return input_files_; }
   GCCStage last_stage() const { return last_stage_.get_or( LINK ); }
   const std::vector<std::string> & include_dirs() const { return include_dirs_; }
