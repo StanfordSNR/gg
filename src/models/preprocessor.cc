@@ -214,13 +214,19 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
 
   /* let's compare this list and the fast list */
   if ( fast_infiles_list.initialized() ) {
+    bool failed = false;
     for ( const string & file : infiles_list ) {
       if ( find( fast_infiles_list->begin(), fast_infiles_list->end(), file ) == fast_infiles_list->end() ) {
-        for ( const string & found_files : *fast_infiles_list ) {
-          cerr << "* " << found_files << endl;
-        }
-        throw runtime_error( "could not find " + file + " in fast infiles list." );
+        failed = true;
+        cerr << "could not find " << file << " in fast infiles list." << endl;
       }
+    }
+
+    if ( failed ) {
+      for ( const string & found_files : *fast_infiles_list ) {
+        cerr << "* " << found_files << endl;
+      }
+      throw runtime_error( "^^" );
     }
 
     cerr << "[INFO] found everything for '" << input_filename << "'" << endl;
@@ -265,7 +271,10 @@ Optional<pair<roost::path, size_t>> find_file_in_path_list( const roost::path & 
   if ( start_index == 0 ) {
     start_index++;
 
-    const auto candidate = roost::dirname( parent_filename ) / filename;
+    roost::path parent_dir = roost::dirname( parent_filename );
+    const roost::path candidate = ( parent_dir.string() == "." ) ? filename
+                                                                 : ( parent_dir / filename );
+
     if ( roost::exists( candidate ) ) {
       return { true, make_pair( candidate, 0 ) };
     }
@@ -292,6 +301,15 @@ Optional<pair<roost::path, size_t>> find_file_in_path_list( const roost::path & 
   return {};
 }
 
+/* remove repetitive './'s from the beginning of the path names */
+string simple_path_trim( const string & path ) {
+  string res = path;
+  while ( res.compare( 0, 2, "./" ) == 0 ) {
+    res.erase( 0, 2 );
+  }
+  return res;
+}
+
 void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filename,
                                                      unordered_set<string> & dependencies,
                                                      const Language source_language,
@@ -306,7 +324,7 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
   }
 
   /* otherwise, recursive case: add this file as a dependency, and recurse */
-  dependencies.insert( filename.string() );
+  dependencies.insert( simple_path_trim( filename.string() ) );
 
   /* now recurse */
 
