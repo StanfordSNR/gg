@@ -225,7 +225,9 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
       infiles_list = move( *fast_infiles_list );
       fast_deps_successful = true;
     }
-    catch ( const CouldNotParse & ex ) {}
+    catch ( const CouldNotParse & ex ) {
+      cerr << "[error]" << ex.what() << endl;
+    }
   }
 
   if ( not fast_deps_successful ) {
@@ -348,13 +350,15 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
 {
   // cerr << "scan_dependencies_recursive called on " << filename.string() << "\n";
 
+  const string trimmed_path = simple_path_trim( filename.string() );
+
   /* base case: if we've already looked at this file, ignore */
-  if ( dependencies.count( filename.string() ) ) {
+  if ( dependencies.count( trimmed_path ) ) {
     return;
   }
 
   /* otherwise, recursive case: add this file as a dependency, and recurse */
-  dependencies.insert( simple_path_trim( filename.string() ) );
+  dependencies.insert( trimmed_path );
 
   /* now recurse */
 
@@ -434,7 +438,22 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
     } else if ( open_bracket == '"' ) {
       closing_bracket = '"';
     } else {
-      // cerr << "could not parse file because of unexpected open bracket: " << open_bracket << "\n";
+      /* okay, maybe this #include or #include next is inside a comment section! */
+      const size_t prev_open  = file_data.rfind( "/*", hash_index );
+      const size_t prev_close = file_data.rfind( "*/", hash_index );
+      const size_t next_open  = file_data.find(  "/*", index + 1 );
+      const size_t next_close = file_data.find(  "*/", index + 1 );
+
+      bool commented = ( prev_open != string::npos and
+                         ( prev_close < prev_open or prev_close == string::npos ) ) and
+                       ( next_close != string::npos ) and
+                         ( next_close < next_open );
+
+      if ( commented ) {
+        index = next_close + 2;
+        continue;
+      }
+
       throw CouldNotParse( "unexpected bracket character in '" + filename.string() + "'" );
     }
 
