@@ -12,6 +12,7 @@
 #include "thunk/ggutils.hh"
 #include "trace/syscall.hh"
 #include "util/exception.hh"
+#include "util/system_runner.hh"
 
 using namespace std;
 using namespace google::protobuf::util;
@@ -19,7 +20,9 @@ using namespace gg::thunk;
 
 void usage( const char * argv0 )
 {
-  cerr << argv0 << " [--executable-hash, -e] THUNK-HASH" << endl;
+  cerr << "Usage: " << argv0 << endl
+       << "       " << "[-e|--executable-hash] [-c|--command]" << endl
+       << "       " << "THUNK-HASH" << endl;
 }
 
 int main( int argc, char * argv[] )
@@ -35,20 +38,26 @@ int main( int argc, char * argv[] )
     }
 
     bool print_executable_hash = false;
+    bool print_command = false;
 
     const option command_line_options[] = {
       { "executable-hash", no_argument, nullptr, 'e' },
+      { "command",         no_argument, nullptr, 'c' },
       { 0, 0, 0, 0 }
     };
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "e", command_line_options, nullptr );
+      const int opt = getopt_long( argc, argv, "ec", command_line_options, nullptr );
 
       if ( opt == -1 ) { break; }
 
       switch ( opt ) {
       case 'e':
         print_executable_hash = true;
+        break;
+
+      case 'c':
+        print_command = true;
         break;
       }
     }
@@ -89,7 +98,12 @@ int main( int argc, char * argv[] )
     if ( print_executable_hash ) {
       cout << thunk.executable_hash() << endl;
     }
-    else {
+
+    if ( print_command ) {
+      cout << command_str( thunk.function().args(), thunk.function().envars() ) << endl;
+    }
+
+    if ( not print_executable_hash and not print_command ) {
       cout << protoutil::to_json( thunk.to_protobuf(), true ) << endl;
     }
   }
