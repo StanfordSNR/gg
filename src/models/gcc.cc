@@ -86,11 +86,18 @@ bool has_include_or_incbin( const string & filename )
 
 string GCCModelGenerator::do_preprocessing( const InputFile & input )
 {
-  vector<string> args;
-  args.push_back( ( operation_mode_ == OperationMode::GCC ) ? "gcc-7" : "g++-7" );
-  args.insert( args.end(),
-               arguments_.option_args().begin(),
-               arguments_.option_args().end() );
+  vector<string> args { arguments_.all() };
+
+  for ( auto it = arguments_.input_files().rbegin(); it != arguments_.input_files().rend(); it++ ) {
+    if ( it->index != input.index ) {
+      args.erase( args.begin() + it->index );
+    }
+    else {
+      args.at( input.index ) = input.name;
+      args.insert( args.begin() + input.index, language_to_name( input.language ) );
+      args.insert( args.begin() + input.index, "-x" );
+    }
+  }
 
   args.erase(
     remove_if(
@@ -99,11 +106,8 @@ string GCCModelGenerator::do_preprocessing( const InputFile & input )
     ), args.end()
   );
 
+  args.insert( args.begin(), ( operation_mode_ == OperationMode::GCC ) ? "gcc-7" : "g++-7" );
   args.push_back( "-E" );
-
-  args.push_back( "-x" );
-  args.push_back( language_to_name( input.language ) );
-  args.push_back( input.name );
 
   args.push_back( "-frandom-seed=" + BEGIN_REPLACE
                   + input.name
@@ -138,8 +142,22 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
                                           const bool write_placeholder,
                                           const Language prev_stage_language )
 {
-  vector<string> args { arguments_.option_args() };
   auto & gcc_data = program_data.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX );
+
+  vector<string> args { arguments_.all() };
+
+  /* there can be other inputs in the args, we have to remove them first */
+  for ( auto it = arguments_.input_files().rbegin(); it != arguments_.input_files().rend(); it++ ) {
+    if ( it->index != input.index ) {
+      args.erase( args.begin() + it->index );
+    }
+    else {
+      args.at( input.index ) = input.name;
+      args.insert( args.begin() + input.index, language_to_name( input.language ) );
+      args.insert( args.begin() + input.index, "-x" );
+    }
+  }
+  /* now 'args' only has the input file we are generating the thunk for */
 
   args.erase(
     remove_if(
@@ -165,11 +183,6 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
   /* Common dummy directories */
   vector<string> dummy_dirs;
-
-  /* Common args */
-  args.push_back( "-x" );
-  args.push_back( language_to_name( input.language ) );
-  args.push_back( input.name );
 
   if ( stage != PREPROCESS ) {
     /* For preprocess stage, we are going to use `args` to get the
@@ -388,7 +401,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
   /******************************************************************/
 
-  default: throw runtime_error( "not implemented" );
+  default: throw runtime_error( "invalid gcc stage" );
   }
 
   if ( write_placeholder ) {
@@ -492,7 +505,6 @@ void GCCModelGenerator::generate()
 {
   string final_output = arguments_.output_filename();
   GCCStage last_stage = arguments_.last_stage();
-
   vector<InputFile> input_files = arguments_.input_files();
 
   Language prev_stage_language = Language::NONE;
@@ -543,16 +555,15 @@ void GCCModelGenerator::generate()
           } else if ( stage == LINK ) {
             throw runtime_error( "internal error" );
           } else {
-            final_output = stage_output_name( stage,
-                                              split_source_name( arguments_.input_files().at( input_index ).name ).first );
+            final_output = stage_output_name( stage, split_source_name( input.name ).first );
           }
         }
 
         output_name = final_output;
       }
       else {
-        output_name = "output_" + to_string( input_index )
-                                + "_" + to_string( stage_num );
+        output_name = "output_" + to_string( input_index ) + "_"
+                                + to_string( stage_num );
       }
 
       string last_stage_hash;
@@ -633,8 +644,7 @@ void GCCModelGenerator::generate()
       final_output = "a.out";
     }
 
-    vector<string> dependencies = get_link_dependencies( input_files, arguments_.all_args() );
-
+    vector<string> dependencies = get_link_dependencies( input_files );
     string last_stage_hash = generate_link_thunk( input_files, dependencies, final_output );
 
     cerr << "\u251c\u2500 linked: " << last_stage_hash << endl;

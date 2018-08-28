@@ -17,16 +17,18 @@ using namespace gg::thunk;
 
 const bool include_gompspec = ( getenv( "GG_GCC_OPENMP_SUPPORT" ) != nullptr );
 
-vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile> & link_inputs,
-                                                         const vector<string> & gcc_args )
+vector<string> GCCModelGenerator::get_link_dependencies( const vector<InputFile> & link_inputs )
 {
   unordered_set<string> dependencies;
-  vector<string> args { gcc_args };
+  vector<string> args { arguments_.all() };
 
   size_t last_index = SIZE_MAX;
   for ( auto it = link_inputs.rbegin(); it != link_inputs.rend(); it++ ) {
-    if ( it->language == Language::SHARED_LIBRARY or
-         it->language == Language::SHARED_OBJECT ) {
+    if ( it->language == Language::SHARED_LIBRARY ) {
+      continue;
+    }
+    else if ( it->language == Language::SHARED_OBJECT ) {
+      args[ it->index ] = it->name;
       continue;
     }
 
@@ -84,7 +86,7 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
   }
 
   /* ARGS */
-  vector<string> args { arguments_.option_args() };
+  vector<string> args { arguments_.all() };
   args.push_back( "-o" );
   args.push_back( output );
 
@@ -93,11 +95,10 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
     case Language::OBJECT:
     case Language::SHARED_OBJECT:
     case Language::ARCHIVE_LIBRARY:
-      args.push_back( input.name );
+      args[ input.index ] = input.name;
       break;
 
     case Language::SHARED_LIBRARY:
-      args.push_back( "-l" + input.name );
       break;
 
     default:

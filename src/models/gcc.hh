@@ -40,12 +40,6 @@ struct InputFile
   ThunkFactory::Data indata;
 };
 
-struct OutputFile
-{
-  std::string name;
-  size_t index;
-};
-
 enum class OperationMode
 {
   GCC, GXX
@@ -92,9 +86,8 @@ private:
   std::vector<InputFile> input_files_ {};
 
   std::map<GCCOption, std::pair<size_t, std::string>> opt_map_ {};
-  std::vector<std::string> option_args_ {};
-  std::vector<std::string> input_args_ {};
-  OutputFile output_ { "", 0 };
+  std::vector<std::string> args_ {};
+  std::string output_ {};
 
   std::vector<std::string> include_dirs_ {};
   std::vector<std::string> library_dirs_ {};
@@ -117,12 +110,11 @@ public:
                    const bool double_dash = false );
 
   void add_option( const GCCOptionData & option_data, const char * optarg );
-
   void add_input( const std::string & filename, const Language language );
 
   void process_W_option( const std::string & optarg );
 
-  const std::string & output_filename() const { return output_.name; }
+  const std::string & output_filename() const { return output_; }
   const std::vector<InputFile> & input_files() const { return input_files_; }
   GCCStage last_stage() const { return last_stage_.get_or( LINK ); }
   const std::vector<std::string> & include_dirs() const { return include_dirs_; }
@@ -134,12 +126,8 @@ public:
   bool no_stdincpp() const { return no_stdincpp_; }
   bool no_defaultlibs() const { return no_defaultlibs_; }
 
-  const std::vector<std::string> & option_args() const { return option_args_; }
-  std::vector<std::string> all_args() const;
-
   Optional<std::string> option_argument( const GCCOption option ) const;
-
-  void print_args() const;
+  const std::vector<std::string> all() const { return args_; }
 
   bool force_strip() const { return force_strip_; }
 };
@@ -161,8 +149,7 @@ private:
   /** METAINFER **/
   Optional<PlaceholderMetadata> metadata_ {};
 
-  std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs,
-                                                  const std::vector<std::string> & args );
+  std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs );
 
   std::vector<std::string> parse_dependencies_file( const std::string & dep_filename,
                                                     const std::string & target_name );
