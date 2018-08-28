@@ -33,11 +33,16 @@
 using namespace std;
 using namespace gg::thunk;
 
+constexpr char FORCE_STATUS[] = "GG_FORCE_STATUS";
+constexpr char FORCE_DEFAULT_ENGINE[] = "GG_FORCE_DEFAULT_ENGINE";
+constexpr char FORCE_MAX_JOBS[] = "GG_FORCE_MAX_JOBS";
+constexpr char FORCE_TIMEOUT[] = "GG_FORCE_TIMEOUT";
+
 void usage( const char * argv0 )
 {
   cerr << "Usage: " << argv0 << endl
        << "       " << "[-j|--jobs=<N>] [-s|--status] [-T|--timeout=<t>] [-S|--sandboxed]" << endl
-       << "       " << "[-e|--engine=<name>[=ENGINE_ARGS]]... [-d,--no-download]" << endl
+       << "       " << "[-e|--engine=<name>[=ENGINE_ARGS]]... [-d|--no-download]" << endl
        << "       " << "THUNKS..." << endl
        << endl
        << "Available engines:" << endl
@@ -46,6 +51,12 @@ void usage( const char * argv0 )
        << "  - remote  Executes the jobs on a remote machine" << endl
        << "  - meow    Executes the jobs on AWS Lambda with long-running workers" << endl
        << "  - gcloud  Executes the jobs on Google Cloud Functions" << endl
+       << endl
+       << "Environment variables:" << endl
+       << "  - " << FORCE_STATUS << endl
+       << "  - " << FORCE_DEFAULT_ENGINE << endl
+       << "  - " << FORCE_MAX_JOBS << endl
+       << "  - " << FORCE_TIMEOUT << endl
        << endl;
 }
 
@@ -77,10 +88,13 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    size_t max_jobs = thread::hardware_concurrency();
-    bool status_bar = false;
+    size_t max_jobs = ( getenv( FORCE_MAX_JOBS ) != nullptr )
+                      ? stoul( safe_getenv( FORCE_MAX_JOBS ) )
+                      : thread::hardware_concurrency();
+    int timeout = ( getenv( FORCE_TIMEOUT ) != nullptr )
+                  ? stoi( safe_getenv( FORCE_TIMEOUT ) ) : -1;
+    bool status_bar = ( getenv( FORCE_STATUS ) != nullptr );
     bool no_download = false;
-    int timeout = -1;
 
     vector<pair<string, string>> engines;
 
@@ -144,6 +158,18 @@ int main( int argc, char * argv[] )
     }
 
     check_rlimit_nofile( max_jobs );
+
+    if ( engines.size() == 0 and getenv( FORCE_DEFAULT_ENGINE ) != nullptr ) {
+      string engine { safe_getenv( FORCE_DEFAULT_ENGINE ) };
+      string::size_type eqpos = engine.find( '=' );
+      if ( eqpos == string::npos ) {
+        engines.emplace_back( make_pair( move( engine ), move( string {} ) ) );
+      }
+      else {
+        engines.emplace_back( make_pair( engine.substr( 0, eqpos ),
+                                         engine.substr( eqpos + 1 ) ) );
+      }
+    }
 
     gg::models::init();
 
