@@ -38,13 +38,13 @@ void StatusBar::init()
   oss << "\x0A\0337\033[1;" << window_size_.ws_row - 1 << "r\033["
       << window_size_.ws_row << ";1H\033[K\0338\xc2\x8D";
 
-  cout << oss.str() << flush;
+  cerr << oss.str() << flush;
 }
 
 void StatusBar::remove()
 {
   set_text( "" );
-  cout << "\0337\033[1;" << window_size_.ws_row << "r\0338" << flush;
+  cerr << "\0337\033[1;" << window_size_.ws_row << "r\0338" << flush;
 }
 
 void StatusBar::redraw()
@@ -66,5 +66,5 @@ void StatusBar::set_text( const string & text )
       << "\033[K\0338"
       << SHOW_CURSOR;
 
-  cout << oss.str() << flush;
+  cerr << oss.str() << flush;
 }
