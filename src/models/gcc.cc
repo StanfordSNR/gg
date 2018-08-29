@@ -364,11 +364,13 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   case ASSEMBLE:
     if ( first_stage != ASSEMBLE and
          ( arguments_.option_argument( GCCOption::gdwarf_4 ).initialized() or
-           arguments_.option_argument( GCCOption::g ).initialized() ) ) {
+           arguments_.option_argument( GCCOption::g ).initialized() or
+           arguments_.option_argument( GCCOption::g0 ).initialized() or
+           arguments_.option_argument( GCCOption::g1 ).initialized() ) ) {
       args.erase(
         remove_if(
           args.begin(), args.end(),
-          []( const string & s ) { return ( s == "-gdwarf-4" or s == "-g" ); }
+          []( const string & s ) { return ( s == "-gdwarf-4" or s == "-g" or s == "-g0" or s == "-g1" ); }
         ), args.end()
       );
     }
