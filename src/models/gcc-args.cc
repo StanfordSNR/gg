@@ -284,6 +284,12 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
         no_defaultlibs_ = true;
         break;
 
+      case GCCOption::g1:
+        if ( force_strip_ ) {
+          add_to_args = false;
+        }
+        break;
+
       default:
         if ( not options_map.count( gccopt ) ) {
           throw runtime_error( "unknown gcc flag: " + string( argv[ optind - 1 ] ) );
