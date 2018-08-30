@@ -18,6 +18,21 @@ ThunkPlaceholder::ThunkPlaceholder( const string & hash, const string & metadata
   : content_hash_( hash ), metadata_( metadata )
 {}
 
+string ThunkPlaceholder::str( const Type type ) const
+{
+  const string & header = (type == Type::LinkerScript)
+    ? LIBRARY_DIRECTIVE
+    : SHEBANG_DIRECTIVE;
+
+  ostringstream sout { ios::out | ios::binary };
+  sout << header << endl
+       << content_hash_ << endl
+       << metadata_
+       << ( type == Type::LinkerScript ? "*/" : "" );
+
+  return sout.str();
+}
+
 void ThunkPlaceholder::write( const string & filename ) const
 {
   regex so_pattern { ".+\\.so[\\.\\d+]+$" };
@@ -37,19 +52,7 @@ void ThunkPlaceholder::write( const string & filename ) const
 
 void ThunkPlaceholder::write( const string & filename, const Type type ) const
 {
-  const string & header = (type == Type::LinkerScript)
-    ? LIBRARY_DIRECTIVE
-    : SHEBANG_DIRECTIVE;
-
-  ostringstream sout { ios::out | ios::binary };
-  sout << header
-       << endl
-       << content_hash_
-       << endl
-       << metadata_
-       << ( type == Type::LinkerScript ? "*/" : "" );
-
-  roost::atomic_create( sout.str(), filename );
+  roost::atomic_create( str( type ), filename );
 
   if ( type == Type::ShellScript ) {
     roost::chmod( filename, 0755 );

@@ -11,24 +11,28 @@
 
 class ThunkPlaceholder
 {
+public:
+  enum class Type { LinkerScript, ShellScript };
+
 private:
   std::string content_hash_;
   std::string metadata_ {};
 
-public:
-  enum class Type { LinkerScript, ShellScript };
+  void write( const std::string & filename, const Type type ) const;
 
+public:
   ThunkPlaceholder( const std::string & content_hash,
                     const std::string & metadata = {} );
 
   const std::string & content_hash() const { return content_hash_; }
   const std::string & metadata() const { return metadata_; }
 
-  void write( const std::string & filename, const Type type ) const;
   void write( const std::string & filename ) const;
 
   static Optional<ThunkPlaceholder> read( const std::string & filename );
   static bool is_placeholder( FileDescriptor && fd );
+
+  std::string str( const Type type = Type::ShellScript ) const;
 };
 
 #endif /* PLACEHOLDER_HH */
