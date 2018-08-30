@@ -130,6 +130,8 @@ extern const std::string LD;
 extern const std::string AR;
 extern const std::string RANLIB;
 extern const std::string STRIP;
+extern const std::string NM;
+extern const std::string READELF;
 extern const std::string GG_BIN_PREFIX;
 extern const roost::path toolchain_path;
 
@@ -180,13 +182,15 @@ const std::string LD { "ld" };
 const std::string AR { "ar" };
 const std::string RANLIB { "ranlib" };
 const std::string STRIP { "strip" };
+const std::string NM { "nm" };
+const std::string READELF { "readelf" };
 const std::string GG_BIN_PREFIX { "/__gg__" };
 const roost::path toolchain_path { std::string( TOOLCHAIN_PATH ) };
 
 const std::unordered_map<std::string, ThunkFactory::Data> program_data {
   PROGRAM( GCC ), PROGRAM( GXX ), PROGRAM( CC1 ), PROGRAM( CC1PLUS ),
   PROGRAM( AS ), PROGRAM( COLLECT2 ), PROGRAM( LD ), PROGRAM( AR ),
-  PROGRAM( RANLIB ), PROGRAM( STRIP )
+  PROGRAM( RANLIB ), PROGRAM( STRIP ), PROGRAM( NM ), PROGRAM( READELF )
 };
 """)
 
