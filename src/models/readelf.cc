@@ -1,60 +1,74 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-/* NOTE
-   Not really a model -- if the input to the readelf tool is a thunk, it forces it
-   and then executes the normal readelf */
-
 #include <getopt.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 
-#include "thunk/placeholder.hh"
+#include "thunk/metadata.hh"
+#include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
-#include "util/path.hh"
-#include "util/file_descriptor.hh"
+#include "thunk/placeholder.hh"
+#include "thunk/thunk.hh"
+#include "util/exception.hh"
 #include "util/system_runner.hh"
+#include "util/path.hh"
 
 #include "toolchain.hh"
 
 using namespace std;
 using namespace gg::thunk;
 
-int main( int argc, char * argv[] )
+void write_to_stdout( int argc, char * argv[] )
 {
   if ( argc < 2 ) {
     throw runtime_error( "not enough arguments" );
   }
 
-  gg::models::init();
+  struct option long_options[] = {
+    { 0, 0, 0, 0 },
+  };
 
-  for ( int i = 1; i < argc; i++ ) {
-    if ( argv[ i ][ 0 ] == '-' ) {
+  vector<ThunkFactory::Data> data;
+
+  optind = 1; /* reset getopt */
+  opterr = 0; /* turn off error messages */
+  int opt;
+  while ( ( opt = getopt_long( argc, argv, "-d", long_options, NULL ) ) != -1 ) {
+    if ( opt == 1 ) {
+      data.emplace_back( optarg );
       continue;
     }
 
-    string path { argv[ i ] };
+    switch ( opt ) {
+    case 'd':
+      break;
 
-    struct stat stat_buf;
-    const int stat_ret = stat( path.c_str(), &stat_buf );
-    if ( stat_ret == 0 ) {
-      /* (1) it exists -- is it a regular file? */
-      if ( S_ISREG( stat_buf.st_mode ) ) {
-        /* (2) it's a regular file -- can we open it? */
-        const int fd_num = open( path.c_str(), O_RDONLY );
-        if ( fd_num >= 0 ) {
-          /* (3) successfully opened -- is it a thunk placeholder? */
-          if ( ThunkPlaceholder::is_placeholder( FileDescriptor { fd_num } ) ) {
-            /* (4) it's a thunk placeholder! let's force it */
-            run( "gg-force", { "gg-force", path }, {}, true, true );
-          }
-        }
-      }
+    default:
+      throw runtime_error( "unsupported option" );
     }
   }
 
-  execvpe( "readelf", argv, environ );
+  if ( data.size() == 0 ) {
+    throw runtime_error( "no inputs" );
+  }
 
-  return 0;
+  cout << "# output from gg wrapper for readelf" << endl;
+  cout << "readelf " << command_str( argc - 1, argv + 1 ) << endl;
+
+  cout << program_data.at( READELF ).hash() << "=" << "readelf" << endl;
+  for ( const auto & d : data ) {
+    cout << d.hash() << "=" << d.filename() << endl;
+  }
+}
+
+int main( int argc, char * argv[] )
+{
+  try {
+    gg::models::init();
+    write_to_stdout( argc, argv );
+  }
+  catch ( const exception & e ) {
+    print_exception( argv[ 0 ], e );
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }

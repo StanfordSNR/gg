@@ -43,7 +43,7 @@ model_generic_LDADD = $(BASE_LDADD)
 model_nm_SOURCES = nm.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_nm_LDADD = $(BASE_LDADD)
 
-model_readelf_SOURCES = readelf.cc
+model_readelf_SOURCES = readelf.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_readelf_LDADD = $(BASE_LDADD)
 
 gen_deps_SOURCES = gen-deps.cc
