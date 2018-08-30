@@ -142,7 +142,6 @@ private:
   TempFile specs_tempfile_ { "/tmp/gg-gccspecs" };
 
   const bool preprocess_locally_ { false };
-  const bool merge_stages_ { false };
 
   std::vector<std::string> envars_ { { "PATH=" + GG_BIN_PREFIX }, };
 
@@ -165,8 +164,7 @@ private:
                               const GCCStage stage,
                               const InputFile & input,
                               const std::string & output,
-                              const bool write_placeholder,
-                              const Language prev_stage_language );
+                              const bool write_placeholder );
 
   std::string generate_link_thunk( const std::vector<InputFile> & link_inputs,
                                    const std::vector<std::string> & dependencies,

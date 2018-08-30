@@ -139,8 +139,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
                                           const GCCStage stage,
                                           const InputFile & input,
                                           const string & output,
-                                          const bool write_placeholder,
-                                          const Language prev_stage_language )
+                                          const bool write_placeholder )
 {
   auto & gcc_data = program_data.at( ( operation_mode_ == OperationMode::GCC ) ? GCC : GXX );
 
@@ -375,15 +374,6 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       );
     }
 
-    if ( merge_stages_ and stage != first_stage ) {
-      if ( prev_stage_language == Language::CPP_OUTPUT ) {
-        base_executables.push_back( program_data.at( CC1 ) );
-      }
-      else {
-        base_executables.push_back( program_data.at( CC1PLUS ) );
-      }
-    }
-
     args.push_back( "-c" );
     args = prune_makedep_flags( args );
     base_executables.push_back( program_data.at( AS ) );
@@ -447,8 +437,7 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
                                       int argc, char ** argv,
                                       const bool preprocess_locally )
   : operation_mode_( operation_mode ), arguments_( argc, argv, force_strip ),
-    preprocess_locally_( preprocess_locally ),
-    merge_stages_( false )
+    preprocess_locally_( preprocess_locally )
 {
   exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
 
@@ -508,8 +497,6 @@ void GCCModelGenerator::generate()
   string final_output = arguments_.output_filename();
   GCCStage last_stage = arguments_.last_stage();
   vector<InputFile> input_files = arguments_.input_files();
-
-  Language prev_stage_language = Language::NONE;
 
   /* count non-object input files */
   const size_t source_inputs = std::count_if( input_files.begin(),
@@ -574,12 +561,8 @@ void GCCModelGenerator::generate()
       if ( preprocess_this_locally ) {
         last_stage_hash = do_preprocessing( input );
       }
-      else if ( merge_stages_ and stage == COMPILE and stage != last_stage ) {
-        prev_stage_language = input.language;
-        continue;
-      }
       else {
-        last_stage_hash = generate_thunk( first_stage, stage, input, output_name, stage == last_stage, prev_stage_language );
+        last_stage_hash = generate_thunk( first_stage, stage, input, output_name, stage == last_stage );
       }
 
       switch ( stage ) {
