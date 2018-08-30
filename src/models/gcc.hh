@@ -142,6 +142,7 @@ private:
   TempFile specs_tempfile_ { "/tmp/gg-gccspecs" };
 
   const bool preprocess_locally_ { false };
+  const bool all_in_one_thunk_ { false };
 
   std::vector<std::string> envars_ { { "PATH=" + GG_BIN_PREFIX }, };
 
@@ -182,8 +183,14 @@ private:
                                               const Language source_language );
 
 public:
-  GCCModelGenerator( const OperationMode operation_mode, int argc, char ** argv,
-                     const bool preprocess_locally = false );
+  struct Options
+  {
+    static constexpr int preprocess_locally = ( 1 << 0 );
+    static constexpr int all_in_one_thunk   = ( 1 << 1 ); /* don't create separate thunks for preprocess, compile and assemble */
+  };
+
+  GCCModelGenerator( const OperationMode operation_mode,
+                     int argc, char ** argv, const int options );
   void generate();
 
   /* static functions */

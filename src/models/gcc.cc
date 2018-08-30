@@ -434,10 +434,11 @@ void print_gcc_command( const string & command_str )
 const bool force_strip = ( getenv( "GG_GCC_FORCE_STRIP" ) != nullptr );
 
 GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
-                                      int argc, char ** argv,
-                                      const bool preprocess_locally )
-  : operation_mode_( operation_mode ), arguments_( argc, argv, force_strip ),
-    preprocess_locally_( preprocess_locally )
+                                      int argc, char ** argv, const int options )
+  : operation_mode_( operation_mode ),
+    arguments_( argc, argv, force_strip ),
+    preprocess_locally_( options & Options::preprocess_locally ),
+    all_in_one_thunk_( options & Options::all_in_one_thunk )
 {
   exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
 
@@ -676,9 +677,11 @@ int main( int argc, char * argv[] )
     cerr << "\u256d\u257c generating model for " << argv[ 0 ] << endl;
     /* print_gcc_command( command_str( argc, argv ) ); */
 
-    const bool preprocess_locally = ( getenv( "GG_GCC_PREPROCESS_LOCALLY" ) != nullptr );
+    int options = 0;
+    options |= getenv( "GG_GCC_PREPROCESS_LOCALLY" ) ? GCCModelGenerator::Options::preprocess_locally : 0;
+    options |= getenv( "GG_GCC_ALL_IN_ONE_THUNK" )   ? GCCModelGenerator::Options::all_in_one_thunk   : 0;
 
-    GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, preprocess_locally };
+    GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, options };
     gcc_model_generator.generate();
 
     return EXIT_SUCCESS;
