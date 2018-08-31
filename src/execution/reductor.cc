@@ -72,16 +72,16 @@ void print_gg_message( const string & tag, const string & message )
   cerr << "[" << tag << "] " << message << endl;
 }
 
-Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
+Reductor::Reductor( const vector<string> & target_hashes,
                     vector<unique_ptr<ExecutionEngine>> && execution_engines,
+                    vector<unique_ptr<ExecutionEngine>> && fallback_engines,
                     std::unique_ptr<StorageBackend> && storage_backend,
                     const int base_timeout, const bool status_bar )
   : target_hashes_( target_hashes ),
     remaining_targets_( target_hashes_.begin(), target_hashes_.end() ),
-    max_jobs_( max_jobs ), status_bar_( status_bar ),
-    base_poller_timeout_( base_timeout ),
-    poller_timeout_( base_timeout ),
-    exec_engines_( move( execution_engines ) ),
+    status_bar_( status_bar ), base_poller_timeout_( base_timeout ),
+    poller_timeout_( base_timeout ), exec_engines_( move( execution_engines ) ),
+    fallback_engines_( move( fallback_engines ) ),
     storage_backend_( move( storage_backend ) )
 {
   unordered_set<string> all_o1_deps;
@@ -155,20 +155,12 @@ Reductor::Reductor( const vector<string> & target_hashes, const size_t max_jobs,
     ee->set_failure_callback( failure_callback );
     ee->init( exec_loop_ );
   }
-}
 
-size_t Reductor::running_jobs() const
-{
-  return accumulate(
-    exec_engines_.begin(), exec_engines_.end(), 0,
-    []( int a, const unique_ptr<ExecutionEngine> & b )
-    { return a + b->job_count(); }
-  );
-}
-
-bool Reductor::is_finished() const
-{
-  return remaining_targets_.size() == 0;
+  for ( auto & fe : fallback_engines_ ) {
+    fe->set_success_callback( success_callback );
+    fe->set_failure_callback( failure_callback );
+    fe->init( exec_loop_ );
+  }
 }
 
 void Reductor::finalize_execution( const string & old_hash,
@@ -195,7 +187,7 @@ void Reductor::finalize_execution( const string & old_hash,
 vector<string> Reductor::reduce()
 {
   while ( true ) {
-    while ( not job_queue_.empty() and running_jobs() < max_jobs_ ) {
+    while ( not job_queue_.empty() ) {
       const string thunk_hash { move( job_queue_.front() ) };
       job_queue_.pop_front();
 
@@ -233,23 +225,52 @@ vector<string> Reductor::reduce()
       else {
         const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
 
-        bool executing = false;
+        enum { CANNOT_BE_EXECUTED,
+               FULL_CAPACITY,
+               FULL_FALLBACK_CAPACITY,
+               EXECUTING } exec_state = CANNOT_BE_EXECUTED;
 
         for ( auto & exec_engine : exec_engines_ ) {
           if ( exec_engine->can_execute( thunk ) ) {
+            if ( exec_engine->job_count() >= exec_engine->max_jobs() ) {
+              exec_state = FULL_CAPACITY;
+              continue;
+            }
+
             exec_engine->force_thunk( thunk, exec_loop_ );
-            executing = true;
+            exec_state = EXECUTING;
             break;
           }
         }
 
-        if ( not executing ) {
-          throw runtime_error( "no execution engine could execute " + thunk_hash );
+        /* the job cannot be executed on any of the execution engines */
+        if ( exec_state == CANNOT_BE_EXECUTED ) {
+          for ( auto & fallback_engine : fallback_engines_ ) {
+            if ( fallback_engine->can_execute( thunk ) ) {
+              if ( fallback_engine->job_count() >= fallback_engine->max_jobs() ) {
+                exec_state = FULL_FALLBACK_CAPACITY;
+                continue;
+              }
+
+              fallback_engine->force_thunk( thunk, exec_loop_ );
+              exec_state = EXECUTING;
+              break;
+            }
+          }
         }
 
-        running_jobs_.insert( thunk_hash );
+        if ( exec_state == EXECUTING ) {
+          running_jobs_.insert( thunk_hash );
+        }
+        else if ( exec_state == FULL_CAPACITY or exec_state == FULL_FALLBACK_CAPACITY ) {
+          job_queue_.push_front( thunk_hash );
+          break;
+        }
+        else { /* CANNOT_BE_EXECUTED */
+          throw runtime_error( "no execution engine could execute " + thunk_hash );
+        }
       }
-    }
+    } /* while(Q is not empty) */
 
     if ( status_bar_ ) {
       print_status();

@@ -17,8 +17,8 @@ private:
   HTTPRequest generate_request( const gg::thunk::Thunk & thunk );
 
 public:
-  GGExecutionEngine( const Address & address )
-    : address_( address )
+  GGExecutionEngine( const size_t max_jobs, const Address & address )
+    : ExecutionEngine( max_jobs ), address_( address )
   {}
 
   void force_thunk( const gg::thunk::Thunk & thunk,

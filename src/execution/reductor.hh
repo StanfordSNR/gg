@@ -19,7 +19,6 @@ class Reductor
 private:
   const std::vector<std::string> target_hashes_;
   std::unordered_set<std::string> remaining_targets_;
-  size_t max_jobs_;
   bool status_bar_;
 
   ExecutionGraph dep_graph_ {};
@@ -34,6 +33,7 @@ private:
 
   ExecutionLoop exec_loop_ {};
   std::vector<std::unique_ptr<ExecutionEngine>> exec_engines_;
+  std::vector<std::unique_ptr<ExecutionEngine>> fallback_engines_;
 
   std::unique_ptr<StorageBackend> storage_backend_;
 
@@ -41,13 +41,12 @@ private:
                            std::vector<gg::ThunkOutput> && outputs,
                            const float cost = 0.0 );
 
-  size_t running_jobs() const;
-  bool is_finished() const;
+  bool is_finished() const { return ( remaining_targets_.size() == 0 ); }
 
 public:
   Reductor( const std::vector<std::string> & target_hashes,
-            const size_t max_jobs,
             std::vector<std::unique_ptr<ExecutionEngine>> && execution_engines,
+            std::vector<std::unique_ptr<ExecutionEngine>> && fallback_engines,
             std::unique_ptr<StorageBackend> && storage_backend,
             const int base_timeout = -1,
             const bool status_bar = false );

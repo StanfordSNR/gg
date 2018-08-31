@@ -212,11 +212,11 @@ int main( int argc, char * argv[] )
 
     for ( const pair<string, string> & engine : engines ) {
       if ( engine.first == "local" ) {
-        execution_engines.emplace_back( make_unique<LocalExecutionEngine>() );
+        execution_engines.emplace_back( make_unique<LocalExecutionEngine>( max_jobs ) );
       }
       else if ( engine.first == "lambda" ) {
         execution_engines.emplace_back( make_unique<AWSLambdaExecutionEngine>(
-          AWSCredentials(), AWS::region() ) );
+          max_jobs, AWSCredentials(), AWS::region() ) );
       }
       else if ( engine.first == "remote" ) {
         if ( engine.second.length() == 0 ) {
@@ -232,7 +232,7 @@ int main( int argc, char * argv[] )
         }
 
         execution_engines.emplace_back( make_unique<GGExecutionEngine>(
-          Address { host_ip, port } ) );
+          max_jobs, Address { host_ip, port } ) );
       }
       else if ( engine.first == "meow" ) {
         if ( engine.second.length() == 0 ) {
@@ -248,11 +248,11 @@ int main( int argc, char * argv[] )
         }
 
         execution_engines.emplace_back( make_unique<MeowExecutionEngine>(
-          AWSCredentials(), AWS::region(), Address { host_ip, port } ) );
+          max_jobs, AWSCredentials(), AWS::region(), Address { host_ip, port } ) );
       }
       else if ( engine.first == "gcloud" ) {
         execution_engines.emplace_back( make_unique<GCFExecutionEngine>(
-          safe_getenv("GG_GCLOUD_FUNCTION") ) );
+          max_jobs, safe_getenv("GG_GCLOUD_FUNCTION") ) );
       }
       else {
         throw runtime_error( "unknown execution engine" );
@@ -265,11 +265,9 @@ int main( int argc, char * argv[] )
       storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
     }
 
-    Reductor reductor { target_hashes, max_jobs,
-                        move( execution_engines ),
+    Reductor reductor { target_hashes, move( execution_engines ), {},
                         move( storage_backend ),
-                        ( timeout > 0 ) ? ( timeout * 1000 ) : -1,
-                        status_bar };
+                        ( timeout > 0 ) ? ( timeout * 1000 ) : -1, status_bar };
 
     reductor.upload_dependencies();
     vector<string> reduced_hashes = reductor.reduce();

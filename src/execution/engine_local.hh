@@ -3,6 +3,8 @@
 #ifndef ENGINE_LOCAL_HH
 #define ENGINE_LOCAL_HH
 
+#include <thread>
+
 #include "engine.hh"
 
 class LocalExecutionEngine : public ExecutionEngine
@@ -11,7 +13,9 @@ private:
   size_t running_jobs_ { 0 };
 
 public:
-  using ExecutionEngine::ExecutionEngine;
+  LocalExecutionEngine( const size_t max_jobs = std::thread::hardware_concurrency() )
+    : ExecutionEngine( max_jobs )
+  {}
 
   void force_thunk( const gg::thunk::Thunk & thunk,
                     ExecutionLoop & exec_loop ) override;

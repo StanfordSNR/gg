@@ -58,9 +58,8 @@ private:
   void prepare_lambda( Lambda & lambda, const gg::thunk::Thunk & thunk );
 
 public:
-  MeowExecutionEngine( const AWSCredentials & credentials,
-                       const std::string & region,
-                       const Address & listen_addr );
+  MeowExecutionEngine( const size_t max_jobs, const AWSCredentials & credentials,
+                       const std::string & region, const Address & listen_addr );
 
   void init( ExecutionLoop & loop ) override;
 

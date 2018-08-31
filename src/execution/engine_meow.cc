@@ -39,10 +39,11 @@ HTTPRequest MeowExecutionEngine::generate_request()
   ).to_http_request();
 }
 
-MeowExecutionEngine::MeowExecutionEngine( const AWSCredentials & credentials,
+MeowExecutionEngine::MeowExecutionEngine( const size_t max_jobs,
+                                          const AWSCredentials & credentials,
                                           const std::string & region,
                                           const Address & listen_addr )
-  : credentials_( credentials ), region_( region ),
+  : ExecutionEngine( max_jobs ), credentials_( credentials ), region_( region ),
     aws_addr_( LambdaInvocationRequest::endpoint( region_ ), "https" ),
     listen_addr_( listen_addr ), listen_socket_()
 {}

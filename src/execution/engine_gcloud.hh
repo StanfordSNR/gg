@@ -28,8 +28,9 @@ private:
                              const std::chrono::steady_clock::time_point & end = std::chrono::steady_clock::now() );
 
 public:
-  GCFExecutionEngine( const std::string & function_url )
-    : parsed_url_( function_url ), address_( parsed_url_.host, parsed_url_.protocol )
+  GCFExecutionEngine( const size_t max_jobs, const std::string & function_url )
+    : ExecutionEngine( max_jobs ), parsed_url_( function_url ),
+      address_( parsed_url_.host, parsed_url_.protocol )
   {}
 
   void force_thunk( const gg::thunk::Thunk & thunk,

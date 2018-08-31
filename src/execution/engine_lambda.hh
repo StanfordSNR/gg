@@ -29,9 +29,10 @@ private:
                              const std::chrono::steady_clock::time_point & end = std::chrono::steady_clock::now() );
 
 public:
-  AWSLambdaExecutionEngine( const AWSCredentials & credentials,
+  AWSLambdaExecutionEngine( const size_t max_jobs,
+                            const AWSCredentials & credentials,
                             const std::string & region )
-    : credentials_( credentials ), region_( region ),
+    : ExecutionEngine( max_jobs ), credentials_( credentials ), region_( region ),
       address_( LambdaInvocationRequest::endpoint( region_ ), "https" )
   {}
 
