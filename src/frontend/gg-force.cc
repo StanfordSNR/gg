@@ -216,7 +216,8 @@ int main( int argc, char * argv[] )
       }
       else if ( engine.first == "lambda" ) {
         execution_engines.emplace_back( make_unique<AWSLambdaExecutionEngine>(
-          max_jobs, AWSCredentials(), AWS::region() ) );
+          max_jobs, AWSCredentials(), engine.second.length() ? engine.second
+                                                             : AWS::region() ) );
       }
       else if ( engine.first == "remote" ) {
         if ( engine.second.length() == 0 ) {
