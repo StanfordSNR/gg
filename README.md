@@ -35,7 +35,7 @@ sudo apt-get install gcc-7 g++-7 protobuf-compiler libprotobuf-dev \
 To build `gg`, run the following commands:
 
 ```
-./fetch-toolchain.sh
+./fetch-submodules.sh
 ./autogen.sh
 ./configure
 make -j$(nproc)
