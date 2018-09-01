@@ -209,10 +209,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
     args.push_back( output_name );
   }
 
-  vector<string> infiles_list;
-  bool fast_deps_successful = false;
-
-  if ( FAST_DEPS ) {
+  /* if ( FAST_DEPS ) {
     Optional<vector<string>> fast_infiles_list;
 
     try {
@@ -228,12 +225,16 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
     catch ( const CouldNotParse & ex ) {
       cerr << "[error]" << ex.what() << endl;
     }
-  }
+  } */
 
-  if ( not fast_deps_successful ) {
-    run( args[ 0 ], args, {}, true, true );
-    infiles_list = parse_dependencies_file( output_name, target_name );
-  }
+  // (1) do it the fast way
+  Optional<vector<string>> fast_infiles_list;
+  fast_infiles_list.reset( move( scan_dependencies( input_filename, input.language ) ) );
+
+  // (2) do it the slow way
+  vector<string> infiles_list;
+  run( args[ 0 ], args, {}, true, true );
+  infiles_list = parse_dependencies_file( output_name, target_name );
 
   if ( not has_dependencies_option ) {
     args.pop_back();
@@ -245,7 +246,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
   /* assemble the infiles */
 
   /* let's compare this list and the fast list */
-  /* if ( fast_infiles_list.initialized() ) {
+  if ( fast_infiles_list.initialized() ) {
     bool failed = false;
     for ( const string & file : infiles_list ) {
       if ( find( fast_infiles_list->begin(), fast_infiles_list->end(), file ) == fast_infiles_list->end() ) {
@@ -262,7 +263,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const InputFile & 
     }
 
     cerr << "[info] found everything for '" << input_filename << "'" << endl;
-  } */
+  }
 
   vector<Thunk::DataItem> dependencies;
   for ( const auto & str : infiles_list ) {
