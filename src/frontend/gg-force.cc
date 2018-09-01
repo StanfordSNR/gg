@@ -3,8 +3,9 @@
 #include <iostream>
 #include <vector>
 #include <thread>
-#include <getopt.h>
+#include <tuple>
 #include <cstdlib>
+#include <getopt.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 
@@ -42,8 +43,9 @@ void usage( const char * argv0 )
 {
   cerr << "Usage: " << argv0 << endl
        << "       " << "[-j|--jobs=<N>] [-s|--status] [-T|--timeout=<t>] [-S|--sandboxed]" << endl
-       << "       " << "[-e|--engine=<name>[=ENGINE_ARGS]]... [-d|--no-download]" << endl
-       << "       " << "THUNKS..." << endl
+       << "       " << "[-e|--engine=<name>[=ENGINE_ARGS]]... " << endl
+       << "       " << "[-f|--fallback-engine=<name>[=ENGINE_ARGS]]..."
+       << "       " << "[-d|--no-download] THUNKS..." << endl
        << endl
        << "Available engines:" << endl
        << "  - local   Executes the jobs on the local machine" << endl
@@ -55,7 +57,6 @@ void usage( const char * argv0 )
        << "Environment variables:" << endl
        << "  - " << FORCE_STATUS << endl
        << "  - " << FORCE_DEFAULT_ENGINE << endl
-       << "  - " << FORCE_MAX_JOBS << endl
        << "  - " << FORCE_TIMEOUT << endl
        << endl;
 }
@@ -76,6 +77,72 @@ void check_rlimit_nofile( const size_t max_jobs )
   }
 }
 
+using EngineInfo = tuple<string, string, size_t>;
+
+EngineInfo parse_engine( const string & name, const size_t max_jobs )
+{
+  string::size_type eqpos = name.find( '=' );
+  if ( eqpos == string::npos ) {
+    return make_tuple( move( name ), move( string {} ), max_jobs );
+  }
+  else {
+    return make_tuple( name.substr( 0, eqpos ), name.substr( eqpos + 1 ), max_jobs );
+  }
+}
+
+unique_ptr<ExecutionEngine> make_execution_engine( const EngineInfo & engine )
+{
+  const string & engine_name = get<0>( engine );
+  const string & engine_params = get<1>( engine );
+  const size_t max_jobs = get<2>( engine );
+
+  if ( engine_name == "local" ) {
+    return make_unique<LocalExecutionEngine>( max_jobs );
+  }
+  else if ( engine_name == "lambda" ) {
+    return make_unique<AWSLambdaExecutionEngine>( max_jobs, AWSCredentials(),
+      engine_params.length() ? engine_params : AWS::region() );
+  }
+  else if ( engine_name == "remote" ) {
+    if ( engine_params.length() == 0 ) {
+      throw runtime_error( "remote: missing host ip" );
+    }
+
+    uint16_t port = 9924;
+    string::size_type colonpos = engine_params.find( ':' );
+    string host_ip = engine_params.substr( 0, colonpos );
+
+    if ( colonpos != string::npos ) {
+      port = stoi( engine_params.substr( colonpos + 1 ) );
+    }
+
+    return make_unique<GGExecutionEngine>( max_jobs, Address { host_ip, port } );
+  }
+  else if ( engine_name == "meow" ) {
+    if ( engine_params.length() == 0 ) {
+      throw runtime_error( "meow: missing host public ip" );
+    }
+
+    uint16_t port = 9925;
+    string::size_type colonpos = engine_params.find( ':' );
+    string host_ip = engine_params.substr( 0, colonpos );
+
+    if ( colonpos != string::npos ) {
+      port = stoi( engine_params.substr( colonpos + 1 ) );
+    }
+
+    return make_unique<MeowExecutionEngine>( max_jobs, AWSCredentials(),
+      AWS::region(), Address { host_ip, port } );
+  }
+  else if ( engine_name == "gcloud" ) {
+    return make_unique<GCFExecutionEngine>( max_jobs,
+      safe_getenv("GG_GCLOUD_FUNCTION") );
+  }
+  else {
+    throw runtime_error( "unknown execution engine" );
+  }
+}
+
 int main( int argc, char * argv[] )
 {
   try {
@@ -88,23 +155,24 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    size_t max_jobs = ( getenv( FORCE_MAX_JOBS ) != nullptr )
-                      ? stoul( safe_getenv( FORCE_MAX_JOBS ) )
-                      : thread::hardware_concurrency();
     int timeout = ( getenv( FORCE_TIMEOUT ) != nullptr )
                   ? stoi( safe_getenv( FORCE_TIMEOUT ) ) : -1;
     bool status_bar = ( getenv( FORCE_STATUS ) != nullptr );
     bool no_download = false;
 
-    vector<pair<string, string>> engines;
+    size_t total_max_jobs = 0;
+    size_t max_jobs = thread::hardware_concurrency();
+    vector<EngineInfo> engines_info;
+    vector<EngineInfo> fallback_engines_info;
 
     struct option long_options[] = {
-      { "status",      no_argument,       nullptr, 's' },
-      { "sandboxed",   no_argument,       nullptr, 'S' },
-      { "jobs",        required_argument, nullptr, 'j' },
-      { "timeout",     required_argument, nullptr, 'T' },
-      { "engine",      required_argument, nullptr, 'e' },
-      { "no-download", no_argument,       nullptr, 'd' },
+      { "status",          no_argument,       nullptr, 's' },
+      { "sandboxed",       no_argument,       nullptr, 'S' },
+      { "jobs",            required_argument, nullptr, 'j' },
+      { "timeout",         required_argument, nullptr, 'T' },
+      { "engine",          required_argument, nullptr, 'e' },
+      { "fallback-engine", required_argument, nullptr, 'f' },
+      { "no-download",     no_argument,       nullptr, 'd' },
       { nullptr,       0,                 nullptr,  0  },
     };
 
@@ -134,19 +202,14 @@ int main( int argc, char * argv[] )
         break;
 
       case 'e':
-      {
-        string engine { optarg };
-        string::size_type eqpos = engine.find( '=' );
-        if ( eqpos == string::npos ) {
-          engines.emplace_back( make_pair( move( engine ), move( string {} ) ) );
-        }
-        else {
-          engines.emplace_back( make_pair( engine.substr( 0, eqpos ),
-                                           engine.substr( eqpos + 1 ) ) );
-        }
-
+        engines_info.emplace_back( move( parse_engine( optarg, max_jobs ) ) );
+        total_max_jobs += max_jobs;
         break;
-      }
+
+      case 'f':
+        fallback_engines_info.emplace_back( move( parse_engine( optarg, max_jobs ) ) );
+        total_max_jobs += max_jobs;
+        break;
 
       case 'd':
         no_download = true;
@@ -157,19 +220,7 @@ int main( int argc, char * argv[] )
       }
     }
 
-    check_rlimit_nofile( max_jobs );
-
-    if ( engines.size() == 0 and getenv( FORCE_DEFAULT_ENGINE ) != nullptr ) {
-      string engine { safe_getenv( FORCE_DEFAULT_ENGINE ) };
-      string::size_type eqpos = engine.find( '=' );
-      if ( eqpos == string::npos ) {
-        engines.emplace_back( make_pair( move( engine ), move( string {} ) ) );
-      }
-      else {
-        engines.emplace_back( make_pair( engine.substr( 0, eqpos ),
-                                         engine.substr( eqpos + 1 ) ) );
-      }
-    }
+    check_rlimit_nofile( total_max_jobs );
 
     gg::models::init();
 
@@ -202,71 +253,35 @@ int main( int argc, char * argv[] )
     }
 
     vector<unique_ptr<ExecutionEngine>> execution_engines;
+    vector<unique_ptr<ExecutionEngine>> fallback_engines;
     unique_ptr<StorageBackend> storage_backend;
     bool remote_execution = false;
 
-    if ( engines.size() == 0 ) {
-      /* the default engine is the local engine */
-      engines.emplace_back( make_pair( "local", "" ) );
-    }
-
-    for ( const pair<string, string> & engine : engines ) {
-      if ( engine.first == "local" ) {
-        execution_engines.emplace_back( make_unique<LocalExecutionEngine>( max_jobs ) );
-      }
-      else if ( engine.first == "lambda" ) {
-        execution_engines.emplace_back( make_unique<AWSLambdaExecutionEngine>(
-          max_jobs, AWSCredentials(), engine.second.length() ? engine.second
-                                                             : AWS::region() ) );
-      }
-      else if ( engine.first == "remote" ) {
-        if ( engine.second.length() == 0 ) {
-          throw runtime_error( "remote: missing host ip" );
-        }
-
-        uint16_t port = 9924;
-        string::size_type colonpos = engine.second.find( ':' );
-        string host_ip = engine.second.substr( 0, colonpos );
-
-        if ( colonpos != string::npos ) {
-          port = stoi( engine.second.substr( colonpos + 1 ) );
-        }
-
-        execution_engines.emplace_back( make_unique<GGExecutionEngine>(
-          max_jobs, Address { host_ip, port } ) );
-      }
-      else if ( engine.first == "meow" ) {
-        if ( engine.second.length() == 0 ) {
-          throw runtime_error( "meow: missing host public ip" );
-        }
-
-        uint16_t port = 9925;
-        string::size_type colonpos = engine.second.find( ':' );
-        string host_ip = engine.second.substr( 0, colonpos );
-
-        if ( colonpos != string::npos ) {
-          port = stoi( engine.second.substr( colonpos + 1 ) );
-        }
-
-        execution_engines.emplace_back( make_unique<MeowExecutionEngine>(
-          max_jobs, AWSCredentials(), AWS::region(), Address { host_ip, port } ) );
-      }
-      else if ( engine.first == "gcloud" ) {
-        execution_engines.emplace_back( make_unique<GCFExecutionEngine>(
-          max_jobs, safe_getenv("GG_GCLOUD_FUNCTION") ) );
+    if ( engines_info.size() == 0 ) {
+      if ( getenv( FORCE_DEFAULT_ENGINE ) != nullptr ) {
+        engines_info.emplace_back( move( parse_engine(
+          safe_getenv( FORCE_DEFAULT_ENGINE ), max_jobs ) ) );
       }
       else {
-        throw runtime_error( "unknown execution engine" );
+        engines_info.emplace_back( make_tuple( "local", "", max_jobs ) );
       }
+    }
 
+    for ( const auto & engine : engines_info ) {
+      execution_engines.emplace_back( move( make_execution_engine( engine ) ) );
       remote_execution |= execution_engines.back()->is_remote();
+    }
+
+    for ( const auto & engine : fallback_engines_info ) {
+      fallback_engines.emplace_back( move( make_execution_engine( engine ) ) );
+      remote_execution |= fallback_engines.back()->is_remote();
     }
 
     if ( remote_execution ) {
       storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
     }
 
-    Reductor reductor { target_hashes, move( execution_engines ), {},
+    Reductor reductor { target_hashes, move( execution_engines ), move( fallback_engines ),
                         move( storage_backend ),
                         ( timeout > 0 ) ? ( timeout * 1000 ) : -1, status_bar };
 
