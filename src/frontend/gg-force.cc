@@ -44,7 +44,7 @@ void usage( const char * argv0 )
   cerr << "Usage: " << argv0 << endl
        << "       " << "[-s|--status] [-T|--timeout=<t>] [-S|--sandboxed]" << endl
        << "       " << "[[-j|--jobs=<N>] [-e|--engine=<name>[=ENGINE_ARGS]]]... " << endl
-       << "       " << "[[-j|--jobs=<N>][-f|--fallback-engine=<name>[=ENGINE_ARGS]]]..."
+       << "       " << "[[-j|--jobs=<N>][-f|--fallback-engine=<name>[=ENGINE_ARGS]]]..." << endl
        << "       " << "[-d|--no-download] THUNKS..." << endl
        << endl
        << "Available engines:" << endl
