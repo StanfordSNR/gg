@@ -21,6 +21,7 @@ const unordered_map<string, Language> ext_to_lang = {
   { "cpp", Language::CXX },
   { "CPP", Language::CXX },
   { "c++", Language::CXX },
+  { "hpp", Language::CXX_HEADER },
   { "ii",  Language::CXX_CPP_OUTPUT },
   { "s",   Language::ASSEMBLER },
   { "S",   Language::ASSEMBLER_WITH_CPP },

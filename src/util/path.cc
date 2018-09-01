@@ -276,6 +276,15 @@ namespace roost {
     create_directories_relative( Directory( "." ), components.begin(), components.end() );
   }
 
+  bool does_exist_and_is_regular_file( const path & pathn )
+  {
+    struct stat file_info;
+    if ( stat( pathn.string().c_str(), &file_info ) ) {
+      return false;
+    }
+    return S_ISREG( file_info.st_mode );
+  }
+
   bool is_directory( const path & pathn )
   {
     struct stat file_info;

@@ -308,14 +308,14 @@ Optional<pair<roost::path, size_t>> find_file_in_path_list( const roost::path & 
     const roost::path candidate = ( parent_dir.string() == "." ) ? filename
                                                                  : ( parent_dir / filename );
 
-    if ( roost::exists( candidate ) ) {
+    if ( roost::does_exist_and_is_regular_file( candidate ) ) {
       return { true, make_pair( candidate, 0 ) };
     }
   }
 
   for ( size_t i = start_index; i < search_path.size(); i++ ) {
     const auto candidate = search_path[ i ] / filename;
-    if ( roost::exists( candidate ) ) {
+    if ( roost::does_exist_and_is_regular_file( candidate ) ) {
       // cerr << "-> found " << candidate.string() << "\n";
       return { true, make_pair( candidate, i ) };
     }
@@ -355,123 +355,67 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
   /* now recurse */
 
   /* read the file */
-  const string file_data = roost::read_file( filename );
+  ifstream fin { trimmed_path };
+  string line;
 
-  /* scan for #include or #include_next */
-  size_t index = 0;
-  while ( index < file_data.size() ) {
-    //    cerr << "index = " << index << "\n";
-    /* search for # */
-    const size_t hash_index = file_data.find( '#', index );
-    if ( hash_index == string::npos ) {
+  while ( getline( fin, line ) ) {
+    /* only find the preprocessor lines */
+    bool is_preprocessor_line = false;
+    for ( size_t i = 0; i < line.size(); i++ ) {
+      char c = line[ i ];
+      if ( isspace( c ) ) { continue; }
+      else if ( c == '#' ) { is_preprocessor_line = true; }
       break;
     }
 
-    if ( hash_index > 0 and not isspace( file_data[ hash_index - 1 ] ) and
-         file_data[ hash_index - 1 ] != '/' ) {
-      /* this is not the # we're looking for. */
-      /* this line is mainly added to protect again lines like this:
-         "This is a Standard C++ Library file.  You should @c \#include this file"
-         that can be found in a lot of system libraries */
-      index = hash_index + 1;
+    if ( not is_preprocessor_line ) { continue; }
+
+    const size_t string_start_index = line.find_first_of( "<\"" );
+    if ( string_start_index == string::npos ) {
+      /* nothing to see here, moving on to the next line! */
       continue;
     }
 
-    //    cerr << "hash_index = " << hash_index << "\n";
+    const char open_bracket = line[ string_start_index ];
+    const char closing_bracket = ( open_bracket == '<' ) ? '>' : '"';
 
-    /* search past whitespace */
-    const size_t directive_index = file_data.find_first_not_of( " \t", hash_index + 1 );
-    if ( directive_index == string::npos ) {
-      break;
-    }
-
-    //    cerr << "directive_index = " << directive_index << "\n";
-
-    bool is_include_next = false;
-    constexpr const char str_include_next[] = "include_next";
-    constexpr const char str_include[] = "include";
-
-    /* is it an include_next? */
-    constexpr size_t len_include_next = sizeof( str_include_next ) - 1;
-    constexpr size_t len_include = sizeof( str_include ) - 1;
-    if ( file_data.compare( directive_index, len_include_next, str_include_next ) ) {
-      /* it's not include next, could it be include? */
-      if ( file_data.compare( directive_index, len_include, str_include ) ) {
-        /* skip ahead */
-        index = directive_index + 1;
-        continue;
-      }
-
-      /* it's include! */
-      is_include_next = false;
-    }
-    else {
-      /* it's include_next */
-      is_include_next = true;
-    }
-
-    // cerr << "found include at position " << directive_index << "\n";
-
-    index = directive_index + ( is_include_next ? len_include_next : len_include );
-
-    /* we found an include statement */
-    /* search past whitespace again */
-    const size_t bracketed_filename_index = file_data.find_first_not_of( " \t", index );
-    if ( bracketed_filename_index == string::npos ) {
-      throw CouldNotParse( "include prefix without filename" );
-    }
-
-    // cerr << "found bracketed include filename at position " << bracketed_filename_index << "\n";
-
-    const char open_bracket = file_data.at( bracketed_filename_index );
-    char closing_bracket;
-    if ( open_bracket == '<' ) {
-      closing_bracket = '>';
-    } else if ( open_bracket == '"' ) {
-      closing_bracket = '"';
-    } else {
-      /* okay, maybe this #include or #include next is inside a comment section! */
-      const size_t prev_open  = file_data.rfind( "/*", hash_index );
-      const size_t prev_close = file_data.rfind( "*/", hash_index );
-      const size_t next_open  = file_data.find(  "/*", index + 1 );
-      const size_t next_close = file_data.find(  "*/", index + 1 );
-
-      bool commented = ( prev_open != string::npos and
-                         ( prev_close < prev_open or prev_close == string::npos ) ) and
-                       ( next_close != string::npos ) and
-                         ( next_close < next_open );
-
-      if ( commented ) {
-        index = next_close + 2;
-        continue;
-      }
-
-      throw CouldNotParse( "unexpected bracket character in '" + filename.string() + "'" );
-    }
-
-    /* find closing bracket */
-    const size_t closing_bracket_index = file_data.find( closing_bracket, bracketed_filename_index + 1 );
-    if ( closing_bracket_index == string::npos ) {
-      throw CouldNotParse( "missing closing bracket" );
+    const size_t string_end_index = line.find( closing_bracket, string_start_index + 1 );
+    if ( string_end_index == string::npos ) {
+      /* okay, the string was not closed on the same line, let's move on */
+      continue;
     }
 
     /* extract filename */
-    const string included_filename = file_data.substr( bracketed_filename_index + 1, closing_bracket_index - bracketed_filename_index - 1 );
-    // cerr << "found included filename: {" << included_filename << "}\n";
+    const string potential_included_filename = line.substr( string_start_index + 1, string_end_index - string_start_index - 1 );
 
-    /* step 2a: search for the file in the include path */
-    const size_t search_start_index = max( ( open_bracket == '"' ) ? 0ul : 1ul,
-                                           is_include_next ? ( current_include_path_index + 1 ) : 0u );
+    /* search for the file in the include path */
+    const size_t search_start_index = ( open_bracket == '"' ) ? 0ul : 1ul;
+    const size_t include_next_start_index = max( search_start_index, current_include_path_index + 1 );
 
     const auto full_filename = find_file_in_path_list( filename,
-                                                       included_filename,
+                                                       potential_included_filename,
                                                        include_path,
                                                        search_start_index );
 
     /* step 2: recurse to scan this resolved pathname */
     if ( full_filename.initialized() ) {
-      scan_dependencies_recursive( full_filename->first, dependencies, source_language,
-                                   include_path, full_filename->second );
+      scan_dependencies_recursive( full_filename->first, dependencies,
+                                   source_language, include_path,
+                                   full_filename->second );
+
+      if ( search_start_index != include_next_start_index ) {
+        const auto full_next_filename = find_file_in_path_list( filename,
+                                                                potential_included_filename,
+                                                                include_path,
+                                                                include_next_start_index );
+
+        if ( full_next_filename.initialized() ) {
+          scan_dependencies_recursive( full_next_filename->first,
+                                       dependencies, source_language,
+                                       include_path,
+                                       full_next_filename->second );
+        }
+      }
     }
   }
 }
