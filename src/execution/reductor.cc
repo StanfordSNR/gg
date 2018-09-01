@@ -52,8 +52,9 @@ void Reductor::print_status() const
          << job_queue_.size() << color_reset;
 
     for ( auto & ee : exec_engines_ ) {
-      data << " " << ee->label() << ": " << BOLD << COLOR_RED << setw( 5 )
-           << left << ee->job_count() << color_reset;
+      data << " " << ee->label() << " (" << ee->max_jobs() << "): "
+           << BOLD << COLOR_RED << setw( 5 ) << left << ee->job_count()
+           << color_reset;
     }
 
     data << " done: "  << BOLD << COLOR_GREEN << setw( 5 ) << left

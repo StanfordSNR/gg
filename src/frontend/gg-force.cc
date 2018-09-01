@@ -42,9 +42,9 @@ constexpr char FORCE_TIMEOUT[] = "GG_FORCE_TIMEOUT";
 void usage( const char * argv0 )
 {
   cerr << "Usage: " << argv0 << endl
-       << "       " << "[-j|--jobs=<N>] [-s|--status] [-T|--timeout=<t>] [-S|--sandboxed]" << endl
-       << "       " << "[-e|--engine=<name>[=ENGINE_ARGS]]... " << endl
-       << "       " << "[-f|--fallback-engine=<name>[=ENGINE_ARGS]]..."
+       << "       " << "[-s|--status] [-T|--timeout=<t>] [-S|--sandboxed]" << endl
+       << "       " << "[[-j|--jobs=<N>] [-e|--engine=<name>[=ENGINE_ARGS]]]... " << endl
+       << "       " << "[[-j|--jobs=<N>][-f|--fallback-engine=<name>[=ENGINE_ARGS]]]..."
        << "       " << "[-d|--no-download] THUNKS..." << endl
        << endl
        << "Available engines:" << endl
