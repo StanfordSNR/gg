@@ -4,6 +4,7 @@
 #define ENGINE_HH
 
 #include <string>
+#include <stdexcept>
 #include <functional>
 
 #include "loop.hh"
@@ -30,7 +31,12 @@ protected:
 
 public:
   ExecutionEngine( const size_t max_jobs = 1 )
-    : max_jobs_( max_jobs ) {}
+    : max_jobs_( max_jobs )
+  {
+    if ( max_jobs == 0 ) {
+      throw std::runtime_error( "max jobs cannot be zero" );
+    }
+  }
 
   void set_success_callback( SuccessCallbackFunc func ) { success_callback_ = func; }
   void set_failure_callback( FailureCallbackFunc func ) { failure_callback_ = func; }
