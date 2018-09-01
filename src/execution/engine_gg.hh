@@ -26,7 +26,7 @@ public:
   size_t job_count() const override;
 
   bool is_remote() const { return true; }
-  std::string label() const override { return "gg-remote"; }
+  std::string label() const override { return "remote"; }
   bool can_execute( const gg::thunk::Thunk & ) const { return true; }
 };
 
