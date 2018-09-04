@@ -43,8 +43,9 @@ struct getopt_options
   option list[ N + 1 ];
 };
 
-GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool force_strip )
-  : force_strip_( force_strip )
+GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig,
+                            const bool force_strip, const bool fast_deps )
+  : force_strip_( force_strip ), fast_deps_( fast_deps )
 {
   ExpandedArgs e_args;
 
@@ -218,8 +219,22 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
       }
       break;
 
+    case 'D':
+      add_option( GCCOption::D, "D", optarg, '\0' );
+
+      if ( fast_deps_ ) {
+        char * value_ptr = strchr( optarg, '=' );
+        if ( value_ptr != nullptr ) {
+          string str { value_ptr + 1 };
+          if ( str.front() == '"' and str.back() == '"' ) {
+            defined_strings_.push_back( str.substr( 1, str.length() - 2 ) );
+          }
+        }
+      }
+
+      break;
+
     case 'O': add_option( GCCOption::O, "O", optarg, '\0' ); break;
-    case 'D': add_option( GCCOption::D, "D", optarg, '\0' ); break;
     case 'U': add_option( GCCOption::U, "U", optarg, '\0' ); break;
     case 'f': add_option( GCCOption::f, "f", optarg, '\0' ); break;
 

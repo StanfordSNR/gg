@@ -92,6 +92,7 @@ private:
   std::vector<std::string> include_dirs_ {};
   std::vector<std::string> library_dirs_ {};
   std::vector<std::string> system_include_dirs_ {};
+  std::vector<std::string> defined_strings_ {};
 
   std::unordered_map<GCCStage, std::vector<std::string>> extra_infiles_ {};
 
@@ -101,9 +102,11 @@ private:
   bool no_defaultlibs_ { false };
 
   const bool force_strip_ { false };
+  const bool fast_deps_ { false };
 
 public:
-  GCCArguments( const int argc, char ** argv, const bool force_strip = false );
+  GCCArguments( const int argc, char ** argv, const bool force_strip = false,
+                const bool fast_deps = false );
 
   void add_option( const GCCOption option, const std::string & optstr,
                    const char * optargx = nullptr, const char arg_separator = 'X',
@@ -121,6 +124,7 @@ public:
   const std::vector<std::string> & system_include_dirs() const { return system_include_dirs_; }
   const std::vector<std::string> & library_dirs() const { return library_dirs_; }
   const std::vector<std::string> & extra_infiles( const GCCStage stage );
+  const std::vector<std::string> & defined_strings() const { return defined_strings_; }
   bool no_stdlib() const { return no_stdlib_; }
   bool no_stdinc() const { return no_stdinc_; }
   bool no_stdincpp() const { return no_stdincpp_; }
@@ -143,6 +147,7 @@ private:
 
   const bool preprocess_locally_ { false };
   const bool all_in_one_thunk_ { false };
+  const bool fast_deps_ { false };
 
   std::vector<std::string> envars_ { { "PATH=" + GG_BIN_PREFIX }, };
 
@@ -187,7 +192,8 @@ public:
   struct Options
   {
     static constexpr int preprocess_locally = ( 1 << 0 );
-    static constexpr int all_in_one_thunk   = ( 1 << 1 ); /* don't create separate thunks for preprocess, compile and assemble */
+    static constexpr int all_in_one_thunk   = ( 1 << 1 );
+    static constexpr int fast_deps          = ( 1 << 2 );
   };
 
   GCCModelGenerator( const OperationMode operation_mode,

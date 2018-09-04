@@ -436,9 +436,10 @@ const bool force_strip = ( getenv( "GG_GCC_FORCE_STRIP" ) != nullptr );
 GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
                                       int argc, char ** argv, const int options )
   : operation_mode_( operation_mode ),
-    arguments_( argc, argv, force_strip ),
+    arguments_( argc, argv, force_strip, options & Options::fast_deps ),
     preprocess_locally_( options & Options::preprocess_locally ),
-    all_in_one_thunk_( options & Options::all_in_one_thunk )
+    all_in_one_thunk_( options & Options::all_in_one_thunk ),
+    fast_deps_( options & Options::fast_deps )
 {
   exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
 
@@ -680,6 +681,7 @@ int main( int argc, char * argv[] )
     int options = 0;
     options |= getenv( "GG_GCC_PREPROCESS_LOCALLY" ) ? GCCModelGenerator::Options::preprocess_locally : 0;
     options |= getenv( "GG_GCC_ALL_IN_ONE_THUNK" )   ? GCCModelGenerator::Options::all_in_one_thunk   : 0;
+    options |= getenv( "GG_GCC_FAST_DEPS" )          ? GCCModelGenerator::Options::fast_deps          : 0;
 
     GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, options };
     gcc_model_generator.generate();
