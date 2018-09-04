@@ -393,13 +393,15 @@ void GCCModelGenerator::scan_dependencies_recursive( const roost::path & filenam
                                                        include_path,
                                                        search_start_index );
 
+    bool should_do_include_next = ( line.find( "include_next" ) != string::npos );
+
     /* step 2: recurse to scan this resolved pathname */
     if ( full_filename.initialized() ) {
       scan_dependencies_recursive( full_filename->first, dependencies,
                                    source_language, include_path,
                                    full_filename->second );
 
-      if ( search_start_index != include_next_start_index ) {
+      if ( should_do_include_next and search_start_index != include_next_start_index ) {
         const auto full_next_filename = find_file_in_path_list( filename,
                                                                 potential_included_filename,
                                                                 include_path,
