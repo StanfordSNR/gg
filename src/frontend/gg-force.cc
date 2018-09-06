@@ -239,7 +239,8 @@ int main( int argc, char * argv[] )
 
       if ( not placeholder.initialized() ) {
         if( not ThunkReader::is_thunk( target_filename ) ) {
-          throw runtime_error( "not a thunk: " + target_filename );
+          cerr << "not a thunk: " << target_filename << endl;
+          continue;
         }
         else {
           thunk_hash = gg::hash::compute( target_filename, gg::ObjectType::Thunk );
