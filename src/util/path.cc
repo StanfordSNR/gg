@@ -152,6 +152,12 @@ namespace roost {
     return ::basename( path_cstr );
   }
 
+  void symlink( const path & target, const path & linkpath )
+  {
+    CheckSystemCall( "symlink", ::symlink( target.string().c_str(),
+                                           linkpath.string().c_str() ) );
+  }
+
   path current_working_directory()
   {
     char path_cstr[ PATH_MAX ];
