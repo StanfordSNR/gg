@@ -11,6 +11,7 @@
 
 #include "thunk/thunk.hh"
 #include "thunk/factory.hh"
+#include "thunk/placeholder.hh"
 #include "thunk/ggutils.hh"
 #include "util/exception.hh"
 #include "util/path.hh"
@@ -129,7 +130,10 @@ vector<TestCase> parse_annotations_file( const roost::path & path )
     }
     else if ( line.compare( 0, 2, "  " ) == 0 ) {
       if ( current_name.length() > 0 ) {
-        test_cases.emplace_back( top_level_name + current_name, top_level_deps, current_deps );
+        const string fullname = top_level_name + current_name;
+        if ( fullname.find( "DISABLED" ) == string::npos ) {
+          test_cases.emplace_back( top_level_name + current_name, top_level_deps, current_deps );
+        }
       }
 
       current_name = line.substr( 2 );
@@ -212,12 +216,12 @@ int main( int argc, char * argv[] )
     }
 
     vector<TestCase> test_cases = parse_annotations_file( annotations_file );
-    vector<string> thunk_hashes;
 
     for ( size_t i = 0; i < test_cases.size(); i++ ) {
-      string hash = test_cases[ i ].generate_thunk( gtest_wrapper, data_path, gtest_binary, envars );
+      const string hash = test_cases[ i ].generate_thunk( gtest_wrapper, data_path, gtest_binary, envars );
       cout << "[" << ( i + 1 ) << "/" << test_cases.size() << "] " << hash << '\n';
-      thunk_hashes.emplace_back( move( hash ) );
+      ThunkPlaceholder placeholder { hash };
+      placeholder.write( to_string( i ) + ".test" );
     }
   }
   catch ( const exception &  e ) {
