@@ -58,6 +58,7 @@ int main( int argc, char * argv [] )
     const roost::path gg_path = safe_getenv( "__GG_DIR__" );
     const Thunk thunk = ThunkReader::read( thunk_path );
     vector<TempSymlink> symlinks;
+    symlinks.reserve( thunk.values().size() );
 
     /* (1) let's create the necessary symlinks */
     for ( const auto & value : thunk.values() ) {
