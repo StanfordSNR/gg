@@ -34,7 +34,8 @@ int main( int argc, char * argv[] )
       roost::path dst = gg::paths::blob( hash );
 
       if ( not roost::exists( dst ) ) {
-        roost::copy_then_rename( src, dst );
+        const mode_t permission = roost::is_executable( src ) ? 0500 : 0400;
+        roost::copy_then_rename( src, dst, true, permission );
       }
 
       cerr << "Collected " << src.string() << " as " << hash << "." << endl;

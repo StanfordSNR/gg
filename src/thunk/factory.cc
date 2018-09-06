@@ -129,24 +129,24 @@ std::string ThunkFactory::generate( const Function & function,
                                               ObjectType::Value );
     thunk_data.emplace_back( manifest_hash, string {} );
     roost::atomic_create( manifest_data,
-                          gg::paths::blob( manifest_hash ) );
+                          gg::paths::blob( manifest_hash ), true, 0400 );
     thunk_function.envars().push_back( "GG_MANIFEST=" + thunk::data_placeholder( manifest_hash ) );
   }
 
   if ( collect_data ) {
     auto fn_collect =
-      [] ( const Data & datum )
+      [] ( const Data & datum, const bool executable )
       {
         roost::path source_path = datum.real_filename();
         roost::path target_path = gg::paths::blob( gg::hash::base( datum.hash() ) );
 
         if ( not roost::exists( target_path ) ) {
-          roost::copy_then_rename( source_path, target_path );
+          roost::copy_then_rename( source_path, target_path, true, executable ? 0500 : 0400 );
         }
       };
 
-    for ( const Data & datum : data ) { fn_collect( datum ); }
-    for ( const Data & datum : executables ) { fn_collect( datum ); }
+    for ( const Data & datum : data ) { fn_collect( datum, false ); }
+    for ( const Data & datum : executables ) { fn_collect( datum, true ); }
   }
 
   string hash = ThunkWriter::write( { move( thunk_function ),
