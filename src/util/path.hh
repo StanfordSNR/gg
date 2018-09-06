@@ -43,7 +43,6 @@ namespace roost {
 
   bool exists( const path & pathn );
   off_t file_size( const path & pathn );
-  void copy_then_rename( const path & src, const path & dest );
   void move_file( const path & src, const path & dest );
   path operator/( const path & prefix, const path & suffix );
   path canonical( const path & pathn );
@@ -68,6 +67,8 @@ namespace roost {
   void make_executable( const path & pathn );
   bool is_executable( const path & pathn );
   std::string read_file( const path & pathn );
+  void copy_then_rename( const path & src, const path & dest,
+                         const bool set_mode = false, const mode_t target_mode = 0 );
   void atomic_create( const std::string & contents, const path & dst,
                       const bool set_mode = false, const mode_t target_mode = 0 );
 }

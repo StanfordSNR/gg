@@ -208,7 +208,8 @@ namespace roost {
     rename( tmp_file_name, dst.string() );
   }
 
-  void copy_then_rename( const path & src, const path & dst )
+  void copy_then_rename( const path & src, const path & dst,
+                         const bool set_mode, const mode_t target_mode )
   {
     /* read input file into memory */
     FileDescriptor src_file { CheckSystemCall( "open (" + src.string() + ")",
@@ -223,7 +224,7 @@ namespace roost {
     const string contents = src_file.read_exactly( src_info.st_size );
 
     /* write out to new file */
-    atomic_create( contents, dst, true, src_info.st_mode );
+    atomic_create( contents, dst, true, set_mode ? target_mode : src_info.st_mode );
   }
 
   path operator/( const path & prefix, const path & suffix )
