@@ -45,59 +45,6 @@ ThunkFactory::Data::Data( const string & filename,
   }
 }
 
-string ThunkFactory::Data::compute_hash( const string & real_filename,
-                                         const gg::ObjectType type )
-{
-  /* do we have this hash in cache? */
-  struct stat file_stat;
-  CheckSystemCall( "stat", stat( real_filename.c_str(), &file_stat ) );
-
-  const auto cache_entry_path = gg::paths::hash_cache_entry( real_filename, file_stat );
-
-  if ( roost::exists( cache_entry_path ) ) {
-    FileDescriptor cache_file { CheckSystemCall( "open",
-                                                 open( cache_entry_path.string().c_str(), O_RDONLY ) ) };
-    string cache_entry;
-    while ( not cache_file.eof() ) { cache_entry += cache_file.read(); }
-
-    vector<string> cache_contents = split( cache_entry, " " );
-
-    if ( cache_contents.size() != 6 ) {
-      throw runtime_error( "bad cache entry: " + cache_entry_path.string() );
-    }
-
-    if ( cache_contents.at( 0 ) == to_string( file_stat.st_size )
-         and cache_contents.at( 1 ) == to_string( file_stat.st_mtim.tv_sec )
-         and cache_contents.at( 2 ) == to_string( file_stat.st_mtim.tv_nsec )
-         and cache_contents.at( 3 ) == to_string( file_stat.st_ctim.tv_sec )
-         and cache_contents.at( 4 ) == to_string( file_stat.st_ctim.tv_nsec ) ) {
-      /* cache hit! */
-      return cache_contents.at( 5 );
-    }
-  }
-
-  /* not a cache hit, so need to compute hash ourselves */
-
-  FileDescriptor file { CheckSystemCall( "open (" + real_filename + ")",
-                                         open( real_filename.c_str(), O_RDONLY ) ) };
-
-  string contents;
-  while ( not file.eof() ) { contents += file.read(); }
-
-  const string computed_hash = gg::hash::compute( contents, type );
-
-  /* make a cache entry */
-  roost::atomic_create( to_string( file_stat.st_size ) + " "
-                        + to_string( file_stat.st_mtim.tv_sec ) + " "
-                        + to_string( file_stat.st_mtim.tv_nsec ) + " "
-                        + to_string( file_stat.st_ctim.tv_sec ) + " "
-                        + to_string( file_stat.st_ctim.tv_nsec ) + " "
-                        + computed_hash,
-                        cache_entry_path );
-
-  return computed_hash;
-}
-
 Thunk ThunkFactory::create_thunk( const Function & function,
                                   const vector<Data> & data,
                                   const vector<Data> & executables,

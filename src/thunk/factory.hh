@@ -41,9 +41,6 @@ public:
     const std::string & real_filename() const { return real_filename_; }
     const std::string & hash() const { return hash_; }
     gg::ObjectType type() const { return type_; }
-
-    static std::string compute_hash( const std::string & real_filename,
-                                     const gg::ObjectType type );
   };
 
   using Function = gg::thunk::Function;

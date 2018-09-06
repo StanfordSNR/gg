@@ -420,5 +420,5 @@ bool Thunk::matches_filesystem( const DataItem & item )
     return false;
   }
 
-  return hash == ThunkFactory::Data::compute_hash( filename, gg::hash::type( hash ) );
+  return hash == gg::hash::file( filename, gg::hash::type( hash ) );
 }
