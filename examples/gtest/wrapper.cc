@@ -22,6 +22,7 @@ class TempSymlink
 {
 private:
   roost::path linkpath_;
+
 public:
   TempSymlink( const roost::path & target, const roost::path & linkpath )
     : linkpath_( linkpath ) { roost::symlink( target, linkpath ); }
@@ -63,10 +64,6 @@ int main( int argc, char * argv [] )
       if ( value.second.length() > 0 ) {
         if ( value.second.find( '/' ) != string::npos ) {
           throw runtime_error( "paths are not supported yet" );
-        }
-
-        if ( roost::exists( value.second ) ) {
-          throw runtime_error( "cannot overwrite an existing file" );
         }
 
         symlinks.emplace_back( gg_path / value.first, value.second );

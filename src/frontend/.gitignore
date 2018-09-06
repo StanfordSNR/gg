@@ -26,5 +26,4 @@ gg-object-server
 gg-object-server-static
 gg-remodel
 gg-list-dist
-gtest-wrapper
 lambda-invoker
