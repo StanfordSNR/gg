@@ -173,7 +173,7 @@ int main( int argc, char * argv[] )
       { "engine",          required_argument, nullptr, 'e' },
       { "fallback-engine", required_argument, nullptr, 'f' },
       { "no-download",     no_argument,       nullptr, 'd' },
-      { nullptr,       0,                 nullptr,  0  },
+      { nullptr,           0,                 nullptr,  0  },
     };
 
     while ( true ) {
