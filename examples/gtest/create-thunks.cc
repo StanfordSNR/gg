@@ -56,7 +56,7 @@ struct TestCase
   string generate_thunk( const roost::path & gtest_wrapper,
                          const roost::path & data_path,
                          const roost::path & gtest_binary,
-                         const vector<string> & envars )
+                         const vector<string> & envars ) const
   {
     vector<ThunkFactory::Data> values;
     vector<ThunkFactory::Data> executables;
@@ -212,7 +212,13 @@ int main( int argc, char * argv[] )
     }
 
     vector<TestCase> test_cases = parse_annotations_file( annotations_file );
-    cout << test_cases[ 0 ].generate_thunk( gtest_wrapper, data_path, gtest_binary, envars ) << endl;
+    vector<string> thunk_hashes;
+
+    for ( size_t i = 0; i < test_cases.size(); i++ ) {
+      string hash = test_cases[ i ].generate_thunk( gtest_wrapper, data_path, gtest_binary, envars );
+      cout << "[" << ( i + 1 ) << "/" << test_cases.size() << "] " << hash << '\n';
+      thunk_hashes.emplace_back( move( hash ) );
+    }
   }
   catch ( const exception &  e ) {
     print_exception( argv[ 0 ], e );
