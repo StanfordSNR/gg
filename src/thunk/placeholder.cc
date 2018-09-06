@@ -11,8 +11,8 @@
 
 using namespace std;
 
-static const std::string SHEBANG_DIRECTIVE { "#!/usr/bin/env gg-force-and-run" };
-static const std::string LIBRARY_DIRECTIVE { "OUTPUT_FORMAT(\"elf64-x86-64\")/*" };
+static constexpr char SHEBANG_DIRECTIVE[] = "#!/usr/bin/env gg-force-and-run";
+static constexpr char LIBRARY_DIRECTIVE[] = "OUTPUT_FORMAT(\"elf64-x86-64\")/*";
 
 ThunkPlaceholder::ThunkPlaceholder( const string & hash, const string & metadata )
   : content_hash_( hash ), metadata_( metadata )
@@ -20,7 +20,7 @@ ThunkPlaceholder::ThunkPlaceholder( const string & hash, const string & metadata
 
 string ThunkPlaceholder::str( const Type type ) const
 {
-  const string & header = (type == Type::LinkerScript)
+  const char * header = (type == Type::LinkerScript)
     ? LIBRARY_DIRECTIVE
     : SHEBANG_DIRECTIVE;
 
@@ -61,22 +61,24 @@ void ThunkPlaceholder::write( const string & filename, const Type type ) const
 
 Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
 {
+  char buffer[ sizeof( SHEBANG_DIRECTIVE ) ];
+
   ifstream fin { filename, ios::in | ios::binary };
-  string line;
-  getline( fin, line );
+  fin.read( buffer, sizeof( SHEBANG_DIRECTIVE ) );
 
   Type type;
 
-  if ( line == SHEBANG_DIRECTIVE ) {
+  if ( strncmp( buffer, SHEBANG_DIRECTIVE, sizeof( SHEBANG_DIRECTIVE ) - 1 ) == 0 ) {
     type = Type::ShellScript;
   }
-  else if ( line == LIBRARY_DIRECTIVE ) {
+  else if ( strncmp( buffer, LIBRARY_DIRECTIVE, sizeof( LIBRARY_DIRECTIVE ) - 1 ) == 0 ) {
     type = Type::LinkerScript;
   }
   else {
     return {};
   }
 
+  string line;
   string hash;
   fin >> hash;
 
@@ -109,7 +111,10 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
 
 bool ThunkPlaceholder::is_placeholder( FileDescriptor && fd )
 {
-  assert( SHEBANG_DIRECTIVE.length() == LIBRARY_DIRECTIVE.length() );
-  const string header = fd.read_exactly( SHEBANG_DIRECTIVE.length(), true );
-  return (header == SHEBANG_DIRECTIVE) or (header == LIBRARY_DIRECTIVE);
+  static_assert( sizeof( SHEBANG_DIRECTIVE ) == sizeof( LIBRARY_DIRECTIVE ),
+                 "length of shebang directive and library directive must be equal" );
+
+  const string header = fd.read_exactly( sizeof( SHEBANG_DIRECTIVE ) - 1, true );
+  return ( header.compare( 0, sizeof( SHEBANG_DIRECTIVE ) - 1, SHEBANG_DIRECTIVE ) == 0 ) or
+         ( header.compare( 0, sizeof( LIBRARY_DIRECTIVE ) - 1, LIBRARY_DIRECTIVE ) == 0 );
 }
