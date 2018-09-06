@@ -278,11 +278,7 @@ namespace gg {
       const auto cache_entry_path = gg::paths::hash_cache_entry( path.string(), file_stat );
 
       if ( roost::exists( cache_entry_path ) ) {
-        FileDescriptor cache_file { CheckSystemCall( "open",
-                                                     open( cache_entry_path.string().c_str(), O_RDONLY ) ) };
-        string cache_entry;
-        while ( not cache_file.eof() ) { cache_entry += cache_file.read(); }
-
+        string cache_entry = roost::read_file( cache_entry_path );
         vector<string> cache_contents = split( cache_entry, " " );
 
         if ( cache_contents.size() != 6 ) {
