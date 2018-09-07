@@ -13,8 +13,16 @@ int main()
 
   while ( getline( cin, line ) ) {
     if ( keep_next_line ) {
-      cout << line << endl;
       keep_next_line = ( line.back() == '\\' );
+
+      if ( not keep_next_line ) {
+        cout << line << endl;
+      }
+      else {
+        line.pop_back();
+        cout << line;
+      }
+
       continue;
     }
 
@@ -22,8 +30,15 @@ int main()
       char c = line [ i ];
 
       if ( c == '#' ) {
-        cout << line << endl;
         keep_next_line = ( line.back() == '\\' );
+
+        if ( not keep_next_line ) {
+          cout << line << endl;
+        }
+        else {
+          line.pop_back();
+          cout << line;
+        }
       }
       else if ( isspace( c ) ) {
         continue;
