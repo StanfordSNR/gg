@@ -1,0 +1,71 @@
+#!/bin/bash -e
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $(basename $0) SOURCE-DIR [INCLUDE-DIR]..."
+  exit 1
+fi
+
+NPROC=$(nproc)
+GG_ROOT=$(readlink -f ${GG_DIR:-.gg})
+
+source_dir=$(readlink -f $1)
+shift
+
+headers_filename=headers.gg.txt
+headers_list=${source_dir}/${headers_filename}
+
+if [ ! -f ${headers_list} ]; then
+  echo "Could not find '${headers_filename}' in source directory."
+  exit 1
+fi
+
+tempdir=$(mktemp -d)
+trap "rm -rf $tempdir" EXIT
+
+function process_directory {
+  srcdir=$(readlink -f ${1?source dir is empty})
+  dstdir=$(readlink -f ${2?destination dir is empty})
+  pattern=${3:-'*'}
+
+  ( find ${srcdir} -type f -name "$pattern" |
+      sed -n "s|^${srcdir}/||p" |
+      xargs -P ${NPROC} -I% -- sh -c \
+        'mkdir -p "'"${dstdir}"'/$(dirname %)"; cat "'"${srcdir}"'/%" | prune-file | cpp -fpreprocessed -P -dD - 2>/dev/null >"'"${dstdir}"'/%"' ) || true
+
+  return 0
+}
+
+function create_tarball {
+  srcdir=${1?source dir is empty}
+  dsttar=$(mktemp ${tempdir}/output.XXXXXXXX)
+
+  tar zcf ${dsttar} -C ${srcdir} .
+  tar_hash=$(gg-hash ${dsttar})
+  gg-collect ${dsttar} >/dev/null 2>/dev/null
+
+  echo "${tar_hash}"
+}
+
+# create tarball for the sources based on ${headers_filename}
+destination_dir=$(mktemp -d ${tempdir}/sources.XXXXXXXX)
+while read -r FILE
+do
+  process_directory "${source_dir}" "${destination_dir}" "$FILE"
+done <${headers_list}
+
+mapping_file=${GG_ROOT}/include-dirs
+: >${mapping_file}
+
+tar_hash=$(create_tarball "${destination_dir}")
+echo "${tar_hash} ${source_dir}" | tee -a ${mapping_file}
+
+# create tarball for the include directories
+for include_dir in "$@"
+do
+  destination_dir=$(mktemp -d ${tempdir}/sources.XXXXXXXX)
+  process_directory "${include_dir}" "${destination_dir}"
+  tar_hash=$(create_tarball "${destination_dir}")
+  echo "${tar_hash} ${include_dir}" | tee -a ${mapping_file}
+done
+
+echo "${source_dir}" >${GG_ROOT}/source-dir
