@@ -15,7 +15,7 @@ BASE_LDADD = ../thunk/libthunk.a \
              $(CRYPTO_LIBS) $(PROTOBUF_LIBS)
 
 bin_PROGRAMS = model-gcc model-ar model-ranlib model-strip model-ld \
-               model-generic model-nm model-readelf gen-deps
+               model-generic model-nm model-readelf
 
 COMMON_TOOLCHAIN_SOURCES = cli_description.hh cli_description.cc \
                            toolchain.hh toolchain.cc gcc.hh
@@ -45,9 +45,6 @@ model_nm_LDADD = $(BASE_LDADD)
 
 model_readelf_SOURCES = readelf.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_readelf_LDADD = $(BASE_LDADD)
-
-gen_deps_SOURCES = gen-deps.cc
-gen_deps_LDADD = $(BASE_LDADD)
 
 EXTRA_DIST = generate-toolchain-header.py wrappers
 CLEANFILES = toolchain.hh toolchain.cc
