@@ -277,8 +277,9 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         makedep_filename = makedep_tempfile.name();
       }
 
-      dependencies = generate_dependencies_file( input.name, all_args,
-                                                 makedep_filename, makedep_target );
+      dependencies = generate_dependencies_file( operation_mode_, input.name,
+                                                 all_args, makedep_filename,
+                                                 makedep_target );
     }
 
     /* We promised that we would add these here, and we lived up to our

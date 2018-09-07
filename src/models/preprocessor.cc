@@ -93,7 +93,8 @@ vector<string> GCCModelGenerator::parse_dependencies_file( const string & dep_fi
   return dependencies;
 }
 
-vector<string> GCCModelGenerator::generate_dependencies_file( const string & input_filename,
+vector<string> GCCModelGenerator::generate_dependencies_file( const OperationMode op_mode,
+                                                              const string & input_filename,
                                                               const vector<string> & option_args,
                                                               const string & output_name,
                                                               const string & target_name )
@@ -101,7 +102,7 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const string & inp
   vector<string> args;
   args.reserve( 1 + option_args.size() );
 
-  if ( operation_mode_ == OperationMode::GCC ) {
+  if ( op_mode == OperationMode::GCC ) {
     args.push_back( "gcc-7" );
   }
   else {

@@ -152,14 +152,6 @@ private:
 
   std::vector<std::string> get_link_dependencies( const std::vector<InputFile> & link_inputs );
 
-  std::vector<std::string> parse_dependencies_file( const std::string & dep_filename,
-                                                    const std::string & target_name );
-
-  std::vector<std::string> generate_dependencies_file( const std::string & input_filename,
-                                                       const std::vector<std::string> & option_args,
-                                                       const std::string & output_name,
-                                                       const std::string & target_name );
-
   std::string do_preprocessing( const InputFile & input );
 
   std::string generate_thunk( const GCCStage first_stage,
@@ -205,6 +197,15 @@ public:
 
   static std::vector<std::string>
   parse_linker_output( const std::vector<std::string> & linker_args );
+
+  static std::vector<std::string> parse_dependencies_file( const std::string & dep_filename,
+                                                           const std::string & target_name );
+
+  static std::vector<std::string> generate_dependencies_file( const OperationMode op_mode,
+                                                              const std::string & input_filename,
+                                                              const std::vector<std::string> & option_args,
+                                                              const std::string & output_name,
+                                                              const std::string & target_name );
 };
 
 #endif /* MODEL_LINKER_HH */
