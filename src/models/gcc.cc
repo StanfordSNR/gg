@@ -249,33 +249,37 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     }
 
     /* Generate dependency list */
-    TempFile makedep_tempfile { "/tmp/gg-makedep" };
-    string makedep_filename;
-    string makedep_target = DEFAULT_MAKE_TARGET;
+    vector<string> dependencies;
 
-    if ( generate_makedep_file ) {
-      cerr << "\u251c\u2500 generating make dependencies file... ";
-      makedep_filename = *arguments_.option_argument( GCCOption::MF );
-      Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
-      if ( mt_arg.initialized() ) {
-        makedep_target = *mt_arg;
+    if ( not defer_depgen_ ) {
+      TempFile makedep_tempfile { "/tmp/gg-makedep" };
+      string makedep_filename;
+      string makedep_target = DEFAULT_MAKE_TARGET;
+
+      if ( generate_makedep_file ) {
+        cerr << "\u251c\u2500 generating make dependencies file... ";
+        makedep_filename = *arguments_.option_argument( GCCOption::MF );
+        Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
+        if ( mt_arg.initialized() ) {
+          makedep_target = *mt_arg;
+        }
+        else {
+          makedep_target = roost::rbasename( input.name ).string();
+          string::size_type dot_pos = makedep_target.rfind( '.' );
+          if ( dot_pos != string::npos ) {
+              makedep_target = makedep_target.substr( 0, dot_pos );
+          }
+          makedep_target += ".o";
+        }
+        cerr << "done." << endl;
       }
       else {
-        makedep_target = roost::rbasename( input.name ).string();
-        string::size_type dot_pos = makedep_target.rfind( '.' );
-        if ( dot_pos != string::npos ) {
-            makedep_target = makedep_target.substr( 0, dot_pos );
-        }
-        makedep_target += ".o";
+        makedep_filename = makedep_tempfile.name();
       }
-      cerr << "done." << endl;
-    }
-    else {
-      makedep_filename = makedep_tempfile.name();
-    }
 
-    const vector<string> dependencies = generate_dependencies_file( input.name, all_args,
-                                                                    makedep_filename, makedep_target );
+      dependencies = generate_dependencies_file( input.name, all_args,
+                                                 makedep_filename, makedep_target );
+    }
 
     /* We promised that we would add these here, and we lived up to our
        promise... */
