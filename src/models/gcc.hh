@@ -143,6 +143,7 @@ private:
 
   const bool preprocess_locally_ { false };
   const bool all_in_one_thunk_ { false };
+  const bool defer_depgen_ { false };
 
   std::vector<std::string> envars_ { { "PATH=" + GG_BIN_PREFIX }, };
 
@@ -186,7 +187,8 @@ public:
   struct Options
   {
     static constexpr int preprocess_locally = ( 1 << 0 );
-    static constexpr int all_in_one_thunk   = ( 1 << 1 ); /* don't create separate thunks for preprocess, compile and assemble */
+    static constexpr int all_in_one_thunk   = ( 1 << 1 );
+    static constexpr int defer_depgen       = ( 1 << 2 );
   };
 
   GCCModelGenerator( const OperationMode operation_mode,

@@ -438,7 +438,8 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
   : operation_mode_( operation_mode ),
     arguments_( argc, argv, force_strip ),
     preprocess_locally_( options & Options::preprocess_locally ),
-    all_in_one_thunk_( options & Options::all_in_one_thunk )
+    all_in_one_thunk_( options & Options::all_in_one_thunk ),
+    defer_depgen_( options & Options::defer_depgen )
 {
   exec_original_gcc = [&argv]() { _exit( execvp( argv[ 0 ], argv ) ); };
 
@@ -678,8 +679,13 @@ int main( int argc, char * argv[] )
     /* print_gcc_command( command_str( argc, argv ) ); */
 
     int options = 0;
-    options |= getenv( "GG_GCC_PREPROCESS_LOCALLY" ) ? GCCModelGenerator::Options::preprocess_locally : 0;
-    options |= getenv( "GG_GCC_ALL_IN_ONE_THUNK" )   ? GCCModelGenerator::Options::all_in_one_thunk   : 0;
+
+    options |= getenv( "GG_GCC_PREPROCESS_LOCALLY" )
+               ? GCCModelGenerator::Options::preprocess_locally : 0;
+    options |= getenv( "GG_GCC_ALL_IN_ONE_THUNK" )
+               ? GCCModelGenerator::Options::all_in_one_thunk : 0;
+    options |= getenv( "GG_GCC_DEFER_DEPGEN" )
+               ? GCCModelGenerator::Options::defer_depgen : 0;
 
     GCCModelGenerator gcc_model_generator { operation_mode, argc, argv, options };
     gcc_model_generator.generate();
