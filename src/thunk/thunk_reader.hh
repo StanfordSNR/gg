@@ -16,9 +16,6 @@ private:
   ThunkReader();
 
 public:
-  static bool is_thunk( const std::string & path );
   static bool is_thunk( const roost::path & path );
-
-  static gg::thunk::Thunk read( const std::string & path, const std::string & hash = {} );
   static gg::thunk::Thunk read( const roost::path & path, const std::string & hash = {} );
 };
