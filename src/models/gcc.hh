@@ -78,6 +78,7 @@ static auto gcc_function =
   };
 
 static const std::string DEFAULT_MAKE_TARGET = "__GG_MAKE_TARGET__";
+static const std::string GG_SYSROOT_PREFIX = "./__gg_sysroot__";
 
 class GCCArguments
 {
@@ -101,9 +102,14 @@ private:
   bool no_defaultlibs_ { false };
 
   const bool force_strip_ { false };
+  const bool canonical_paths_ { false };
+
+  std::string path_fn( const std::string & path );
 
 public:
-  GCCArguments( const int argc, char ** argv, const bool force_strip = false );
+  GCCArguments( const int argc, char * const * argv,
+                const bool force_strip = false,
+                const bool canonical_paths = false );
 
   void add_option( const GCCOption option, const std::string & optstr,
                    const char * optargx = nullptr, const char arg_separator = 'X',

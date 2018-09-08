@@ -43,13 +43,33 @@ struct getopt_options
   option list[ N + 1 ];
 };
 
-GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool force_strip )
-  : force_strip_( force_strip )
+string normalize_pathname( const roost::path & path ) {
+  if ( roost::is_absolute( path ) ) {
+    return ( GG_SYSROOT_PREFIX / path ).string();
+  }
+  else {
+    return ( path ).string();
+  }
+}
+
+string GCCArguments::path_fn( const string & path )
+{
+  if ( canonical_paths_ ) {
+    return normalize_pathname( path );
+  }
+  else {
+    return { path };
+  }
+}
+
+GCCArguments::GCCArguments( const int argc_orig, char * const * argv_orig,
+                            const bool force_strip, const bool canonical_paths )
+  : force_strip_( force_strip ), canonical_paths_( canonical_paths )
 {
   ExpandedArgs e_args;
 
   int argc = argc_orig;
-  char ** argv = argv_orig;
+  char * const * argv = argv_orig;
 
   if ( ExpandedArgs::needs_expansion( argc, argv ) ) {
     e_args = ExpandedArgs::expand( argc, argv );
@@ -162,7 +182,7 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
 
     /* detect non-option argument */
     if ( opt == 1 ) {
-      string input_file { optarg };
+      string input_file = path_fn( optarg );
       Language file_lang = current_language;
 
       if ( file_lang == Language::NONE ) {
@@ -188,9 +208,9 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
 
     case 'i':
       if ( startswith( optarg, "system" ) ) {
-        string optarg_str { optarg };
-        args_.emplace_back( string( "-i" ) + optarg );
-        system_include_dirs_.push_back( optarg_str.substr( strlen( "system" ) ) );
+        string optarg_str = path_fn( optarg + 6 );
+        args_.emplace_back( "-isystem" + optarg_str );
+        system_include_dirs_.push_back( optarg_str );
       }
       else {
         flag_processed = false;
@@ -202,14 +222,20 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
       break;
 
     case 'I':
-      args_.push_back( string( "-I" ) + optarg );
-      include_dirs_.emplace_back( optarg );
+    {
+      string optarg_str = path_fn( optarg );
+      args_.push_back( "-I" + optarg_str );
+      include_dirs_.emplace_back( optarg_str );
       break;
+    }
 
     case 'L':
-      args_.push_back( string( "-L" ) + optarg );
-      library_dirs_.emplace_back( optarg );
+    {
+      string optarg_str = path_fn( optarg );
+      args_.push_back( "-L" + optarg_str );
+      library_dirs_.emplace_back( optarg_str );
       break;
+    }
 
     case 'g':
       if ( not force_strip_ ) {
@@ -264,9 +290,12 @@ GCCArguments::GCCArguments( const int argc_orig, char ** argv_orig, const bool f
         break;
 
       case GCCOption::isystem:
-        args_.emplace_back( string( "-isystem" ) + optarg );
-        system_include_dirs_.emplace_back( optarg );
+      {
+        string optarg_str = path_fn( optarg );
+        args_.emplace_back( "-isystem" + optarg_str );
+        system_include_dirs_.emplace_back( optarg_str );
         break;
+      }
 
       case GCCOption::nostdlib:
         no_stdlib_ = true;
@@ -327,7 +356,8 @@ void GCCArguments::process_W_option( const string & optarg )
 
         if ( comma != string::npos ) {
           add_option( GCCOption::MD, "MD" );
-          add_option( GCCOption::MF, "MF", suboptarg.substr( comma + 1 ).c_str(), ' ' );
+          add_option( GCCOption::MF, "MF",
+            path_fn( suboptarg.substr( comma + 1 ) ).c_str(), ' ' );
           return; /* don't need to add the original argument */
         }
       }
@@ -342,10 +372,12 @@ void GCCArguments::process_W_option( const string & optarg )
       accepted = true;
 
       if ( startswith( suboptarg, VERSION_SCRIPT ) ) {
-        extra_infiles_[ LINK ].emplace_back( suboptarg.substr( VERSION_SCRIPT.size() ) );
+        extra_infiles_[ LINK ].emplace_back(
+          path_fn( suboptarg.substr( VERSION_SCRIPT.size() ) ) );
       }
       else if ( startswith( suboptarg, LINKER_SCRIPT ) ) {
-        extra_infiles_[ LINK ].emplace_back( suboptarg.substr( LINKER_SCRIPT.size() ) );
+        extra_infiles_[ LINK ].emplace_back(
+          path_fn( suboptarg.substr( LINKER_SCRIPT.size() ) ) );
       }
 
       break;
@@ -355,7 +387,7 @@ void GCCArguments::process_W_option( const string & optarg )
       accepted = true;
       if ( suboptarg.find( ',' ) == string::npos ) {
         if ( roost::exists( suboptarg ) ) {
-          extra_infiles_[ ASSEMBLE ].emplace_back( suboptarg );
+          extra_infiles_[ ASSEMBLE ].emplace_back( path_fn( suboptarg ) );
         }
       }
 
