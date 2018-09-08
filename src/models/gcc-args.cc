@@ -441,15 +441,13 @@ void GCCArguments::add_option( const GCCOption option, const string & optstr,
 void GCCArguments::add_input( const string & filename, const Language language )
 {
   if ( language == Language::SHARED_LIBRARY ) {
-    args_.emplace_back( string( "-l" ) + filename );
-    input_files_.push_back( { filename, language, language, args_.size() - 1,
-                              ThunkFactory::Data() } );
+    args_.emplace_back( "-l" + filename );
   }
   else {
     args_.push_back( filename );
-    input_files_.push_back( { filename, language, language, args_.size() - 1,
-                              ThunkFactory::Data( filename ) } );
   }
+
+  input_files_.push_back( { filename, language, language, args_.size() - 1 } );
 }
 
 Optional<string> GCCArguments::option_argument( const GCCOption option ) const

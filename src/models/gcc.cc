@@ -519,6 +519,10 @@ void GCCModelGenerator::generate()
   for ( size_t input_index = 0; input_index < input_files.size(); input_index++ ) {
     InputFile & input = input_files.at( input_index );
 
+    if ( input.language != Language::SHARED_LIBRARY ) {
+      input.indata = move( ThunkFactory::Data( input.name ) );
+    }
+
     if ( not is_non_object_input( input ) ) {
       continue;
     }
@@ -528,7 +532,6 @@ void GCCModelGenerator::generate()
 
     map<size_t, string> stage_output;
     stage_output[ first_stage - 1 ] = input.name;
-    input.indata = move( ThunkFactory::Data( input.name ) );
 
     cerr << "\u251c\u257c input: " << input.name << endl;
 

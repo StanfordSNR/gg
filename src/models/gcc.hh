@@ -37,7 +37,7 @@ struct InputFile
   Language source_language;
   size_t index;
 
-  ThunkFactory::Data indata;
+  ThunkFactory::Data indata {};
 };
 
 enum class OperationMode
