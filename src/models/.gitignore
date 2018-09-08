@@ -11,4 +11,4 @@ model-ld
 model-generic
 model-nm
 model-readelf
-gen-deps
+generate-deps
