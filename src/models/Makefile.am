@@ -46,7 +46,7 @@ model_nm_LDADD = $(BASE_LDADD)
 model_readelf_SOURCES = readelf.cc $(COMMON_TOOLCHAIN_SOURCES)
 model_readelf_LDADD = $(BASE_LDADD)
 
-generate_deps_SOURCES = generate-deps.cc gcc-base.cc preprocessor.cc $(COMMON_TOOLCHAIN_SOURCES)
+generate_deps_SOURCES = generate-deps.cc gcc-base.cc gcc-args.cc preprocessor.cc $(COMMON_TOOLCHAIN_SOURCES)
 generate_deps_LDADD = $(BASE_LDADD)
 
 EXTRA_DIST = generate-toolchain-header.py wrappers
