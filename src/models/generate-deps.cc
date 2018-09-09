@@ -76,20 +76,25 @@ int main( int argc, char * argv[] )
       abort();
     }
 
-    if ( argc != 2 ) {
+    if ( argc < 2 ) {
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
 
-    Thunk thunk = ThunkReader::read( argv[ 1 ] );
+    /* setting the GG_DIR, so we can find the blobs directory */
+    setenv( "GG_DIR",
+            roost::dirname( safe_getenv( "__GG_DIR__" ) ).string().c_str(),
+            true );
+
+    Thunk thunk = ThunkReader::read( safe_getenv( "__GG_THUNK_PATH__" ) );
 
     const roost::path execution_root { roost::current_working_directory() };
 
     /* read all the necessary environment variables *****************/
-    roost::path working_directory { safe_getenv( "_GG_WORKING_DIRECTORY" ) };
-    const string include_tarballs = safe_getenv( "_GG_INCLUDE_TARBALLS" );
-    const string input_name = safe_getenv( "_GG_INPUT_NAME" );
-    const string target_name = safe_getenv( "_GG_TARGET_NAME" );
+    roost::path working_directory  = safe_getenv( "_GG_WORKING_DIRECTORY" );
+    const string include_tarballs  = safe_getenv( "_GG_INCLUDE_TARBALLS" );
+    const string input_name        = safe_getenv( "_GG_INPUT_NAME" );
+    const string target_name       = safe_getenv( "_GG_TARGET_NAME" );
     const string gcc_function_hash = safe_getenv( "_GG_GCC_HASH" );
     const string cc1_function_hash = safe_getenv( "_GG_CC1_HASH" );
 
