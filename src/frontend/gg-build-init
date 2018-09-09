@@ -28,9 +28,8 @@ function process_directory {
   pattern=${3:-'*'}
 
   ( find ${srcdir} -type f -name "$pattern" |
-      sed -n "s|^${srcdir}/||p" |
       xargs -P ${NPROC} -I% -- sh -c \
-        'mkdir -p "'"${dstdir}"'/$(dirname %)"; cat "'"${srcdir}"'/%" | prune-file | cpp -fpreprocessed -P -dD - 2>/dev/null >"'"${dstdir}"'/%"' ) || true
+        'mkdir -p "'"${dstdir}"'/$(dirname %)"; HASH=$(gg-hash "%"); echo "/* ${HASH} */" >"'"${dstdir}"'/%"; cat "%" | cpp -fpreprocessed -P -dD - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
 
   return 0
 }
