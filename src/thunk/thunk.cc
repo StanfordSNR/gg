@@ -129,6 +129,16 @@ Thunk::Thunk( Function && function,
   throw_if_error();
 }
 
+Thunk::Thunk( Function && function, DataList && values,
+              DataList && thunks, DataList && executables,
+              vector<string> && outputs )
+  : function_( move( function ) ), values_( move( values ) ),
+    thunks_( move( thunks ) ), executables_( move( executables ) ),
+    outputs_( move( outputs ) )
+{
+  throw_if_error();
+}
+
 Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   : function_( thunk_proto.function() ),
     values_(),

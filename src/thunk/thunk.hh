@@ -121,6 +121,10 @@ namespace gg {
              std::vector<DataItem> && executables,
              std::vector<std::string> && outputs );
 
+      Thunk( Function && function, DataList && values,
+             DataList && thunks, DataList && executables,
+             std::vector<std::string> && outputs );
+
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
       int execute() const;
