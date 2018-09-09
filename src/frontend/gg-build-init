@@ -29,7 +29,7 @@ function process_directory {
 
   ( find ${srcdir} -type f -name "$pattern" |
       xargs -P ${NPROC} -I% -- sh -c \
-        'mkdir -p "'"${dstdir}"'/$(dirname %)"; HASH=$(gg-hash "%"); echo "/* ${HASH} */" >"'"${dstdir}"'/%"; cat "%" | cpp -fpreprocessed -P -dD - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
+        'mkdir -p "'"${dstdir}"'/$(dirname %)"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | cpp -fpreprocessed -P -dD - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
 
   return 0
 }
