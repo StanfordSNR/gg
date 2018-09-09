@@ -213,7 +213,9 @@ public:
                                                               const std::string & input_filename,
                                                               const std::vector<std::string> & option_args,
                                                               const std::string & output_name,
-                                                              const std::string & target_name );
+                                                              const std::string & target_name,
+                                                              const std::string & gcc_binary = {},
+                                                              const Optional<std::vector<std::string>> & custom_environ = {} );
 };
 
 #endif /* MODEL_LINKER_HH */

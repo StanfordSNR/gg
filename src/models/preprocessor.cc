@@ -97,16 +97,23 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const OperationMod
                                                               const string & input_filename,
                                                               const vector<string> & option_args,
                                                               const string & output_name,
-                                                              const string & target_name )
+                                                              const string & target_name,
+                                                              const string & gcc_binary,
+                                                              const Optional<vector<string>> & custom_environ )
 {
   vector<string> args;
   args.reserve( 1 + option_args.size() );
 
-  if ( op_mode == OperationMode::GCC ) {
-    args.push_back( "gcc-7" );
+  if ( gcc_binary.length() == 0 ) {
+    if ( op_mode == OperationMode::GCC ) {
+      args.push_back( "gcc-7" );
+    }
+    else {
+      args.push_back( "g++-7" );
+    }
   }
   else {
-    args.push_back( "g++-7" );
+    args.push_back( gcc_binary );
   }
 
   if ( getenv( "GG_REMODELING" ) != nullptr ) {
@@ -183,7 +190,9 @@ vector<string> GCCModelGenerator::generate_dependencies_file( const OperationMod
     args.push_back( output_name );
   }
 
-  run( args[ 0 ], args, {}, true, true );
+  run( args[ 0 ], args,
+       custom_environ.initialized() ? *custom_environ : vector<string> {},
+       not custom_environ.initialized(), true );
 
   if ( not has_dependencies_option ) {
     args.pop_back();
