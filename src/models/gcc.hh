@@ -12,6 +12,7 @@
 #include "thunk/metadata.hh"
 #include "thunk/ggutils.hh"
 #include "util/optional.hh"
+#include "util/path.hh"
 #include "util/temp_file.hh"
 
 #include "toolchain.hh"
@@ -78,7 +79,7 @@ static auto gcc_function =
   };
 
 static const std::string DEFAULT_MAKE_TARGET = "__GG_MAKE_TARGET__";
-static const std::string GG_SYSROOT_PREFIX = "./__gg_sysroot__";
+static const roost::path GG_SYSROOT_PREFIX = "./__gg_sysroot__";
 
 class GCCArguments
 {
@@ -103,6 +104,7 @@ private:
 
   const bool force_strip_ { false };
   const bool canonical_paths_ { false };
+  roost::path canonical_root_ {};
 
   std::string path_fn( const std::string & path );
 

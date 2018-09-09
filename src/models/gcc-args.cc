@@ -43,9 +43,9 @@ struct getopt_options
   option list[ N + 1 ];
 };
 
-string normalize_pathname( const roost::path & path ) {
+string normalize_pathname( const roost::path & root, const roost::path & path ) {
   if ( roost::is_absolute( path ) ) {
-    return ( GG_SYSROOT_PREFIX / path ).string();
+    return ( root / path ).string();
   }
   else {
     return ( path ).string();
@@ -55,7 +55,7 @@ string normalize_pathname( const roost::path & path ) {
 string GCCArguments::path_fn( const string & path )
 {
   if ( canonical_paths_ ) {
-    return normalize_pathname( path );
+    return normalize_pathname( canonical_root_, path );
   }
   else {
     return { path };
@@ -66,6 +66,11 @@ GCCArguments::GCCArguments( const int argc_orig, char * const * argv_orig,
                             const bool force_strip, const bool canonical_paths )
   : force_strip_( force_strip ), canonical_paths_( canonical_paths )
 {
+  if ( canonical_paths_ ) {
+    roost::create_directories( GG_SYSROOT_PREFIX );
+    canonical_root_ = roost::canonical( GG_SYSROOT_PREFIX );
+  }
+
   ExpandedArgs e_args;
 
   int argc = argc_orig;
