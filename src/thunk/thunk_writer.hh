@@ -14,6 +14,6 @@ private:
 
 public:
   static std::string write( const gg::thunk::Thunk & thunk,
-                                  const roost::path & path = {} );
+                            const roost::path & path = {} );
   static std::string serialize( const gg::thunk::Thunk & thunk );
 };
