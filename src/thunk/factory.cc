@@ -137,6 +137,10 @@ std::string ThunkFactory::generate( const Function & function,
     auto fn_collect =
       [] ( const Data & datum, const bool executable )
       {
+        if ( datum.real_filename().length() == 0 ) {
+          return;
+        }
+
         roost::path source_path = datum.real_filename();
         roost::path target_path = gg::paths::blob( gg::hash::base( datum.hash() ) );
 
