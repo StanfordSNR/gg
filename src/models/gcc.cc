@@ -357,6 +357,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
       thunk_outputs.emplace_back( "dependencies" );
 
+      all_args[ 0 ] = "/__gg__/generate-deps";
+
       depgen_binary = safe_getenv( "GG_GCC_DEPGEN_BIN" );
       depgen_hash = gg::hash::file( depgen_binary );
       base_executables.emplace_back( "/__gg__/generate-deps",
