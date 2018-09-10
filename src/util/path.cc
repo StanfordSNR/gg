@@ -300,6 +300,15 @@ namespace roost {
     return S_ISDIR( file_info.st_mode );
   }
 
+  bool exists_and_is_directory( const path & pathn )
+  {
+    struct stat file_info;
+    if ( stat( pathn.string().c_str(), &file_info ) ) {
+      return false;
+    }
+    return S_ISDIR( file_info.st_mode );
+  }
+
   vector<string> path::path_components() const
   {
     return split( path_, "/" );
