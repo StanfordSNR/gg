@@ -32,6 +32,7 @@ namespace gg {
     roost::path hash_cache_entry( const std::string & filename, const struct stat & stat_entry );
     roost::path dependency_cache_entry( const std::string & cache_key );
     roost::path include_cache_entry( const std::string & hash );
+    roost::path blueprint( const std::string & hash );
 
     void fix_path_envar();
   }

@@ -214,6 +214,11 @@ namespace gg {
       return include_cache() / cache_key;
     }
 
+    roost::path blueprint( const string & hash )
+    {
+      return blueprints() / hash;
+    }
+
     void fix_path_envar()
     {
       if ( getenv( "GG_REALPATH" ) != nullptr ) {
