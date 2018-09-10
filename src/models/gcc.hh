@@ -182,15 +182,6 @@ private:
 
   static std::vector<std::string> gcc_environment();
 
-  /* SCAN DEPENDENCIES */
-  bool scan_dependencies_recursive( const roost::path & filename,
-                                    std::vector<std::string> & dependencies,
-                                    std::unordered_set<std::string> & processed,
-                                    const Language source_language );
-
-  std::vector<std::string> scan_dependencies( const roost::path & filename,
-                                              const Language source_language );
-
   std::vector<roost::path> scan_build_directory( const roost::path & build_dir ) const;
 
 public:
