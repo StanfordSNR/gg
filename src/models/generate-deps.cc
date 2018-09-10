@@ -41,9 +41,10 @@ void prepare_include_path( const roost::path & sysroot,
 
   /* (1) extract the tarballs */
   for ( const string & tarball_hash : tarballs ) {
-    vector<string> extract_args { "tar", "xf",
+    vector<string> extract_args { "/bin/tar", "xf",
                                   gg::paths::blob( tarball_hash ).string(),
-                                  "-C", sysroot.string() };
+                                  "-C", sysroot.string(),
+                                  "-I", "/bin/gzip" };
 
     cerr << "Extracting " << tarball_hash << "...";
     run( extract_args[ 0 ], extract_args, {}, true, true );
@@ -119,6 +120,7 @@ int main( int argc, char * argv[] )
 
     /* put gcc binaries in place ************************************/
     const roost::path gcc_dir = sysroot / "gccbin";
+    roost::create_directories( gcc_dir );
     const string path_envar = "PATH=" + gcc_dir.string();
     const roost::path gcc_path = gcc_dir / ( ( op_mode == OperationMode::GCC ) ? "gcc" : "g++" );
     const roost::path cc1_path = gcc_dir / cc1_function_name;
@@ -162,7 +164,7 @@ int main( int argc, char * argv[] )
     vector<string> new_envars;
 
     for ( const string & envar : function.envars() ) {
-      if ( envar.compare( 0, sizeof( "_GG" ) - 1, "_GG" ) == 0 ) {
+      if ( envar.compare( 0, sizeof( "_GG" ) - 1, "_GG" ) != 0 ) {
         new_envars.push_back( envar );
       }
     }
