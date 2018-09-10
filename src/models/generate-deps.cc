@@ -193,14 +193,17 @@ int main( int argc, char * argv[] )
 
     for ( const auto & dep : dependencies ) {
       const string dep_hash = get_hash( dep );
+      string dep_path;
 
       if ( dep.compare( 0, sysroot.string().length(), sysroot.string() ) == 0 ) {
-        values.emplace( make_pair( dep_hash,
-                                   dep.substr( sysroot.string().length() ) ) );
+        dep_path = dep.substr( sysroot.string().length() );
       }
       else {
-        values.emplace( make_pair( dep_hash, dep ) );
+        dep_path = dep;
       }
+
+      dep_path = roost::path( dep_path ).lexically_normal().string();
+      values.emplace( make_pair( dep_hash, dep_path ) );
     }
 
     /* (3) create a new thunk ######################################*/
