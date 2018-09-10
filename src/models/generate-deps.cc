@@ -43,8 +43,7 @@ void prepare_include_path( const roost::path & sysroot,
   for ( const string & tarball_hash : tarballs ) {
     vector<string> extract_args { "/bin/tar", "xf",
                                   gg::paths::blob( tarball_hash ).string(),
-                                  "-C", sysroot.string(),
-                                  "-I", "/bin/gzip" };
+                                  "-C", sysroot.string(), "-I", "/bin/gzip" };
 
     cerr << "Extracting " << tarball_hash << "...";
     run( extract_args[ 0 ], extract_args, {}, true, true );
