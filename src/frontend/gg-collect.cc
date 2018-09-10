@@ -38,7 +38,7 @@ int main( int argc, char * argv[] )
         roost::copy_then_rename( src, dst, true, permission );
       }
 
-      cerr << "Collected " << src.string() << " as " << hash << "." << endl;
+      cout << hash << endl;
     }
 
     return EXIT_SUCCESS;
