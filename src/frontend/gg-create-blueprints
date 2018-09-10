@@ -1,0 +1,56 @@
+#!/bin/bash -e
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $(basename $0) DIRECTORY [FILTERS]"
+  exit 1
+fi
+
+# TODO we should lock the index file before changing it
+
+SOURCE_DIR=$(readlink -f $1)
+FILTERS_FILE=$2
+BLUEPRINTS_HOME=${XDG_CACHE_HOME:-${HOME}/.cache}/gg/blueprints
+INDEX_FILE=${BLUEPRINTS_HOME}/index
+NPROC=$(nproc)
+
+mkdir -p ${BLUEPRINTS_HOME}
+
+TEMPDIR=$(mktemp -d)
+trap "rm -rf $TEMPDIR" EXIT
+
+function process_directory {
+  srcdir=$(readlink -f ${1?source dir is empty})
+  dstdir=$(readlink -f ${2?destination dir is empty})
+  pattern=${3:-'*'}
+
+  ( find ${srcdir} -type f -name "$pattern" |
+      xargs -P ${NPROC} -I% -- sh -c \
+        'mkdir -p "'"${dstdir}"'/$(dirname %)"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | splice-lines | cpp -fpreprocessed -P -dD - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
+
+  return 0
+}
+
+function create_tarball {
+  srcdir=${1?source dir is empty}
+  dsttar=$(mktemp ${TEMPDIR}/output.XXXXXXXX)
+
+  tar zcf ${dsttar} -C ${srcdir} .
+  tar_hash=$(gg-hash ${dsttar})
+  mv ${dsttar} ${BLUEPRINTS_HOME}/${tar_hash}
+
+  echo "${tar_hash}"
+}
+
+TARGET_DIR=$(mktemp -d ${TEMPDIR}/sources.XXXXXXXX)
+
+if [ -z "${FILTERS_FILE}" ]; then
+  process_directory "${SOURCE_DIR}" "${TARGET_DIR}"
+else
+  while read -r FILE
+  do
+    process_directory "${SOURCE_DIR}" "${TARGET_DIR}" "$FILE"
+  done <${FILTERS_FILE}
+fi
+
+tar_hash=$(create_tarball "${TARGET_DIR}")
+echo "${tar_hash} ${SOURCE_DIR}" | tee -a ${INDEX_FILE}
