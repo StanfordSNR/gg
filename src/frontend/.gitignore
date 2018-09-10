@@ -27,4 +27,5 @@ gg-object-server-static
 gg-remodel
 gg-list-dist
 prune-file
+splice-lines
 lambda-invoker
