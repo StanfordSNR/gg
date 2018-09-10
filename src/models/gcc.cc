@@ -23,6 +23,7 @@
 #include "thunk/thunk.hh"
 #include "util/digest.hh"
 #include "util/exception.hh"
+#include "util/iterator.hh"
 #include "util/optional.hh"
 #include "util/system_runner.hh"
 #include "util/temp_file.hh"
@@ -193,7 +194,8 @@ void get_all_files( vector<roost::path> & file_list,
 {
   for ( const auto & entry : roost::get_directory_listing( root ) ) {
     const roost::path entry_path = root / entry;
-    if ( roost::is_directory( entry_path ) and entry_path.string() != gg::paths::root().string() ) {
+    if ( roost::exists_and_is_directory( entry_path ) and
+         entry_path.string() != gg::paths::root().string() ) {
       get_all_files( file_list, entry_path, filters );
       continue;
     }
@@ -206,12 +208,11 @@ void get_all_files( vector<roost::path> & file_list,
   }
 }
 
-vector<roost::path> GCCModelGenerator::scan_build_directory() const
+vector<roost::path> GCCModelGenerator::scan_build_directory( const roost::path & build_dir ) const
 {
   vector<roost::path> result;
   vector<string> filters;
 
-  const roost::path build_dir = roost::dirname( gg::paths::root() );
   ifstream fin { ( build_dir / "headers.gg.txt" ).string() };
   if ( not fin.good() ) {
     throw runtime_error( "cannot open headers.gg.txt" );
@@ -423,13 +424,40 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         return name + '=' + value;
       };
 
-      const string include_tarballs = safe_getenv( "GG_GCC_INCLUDE_TARBALLS" );
+      const roost::path & build_dir = roost::dirname( gg::paths::root() );
+
+      /* (0) let's make sure that we have blueprints for everything first */
+      Blueprints blueprints;
+      unordered_set<string> tarballs;
+
+      for ( const string & dir : join_containers( arguments_.include_dirs(),
+                                                  arguments_.system_include_dirs() ) ) {
+        if ( dir.compare( 0, build_dir.string().length(), build_dir.string() ) == 0 ) {
+          continue; /* we will handle build dir separately */
+        }
+
+        const string hash = blueprints.get( roost::canonical( dir ) );
+        const roost::path src = gg::paths::blueprint( hash );
+        const roost::path dst = gg::paths::blob( hash );
+
+        if ( not roost::exists( dst ) ) {
+          roost::copy_then_rename( src, dst, true, 0400 );
+        }
+
+        tarballs.insert( hash );
+      }
+
+      string include_tarballs_str;
+      for ( const auto & tarball : tarballs ) {
+        if ( include_tarballs_str.empty() ) { include_tarballs_str += tarball; }
+        else { include_tarballs_str += ":" + tarball; }
+      }
 
       /* (1) setting the necessary environment variables */
       preprocess_envars.emplace_back(
         create_envar( DEPGEN_WORKING_DIRECTORY, roost::current_working_directory().string() ) );
       preprocess_envars.emplace_back(
-        create_envar( DEPGEN_INCLUDE_TARBALLS, include_tarballs ) );
+        create_envar( DEPGEN_INCLUDE_TARBALLS, include_tarballs_str ) );
       preprocess_envars.emplace_back(
         create_envar( DEPGEN_INPUT_NAME, input.name ) );
       preprocess_envars.emplace_back(
@@ -442,12 +470,12 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         create_envar( DEPGEN_CC1_HASH, program_data.at( cc1_program ).hash() ) );
 
       /* (2) add the tarballs to the values */
-      for ( const auto & tarball : split( include_tarballs, ":" ) ) {
+      for ( const auto & tarball : tarballs ) {
         base_infiles.emplace_back( ".", "", gg::ObjectType::Value, tarball );
       }
 
       /* (3) add the header files in build directory to thunk */
-      vector<roost::path> files = scan_build_directory();
+      vector<roost::path> files = scan_build_directory( build_dir );
       for ( const auto file : files ) {
         base_infiles.emplace_back( file.string() );
       }
