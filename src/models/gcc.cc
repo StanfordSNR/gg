@@ -425,7 +425,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         return name + '=' + value;
       };
 
-      const roost::path & build_dir = roost::dirname( gg::paths::root() );
+      const roost::path & build_dir = roost::dirname( gg::paths::root() ) / "";
 
       /* (0) let's make sure that we have blueprints for everything first */
       Blueprints blueprints;
@@ -434,11 +434,14 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       auto process_directory_blueprints =
         [&] ( const string & dir )
         {
-          if ( dir.compare( 0, build_dir.string().length(), build_dir.string() ) == 0 ) {
+          const roost::path canonical_dir = roost::canonical( dir ) / "";
+
+          if ( canonical_dir.string().compare( 0, build_dir.string().length(),
+                                               build_dir.string() ) == 0 ) {
             return; /* we will handle build dir separately */
           }
 
-          const string hash = blueprints.get( roost::canonical( dir ) );
+          const string hash = blueprints.get( canonical_dir );
           const roost::path src = gg::paths::blueprint( hash );
           const roost::path dst = gg::paths::blob( hash );
 
