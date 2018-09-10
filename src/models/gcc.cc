@@ -136,6 +136,49 @@ string GCCModelGenerator::do_preprocessing( const InputFile & input )
   return hash;
 }
 
+bool ends_with( const string & str, const string & ending )
+{
+    return (str.length() >= ending.length() )
+           ? ( 0 == str.compare( str.length() - ending.length(), ending.length(), ending ) )
+           : false;
+}
+
+void get_all_files( vector<roost::path> & file_list,
+                    const roost::path & root,
+                    const vector<string> & filters )
+{
+  for ( const auto & entry : roost::get_directory_listing( root ) ) {
+    const roost::path entry_path = root / entry;
+    if ( roost::is_directory( entry_path ) and entry_path.string() != gg::paths::root().string() ) {
+      get_all_files( file_list, entry_path, filters );
+      continue;
+    }
+
+    for ( const auto & filter : filters ) {
+      if ( ends_with( entry_path.string(), filter ) ) {
+        file_list.push_back( entry_path );
+      }
+    }
+  }
+}
+
+vector<roost::path> GCCModelGenerator::scan_build_directory() const
+{
+  vector<roost::path> result;
+  vector<string> filters;
+
+  const roost::path build_dir = roost::dirname( gg::paths::root() );
+  ifstream fin { ( build_dir / "headers.gg.txt" ).string() };
+  string line;
+
+  while ( getline( fin, line ) ) {
+    filters.push_back( line );
+  }
+
+  get_all_files( result, build_dir, filters );
+  return result;
+}
+
 string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
                                           const GCCStage stage,
                                           const InputFile & input,
@@ -355,6 +398,12 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         base_infiles.emplace_back( ".", "", gg::ObjectType::Value, tarball );
       }
 
+      /* (3) add the header files in build directory to thunk */
+      vector<roost::path> files = scan_build_directory();
+      for ( const auto file : files ) {
+        base_infiles.emplace_back( file.string() );
+      }
+
       thunk_outputs.emplace_back( "dependencies" );
 
       all_args[ 0 ] = "/__gg__/generate-deps";
@@ -566,11 +615,11 @@ void GCCModelGenerator::generate()
   vector<InputFile> input_files = arguments_.input_files();
 
   /* count non-object input files */
-  const size_t source_inputs = std::count_if( input_files.begin(),
-                                              input_files.end(),
-                                              []( const InputFile & input ) {
-                                                return is_non_object_input( input );
-                                              } );
+  const size_t source_inputs = count_if( input_files.begin(),
+                                         input_files.end(),
+                                         []( const InputFile & input ) {
+                                           return is_non_object_input( input );
+                                         } );
 
   if ( source_inputs > 1 and not final_output.empty() ) {
     throw runtime_error( "cannot specify -o with -c, -S or -E with multiple files" );

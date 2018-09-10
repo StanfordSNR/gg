@@ -191,6 +191,8 @@ private:
   std::vector<std::string> scan_dependencies( const roost::path & filename,
                                               const Language source_language );
 
+  std::vector<roost::path> scan_build_directory() const;
+
 public:
   struct Options
   {
