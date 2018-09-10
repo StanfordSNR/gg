@@ -169,6 +169,10 @@ vector<roost::path> GCCModelGenerator::scan_build_directory() const
 
   const roost::path build_dir = roost::dirname( gg::paths::root() );
   ifstream fin { ( build_dir / "headers.gg.txt" ).string() };
+  if ( not fin.good() ) {
+    throw runtime_error( "cannot open headers.gg.txt" );
+  }
+
   string line;
 
   while ( getline( fin, line ) ) {
