@@ -18,6 +18,7 @@
 #include "util/file_descriptor.hh"
 #include "util/tokenize.hh"
 #include "util/util.hh"
+#include "util/xdg.hh"
 
 using namespace std;
 using namespace CryptoPP;
@@ -83,6 +84,35 @@ namespace gg {
       return inner_dir;
     }
 
+    roost::path get_gg_cache_dir()
+    {
+      const char * envar = getenv( "GG_CACHE_DIR" );
+
+      if ( envar == nullptr ) {
+        roost::path cache_dir = xdg::cache::home();
+        cache_dir = cache_dir / "gg";
+        return cache_dir;
+      }
+
+      return { envar };
+    }
+
+    roost::path get_gg_cache_inner_dir( const string & name )
+    {
+      const static roost::path gg_cache_dir = get_gg_cache_dir();
+      roost::path inner_dir = gg_cache_dir / name;
+
+      if ( roost::exists( inner_dir ) ) {
+        if ( not roost::is_directory( inner_dir ) ) {
+          throw runtime_error( inner_dir.string() + " is not a directory" );
+        }
+      } else {
+        roost::create_directories( inner_dir );
+      }
+
+      return inner_dir;
+    }
+
     roost::path root()
     {
       const static roost::path gg_dir = get_gg_dir();
@@ -109,7 +139,7 @@ namespace gg {
 
     roost::path remotes()
     {
-      const static roost::path index_path = get_inner_directory( "remotes" );
+      const static roost::path index_path = get_gg_cache_inner_dir( "remotes" );
       return index_path;
     }
 
