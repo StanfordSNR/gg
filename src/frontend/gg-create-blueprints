@@ -54,3 +54,4 @@ fi
 
 tar_hash=$(create_tarball "${TARGET_DIR}")
 echo "${tar_hash} ${SOURCE_DIR}" | tee -a ${INDEX_FILE}
+echo "$(sort -k2 ${INDEX_FILE})" >${INDEX_FILE}
