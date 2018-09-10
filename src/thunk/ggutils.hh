@@ -23,6 +23,7 @@ namespace gg {
     roost::path hash_cache();
     roost::path dependency_cache();
     roost::path inclue_cache();
+    roost::path blueprints();
 
     roost::path blob( const std::string & hash );
     roost::path reduction( const std::string & hash );

@@ -161,6 +161,12 @@ namespace gg {
       return include_cache_path;
     }
 
+    roost::path blueprints()
+    {
+      const static roost::path index_path = get_gg_cache_inner_dir( "blueprints" );
+      return index_path;
+    }
+
     roost::path blob( const string & hash )
     {
       return blobs() / hash;
