@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $(basename $0) DIRECTORY [FILTERS]"
+  exit 1
+fi
+
+SRCDIR=$1
+FILTERS_FILE=$2
+NPROC=$(($(nproc)*2))
+
+# HACK make sure gg dir is discoverable
+gg-infer sh -c ':'
+
+function collect_directory {
+  pattern=${1:-'*'}
+  find ${SRCDIR} -type f -name "$pattern" | xargs -P ${NPROC} -I% -- gg-collect "%"
+}
+
+if [ -z "${FILTERS_FILE}" ]; then
+  collect_directory
+else
+  while read -r FILE
+  do
+    collect_directory "$FILE"
+  done <${FILTERS_FILE}
+fi
