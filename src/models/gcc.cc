@@ -26,10 +26,11 @@
 #include "util/optional.hh"
 #include "util/system_runner.hh"
 #include "util/temp_file.hh"
+#include "util/tokenize.hh"
+#include "util/util.hh"
 
 using namespace std;
 using namespace gg::thunk;
-using namespace gg::protobuf;
 
 void dump_gcc_specs( TempFile & target_file )
 {
@@ -217,7 +218,6 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
                     + input.name
                     + END_REPLACE );
 
-
     args.push_back( "-Wno-builtin-macro-redefined" );
     args.push_back( "-D__TIMESTAMP__=\"REDACTED\"" );
     args.push_back( "-D__DATE__=\"REDACTED\"" );
@@ -251,32 +251,32 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     /* Generate dependency list */
     vector<string> dependencies;
 
-    if ( not defer_depgen_ ) {
-      TempFile makedep_tempfile { "/tmp/gg-makedep" };
-      string makedep_filename;
-      string makedep_target = DEFAULT_MAKE_TARGET;
+    TempFile makedep_tempfile { "/tmp/gg-makedep" };
+    string makedep_filename;
+    string makedep_target = DEFAULT_MAKE_TARGET;
 
-      if ( generate_makedep_file ) {
-        cerr << "\u251c\u2500 generating make dependencies file... ";
-        makedep_filename = *arguments_.option_argument( GCCOption::MF );
-        Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
-        if ( mt_arg.initialized() ) {
-          makedep_target = *mt_arg;
-        }
-        else {
-          makedep_target = roost::rbasename( input.name ).string();
-          string::size_type dot_pos = makedep_target.rfind( '.' );
-          if ( dot_pos != string::npos ) {
-              makedep_target = makedep_target.substr( 0, dot_pos );
-          }
-          makedep_target += ".o";
-        }
-        cerr << "done." << endl;
+    if ( generate_makedep_file ) {
+      cerr << "\u251c\u2500 generating make dependencies file... ";
+      makedep_filename = *arguments_.option_argument( GCCOption::MF );
+      Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
+      if ( mt_arg.initialized() ) {
+        makedep_target = *mt_arg;
       }
       else {
-        makedep_filename = makedep_tempfile.name();
+        makedep_target = roost::rbasename( input.name ).string();
+        string::size_type dot_pos = makedep_target.rfind( '.' );
+        if ( dot_pos != string::npos ) {
+            makedep_target = makedep_target.substr( 0, dot_pos );
+        }
+        makedep_target += ".o";
       }
+      cerr << "done." << endl;
+    }
+    else {
+      makedep_filename = makedep_tempfile.name();
+    }
 
+    if ( not defer_depgen_ ) {
       dependencies = generate_dependencies_file( operation_mode_, input.name,
                                                  all_args, makedep_filename,
                                                  makedep_target );
@@ -290,6 +290,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     all_args = prune_makedep_flags( all_args );
 
     /* INFILES */
+    string cc1_program = CC1;
+
     if ( input.language == Language::C or
          input.language == Language::C_HEADER or
          input.language == Language::ASSEMBLER_WITH_CPP ) {
@@ -297,6 +299,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     }
     else {
       base_executables.emplace_back( program_data.at( CC1PLUS ) );
+      cc1_program = CC1PLUS;
     }
 
     for ( const string & dep : dependencies ) {
@@ -318,16 +321,71 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     dummy_dirs.push_back( "." );
 
+    vector<ThunkFactory::Output> thunk_outputs { { "output", output } };
+    vector<string> preprocess_envars = envars_;
+    string depgen_binary;
+    string depgen_hash;
+
+    /* stuff related to deferred dependency generation -------------*/
+    if ( defer_depgen_ ) {
+      auto create_envar = [] ( const string & name, const string & value ) {
+        return name + '=' + value;
+      };
+
+      const string include_tarballs = safe_getenv( "GG_GCC_INCLUDE_TARBALLS" );
+
+      /* (1) setting the necessary environment variables */
+      preprocess_envars.emplace_back(
+        create_envar( DEPGEN_WORKING_DIRECTORY, roost::current_working_directory().string() ) );
+      preprocess_envars.emplace_back(
+        create_envar( DEPGEN_INCLUDE_TARBALLS, include_tarballs ) );
+      preprocess_envars.emplace_back(
+        create_envar( DEPGEN_INPUT_NAME, input.name ) );
+      preprocess_envars.emplace_back(
+        create_envar( DEPGEN_TARGET_NAME, makedep_target ) );
+      preprocess_envars.emplace_back(
+        create_envar( DEPGEN_GCC_HASH, gcc_data.hash() ) );
+      preprocess_envars.emplace_back(
+        create_envar( DEPGEN_CC1_NAME, cc1_program ) );
+      preprocess_envars.emplace_back(
+        create_envar( DEPGEN_CC1_HASH, program_data.at( cc1_program ).hash() ) );
+
+      /* (2) add the tarballs to the values */
+      for ( const auto & tarball : split( include_tarballs, ":" ) ) {
+        base_infiles.emplace_back( ".", "", gg::ObjectType::Value, tarball );
+      }
+
+      thunk_outputs.emplace_back( "dependencies" );
+
+      depgen_binary = safe_getenv( "GG_GCC_DEPGEN_BIN" );
+      depgen_hash = gg::hash::file( depgen_binary );
+      base_executables.emplace_back( "/__gg__/generate-deps",
+                                     depgen_binary,
+                                     gg::ObjectType::Value,
+                                     depgen_hash );
+    }
+
+    Function function = ( defer_depgen_ )
+                      ? Function { depgen_hash, all_args, preprocess_envars }
+                      : gcc_function( operation_mode_, all_args, preprocess_envars );
+    /*-------------------------------------------------------------*/
+
     generated_thunk_hash = ThunkFactory::generate(
-      gcc_function( operation_mode_, all_args, envars_ ),
+      function,
       base_infiles,
       base_executables,
-      { { "output", output } },
+      thunk_outputs,
       dummy_dirs,
         ThunkFactory::Options::collect_data
         | ThunkFactory::Options::generate_manifest
         | ThunkFactory::Options::include_filenames
     );
+
+    if ( defer_depgen_ and generate_makedep_file ) {
+      /* let's create a placeholder for the dependencies file */
+      ThunkPlaceholder deps_placeholder( gg::hash::for_output( generated_thunk_hash, "dependencies" ) );
+      deps_placeholder.write( makedep_filename );
+    }
 
     break;
   }

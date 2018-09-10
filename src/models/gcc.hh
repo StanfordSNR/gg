@@ -81,6 +81,14 @@ static auto gcc_function =
 static const std::string DEFAULT_MAKE_TARGET = "__GG_MAKE_TARGET__";
 static const roost::path GG_SYSROOT_PREFIX = "./__gg_sysroot__";
 
+static constexpr char DEPGEN_WORKING_DIRECTORY[] = "_GG_WORKING_DIRECTORY";
+static constexpr char DEPGEN_INCLUDE_TARBALLS[]  = "_GG_INCLUDE_TARBALLS";
+static constexpr char DEPGEN_INPUT_NAME[]        = "_GG_INPUT_NAME";
+static constexpr char DEPGEN_TARGET_NAME[]       = "_GG_TARGET_NAME";
+static constexpr char DEPGEN_GCC_HASH[]          = "_GG_GCC_HASH";
+static constexpr char DEPGEN_CC1_NAME[]          = "_GG_CC1_NAME";
+static constexpr char DEPGEN_CC1_HASH[]          = "_GG_CC1_HASH";
+
 class GCCArguments
 {
 private:
