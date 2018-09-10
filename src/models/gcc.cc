@@ -60,14 +60,15 @@ Blueprints::Blueprints()
     }
 
     const string hash = line.substr( 0, gg::hash::length );
-    const string path = line.substr( gg::hash::length + 1 );
+    string path = line.substr( gg::hash::length + 1 );
+    if ( path.back() != '/' ) { path.append( 1, '/' ); }
     items_.emplace_back( path, hash );
   }
 }
 
 string Blueprints::get( const roost::path & path ) const
 {
-  const string & path_str = path.string();
+  string path_str = ( path / "" ).string();
   for ( const auto & item : items_ ) {
     if ( path_str.compare( 0, item.first.length(), item.first ) == 0 ) {
       return item.second;
@@ -430,21 +431,37 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       Blueprints blueprints;
       unordered_set<string> tarballs;
 
-      for ( const string & dir : join_containers( arguments_.include_dirs(),
-                                                  arguments_.system_include_dirs() ) ) {
-        if ( dir.compare( 0, build_dir.string().length(), build_dir.string() ) == 0 ) {
-          continue; /* we will handle build dir separately */
+      auto process_directory_blueprints =
+        [&] ( const string & dir )
+        {
+          if ( dir.compare( 0, build_dir.string().length(), build_dir.string() ) == 0 ) {
+            return; /* we will handle build dir separately */
+          }
+
+          const string hash = blueprints.get( roost::canonical( dir ) );
+          const roost::path src = gg::paths::blueprint( hash );
+          const roost::path dst = gg::paths::blob( hash );
+
+          if ( not roost::exists( dst ) ) {
+            roost::copy_then_rename( src, dst, true, 0400 );
+          }
+
+          tarballs.insert( hash );
+        };
+
+      for ( const string & dir : arguments_.include_dirs() ) {
+        process_directory_blueprints( dir );
+      }
+
+      for ( const string & dir : arguments_.system_include_dirs() ) {
+        process_directory_blueprints( dir );
+      }
+
+      if ( not arguments_.no_stdinc() ) {
+        for ( const string & dir : ( arguments_.no_stdincpp() ? c_include_path
+                                                              : include_path ) ) {
+          process_directory_blueprints( dir );
         }
-
-        const string hash = blueprints.get( roost::canonical( dir ) );
-        const roost::path src = gg::paths::blueprint( hash );
-        const roost::path dst = gg::paths::blob( hash );
-
-        if ( not roost::exists( dst ) ) {
-          roost::copy_then_rename( src, dst, true, 0400 );
-        }
-
-        tarballs.insert( hash );
       }
 
       string include_tarballs_str;

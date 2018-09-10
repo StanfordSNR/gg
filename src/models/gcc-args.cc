@@ -299,6 +299,7 @@ GCCArguments::GCCArguments( const int argc_orig, char * const * argv_orig,
         string optarg_str = path_fn( optarg );
         args_.emplace_back( "-isystem" + optarg_str );
         system_include_dirs_.emplace_back( optarg_str );
+        add_to_args = false;
         break;
       }
 
