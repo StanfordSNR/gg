@@ -32,6 +32,50 @@
 using namespace std;
 using namespace gg::thunk;
 
+class Blueprints
+{
+private:
+  vector<pair<string, string>> items_;
+
+public:
+  Blueprints();
+  string get( const roost::path & path ) const;
+};
+
+Blueprints::Blueprints()
+  : items_()
+{
+  roost::path blueprints_index = gg::paths::blueprints() / "index";
+  if ( not roost::exists( blueprints_index ) ) {
+    return;
+  }
+
+  ifstream fin { blueprints_index.string() };
+  string line;
+
+  while ( getline( fin, line ) ) {
+    if ( line.length() < gg::hash::length + 2 ) {
+      throw runtime_error( "invalid blueprints index format" );
+    }
+
+    const string hash = line.substr( 0, gg::hash::length );
+    const string path = line.substr( gg::hash::length + 1 );
+    items_.emplace_back( path, hash );
+  }
+}
+
+string Blueprints::get( const roost::path & path ) const
+{
+  const string & path_str = path.string();
+  for ( const auto & item : items_ ) {
+    if ( path_str.compare( 0, item.first.length(), item.first ) == 0 ) {
+      return item.second;
+    }
+  }
+
+  throw runtime_error( "could not find a blueprint for " + path.string() );
+}
+
 void dump_gcc_specs( TempFile & target_file )
 {
   target_file.write( run( "gcc-7", { "gcc-7", "-dumpspecs" },
