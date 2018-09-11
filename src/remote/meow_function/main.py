@@ -16,6 +16,9 @@ os.environ['PATH'] = "{}:{}".format(curdir, os.environ.get('PATH', ''))
 if not os.environ.get('GG_DIR'):
     os.environ['GG_DIR'] = "/tmp/_gg"
 
+if not os.environ.get('GG_CACHE_DIR'):
+    os.environ['GG_CACHE_DIR'] = "/tmp/_gg/_cache"
+
 # Now we can import gg stuff...
 from common import run_command
 
