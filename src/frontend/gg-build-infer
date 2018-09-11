@@ -1,0 +1,4 @@
+#!/bin/bash -e
+
+export GG_GCC_DEFER_DEPGEN=1
+gg-infer "$@"
