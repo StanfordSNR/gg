@@ -156,7 +156,7 @@ int main( int argc, char * argv[] )
       GCCModelGenerator::generate_dependencies_file(
         op_mode, input_name, thunk_args,
         ( execution_root / "dependencies" ).string(), target_name,
-        gcc_path.string(), vector<string> { { path_envar } } );
+        false, gcc_path.string(), vector<string> { { path_envar } } );
 
     /* (1) create a new function ###################################*/
     const Function & function = thunk.function();
