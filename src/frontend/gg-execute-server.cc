@@ -140,7 +140,9 @@ int main( int argc, char * argv[] )
                       }
 
                       const auto output_path = paths::blob( result->hash );
-                      const string output_data = ""; // base64::encode( roost::read_file( output_path ) );
+                      const string output_data = result->hash[ 0 ] == 'T'
+                                               ? base64::encode( roost::read_file( output_path ) )
+                                               : "";
 
                       output_item.set_tag( tag );
                       output_item.set_hash( result->hash );
