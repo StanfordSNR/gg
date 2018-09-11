@@ -26,6 +26,7 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
   }
 
   response.status = static_cast<JobStatus>( response_proto.return_code() );
+  response.stdout = response_proto.stdout();
 
   if ( response.status != JobStatus::Success ) {
     return response;
@@ -44,7 +45,6 @@ ExecutionResponse ExecutionResponse::parse_message( const std::string & message 
   }
 
   response.thunk_hash = response_proto.executed_thunks( 0 ).thunk_hash();
-  response.stdout = response_proto.stdout();
 
   return response;
 }
