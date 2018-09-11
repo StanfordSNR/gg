@@ -151,7 +151,7 @@ string SecureSocket::read( const bool register_as_write )
           register_service( register_as_write );
         }
 
-        throw ssl_error( "SSL_read", SSL_get_error( ssl_.get(), error_return ) );
+        throw ssl_error( "SSL_read", error_return );
     } else {
         /* success */
         register_service( register_as_write );
