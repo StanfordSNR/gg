@@ -349,7 +349,6 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
     string makedep_target = DEFAULT_MAKE_TARGET;
 
     if ( generate_makedep_file ) {
-      cerr << "\u251c\u2500 generating make dependencies file... ";
       makedep_filename = *arguments_.option_argument( GCCOption::MF );
       Optional<string> mt_arg = arguments_.option_argument( GCCOption::MT );
       if ( mt_arg.initialized() ) {
@@ -363,16 +362,17 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         }
         makedep_target += ".o";
       }
-      cerr << "done." << endl;
     }
     else {
       makedep_filename = makedep_tempfile.name();
     }
 
     if ( not defer_depgen_ ) {
+      cerr << "\u251c\u2500 generating make dependencies file... ";
       dependencies = generate_dependencies_file( operation_mode_, input.name,
                                                  all_args, makedep_filename,
                                                  makedep_target );
+      cerr << "done." << endl;
     }
 
     /* We promised that we would add these here, and we lived up to our
@@ -434,6 +434,10 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       auto process_directory_blueprints =
         [&] ( const string & dir )
         {
+          if ( not roost::exists( dir ) ) {
+            return; /* this directory doesn't event exist */
+          }
+
           const roost::path canonical_dir = roost::canonical( dir ) / "";
 
           if ( canonical_dir.string().compare( 0, build_dir.string().length(),
@@ -530,8 +534,10 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     if ( defer_depgen_ and generate_makedep_file ) {
       /* let's create a placeholder for the dependencies file */
-      ThunkPlaceholder deps_placeholder( gg::hash::for_output( generated_thunk_hash, "dependencies" ) );
-      deps_placeholder.write( makedep_filename );
+      ofstream fout_dep { makedep_filename };
+      fout_dep << makedep_target << ": " << input.name << endl;
+      // ThunkPlaceholder deps_placeholder( gg::hash::for_output( generated_thunk_hash, "dependencies" ) );
+      // deps_placeholder.write( makedep_filename );
     }
 
     break;
