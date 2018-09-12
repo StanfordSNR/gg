@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -exf
 
 if [ $# -lt 1 ]; then
   echo "Usage: $(basename $0) DIRECTORY [FILTERS]"
@@ -21,10 +21,10 @@ if [ ! -z "${FILTERS_FILE}" ]; then
     if [ ${#FIND_CMD[@]} -gt 0 ]; then
       FIND_CMD+=("-o")
     fi
-    FIND_CMD+=("-iname" "$FILE")
+    FIND_CMD+=("-ipath" "$FILE")
   done <${FILTERS_FILE}
 else
-  FIND_CMD=("-iname" '*')
+  FIND_CMD=("-ipath" '*')
 fi
 
 mkdir -p ${BLUEPRINTS_HOME}
