@@ -38,7 +38,7 @@ function process_directory {
 
   ( find ${srcdir} -type f \( ${FIND_CMD[@]} \) |
       xargs -P ${NPROC} -I% -- sh -c \
-        'mkdir -p "'"${dstdir}"'/$(dirname "%")"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | splice-lines | cpp -fpreprocessed -P -dD - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
+        'mkdir -p "'"${dstdir}"'/$(dirname "%")"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | splice-lines | cpp -fpreprocessed -P -dD -w - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
 }
 
 function create_tarball {

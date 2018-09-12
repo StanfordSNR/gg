@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -exf
 
 if [ $# -lt 1 ]; then
   echo "Usage: $(basename $0) DIRECTORY [FILTERS]"
@@ -12,16 +12,22 @@ NPROC=$(($(nproc)*2))
 # HACK make sure gg dir is discoverable
 gg-infer sh -c ':'
 
-function collect_directory {
-  pattern=${1:-'*'}
-  find ${SRCDIR} -type f -name "$pattern" | xargs -P ${NPROC} -I% -- gg-collect "%"
-}
+FIND_CMD=()
 
-if [ -z "${FILTERS_FILE}" ]; then
-  collect_directory
-else
+if [ ! -z "${FILTERS_FILE}" ]; then
   while read -r FILE
   do
-    collect_directory "$FILE"
+    if [ ${#FIND_CMD[@]} -gt 0 ]; then
+      FIND_CMD+=("-o")
+    fi
+    FIND_CMD+=("-ipath" "$FILE")
   done <${FILTERS_FILE}
+else
+  FIND_CMD=("-ipath" '*')
 fi
+
+function collect_directory {
+  find ${SRCDIR} -type f \( ${FIND_CMD[@]} \) | xargs -P ${NPROC} -I% -- gg-collect "%"
+}
+
+collect_directory
