@@ -1,4 +1,5 @@
 #!/bin/bash -e
 
 export GG_GCC_DEFER_DEPGEN=1
+export GG_GCC_DEPGEN_BIN=$(which generate-deps)
 gg-infer "$@"
