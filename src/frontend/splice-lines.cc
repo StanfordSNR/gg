@@ -11,7 +11,10 @@ int main()
   string line;
 
   while ( getline( cin, line ) ) {
-    if ( line.back() == '\\' ) {
+    if ( line == "#pragma once" ) {
+      cout << "--GGKEEP--" << line << endl;
+    }
+    else if ( line.back() == '\\' ) {
       line.pop_back();
       cout << line;
     }
