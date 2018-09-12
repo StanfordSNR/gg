@@ -13,6 +13,20 @@ BLUEPRINTS_HOME=${XDG_CACHE_HOME:-${HOME}/.cache}/gg/blueprints
 INDEX_FILE=${BLUEPRINTS_HOME}/index
 NPROC=$(nproc)
 
+FIND_CMD=()
+
+if [ ! -z "${FILTERS_FILE}" ]; then
+  while read -r FILE
+  do
+    if [ ${#FIND_CMD[@]} -gt 0 ]; then
+      FIND_CMD+=("-o")
+    fi
+    FIND_CMD+=("-iname" "$FILE")
+  done <${FILTERS_FILE}
+else
+  FIND_CMD=("-iname" '*')
+fi
+
 mkdir -p ${BLUEPRINTS_HOME}
 
 TEMPDIR=$(mktemp -d)
@@ -21,13 +35,10 @@ trap "rm -rf $TEMPDIR" EXIT
 function process_directory {
   srcdir=$(readlink -f ${1?source dir is empty})
   dstdir=$(readlink -f ${2?destination dir is empty})
-  pattern=${3:-'*'}
 
-  ( find ${srcdir} -type f -name "$pattern" |
+  ( find ${srcdir} -type f \( ${FIND_CMD[@]} \) |
       xargs -P ${NPROC} -I% -- sh -c \
-        'mkdir -p "'"${dstdir}"'/$(dirname %)"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | splice-lines | cpp -fpreprocessed -P -dD - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
-
-  return 0
+        'mkdir -p "'"${dstdir}"'/$(dirname "%")"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | splice-lines | cpp -fpreprocessed -P -dD - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
 }
 
 function create_tarball {
@@ -43,15 +54,9 @@ function create_tarball {
 
 TARGET_DIR=$(mktemp -d ${TEMPDIR}/sources.XXXXXXXX)
 
-if [ -z "${FILTERS_FILE}" ]; then
-  process_directory "${SOURCE_DIR}" "${TARGET_DIR}"
-else
-  while read -r FILE
-  do
-    process_directory "${SOURCE_DIR}" "${TARGET_DIR}" "$FILE"
-  done <${FILTERS_FILE}
-fi
+process_directory "${SOURCE_DIR}" "${TARGET_DIR}"
 
-tar_hash=$(create_tarball "${TARGET_DIR}")
-echo "${tar_hash} ${SOURCE_DIR}" | tee -a ${INDEX_FILE}
+TAR_HASH=$(create_tarball "${TARGET_DIR}")
+
+echo "${TAR_HASH} ${SOURCE_DIR}" | tee -a ${INDEX_FILE}
 echo "$(sort -k2 ${INDEX_FILE})" >${INDEX_FILE}
