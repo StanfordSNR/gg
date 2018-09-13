@@ -12,3 +12,4 @@ model-generic
 model-nm
 model-readelf
 generate-deps
+dir-watcher
