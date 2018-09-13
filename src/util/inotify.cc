@@ -23,13 +23,13 @@ Inotify::Inotify(Poller & poller)
   );
 }
 
-int Inotify::add_watch(const string & path,
+int Inotify::add_watch(const roost::path & path,
                         const uint32_t mask,
                         const callback_t & callback)
 {
   int wd = CheckSystemCall(
              "inotify_add_watch",
-             inotify_add_watch(inotify_fd_.fd_num(), path.c_str(), mask));
+             inotify_add_watch(inotify_fd_.fd_num(), path.string().c_str(), mask));
 
   /* insert a new key-value pair or update the current value */
   map_[wd] = make_tuple(path, mask, callback);
@@ -37,7 +37,7 @@ int Inotify::add_watch(const string & path,
   return wd;
 }
 
-vector<int> Inotify::add_watch(const vector<string> & paths,
+vector<int> Inotify::add_watch(const vector<roost::path> & paths,
                                 const uint32_t mask,
                                 const callback_t & callback)
 {
