@@ -205,6 +205,7 @@ void get_all_files( vector<roost::path> & file_list,
     for ( const auto & filter : filters ) {
       if ( ends_with( entry_path.string(), filter ) ) {
         file_list.push_back( entry_path );
+        break;
       }
     }
   }
