@@ -28,6 +28,7 @@
 #include "util/system_runner.hh"
 #include "util/temp_file.hh"
 #include "util/tokenize.hh"
+#include "util/timeit.hh"
 #include "util/util.hh"
 
 using namespace std;
@@ -425,7 +426,9 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         return name + '=' + value;
       };
 
-      const roost::path & build_dir = roost::dirname( gg::paths::root() ) / "";
+      const roost::path build_dir = ( getenv( "GG_GCC_BUILD_DIR" ) == nullptr )
+                                  ? roost::dirname( gg::paths::root() ) / ""
+                                  : roost::path { safe_getenv( "GG_GCC_BUILD_DIR" ) };
 
       /* (0) let's make sure that we have blueprints for everything first */
       Blueprints blueprints;
@@ -499,10 +502,17 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       }
 
       /* (3) add the header files in build directory to thunk */
-      vector<roost::path> files = scan_build_directory( build_dir );
-      for ( const auto file : files ) {
-        base_infiles.emplace_back( file.string() );
-      }
+      vector<roost::path> files;
+
+      cerr << "scanning build directory: " << time_it<chrono::milliseconds>(
+        [&] ()
+        {
+          files = scan_build_directory( build_dir );
+          for ( const auto file : files ) {
+            base_infiles.emplace_back( file.string() );
+          }
+        }).count() << endl;
+
 
       thunk_outputs.emplace_back( "dependencies" );
 
