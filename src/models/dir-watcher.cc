@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -13,8 +14,11 @@
 #include "util/inotify.hh"
 #include "util/poller.hh"
 #include "util/path.hh"
+#include "util/ipc_socket.hh"
+#include "util/optional.hh"
 
 using namespace std;
+using namespace PollerShortNames;
 
 bool ends_with( const string & str, const string & ending )
 {
@@ -26,7 +30,7 @@ bool ends_with( const string & str, const string & ending )
 
 void usage( const char * argv0 )
 {
-  cerr << argv0 << " DIR-NAME FILTERS" << endl;
+  cerr << argv0 << " DIR-NAME FILTERS SOCKET" << endl;
 }
 
 vector<string> read_filters( const string & filename )
@@ -47,15 +51,31 @@ vector<string> read_filters( const string & filename )
   return filters;
 }
 
+bool check_file( const roost::path & path, const vector<string> & filters )
+{
+  for ( const auto & filter : filters ) {
+    if ( ends_with( path.string(), filter ) ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 class Watcher
 {
 private:
   const roost::path root_;
   const vector<string> filters_;
+  const string sock_path_;
+
+  IPCSocket ipc_socket_ {};
   Poller poller_ {};
   Inotify notifier_ { poller_ };
   unordered_map<string, string> index_ {};
   Inotify::callback_t watch_callback_fn_;
+
+  mutable Optional<string> index_str_cache_ { false };
 
   static constexpr int watch_flags { IN_MOVE | IN_DELETE | IN_CLOSE_WRITE | IN_CREATE |
   IN_ONLYDIR };
@@ -64,16 +84,45 @@ private:
   void scan_directory( const roost::path & path );
 
 public:
-  Watcher( roost::path && root, vector<string> && filters );
+  Watcher( roost::path && root, vector<string> && filters, string && sock_path );
   Poller::Result loop_once() { return poller_.poll( -1 ); }
+
+  string index_str() const;
 };
 
-Watcher::Watcher( roost::path && root, vector<string> && filters )
-  : root_( move( root ) ), filters_( move( filters ) ),
-    watch_callback_fn_( bind( &Watcher::watch_callback, this,
-                              placeholders::_1, placeholders::_2 ) )
+Watcher::Watcher( roost::path && root, vector<string> && filters,
+                  string && sock_path )
+  : root_( move( root ) ), filters_( move( filters ) ), sock_path_( move( sock_path ) ),
+    watch_callback_fn_( [this] ( const inotify_event & e, const roost::path & p ) {
+                          this->watch_callback( e, p ); } )
 {
   scan_directory( root_ );
+  ipc_socket_.bind( sock_path_ );
+  ipc_socket_.listen();
+  cerr << "listening on " << "unix://" << sock_path_ << "..." << endl;
+
+  poller_.add_action( { ipc_socket_, Direction::In,
+    [this] () -> ResultType
+    {
+      FileDescriptor conn_fd = ipc_socket_.accept();
+      conn_fd.write( index_str() );
+      return ResultType::Continue;
+    } } );
+}
+
+string Watcher::index_str() const
+{
+  if ( index_str_cache_.initialized() ) {
+    return *index_str_cache_;
+  }
+
+  ostringstream oss;
+  for ( auto const & item : index_ ) {
+    oss << item.first << endl << item.second << endl;
+  }
+
+  index_str_cache_.reset( oss.str() );
+  return *index_str_cache_;
 }
 
 void Watcher::watch_callback( const inotify_event & event, const roost::path & root )
@@ -82,7 +131,7 @@ void Watcher::watch_callback( const inotify_event & event, const roost::path & r
 
   if ( event.mask & IN_ISDIR ) {
     if ( event.mask & IN_CREATE ) {
-      notifier_.add_watch( full_path, watch_flags, watch_callback_fn_ );
+      scan_directory( full_path );
     }
     else if ( event.mask & IN_DELETE ) {}
     else {
@@ -91,6 +140,7 @@ void Watcher::watch_callback( const inotify_event & event, const roost::path & r
   }
   else {
     if ( ( event.mask & IN_CLOSE_WRITE ) or ( event.mask & IN_MOVED_TO ) ) {
+      index_str_cache_.clear();
       index_.emplace( make_pair( full_path, gg::hash::file( full_path ) ) );
     }
     else if ( ( event.mask & IN_MOVED_FROM ) or ( event.mask & IN_DELETE ) ) {
@@ -109,16 +159,15 @@ void Watcher::scan_directory( const roost::path & root )
 
   for ( const auto & entry : roost::get_directory_listing( root ) ) {
     const roost::path entry_path = root / entry;
+    /* XXX */
     if ( roost::is_directory( entry_path ) ) {
       scan_directory( entry_path );
     }
     else {
-      for ( const auto & filter : filters_ ) {
-        if ( ends_with( entry_path.string(), filter ) ) {
-          index_.emplace( make_pair( entry_path.string(),
-                                     gg::hash::file( entry_path ) ) );
-          break;
-        }
+      if ( check_file( entry_path, filters_ ) ) {
+        index_str_cache_.clear();
+        index_.emplace( make_pair( entry_path.string(),
+                                   gg::hash::file( entry_path ) ) );
       }
     }
   }
@@ -131,12 +180,13 @@ int main( int argc, char * argv[] )
       abort();
     }
 
-    if ( argc != 3 ) {
+    if ( argc != 4 ) {
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
 
-    Watcher watcher { roost::canonical( argv[ 1 ] ), read_filters( argv[ 2 ] ) };
+    Watcher watcher { roost::canonical( argv[ 1 ] ), read_filters( argv[ 2 ] ),
+                      argv[ 3 ] };
 
     while ( true )  {
       auto poll_result = watcher.loop_once().result;
