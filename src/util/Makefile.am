@@ -24,4 +24,5 @@ libggutil_a_SOURCES = exception.hh optional.hh chunk.hh \
                       uri.hh uri.cc \
                       args.hh args.cc \
                       xdg.hh xdg.cc \
-                      inotify.hh inotify.cc
+                      inotify.hh inotify.cc \
+                      ipc_socket.hh ipc_socket.cc
