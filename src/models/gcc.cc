@@ -435,7 +435,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         [&] ( const string & dir )
         {
           if ( not roost::exists( dir ) ) {
-            return; /* this directory doesn't event exist */
+            return; /* this directory doesn't even exist */
           }
 
           const roost::path canonical_dir = roost::canonical( dir ) / "";
