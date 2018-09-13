@@ -87,7 +87,7 @@ public:
   Watcher( roost::path && root, vector<string> && filters, string && sock_path );
   Poller::Result loop_once() { return poller_.poll( -1 ); }
 
-  string index_str() const;
+  const string & index_str() const;
 };
 
 Watcher::Watcher( roost::path && root, vector<string> && filters,
@@ -105,12 +105,15 @@ Watcher::Watcher( roost::path && root, vector<string> && filters,
     [this] () -> ResultType
     {
       FileDescriptor conn_fd = ipc_socket_.accept();
-      conn_fd.write( index_str() );
+      const string & response = index_str();
+      if ( response.length() ) {
+        conn_fd.write( response );
+      }
       return ResultType::Continue;
     } } );
 }
 
-string Watcher::index_str() const
+const string & Watcher::index_str() const
 {
   if ( index_str_cache_.initialized() ) {
     return *index_str_cache_;
@@ -140,8 +143,10 @@ void Watcher::watch_callback( const inotify_event & event, const roost::path & r
   }
   else {
     if ( ( event.mask & IN_CLOSE_WRITE ) or ( event.mask & IN_MOVED_TO ) ) {
-      index_str_cache_.clear();
-      index_.emplace( make_pair( full_path, gg::hash::file( full_path ) ) );
+      if ( check_file( full_path, filters_ ) ) {
+        index_str_cache_.clear();
+        index_.emplace( make_pair( full_path, gg::hash::file( full_path ) ) );
+      }
     }
     else if ( ( event.mask & IN_MOVED_FROM ) or ( event.mask & IN_DELETE ) ) {
       index_.erase( full_path );
@@ -160,7 +165,7 @@ void Watcher::scan_directory( const roost::path & root )
   for ( const auto & entry : roost::get_directory_listing( root ) ) {
     const roost::path entry_path = root / entry;
     /* XXX */
-    if ( roost::is_directory( entry_path ) ) {
+    if ( roost::exists_and_is_directory( entry_path ) ) {
       scan_directory( entry_path );
     }
     else {
