@@ -72,7 +72,7 @@ private:
   IPCSocket ipc_socket_ {};
   Poller poller_ {};
   Inotify notifier_ { poller_ };
-  unordered_map<string, string> index_ {};
+  unordered_set<string> index_ {};
   Inotify::callback_t watch_callback_fn_;
 
   mutable Optional<string> index_str_cache_ { false };
@@ -121,7 +121,7 @@ const string & Watcher::index_str() const
 
   ostringstream oss;
   for ( auto const & item : index_ ) {
-    oss << item.first << endl << item.second << endl;
+    oss << item << endl;
   }
 
   index_str_cache_.reset( oss.str() );
@@ -145,7 +145,7 @@ void Watcher::watch_callback( const inotify_event & event, const roost::path & r
     if ( ( event.mask & IN_CLOSE_WRITE ) or ( event.mask & IN_MOVED_TO ) ) {
       if ( check_file( full_path, filters_ ) ) {
         index_str_cache_.clear();
-        index_.emplace( make_pair( full_path, gg::hash::file( full_path ) ) );
+        index_.emplace( full_path );
       }
     }
     else if ( ( event.mask & IN_MOVED_FROM ) or ( event.mask & IN_DELETE ) ) {
@@ -171,8 +171,7 @@ void Watcher::scan_directory( const roost::path & root )
     else {
       if ( check_file( entry_path, filters_ ) ) {
         index_str_cache_.clear();
-        index_.emplace( make_pair( entry_path.string(),
-                                   gg::hash::file( entry_path ) ) );
+        index_.emplace( entry_path.string() );
       }
     }
   }
