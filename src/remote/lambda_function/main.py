@@ -31,6 +31,9 @@ def handler(event, context):
     thunks = event['thunks']
     timelog = event.get('timelog')
 
+    # Remove old thunk-execute directories
+    os.system("rm -rf /tmp/thunk-execute.*")
+
     # Write thunks to disk
     for thunk_item in thunks:
         thunk_data = b64decode(thunk_item['data'])
@@ -47,9 +50,6 @@ def handler(event, context):
             if not os.path.exists(blob_path):
                 shutil.copy(exe_path, blob_path)
                 make_executable(blob_path)
-
-    # Remove old thunk-execute directories
-    os.system("rm -rf /tmp/thunk-execute.*")
 
     # Execute the thunk, and upload the result
     command = ["gg-execute-static",
