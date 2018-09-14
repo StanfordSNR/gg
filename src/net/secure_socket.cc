@@ -165,7 +165,7 @@ void SecureSocket::write( const string & message, const bool register_as_read )
     ERR_clear_error();
     ssize_t bytes_written = SSL_write( ssl_.get(), message.data(), message.length() );
 
-    if ( bytes_written < 0 ) {
+    if ( bytes_written <= 0 ) {
         int error_return = SSL_get_error( ssl_.get(), bytes_written );
 
         if ( error_return == SSL_ERROR_WANT_WRITE or error_return == SSL_ERROR_WANT_READ ) {
