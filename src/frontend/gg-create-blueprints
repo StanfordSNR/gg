@@ -1,30 +1,59 @@
-#!/bin/bash -exf
+#!/bin/bash -ef
 
 if [ $# -lt 1 ]; then
-  echo "Usage: $(basename $0) DIRECTORY [FILTERS]"
+  echo "Usage: $(basename $0) [-f FILTERS] [-x EXCLUDES] DIRECTORY"
   exit 1
 fi
 
 # TODO we should lock the index file before changing it
 
-SOURCE_DIR=$(readlink -f $1)
-FILTERS_FILE=$2
+FILTERS_FILE=''
+EXCLUDES_FILE=''
 BLUEPRINTS_HOME=${XDG_CACHE_HOME:-${HOME}/.cache}/gg/blueprints
 INDEX_FILE=${BLUEPRINTS_HOME}/index
 NPROC=$(nproc)
 
-FIND_CMD=()
+while getopts "x:f:" opt; do
+  case ${opt} in
+    x )
+      EXCLUDES_FILE=$OPTARG
+      ;;
+    f )
+      FILTERS_FILE=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: -$OPTARG"
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND-1))
 
+SOURCE_DIR=$(readlink -f $1)
+
+FILTERS_OPTS=()
 if [ ! -z "${FILTERS_FILE}" ]; then
   while read -r FILE
   do
-    if [ ${#FIND_CMD[@]} -gt 0 ]; then
-      FIND_CMD+=("-o")
+    if [ ${#FILTERS_OPTS[@]} -gt 0 ]; then
+      FILTERS_OPTS+=("-o")
     fi
-    FIND_CMD+=("-ipath" "$FILE")
+    FILTERS_OPTS+=("-ipath" "$FILE")
   done <${FILTERS_FILE}
+  FILTERS_OPTS=( \( "${FILTERS_OPTS[@]}" \) )
 else
-  FIND_CMD=("-ipath" '*')
+  FILTERS_OPTS=("-ipath" '*')
+fi
+
+EXCLUDES_OPTS=()
+if [ ! -z "${EXCLUDES_FILE}" ]; then
+  while read -r FILE
+  do
+    EXCLUDES_OPTS+=("-not" "-ipath" "$FILE")
+  done <${EXCLUDES_FILE}
+  EXCLUDES_OPTS=( \( "${EXCLUDES_OPTS[@]}" \) )
+else
+  EXCLUDES_OPTS=()
 fi
 
 mkdir -p ${BLUEPRINTS_HOME}
@@ -36,7 +65,7 @@ function process_directory {
   srcdir=$(readlink -f ${1?source dir is empty})
   dstdir=$(readlink -f ${2?destination dir is empty})
 
-  ( find ${srcdir} -type f \( ${FIND_CMD[@]} \) |
+  ( find ${srcdir} -type f ${FILTERS_OPTS[@]} -type f ${EXCLUDES_OPTS[@]} | tee /dev/tty |
       xargs -P ${NPROC} -I% -- sh -c \
         'mkdir -p "'"${dstdir}"'/$(dirname "%")"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | splice-lines | cpp -fpreprocessed -P -dD -w - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
 }
@@ -55,8 +84,7 @@ function create_tarball {
 TARGET_DIR=$(mktemp -d ${TEMPDIR}/sources.XXXXXXXX)
 
 process_directory "${SOURCE_DIR}" "${TARGET_DIR}"
-
 TAR_HASH=$(create_tarball "${TARGET_DIR}")
 
 echo "${TAR_HASH} ${SOURCE_DIR}" | tee -a ${INDEX_FILE}
-echo "$(sort -k2 ${INDEX_FILE})" >${INDEX_FILE}
+echo "$(sort -r -k2 ${INDEX_FILE})" >${INDEX_FILE}
