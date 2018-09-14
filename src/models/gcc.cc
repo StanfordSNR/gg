@@ -30,6 +30,7 @@
 #include "util/tokenize.hh"
 #include "util/timeit.hh"
 #include "util/util.hh"
+#include "util/ipc_socket.hh"
 
 using namespace std;
 using namespace gg::thunk;
@@ -505,15 +506,29 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       /* (3) add the header files in build directory to thunk */
       vector<roost::path> files;
 
-      cerr << "scanning build directory: " << time_it<chrono::milliseconds>(
-        [&] ()
-        {
-          files = scan_build_directory( build_dir );
-          for ( const auto file : files ) {
-            base_infiles.emplace_back( file.string() );
-          }
-        }).count() << endl;
+      if ( getenv( "GG_GCC_WATCHER_SOCK" ) == nullptr ) {
+        files = scan_build_directory( build_dir );
+        for ( const auto & file : files ) {
+          base_infiles.emplace_back( file.string() );
+        }
+      }
+      else {
+        string index_str;
 
+        {
+          IPCSocket ipc_socket;
+          ipc_socket.connect( safe_getenv( "GG_GCC_WATCHER_SOCK" ) );
+          while ( not ipc_socket.eof() ) {
+            index_str += ipc_socket.read();
+          }
+        }
+
+        string line;
+        istringstream iss { index_str };
+        while ( getline( iss, line ) ) {
+          base_infiles.emplace_back( line );
+        }
+      }
 
       thunk_outputs.emplace_back( "dependencies" );
 
