@@ -296,7 +296,7 @@ namespace roost {
     struct stat file_info;
     CheckSystemCall( "fstatat " + pathn.string(),
                      fstatat( parent_directory.num(), pathn.string().c_str(),
-                              &file_info, 0 ) );
+                              &file_info, AT_SYMLINK_NOFOLLOW ) );
     return S_ISDIR( file_info.st_mode );
   }
 
