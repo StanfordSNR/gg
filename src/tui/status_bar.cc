@@ -35,8 +35,8 @@ void StatusBar::init()
   ioctl( STDOUT_FILENO, TIOCGWINSZ, &window_size_ );
 
   ostringstream oss;
-  oss << "\x0A\0337\033[1;" << window_size_.ws_row - 1 << "r\033["
-      << window_size_.ws_row << ";1H\033[K\0338\xc2\x8D";
+  oss << "\n\0337\033[1;" << window_size_.ws_row - 1 << "r\033["
+      << window_size_.ws_row << ";1H\033[2K\0338\033[1A";
 
   cerr << oss.str() << flush;
 }
