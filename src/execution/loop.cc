@@ -15,7 +15,7 @@ using namespace PollerShortNames;
 using ReductionResult = gg::cache::ReductionResult;
 
 ExecutionLoop::ExecutionLoop()
-  : signals_( { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT, SIGINT } ),
+  : signals_( { SIGCHLD, SIGCONT, SIGHUP, SIGTERM, SIGQUIT } ),
     signal_fd_( signals_ )
 {
   signals_.set_as_mask();
@@ -343,7 +343,6 @@ Poller::Action::Result ExecutionLoop::handle_signal( const signalfd_siginfo & si
   case SIGHUP:
   case SIGTERM:
   case SIGQUIT:
-  case SIGINT:
     throw runtime_error( "interrupted by signal" );
 
   default:
