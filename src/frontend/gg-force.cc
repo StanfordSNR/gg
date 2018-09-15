@@ -75,8 +75,8 @@ void check_rlimit_nofile( const size_t max_jobs )
   target_nofile = min( target_nofile, limits.rlim_max );
 
   if ( limits.rlim_cur < target_nofile ) {
-    cerr << "Increasing the maximum number of allowed file descriptors from "
-         << limits.rlim_cur << " to " << target_nofile << ".\n";
+    /* cerr << "Increasing the maximum number of allowed file descriptors from "
+         << limits.rlim_cur << " to " << target_nofile << ".\n"; */
     limits.rlim_cur = target_nofile;
     CheckSystemCall( "setrlimit", setrlimit( RLIMIT_NOFILE, &limits ) );
   }
