@@ -39,6 +39,11 @@ constexpr char FORCE_DEFAULT_ENGINE[] = "GG_FORCE_DEFAULT_ENGINE";
 constexpr char FORCE_MAX_JOBS[] = "GG_FORCE_MAX_JOBS";
 constexpr char FORCE_TIMEOUT[] = "GG_FORCE_TIMEOUT";
 
+void sigint_handler( int )
+{
+  throw runtime_error( "killed by signal" );
+}
+
 void usage( const char * argv0 )
 {
   cerr << "Usage: " << argv0 << endl
@@ -154,6 +159,8 @@ int main( int argc, char * argv[] )
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
+
+    signal( SIGINT, sigint_handler );
 
     int timeout = ( getenv( FORCE_TIMEOUT ) != nullptr )
                   ? stoi( safe_getenv( FORCE_TIMEOUT ) ) : -1;
