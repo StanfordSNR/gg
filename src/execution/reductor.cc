@@ -37,12 +37,16 @@ using ReductionResult = gg::cache::ReductionResult;
 
 void Reductor::print_status() const
 {
+  if ( not status_bar_ ) {
+    return;
+  }
+
   static time_point<steady_clock> last_display = steady_clock::now();
   const static string color_reset = COLOR_RESET"\033[48;5;236m";
 
-  auto this_display = steady_clock::now();
+  const auto this_display = steady_clock::now();
 
-  if ( duration_cast<milliseconds>( this_display - last_display ).count() > 10 ) {
+  if ( duration_cast<milliseconds>( this_display - last_display ).count() > 33 ) {
     last_display = this_display;
 
     ostringstream data;
@@ -85,16 +89,19 @@ Reductor::Reductor( const vector<string> & target_hashes,
     fallback_engines_( move( fallback_engines ) ),
     storage_backend_( move( storage_backend ) )
 {
-  unordered_set<string> all_o1_deps;
+  cerr << "\u25c7 Loading the thunks... ";
+  auto graph_load_time = time_it<chrono::milliseconds>(
+    [this] ()
+    {
+      for ( const string & hash : target_hashes_ ) {
+        dep_graph_.add_thunk( hash );
 
-  for ( const string & hash : target_hashes_ ) {
-    dep_graph_.add_thunk( hash );
+        unordered_set<string> thunk_o1_deps = dep_graph_.order_one_dependencies( hash );
+        job_queue_.insert( job_queue_.end(), thunk_o1_deps.begin(), thunk_o1_deps.end() );
+      }
+    } ).count();
 
-    unordered_set<string> thunk_o1_deps = dep_graph_.order_one_dependencies( hash );
-    all_o1_deps.insert( thunk_o1_deps.begin(), thunk_o1_deps.end() );
-  }
-
-  job_queue_.insert( job_queue_.end(), all_o1_deps.begin(), all_o1_deps.end() );
+  cerr << " done (" << graph_load_time << " ms)." << endl;
 
   auto success_callback =
     [this] ( const string & old_hash, vector<ThunkOutput> && outputs, const float cost )
@@ -189,6 +196,8 @@ vector<string> Reductor::reduce()
 {
   while ( true ) {
     while ( not job_queue_.empty() ) {
+      print_status();
+
       const string thunk_hash { move( job_queue_.front() ) };
       job_queue_.pop_front();
 
@@ -273,9 +282,7 @@ vector<string> Reductor::reduce()
       }
     } /* while(Q is not empty) */
 
-    if ( status_bar_ ) {
-      print_status();
-    }
+    print_status();
 
     const auto poll_result = exec_loop_.loop_once( poller_timeout_ );
 
