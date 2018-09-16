@@ -445,10 +445,10 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
           const roost::path canonical_dir = roost::canonical( dir ) / "";
 
-          if ( canonical_dir.string().compare( 0, build_dir.string().length(),
+          /* if ( canonical_dir.string().compare( 0, build_dir.string().length(),
                                                build_dir.string() ) == 0 ) {
-            return; /* we will handle build dir separately */
-          }
+            return;
+          } */
 
           const string hash = blueprints.get( canonical_dir );
           const roost::path src = gg::paths::blueprint( hash );
@@ -507,10 +507,10 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       vector<roost::path> files;
 
       if ( getenv( "GG_GCC_WATCHER_SOCK" ) == nullptr ) {
-        files = scan_build_directory( build_dir );
+        /* files = scan_build_directory( build_dir );
         for ( const auto & file : files ) {
           base_infiles.emplace_back( file.string() );
-        }
+        } */
       }
       else {
         string index_str;
