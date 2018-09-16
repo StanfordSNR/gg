@@ -428,9 +428,10 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         return name + '=' + value;
       };
 
-      const roost::path build_dir = ( getenv( "GG_GCC_BUILD_DIR" ) == nullptr )
-                                  ? roost::dirname( gg::paths::root() ) / ""
-                                  : roost::path { safe_getenv( "GG_GCC_BUILD_DIR" ) };
+      Optional<roost::path> build_dir;
+      if ( getenv( "GG_GCC_BUILD_DIR" ) != nullptr ) {
+        build_dir.reset( roost::canonical( safe_getenv( "GG_GCC_BUILD_DIR" ) ) / "" );
+      }
 
       /* (0) let's make sure that we have blueprints for everything first */
       Blueprints blueprints;
@@ -445,10 +446,13 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
           const roost::path canonical_dir = roost::canonical( dir ) / "";
 
-          /* if ( canonical_dir.string().compare( 0, build_dir.string().length(),
-                                               build_dir.string() ) == 0 ) {
+          /* if build dir is set, don't look for a blueprint -- it will be
+             handled separately */
+          if ( build_dir.initialized() and
+               canonical_dir.string().compare( 0, build_dir->string().length(),
+                                                  build_dir->string() ) == 0 ) {
             return;
-          } */
+          }
 
           const string hash = blueprints.get( canonical_dir );
           const roost::path src = gg::paths::blueprint( hash );
@@ -506,27 +510,10 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       /* (3) add the header files in build directory to thunk */
       vector<roost::path> files;
 
-      if ( getenv( "GG_GCC_WATCHER_SOCK" ) == nullptr ) {
-        /* files = scan_build_directory( build_dir );
+      if ( build_dir.initialized() ) {
+        files = scan_build_directory( *build_dir );
         for ( const auto & file : files ) {
           base_infiles.emplace_back( file.string() );
-        } */
-      }
-      else {
-        string index_str;
-
-        {
-          IPCSocket ipc_socket;
-          ipc_socket.connect( safe_getenv( "GG_GCC_WATCHER_SOCK" ) );
-          while ( not ipc_socket.eof() ) {
-            index_str += ipc_socket.read();
-          }
-        }
-
-        string line;
-        istringstream iss { index_str };
-        while ( getline( iss, line ) ) {
-          base_infiles.emplace_back( line );
         }
       }
 
