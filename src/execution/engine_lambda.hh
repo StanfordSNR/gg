@@ -41,7 +41,7 @@ public:
 
   bool is_remote() const { return true; }
   bool can_execute( const gg::thunk::Thunk & thunk ) const override;
-  std::string label() const override { return "lambda"; }
+  std::string label() const override { return "\u03bb"; }
   size_t job_count() const override;
 };
 
