@@ -33,7 +33,7 @@ public:
   ~Connection()
   {
     if ( write_buffer_.size() ) {
-      std::cerr << "Connection destroyed with data left in write buffer" << std::endl;
+      /* std::cerr << "Connection destroyed with data left in write buffer" << std::endl; */
     }
   }
 
