@@ -81,16 +81,17 @@ Reductor::Reductor( const vector<string> & target_hashes,
                     vector<unique_ptr<ExecutionEngine>> && execution_engines,
                     vector<unique_ptr<ExecutionEngine>> && fallback_engines,
                     std::unique_ptr<StorageBackend> && storage_backend,
-                    const int base_timeout, const bool status_bar )
+                    const std::chrono::milliseconds default_timeout,
+                    const bool status_bar )
   : target_hashes_( target_hashes ),
     remaining_targets_( target_hashes_.begin(), target_hashes_.end() ),
-    status_bar_( status_bar ), base_poller_timeout_( base_timeout ),
-    poller_timeout_( base_timeout ), exec_engines_( move( execution_engines ) ),
+    status_bar_( status_bar ), default_timeout_( default_timeout ),
+    exec_engines_( move( execution_engines ) ),
     fallback_engines_( move( fallback_engines ) ),
     storage_backend_( move( storage_backend ) )
 {
   cerr << "\u25c7 Loading the thunks... ";
-  auto graph_load_time = time_it<chrono::milliseconds>(
+  auto graph_load_time = time_it<milliseconds>(
     [this] ()
     {
       for ( const string & hash : target_hashes_ ) {
@@ -270,7 +271,7 @@ vector<string> Reductor::reduce()
         }
 
         if ( exec_state == EXECUTING ) {
-          running_jobs_.insert( thunk_hash );
+          running_jobs_.emplace( make_pair( thunk_hash, JobInfo { default_timeout_ } ) );
         }
         else if ( exec_state == FULL_CAPACITY or exec_state == FULL_FALLBACK_CAPACITY ) {
           job_queue_.push_front( thunk_hash );
@@ -284,24 +285,32 @@ vector<string> Reductor::reduce()
 
     print_status();
 
-    const auto poll_result = exec_loop_.loop_once( poller_timeout_ );
+    const auto poll_result = exec_loop_.loop_once( timeout_check_interval_ == 0s
+                                                   ? -1
+                                                   : timeout_check_interval_.count() );
+    const auto clock_now = Clock::now();
 
-    if ( poll_result.result == Poller::Result::Type::Timeout
-         and base_poller_timeout_ > 0 ) {
-      /* poller has timed out. it means that during the alloted time
-      no job was finished. So, we add every running job to the queue! */
-      print_gg_message( "info", "no responses during last "
-                        + to_string( poller_timeout_ / 1000 )
-                        + "s, duplicating " + to_string( running_jobs_.size() )
-                        + " job(s)." );
+    if ( timeout_check_interval_ != 0s and clock_now >= next_timeout_check_ ) {
+      size_t count = 0;
 
-      job_queue_.insert( job_queue_.end(),
-                         running_jobs_.begin(), running_jobs_.end() );
-      poller_timeout_ = max( poller_timeout_ * base_poller_timeout_,
-                             poller_timeout_ );
-    }
-    else {
-      poller_timeout_ = base_poller_timeout_; /* return to the roots */
+      for ( auto & job : running_jobs_ ) {
+        if ( job.second.timeout != 0ms and
+             ( clock_now - job.second.start ) > job.second.timeout ) {
+          job_queue_.push_back( job.first );
+          job.second.start = clock_now;
+          job.second.timeout += job.second.restarts * job.second.timeout;
+          job.second.restarts++;
+
+          count ++;
+        }
+      }
+
+      next_timeout_check_ += timeout_check_interval_;
+
+      if ( count > 0 ) {
+        print_gg_message( "info", "duplicating " + to_string( count ) +
+                                  " job" + ( ( count == 1 ) ? "" : "s" ) );
+      }
     }
 
     if ( is_finished() or poll_result.result == Poller::Result::Type::Exit ) {
@@ -363,7 +372,7 @@ void Reductor::upload_dependencies() const
   cerr << "\u2197 Uploading " << upload_requests.size() << " file" << plural
        << " (" << format_bytes( total_size ) << ")... ";
 
-  auto upload_time = time_it<chrono::milliseconds>(
+  auto upload_time = time_it<milliseconds>(
     [&upload_requests, this]()
     {
       storage_backend_->put(
@@ -401,7 +410,7 @@ void Reductor::download_targets( const vector<string> & hashes ) const
   const string plural = download_requests.size() == 1 ? "" : "s";
   cerr << "\u2198 Downloading output file" << plural
        << " (" << format_bytes( total_size ) << ")... ";
-  auto download_time = time_it<chrono::milliseconds>(
+  auto download_time = time_it<milliseconds>(
     [&download_requests, this]()
     {
       storage_backend_->get( download_requests );

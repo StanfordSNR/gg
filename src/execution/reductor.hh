@@ -7,7 +7,9 @@
 #include <vector>
 #include <deque>
 #include <memory>
+#include <chrono>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "loop.hh"
 #include "engine.hh"
@@ -17,6 +19,19 @@
 class Reductor
 {
 private:
+  using Clock = std::chrono::steady_clock;
+
+  struct JobInfo
+  {
+    JobInfo() {}
+    JobInfo( const std::chrono::milliseconds & timeout )
+      : timeout( timeout ) {}
+
+    Clock::time_point start { Clock::now() };
+    std::chrono::milliseconds timeout { 0 };
+    uint8_t restarts { 0 };
+  };
+
   const std::vector<std::string> target_hashes_;
   std::unordered_set<std::string> remaining_targets_;
   bool status_bar_;
@@ -24,12 +39,13 @@ private:
   ExecutionGraph dep_graph_ {};
 
   std::deque<std::string> job_queue_ {};
-  std::unordered_set<std::string> running_jobs_ {};
+  std::unordered_map<std::string, JobInfo> running_jobs_ {};
   size_t finished_jobs_ { 0 };
   float estimated_cost_ { 0.0 };
 
-  int base_poller_timeout_ { -1 };
-  int poller_timeout_ { -1 };
+  std::chrono::milliseconds default_timeout_;
+  std::chrono::milliseconds timeout_check_interval_ { default_timeout_ / 2 };
+  Clock::time_point next_timeout_check_ { Clock::now() + timeout_check_interval_ };
 
   ExecutionLoop exec_loop_ {};
   std::vector<std::unique_ptr<ExecutionEngine>> exec_engines_;
@@ -48,7 +64,7 @@ public:
             std::vector<std::unique_ptr<ExecutionEngine>> && execution_engines,
             std::vector<std::unique_ptr<ExecutionEngine>> && fallback_engines,
             std::unique_ptr<StorageBackend> && storage_backend,
-            const int base_timeout = -1,
+            const std::chrono::milliseconds default_timeout = std::chrono::milliseconds { 0 },
             const bool status_bar = false );
 
   std::vector<std::string> reduce();

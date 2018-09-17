@@ -163,7 +163,7 @@ int main( int argc, char * argv[] )
     signal( SIGINT, sigint_handler );
 
     int timeout = ( getenv( FORCE_TIMEOUT ) != nullptr )
-                  ? stoi( safe_getenv( FORCE_TIMEOUT ) ) : -1;
+                  ? stoi( safe_getenv( FORCE_TIMEOUT ) ) : 0;
     bool status_bar = ( getenv( FORCE_STATUS ) != nullptr );
     bool no_download = false;
 
@@ -291,7 +291,8 @@ int main( int argc, char * argv[] )
 
     Reductor reductor { target_hashes, move( execution_engines ), move( fallback_engines ),
                         move( storage_backend ),
-                        ( timeout > 0 ) ? ( timeout * 1000 ) : -1, status_bar };
+                        std::chrono::milliseconds { timeout * 1000 },
+                        status_bar };
 
     reductor.upload_dependencies();
     vector<string> reduced_hashes = reductor.reduce();
