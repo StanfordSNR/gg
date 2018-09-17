@@ -2,6 +2,7 @@
 
 #include <getopt.h>
 
+#include "timeouts.hh"
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"
@@ -51,6 +52,7 @@ void generate_thunk( int argc, char * argv[] )
     { program_data.at( STRIP ) },
     { { "output", strip_output } },
     {},
+    STRIP_TIMEOUT,
     ThunkFactory::Options::create_placeholder
       | ThunkFactory::Options::collect_data
       | ThunkFactory::Options::generate_manifest

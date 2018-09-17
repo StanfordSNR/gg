@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <chrono>
 #include <algorithm>
 #include <cctype>
 #include <getopt.h>
@@ -17,7 +18,10 @@
 #include "util/path.hh"
 
 using namespace std;
+using namespace std::chrono;
 using namespace gg::thunk;
+
+static constexpr milliseconds TIMEOUT = 20s;
 
 void usage( const char * argv0 )
 {
@@ -81,6 +85,7 @@ struct TestCase
       executables,
       outputs,
       {},
+      TIMEOUT,
       ThunkFactory::Options::collect_data
       | ThunkFactory::Options::include_filenames
     );

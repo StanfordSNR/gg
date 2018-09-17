@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_set>
 
+#include "timeouts.hh"
 #include "thunk/placeholder.hh"
 #include "thunk/factory.hh"
 #include "util/system_runner.hh"
@@ -162,7 +163,8 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
     executables,
     { { "output", output } },
     dummy_dirs,
-      ThunkFactory::Options::collect_data
+    LINK_TIMEOUT,
+    ThunkFactory::Options::collect_data
       | ThunkFactory::Options::generate_manifest
       | ThunkFactory::Options::include_filenames
   );

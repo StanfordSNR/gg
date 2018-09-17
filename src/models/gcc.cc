@@ -12,10 +12,12 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <chrono>
 #include <getopt.h>
 #include <libgen.h>
 #include <sys/ioctl.h>
 
+#include "timeouts.hh"
 #include "protobufs/util.hh"
 #include "thunk/factory.hh"
 #include "thunk/placeholder.hh"
@@ -33,6 +35,7 @@
 #include "util/ipc_socket.hh"
 
 using namespace std;
+using namespace std::chrono;
 using namespace gg::thunk;
 
 class Blueprints
@@ -534,7 +537,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       base_executables,
       thunk_outputs,
       dummy_dirs,
-        ThunkFactory::Options::collect_data
+      ( defer_depgen_ ) ? DEPGEN_TIMEOUT : PREPROCESS_TIMEOUT,
+      ThunkFactory::Options::collect_data
         | ThunkFactory::Options::generate_manifest
         | ThunkFactory::Options::include_filenames
     );
@@ -574,7 +578,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       base_executables,
       { { "output", output } },
       dummy_dirs,
-        ThunkFactory::Options::collect_data
+      COMPILE_TIMEOUT,
+      ThunkFactory::Options::collect_data
         | ThunkFactory::Options::generate_manifest
         | ThunkFactory::Options::include_filenames
     );
@@ -607,7 +612,8 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       base_executables,
       { { "output", output } },
       dummy_dirs,
-        ThunkFactory::Options::collect_data
+      ASSEMBLE_TIMEOUT,
+      ThunkFactory::Options::collect_data
         | ThunkFactory::Options::generate_manifest
         | ThunkFactory::Options::include_filenames
     );

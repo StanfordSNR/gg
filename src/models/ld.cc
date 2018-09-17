@@ -6,6 +6,7 @@
 #include <list>
 
 #include "gcc.hh"
+#include "timeouts.hh"
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"
@@ -169,6 +170,7 @@ void generate_thunk( size_t argc, char * argv[] )
     { program_data.at( LD ) },
     { { "output", outfile } },
     dummy_dirs,
+    LINK_TIMEOUT,
     ThunkFactory::Options::create_placeholder
       | ThunkFactory::Options::collect_data
       | ThunkFactory::Options::generate_manifest

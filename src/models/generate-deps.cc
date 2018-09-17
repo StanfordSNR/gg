@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "gcc.hh"
+#include "timeouts.hh"
 #include "thunk/thunk.hh"
 #include "thunk/thunk_reader.hh"
 #include "thunk/thunk_writer.hh"
@@ -208,6 +209,8 @@ int main( int argc, char * argv[] )
     /* (3) create a new thunk ######################################*/
     Thunk new_thunk { move( new_function ), move( values ), {},
                       move( executables ), { "output" } };
+
+    new_thunk.set_timeout( PREPROCESS_TIMEOUT );
 
     /* (4) clean up and write output ###############################*/
     roost::remove_directory( sysroot );

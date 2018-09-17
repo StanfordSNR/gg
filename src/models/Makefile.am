@@ -18,7 +18,7 @@ bin_PROGRAMS = model-gcc model-ar model-ranlib model-strip model-ld \
                model-generic model-nm model-readelf generate-deps dir-watcher
 
 COMMON_TOOLCHAIN_SOURCES = cli_description.hh cli_description.cc \
-                           toolchain.hh toolchain.cc gcc.hh
+                           toolchain.hh toolchain.cc gcc.hh timeouts.hh
 
 model_gcc_SOURCES = gcc.cc gcc-base.cc preprocessor.cc \
                     linker.cc linker-base.cc gcc-args.cc \

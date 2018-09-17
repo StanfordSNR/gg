@@ -3,6 +3,7 @@
 #include "factory.hh"
 
 #include <algorithm>
+#include <chrono>
 #include <sys/stat.h>
 #include <fcntl.h>
 
@@ -18,6 +19,7 @@
 #include "util/tokenize.hh"
 
 using namespace std;
+using namespace std::chrono;
 using namespace gg;
 using namespace gg::thunk;
 
@@ -49,6 +51,7 @@ Thunk ThunkFactory::create_thunk( const Function & function,
                                   const vector<Data> & data,
                                   const vector<Data> & executables,
                                   const vector<Output> & outputs,
+                                  const milliseconds & timeout,
                                   const bool include_filenames )
 {
   vector<Thunk::DataItem> thunk_data;
@@ -71,18 +74,19 @@ Thunk ThunkFactory::create_thunk( const Function & function,
     thunk_outputs.push_back( output.tag() );
   }
 
-  return { move( thunk_function ),
-           move( thunk_data ),
-           move( thunk_executables ),
-           move( thunk_outputs ) };
+  Thunk output_thunk { move( thunk_function ), move( thunk_data ),
+                       move( thunk_executables ), move( thunk_outputs ) };
+
+  output_thunk.set_timeout( timeout );
+  return output_thunk;
 }
 
-std::string ThunkFactory::generate( const Function & function,
-                                    const std::vector<Data> & data,
-                                    const std::vector<Data> & executables,
-                                    const std::vector<Output> & outputs,
-                                    const std::vector<std::string> & dummy_dirs,
-                                    const int options )
+string ThunkFactory::generate( const Function & function,
+                               const vector<Data> & data,
+                               const vector<Data> & executables,
+                               const vector<Output> & outputs,
+                               const vector<string> & dummy_dirs,
+                               const milliseconds & timeout, const int options )
 {
   const bool generate_manifest = options & Options::generate_manifest;
   const bool create_placeholder = options & Options::create_placeholder;
@@ -151,10 +155,11 @@ std::string ThunkFactory::generate( const Function & function,
     for ( const Data & datum : executables ) { fn_collect( datum, true ); }
   }
 
-  string hash = ThunkWriter::write( { move( thunk_function ),
-                                      move( thunk_data ),
-                                      move( thunk_executables ),
-                                      move( thunk_outputs ) } );
+  Thunk output_thunk { move( thunk_function ), move( thunk_data ),
+                       move( thunk_executables ), move( thunk_outputs ) };
+
+  output_thunk.set_timeout( timeout );
+  const string hash = ThunkWriter::write( output_thunk );
 
   if ( create_placeholder ) {
     for ( size_t i = 0; i < outputs.size(); i++ ) {

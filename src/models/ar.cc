@@ -4,6 +4,7 @@
 #include <cstring>
 #include <getopt.h>
 
+#include "timeouts.hh"
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/thunk.hh"
@@ -15,9 +16,10 @@
 #include "toolchain.hh"
 
 using namespace std;
+using namespace std::chrono;
 using namespace gg::thunk;
 
-const int PLUGIN_FLAG = 1000;
+static constexpr int PLUGIN_FLAG = 1000;
 
 /* this function is based on ar source code */
 void generate_thunk( int argc, char * argv[] )
@@ -131,6 +133,7 @@ void generate_thunk( int argc, char * argv[] )
     { program_data.at( AR ) },
     { { "output", outfile } },
     {},
+    AR_TIMEOUT,
     ThunkFactory::Options::create_placeholder
       | ThunkFactory::Options::collect_data
       | ThunkFactory::Options::generate_manifest

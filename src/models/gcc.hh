@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <chrono>
 #include <unordered_map>
 
 #include "thunk/thunk.hh"

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <chrono>
 #include <sys/types.h>
 
 #include "thunk/thunk.hh"
@@ -64,6 +65,7 @@ public:
                                         const std::vector<Data> & data,
                                         const std::vector<Data> & executables,
                                         const std::vector<Output> & outputs,
+                                        const std::chrono::milliseconds & timeout,
                                         const bool include_filenames = true );
 
   static std::string generate( const Function & function,
@@ -71,7 +73,9 @@ public:
                                const std::vector<Data> & executables,
                                const std::vector<Output> & outputs,
                                const std::vector<std::string> & dummy_dirs,
-                               const int options );
+                               const std::chrono::milliseconds & timeout =
+                                 std::chrono::milliseconds { 0 },
+                               const int options = 0 );
 };
 
 #endif /* FACTORY_HH */

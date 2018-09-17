@@ -2,6 +2,7 @@
 
 #include <getopt.h>
 
+#include "timeouts.hh"
 #include "cli_description.hh"
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
@@ -103,6 +104,7 @@ void generate_thunk( const CLIDescription & cli_description,
     { executable },
     outfiles,
     {},
+    NO_TIMEOUT,
     ThunkFactory::Options::create_placeholder
       | ThunkFactory::Options::collect_data
   );
