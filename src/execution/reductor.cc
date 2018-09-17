@@ -90,7 +90,7 @@ Reductor::Reductor( const vector<string> & target_hashes,
     fallback_engines_( move( fallback_engines ) ),
     storage_backend_( move( storage_backend ) )
 {
-  cerr << "\u25c7 Loading the thunks... ";
+  cerr << "\u2192 Loading the thunks... ";
   auto graph_load_time = time_it<milliseconds>(
     [this] ()
     {
