@@ -144,7 +144,8 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
     values_(),
     thunks_(),
     executables_(),
-    outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() )
+    outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() ),
+    timeout_( thunk_proto.timeout() )
 {
   for ( const string & item : thunk_proto.values() ) {
     values_.emplace( string_to_data( item ) );
@@ -270,6 +271,8 @@ protobuf::Thunk Thunk::to_protobuf() const
   for ( const auto & h : executables_ ) { thunk_proto.add_executables( data_to_string( h ) ); }
   for ( const string & output : outputs_ ) { thunk_proto.add_outputs( output ); }
 
+  thunk_proto.set_timeout( timeout_.count() );
+
   return thunk_proto;
 }
 
@@ -279,7 +282,14 @@ bool Thunk::operator==( const Thunk & other ) const
          ( values_ == other.values_ ) and
          ( thunks_ == other.thunks_ ) and
          ( executables_ == other.executables_ ) and
-         ( outputs_ == other.outputs_ );
+         ( outputs_ == other.outputs_ ) and
+         ( timeout_ == other.timeout_ );
+}
+
+void Thunk::set_timeout( const std::chrono::milliseconds & timeout )
+{
+  hash_.clear();
+  timeout_ = timeout;
 }
 
 string Thunk::hash() const

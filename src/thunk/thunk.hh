@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <limits>
 #include <regex>
+#include <chrono>
 #include <sys/types.h>
 #include <crypto++/base64.h>
 #include <crypto++/files.h>
@@ -99,6 +100,7 @@ namespace gg {
       DataList thunks_;
       DataList executables_;
       std::vector<std::string> outputs_;
+      std::chrono::milliseconds timeout_ { 0 };
 
       mutable Optional<std::string> hash_ {};
 
@@ -138,6 +140,9 @@ namespace gg {
       const DataList & thunks() const { return thunks_; }
       const DataList & executables() const { return executables_; }
       const std::vector<std::string> & outputs() const { return outputs_; }
+      const std::chrono::milliseconds & timeout() const { return timeout_; }
+
+      void set_timeout( const std::chrono::milliseconds & timeout );
 
       gg::protobuf::Thunk to_protobuf() const;
 

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <chrono>
 #include <google/protobuf/text_format.h>
 
 #include "thunk/thunk_reader.hh"
@@ -12,6 +13,7 @@
 #include "util/temp_file.hh"
 
 using namespace std;
+using namespace std::chrono;
 using namespace google::protobuf;
 using namespace gg::thunk;
 
@@ -48,6 +50,8 @@ int main( int argc, char * argv[] )
         "output1", "output2", "output3", "output4"
       }
     };
+
+    original_thunk.set_timeout( 537ms );
 
     TempFile temp_file { "output" };
     const string contents = ThunkWriter::serialize( original_thunk );
