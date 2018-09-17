@@ -23,13 +23,9 @@ private:
 
   struct JobInfo
   {
-    JobInfo() {}
-    JobInfo( const std::chrono::milliseconds & timeout )
-      : timeout( timeout ) {}
-
-    Clock::time_point start { Clock::now() };
+    Clock::time_point start {};
     std::chrono::milliseconds timeout { 0 };
-    uint8_t restarts { 0 };
+    uint8_t restarts { std::numeric_limits<uint8_t>::max() };
   };
 
   const std::vector<std::string> target_hashes_;

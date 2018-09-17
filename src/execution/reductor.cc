@@ -271,7 +271,14 @@ vector<string> Reductor::reduce()
         }
 
         if ( exec_state == EXECUTING ) {
-          running_jobs_.emplace( make_pair( thunk_hash, JobInfo { default_timeout_ } ) );
+          JobInfo & job_info = running_jobs_[ thunk_hash ];
+          job_info.start = Clock::now();
+          job_info.timeout = thunk.timeout();
+          job_info.restarts++;
+
+          if ( job_info.timeout == 0s ) {
+            job_info.timeout = default_timeout_;
+          }
         }
         else if ( exec_state == FULL_CAPACITY or exec_state == FULL_FALLBACK_CAPACITY ) {
           job_queue_.push_front( thunk_hash );
