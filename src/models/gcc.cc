@@ -266,15 +266,10 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   vector<ThunkFactory::Data> base_infiles = { input.indata };
   vector<ThunkFactory::Data> base_executables = { gcc_data };
 
-  if ( metadata_.initialized() and input.indata.type() == gg::ObjectType::Value ) {
-    metadata_->add_object( input.indata );
-  }
-
   base_infiles.emplace_back( "/__gg__/gcc-specs", specs_tempfile_.name() );
 
   for ( const string & extra_infile : arguments_.extra_infiles( stage ) ) {
     base_infiles.emplace_back( extra_infile );
-    if ( metadata_.initialized() ) { metadata_->add_object( extra_infile ); }
   }
 
   /* Common dummy directories */
@@ -400,7 +395,6 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
 
     for ( const string & dep : dependencies ) {
       base_infiles.emplace_back( dep );
-      if ( metadata_.initialized() ) { metadata_->add_object( dep ); }
     }
 
     for ( const string & dir : include_path ) {
@@ -626,13 +620,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
   }
 
   if ( write_placeholder ) {
-    string metadata_str {};
-
-    if ( metadata_.initialized() ) {
-      metadata_str = metadata_->str();
-    }
-
-    ThunkPlaceholder placeholder { generated_thunk_hash, metadata_str };
+    ThunkPlaceholder placeholder { generated_thunk_hash };
     placeholder.write( output );
   }
 
@@ -716,11 +704,6 @@ GCCModelGenerator::GCCModelGenerator( const OperationMode operation_mode,
   }
 
   dump_gcc_specs( specs_tempfile_ );
-
-  if ( gg::meta::metainfer() ) {
-    metadata_.reset( gg::models::args_to_vector( argc, argv ),
-                     gg::meta::relative_cwd().string() );
-  }
 }
 
 void GCCModelGenerator::generate()

@@ -14,8 +14,8 @@ using namespace std;
 static constexpr char SHEBANG_DIRECTIVE[] = "#!/usr/bin/env gg-force-and-run";
 static constexpr char LIBRARY_DIRECTIVE[] = "OUTPUT_FORMAT(\"elf64-x86-64\")/*";
 
-ThunkPlaceholder::ThunkPlaceholder( const string & hash, const string & metadata )
-  : content_hash_( hash ), metadata_( metadata )
+ThunkPlaceholder::ThunkPlaceholder( const string & hash )
+  : content_hash_( hash )
 {}
 
 string ThunkPlaceholder::str( const Type type ) const
@@ -27,7 +27,6 @@ string ThunkPlaceholder::str( const Type type ) const
   ostringstream sout { ios::out | ios::binary };
   sout << header << endl
        << content_hash_ << endl
-       << metadata_
        << ( type == Type::LinkerScript ? "*/" : "" );
 
   return sout.str();
@@ -66,19 +65,11 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
   ifstream fin { filename, ios::in | ios::binary };
   fin.read( buffer, sizeof( SHEBANG_DIRECTIVE ) );
 
-  Type type;
-
-  if ( strncmp( buffer, SHEBANG_DIRECTIVE, sizeof( SHEBANG_DIRECTIVE ) - 1 ) == 0 ) {
-    type = Type::ShellScript;
-  }
-  else if ( strncmp( buffer, LIBRARY_DIRECTIVE, sizeof( LIBRARY_DIRECTIVE ) - 1 ) == 0 ) {
-    type = Type::LinkerScript;
-  }
-  else {
+  if ( strncmp( buffer, SHEBANG_DIRECTIVE, sizeof( SHEBANG_DIRECTIVE ) - 1 ) != 0 and
+       strncmp( buffer, LIBRARY_DIRECTIVE, sizeof( LIBRARY_DIRECTIVE ) - 1 ) != 0 ) {
     return {};
   }
 
-  string line;
   string hash;
   fin >> hash;
 
@@ -86,27 +77,7 @@ Optional<ThunkPlaceholder> ThunkPlaceholder::read( const string & filename )
     throw runtime_error( "failed reading from " + filename );
   }
 
-  /* finish the line */
-  getline( fin, line );
-
-  /* now let's see if there's metadata */
-  string metadata;
-  char read_buffer[ 1024 * 1024 ];
-
-  while ( true ) {
-    fin.read( read_buffer, sizeof( read_buffer ) );
-    metadata.append( read_buffer, fin.gcount() );
-    if ( not fin.good() ) {
-      break;
-    }
-  }
-
-  if ( type == Type::LinkerScript and metadata.length() >= 2 ) {
-    metadata.pop_back();
-    metadata.pop_back();
-  }
-
-  return ThunkPlaceholder { hash, metadata };
+  return ThunkPlaceholder { hash };
 }
 
 bool ThunkPlaceholder::is_placeholder( FileDescriptor && fd )

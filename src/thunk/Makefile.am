@@ -12,5 +12,4 @@ libthunk_a_SOURCES = thunk.hh function.cc thunk.cc \
                      manifest.cc manifest.hh \
                      ggutils.cc ggutils.hh \
                      graph.cc graph.hh \
-                     factory.cc factory.hh \
-                     metadata.hh metadata.cc
+                     factory.cc factory.hh

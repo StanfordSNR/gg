@@ -16,16 +16,13 @@ public:
 
 private:
   std::string content_hash_;
-  std::string metadata_ {};
 
   void write( const std::string & filename, const Type type ) const;
 
 public:
-  ThunkPlaceholder( const std::string & content_hash,
-                    const std::string & metadata = {} );
+  ThunkPlaceholder( const std::string & content_hash );
 
   const std::string & content_hash() const { return content_hash_; }
-  const std::string & metadata() const { return metadata_; }
 
   void write( const std::string & filename ) const;
 

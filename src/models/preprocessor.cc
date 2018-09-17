@@ -118,10 +118,6 @@ GCCModelGenerator::generate_dependencies_file( const OperationMode op_mode,
     args.push_back( gcc_binary );
   }
 
-  if ( getenv( "GG_REMODELING" ) != nullptr ) {
-    roost::create_directories( roost::dirname( output_name ) );
-  }
-
   args.insert( args.end(), option_args.begin(), option_args.end() );
 
   string output_filename;

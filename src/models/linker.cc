@@ -76,13 +76,11 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
          link_input.language == Language::SHARED_OBJECT or
          link_input.language == Language::ARCHIVE_LIBRARY ) {
       infiles.push_back( link_input.indata );
-      if ( metadata_.initialized() ) { metadata_->add_object( link_input.indata ); }
     }
   }
 
   for ( const string & dep : dependencies ) {
     infiles.emplace_back( dep );
-    if ( metadata_.initialized() ) { metadata_->add_object( dep ); }
   }
 
   /* ARGS */
@@ -139,7 +137,6 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
 
   for ( const string & infile : arguments_.extra_infiles( LINK ) ) {
     infiles.emplace_back( infile );
-    if ( metadata_.initialized() ) { metadata_->add_object( infile ); }
   }
 
   if ( include_gompspec ) {
@@ -170,13 +167,7 @@ string GCCModelGenerator::generate_link_thunk( const vector<InputFile> & link_in
       | ThunkFactory::Options::include_filenames
   );
 
-  string metadata_str {};
-
-  if ( metadata_.initialized() ) {
-    metadata_str = metadata_->str();
-  }
-
-  ThunkPlaceholder placeholder { generated_thunk_hash, metadata_str };
+  ThunkPlaceholder placeholder { generated_thunk_hash };
   placeholder.write( output );
 
   return generated_thunk_hash;

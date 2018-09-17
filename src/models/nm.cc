@@ -2,7 +2,6 @@
 
 #include <getopt.h>
 
-#include "thunk/metadata.hh"
 #include "thunk/factory.hh"
 #include "thunk/ggutils.hh"
 #include "thunk/placeholder.hh"

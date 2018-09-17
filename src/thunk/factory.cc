@@ -82,14 +82,12 @@ std::string ThunkFactory::generate( const Function & function,
                                     const std::vector<Data> & executables,
                                     const std::vector<Output> & outputs,
                                     const std::vector<std::string> & dummy_dirs,
-                                    const int options,
-                                    const std::string & metadata )
+                                    const int options )
 {
   const bool generate_manifest = options & Options::generate_manifest;
   const bool create_placeholder = options & Options::create_placeholder;
   const bool collect_data = options & Options::collect_data;
   const bool include_filenames = options & Options::include_filenames;
-  const bool write_metadata = options & Options::write_metadata;
 
   vector<Thunk::DataItem> thunk_data;
   vector<Thunk::DataItem> thunk_executables;
@@ -163,8 +161,7 @@ std::string ThunkFactory::generate( const Function & function,
       const Output & output = outputs.at( i );
 
       const string output_hash = ( i == 0 ) ? hash : gg::hash::for_output( hash, output.tag() );
-      ThunkPlaceholder placeholder { output_hash, write_metadata ? metadata
-                                                                 : string {} };
+      ThunkPlaceholder placeholder { output_hash };
 
       if ( output.filename().initialized() ) {
         placeholder.write( *output.filename() );

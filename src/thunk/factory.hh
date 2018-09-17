@@ -18,7 +18,6 @@ public:
     static constexpr int create_placeholder = ( 1 << 1 );
     static constexpr int collect_data       = ( 1 << 2 );
     static constexpr int include_filenames  = ( 1 << 3 );
-    static constexpr int write_metadata     = ( 1 << 4 );
   };
 
   class Data
@@ -72,8 +71,7 @@ public:
                                const std::vector<Data> & executables,
                                const std::vector<Output> & outputs,
                                const std::vector<std::string> & dummy_dirs,
-                               const int options,
-                               const std::string & metadata = {} );
+                               const int options );
 };
 
 #endif /* FACTORY_HH */
