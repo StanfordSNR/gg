@@ -15,9 +15,9 @@ static constexpr std::chrono::milliseconds DEPGEN_TIMEOUT     = VERY_LONG_TIMEOU
 static constexpr std::chrono::milliseconds PREPROCESS_TIMEOUT = LONG_TIMEOUT;
 static constexpr std::chrono::milliseconds COMPILE_TIMEOUT    = SHORT_TIMEOUT;
 static constexpr std::chrono::milliseconds ASSEMBLE_TIMEOUT   = SHORT_TIMEOUT;
-static constexpr std::chrono::milliseconds LINK_TIMEOUT       = LONG_TIMEOUT;
-static constexpr std::chrono::milliseconds AR_TIMEOUT         = SHORT_TIMEOUT;
-static constexpr std::chrono::milliseconds STRIP_TIMEOUT      = SHORT_TIMEOUT;
+static constexpr std::chrono::milliseconds LINK_TIMEOUT       = VERY_SHORT_TIMEOUT;
+static constexpr std::chrono::milliseconds AR_TIMEOUT         = VERY_SHORT_TIMEOUT;
+static constexpr std::chrono::milliseconds STRIP_TIMEOUT      = VERY_SHORT_TIMEOUT;
 static constexpr std::chrono::milliseconds RANLIB_TIMEOUT     = VERY_SHORT_TIMEOUT;
 
 #endif /* MODELS_TIMEOUTS_HH */
