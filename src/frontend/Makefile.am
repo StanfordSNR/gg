@@ -22,7 +22,7 @@ bin_PROGRAMS = gg-trace gg-describe gg-force-and-run gg-force gg-mock \
                gg-put gg-get gg-execute-server gg-meow-worker gg-object-server \
                lambda-invoker prune-file splice-lines
 
-dist_bin_SCRIPTS = gg-create-blueprints gg-collect-dir
+dist_bin_SCRIPTS = gg-create-blueprints gg-collect-dir gg-build-infer
 
 if BUILD_STATIC_BINS
   bin_PROGRAMS += gg-execute-static gg-meow-worker-static
