@@ -179,7 +179,8 @@ private:
 
   static std::vector<std::string> gcc_environment();
 
-  std::vector<roost::path> scan_build_directory( const roost::path & build_dir ) const;
+  std::vector<roost::path> scan_build_directory( const roost::path & build_dir,
+                                                 const std::vector<roost::path> & excludes ) const;
 
 public:
   struct Options

@@ -99,5 +99,5 @@ TARGET_DIR=$(mktemp -d ${TEMPDIR}/sources.XXXXXXXX)
 process_directory "${SOURCE_DIR}" "${TARGET_DIR}"
 TAR_HASH=$(create_tarball "${TARGET_DIR}")
 
-echo "${TAR_HASH} ${SOURCE_DIR}" | tee -a ${INDEX_FILE}
+echo "${TAR_HASH} $(readlink -f ${SOURCE_DIR})" | tee -a ${INDEX_FILE}
 echo "$(sort -r -k2 ${INDEX_FILE})" >${INDEX_FILE}

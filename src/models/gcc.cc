@@ -196,13 +196,25 @@ bool ends_with( const string & str, const string & ending )
 
 void get_all_files( vector<roost::path> & file_list,
                     const roost::path & root,
-                    const vector<string> & filters )
+                    const vector<string> & filters,
+                    const vector<roost::path> & excludes )
 {
   for ( const auto & entry : roost::get_directory_listing( root ) ) {
     const roost::path entry_path = root / entry;
-    if ( roost::exists_and_is_directory( entry_path ) and
-         entry_path.string() != gg::paths::root().string() ) {
-      get_all_files( file_list, entry_path, filters );
+    if ( roost::exists_and_is_directory( entry_path ) ) {
+      bool excluded = false;
+      for ( const auto & excluded_path : excludes ) {
+        if ( excluded_path.string() == entry_path.string() ) {
+          excluded = true;
+          break;
+        }
+      }
+
+      if ( excluded) {
+        continue;
+      }
+
+      get_all_files( file_list, entry_path, filters, excludes );
       continue;
     }
 
@@ -215,7 +227,8 @@ void get_all_files( vector<roost::path> & file_list,
   }
 }
 
-vector<roost::path> GCCModelGenerator::scan_build_directory( const roost::path & build_dir ) const
+vector<roost::path> GCCModelGenerator::scan_build_directory( const roost::path & build_dir,
+                                                             const vector<roost::path> & excludes ) const
 {
   vector<roost::path> result;
   vector<string> filters;
@@ -231,7 +244,7 @@ vector<roost::path> GCCModelGenerator::scan_build_directory( const roost::path &
     filters.push_back( line );
   }
 
-  get_all_files( result, build_dir, filters );
+  get_all_files( result, build_dir, filters, excludes );
   return result;
 }
 
@@ -430,6 +443,12 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
         build_dir.reset( roost::canonical( safe_getenv( "GG_GCC_BUILD_DIR" ) ) / "" );
       }
 
+      /* path that are excluded from the search */
+      vector<roost::path> excludes { gg::paths::root() };
+      if ( getenv( "GG_GCC_SOURCE_DIR" ) != nullptr ) {
+        excludes.emplace_back( safe_getenv( "GG_GCC_SOURCE_DIR" ) );
+      }
+
       /* (0) let's make sure that we have blueprints for everything first */
       Blueprints blueprints;
       unordered_set<string> tarballs;
@@ -508,7 +527,7 @@ string GCCModelGenerator::generate_thunk( const GCCStage first_stage,
       vector<roost::path> files;
 
       if ( build_dir.initialized() ) {
-        files = scan_build_directory( *build_dir );
+        files = scan_build_directory( *build_dir, excludes );
         for ( const auto & file : files ) {
           base_infiles.emplace_back( file.string() );
         }
