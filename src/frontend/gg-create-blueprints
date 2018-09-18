@@ -65,9 +65,20 @@ function process_directory {
   srcdir=$(readlink -f ${1?source dir is empty})
   dstdir=$(readlink -f ${2?destination dir is empty})
 
-  ( find ${srcdir} -type f ${FILTERS_OPTS[@]} -type f ${EXCLUDES_OPTS[@]} | tee /dev/tty |
+  ( find ${srcdir} -type f ${FILTERS_OPTS[@]} -type f ${EXCLUDES_OPTS[@]} |
+      tee /dev/tty |
       xargs -P ${NPROC} -I% -- sh -c \
         'mkdir -p "'"${dstdir}"'/$(dirname "%")"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | splice-lines | cpp -fpreprocessed -P -dD -w - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
+
+  ( find ${srcdir} -type l -xtype f ${FILTERS_OPTS[@]} ${EXCLUDES_OPTS[@]} |
+      tee /dev/tty |
+      xargs -P ${NPROC} -I% -- sh -c \
+        'mkdir -p "'"${dstdir}"'/$(dirname "%")"; cp -a "%" "'"${dstdir}"'/%"' ) || true
+
+  ( find ${srcdir} -type l -xtype d |
+      tee /dev/tty |
+      xargs -P ${NPROC} -I% -- sh -c \
+        'mkdir -p "'"${dstdir}"'/$(dirname "%")"; cp -a "%" "'"${dstdir}"'/%"' ) || true
 }
 
 function create_tarball {
