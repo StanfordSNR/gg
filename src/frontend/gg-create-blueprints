@@ -29,7 +29,9 @@ while getopts "x:f:" opt; do
 done
 shift $((OPTIND-1))
 
-SOURCE_DIR=$(readlink -f $1)
+pushd $1
+SOURCE_DIR=`pwd`/
+popd
 
 FILTERS_OPTS=()
 if [ ! -z "${FILTERS_FILE}" ]; then
@@ -62,8 +64,8 @@ TEMPDIR=$(mktemp -d)
 trap "rm -rf $TEMPDIR" EXIT
 
 function process_directory {
-  srcdir=$(readlink -f ${1?source dir is empty})
-  dstdir=$(readlink -f ${2?destination dir is empty})
+  srcdir=$(realpath -s ${1?source dir is empty})/
+  dstdir=$(realpath -s ${2?destination dir is empty})
 
   ( find ${srcdir} -type f ${FILTERS_OPTS[@]} -type f ${EXCLUDES_OPTS[@]} |
       tee /dev/tty |
