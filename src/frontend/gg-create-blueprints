@@ -73,12 +73,10 @@ function process_directory {
         'mkdir -p "'"${dstdir}"'/$(dirname "%")"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | splice-lines | cpp -fpreprocessed -P -dD -w - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
 
   ( find ${srcdir} -type l -xtype f ${FILTERS_OPTS[@]} ${EXCLUDES_OPTS[@]} |
-      tee /dev/tty |
       xargs -P ${NPROC} -I% -- sh -c \
         'mkdir -p "'"${dstdir}"'/$(dirname "%")"; cp -a "%" "'"${dstdir}"'/%"' ) || true
 
   ( find ${srcdir} -type l -xtype d |
-      tee /dev/tty |
       xargs -P ${NPROC} -I% -- sh -c \
         'mkdir -p "'"${dstdir}"'/$(dirname "%")"; cp -a "%" "'"${dstdir}"'/%"' ) || true
 }
@@ -99,5 +97,5 @@ TARGET_DIR=$(mktemp -d ${TEMPDIR}/sources.XXXXXXXX)
 process_directory "${SOURCE_DIR}" "${TARGET_DIR}"
 TAR_HASH=$(create_tarball "${TARGET_DIR}")
 
-echo "${TAR_HASH} $(readlink -f ${SOURCE_DIR})" | tee -a ${INDEX_FILE}
+echo "${TAR_HASH} $(readlink -f ${SOURCE_DIR})" >>${INDEX_FILE}
 echo "$(sort -r -k2 ${INDEX_FILE})" >${INDEX_FILE}
