@@ -1,6 +1,7 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 #include <iostream>
+#include <chrono>
 #include <getopt.h>
 
 #include "thunk/thunk.hh"
@@ -10,6 +11,7 @@
 #include "util/exception.hh"
 
 using namespace std;
+using namespace std::chrono;
 using namespace google::protobuf::util;
 using namespace gg::thunk;
 
@@ -22,6 +24,7 @@ void usage( const char * argv0 )
        << "\t[--executable, -e <executable[=name]>]..." << endl
        << "\t[--output, -o <tag>]..." << endl
        << "\t[--placeholder, -C <arg>]" << endl
+       << "\t[--timeout, -T <arg (ms)>]" << endl
        << "\tFUNCTION-HASH FUNCTION-ARG..." << endl;
 }
 
@@ -44,6 +47,7 @@ int main( int argc, char * argv[] )
       { "executable",  required_argument, nullptr, 'e' },
       { "output",      required_argument, nullptr, 'o' },
       { "placeholder", required_argument, nullptr, 'C' },
+      { "timeout",     required_argument, nullptr, 'T' },
       { nullptr, 0, nullptr, 0 }
     };
 
@@ -55,9 +59,10 @@ int main( int argc, char * argv[] )
     vector<Thunk::DataItem> thunks;
     vector<Thunk::DataItem> executables;
     vector<string> outputs;
+    milliseconds timeout = 0s;
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "E:v:t:e:o:C:", cmd_options, nullptr );
+      const int opt = getopt_long( argc, argv, "E:v:t:e:o:C:T:", cmd_options, nullptr );
 
       if ( opt == -1 ) { break; }
 
@@ -86,6 +91,10 @@ int main( int argc, char * argv[] )
         placeholder_path = optarg;
         break;
 
+      case 'T':
+        timeout = milliseconds { stoul( optarg ) };
+        break;
+
       default:
         throw runtime_error( "invalid option" );
       }
@@ -104,8 +113,11 @@ int main( int argc, char * argv[] )
 
     Function function { move( function_hash ), move( function_args ),
                         move( function_envars ) };
+
     Thunk thunk { move( function ), move( values ), move( thunks ),
                   move( executables ), move( outputs ) };
+
+    thunk.set_timeout( timeout );
 
     string thunk_hash = ThunkWriter::write( thunk );
 
