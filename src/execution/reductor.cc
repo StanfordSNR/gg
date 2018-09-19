@@ -82,10 +82,12 @@ Reductor::Reductor( const vector<string> & target_hashes,
                     vector<unique_ptr<ExecutionEngine>> && fallback_engines,
                     std::unique_ptr<StorageBackend> && storage_backend,
                     const std::chrono::milliseconds default_timeout,
+                    const size_t timeout_multiplier,
                     const bool status_bar )
   : target_hashes_( target_hashes ),
     remaining_targets_( target_hashes_.begin(), target_hashes_.end() ),
     status_bar_( status_bar ), default_timeout_( default_timeout ),
+    timeout_multiplier_( timeout_multiplier ),
     exec_engines_( move( execution_engines ) ),
     fallback_engines_( move( fallback_engines ) ),
     storage_backend_( move( storage_backend ) )
@@ -273,7 +275,7 @@ vector<string> Reductor::reduce()
         if ( exec_state == EXECUTING ) {
           JobInfo & job_info = running_jobs_[ thunk_hash ];
           job_info.start = Clock::now();
-          job_info.timeout = thunk.timeout();
+          job_info.timeout = thunk.timeout() * timeout_multiplier_;
           job_info.restarts++;
 
           if ( job_info.timeout == 0s ) {

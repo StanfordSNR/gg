@@ -47,10 +47,10 @@ void sigint_handler( int )
 void usage( const char * argv0 )
 {
   cerr << "Usage: " << argv0 << endl
-       << "       " << "[-s|--status] [-T|--timeout=<t>] [-S|--sandboxed]" << endl
+       << "       " << "[-s|--status] [-d|--no-download] [-S|--sandboxed]" << endl
        << "       " << "[[-j|--jobs=<N>] [-e|--engine=<name>[=ENGINE_ARGS]]]... " << endl
        << "       " << "[[-j|--jobs=<N>] [-f|--fallback-engine=<name>[=ENGINE_ARGS]]]..." << endl
-       << "       " << "[-d|--no-download] THUNKS..." << endl
+       << "       " << "[-T|--timeout=<t>] [-m|--timeout-multiplier=<N>] THUNKS..." << endl
        << endl
        << "Available engines:" << endl
        << "  - local   Executes the jobs on the local machine" << endl
@@ -164,6 +164,7 @@ int main( int argc, char * argv[] )
 
     int timeout = ( getenv( FORCE_TIMEOUT ) != nullptr )
                   ? stoi( safe_getenv( FORCE_TIMEOUT ) ) : 0;
+    size_t timeout_multiplier = 1;
     bool status_bar = ( getenv( FORCE_STATUS ) != nullptr );
     bool no_download = false;
 
@@ -173,14 +174,15 @@ int main( int argc, char * argv[] )
     vector<EngineInfo> fallback_engines_info;
 
     struct option long_options[] = {
-      { "status",          no_argument,       nullptr, 's' },
-      { "sandboxed",       no_argument,       nullptr, 'S' },
-      { "jobs",            required_argument, nullptr, 'j' },
-      { "timeout",         required_argument, nullptr, 'T' },
-      { "engine",          required_argument, nullptr, 'e' },
-      { "fallback-engine", required_argument, nullptr, 'f' },
-      { "no-download",     no_argument,       nullptr, 'd' },
-      { nullptr,           0,                 nullptr,  0  },
+      { "status",             no_argument,       nullptr, 's' },
+      { "sandboxed",          no_argument,       nullptr, 'S' },
+      { "jobs",               required_argument, nullptr, 'j' },
+      { "timeout",            required_argument, nullptr, 'T' },
+      { "timeout-multiplier", required_argument, nullptr, 'T' },
+      { "engine",             required_argument, nullptr, 'e' },
+      { "fallback-engine",    required_argument, nullptr, 'f' },
+      { "no-download",        no_argument,       nullptr, 'd' },
+      { nullptr,              0,                 nullptr,  0  },
     };
 
     while ( true ) {
@@ -220,6 +222,10 @@ int main( int argc, char * argv[] )
 
       case 'd':
         no_download = true;
+        break;
+
+      case 'm':
+        timeout_multiplier = stoul( optarg );
         break;
 
       default:
@@ -289,10 +295,12 @@ int main( int argc, char * argv[] )
       storage_backend = StorageBackend::create_backend( gg::remote::storage_backend_uri() );
     }
 
-    Reductor reductor { target_hashes, move( execution_engines ), move( fallback_engines ),
+    Reductor reductor { target_hashes,
+                        move( execution_engines ),
+                        move( fallback_engines ),
                         move( storage_backend ),
                         std::chrono::milliseconds { timeout * 1000 },
-                        status_bar };
+                        timeout_multiplier, status_bar };
 
     reductor.upload_dependencies();
     vector<string> reduced_hashes = reductor.reduce();

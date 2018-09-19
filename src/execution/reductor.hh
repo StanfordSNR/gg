@@ -40,6 +40,7 @@ private:
   float estimated_cost_ { 0.0 };
 
   std::chrono::milliseconds default_timeout_;
+  size_t timeout_multiplier_;
   std::chrono::milliseconds timeout_check_interval_ { default_timeout_ / 2 };
   Clock::time_point next_timeout_check_ { Clock::now() + timeout_check_interval_ };
 
@@ -61,6 +62,7 @@ public:
             std::vector<std::unique_ptr<ExecutionEngine>> && fallback_engines,
             std::unique_ptr<StorageBackend> && storage_backend,
             const std::chrono::milliseconds default_timeout = std::chrono::milliseconds { 0 },
+            const size_t timeout_multiplier = 1,
             const bool status_bar = false );
 
   std::vector<std::string> reduce();
