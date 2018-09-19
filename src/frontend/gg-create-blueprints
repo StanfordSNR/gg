@@ -13,6 +13,10 @@ BLUEPRINTS_HOME=${XDG_CACHE_HOME:-${HOME}/.cache}/gg/blueprints
 INDEX_FILE=${BLUEPRINTS_HOME}/index
 NPROC=$(nproc)
 
+if [ ! -z "${GG_CACHE_DIR}" ]; then
+  BLUEPRINTS_HOME=${GG_CACHE_DIR}/blueprints
+fi
+
 while getopts "x:f:" opt; do
   case ${opt} in
     x )
