@@ -1,7 +1,7 @@
 #!/bin/bash -ef
 
 if [ $# -lt 1 ]; then
-  echo "Usage: $(basename $0) [-f FILTERS] [-x EXCLUDES] [-t TARGET] DIRECTORY"
+  echo "Usage: $(basename $0) [-f FILTERS] [-x EXCLUDES] [-t TARGET] [-o OUTLIST] DIRECTORY"
   exit 1
 fi
 
@@ -10,15 +10,17 @@ fi
 FILTERS_FILE=''
 EXCLUDES_FILE=''
 BLUEPRINTS_HOME=${XDG_CACHE_HOME:-${HOME}/.cache}/gg/blueprints
-INDEX_FILE=${BLUEPRINTS_HOME}/index
 NPROC=$(nproc)
 TARGET_BASE=''
+OUTLIST=''
 
 if [ ! -z "${GG_CACHE_DIR}" ]; then
   BLUEPRINTS_HOME=${GG_CACHE_DIR}/blueprints
 fi
 
-while getopts "x:f:t:" opt; do
+INDEX_FILE=${BLUEPRINTS_HOME}/index
+
+while getopts "x:f:t:o:" opt; do
   case ${opt} in
     x )
       EXCLUDES_FILE=$OPTARG
@@ -28,6 +30,9 @@ while getopts "x:f:t:" opt; do
       ;;
     t )
       TARGET_BASE=$OPTARG
+      ;;
+    o )
+      OUTLIST=$OPTARG
       ;;
     \? )
       echo "Invalid option: -$OPTARG"
@@ -68,7 +73,12 @@ fi
 
 mkdir -p ${BLUEPRINTS_HOME}
 
-TEMPDIR=$(mktemp -d ${TARGET_BASE})
+if [ -z "${TARGET_BASE}" ]; then
+  TEMPDIR=$(mktemp -d)
+else
+  TEMPDIR=$(mktemp -d ${TARGET_BASE}/dest.XXXXXXXX)
+fi
+
 trap "rm -rf $TEMPDIR" EXIT
 
 function process_directory {
@@ -76,7 +86,7 @@ function process_directory {
   dstdir=$(realpath -s ${2?destination dir is empty})
 
   ( find ${srcdir} -type f ${FILTERS_OPTS[@]} -type f ${EXCLUDES_OPTS[@]} |
-      tee /dev/tty |
+      tee ${OUTLIST:-/dev/tty} |
       xargs -P ${NPROC} -I% -- sh -c \
         'mkdir -p "'"${dstdir}"'/$(dirname "%")"; HASH=$(gg-hash "%"); echo "// GGHASH:${HASH}" >"'"${dstdir}"'/%"; cat "%" | splice-lines | cpp -fpreprocessed -P -dD -w - 2>/dev/null | prune-file >>"'"${dstdir}"'/%"' ) || true
 
