@@ -1,7 +1,7 @@
 #!/bin/bash -ef
 
 if [ $# -lt 1 ]; then
-  echo "Usage: $(basename $0) [-f FILTERS] [-x EXCLUDES] DIRECTORY"
+  echo "Usage: $(basename $0) [-f FILTERS] [-x EXCLUDES] [-t TARGET] DIRECTORY"
   exit 1
 fi
 
@@ -12,18 +12,22 @@ EXCLUDES_FILE=''
 BLUEPRINTS_HOME=${XDG_CACHE_HOME:-${HOME}/.cache}/gg/blueprints
 INDEX_FILE=${BLUEPRINTS_HOME}/index
 NPROC=$(nproc)
+TARGET_BASE=''
 
 if [ ! -z "${GG_CACHE_DIR}" ]; then
   BLUEPRINTS_HOME=${GG_CACHE_DIR}/blueprints
 fi
 
-while getopts "x:f:" opt; do
+while getopts "x:f:t:" opt; do
   case ${opt} in
     x )
       EXCLUDES_FILE=$OPTARG
       ;;
     f )
       FILTERS_FILE=$OPTARG
+      ;;
+    t )
+      TARGET_BASE=$OPTARG
       ;;
     \? )
       echo "Invalid option: -$OPTARG"
@@ -64,7 +68,7 @@ fi
 
 mkdir -p ${BLUEPRINTS_HOME}
 
-TEMPDIR=$(mktemp -d)
+TEMPDIR=$(mktemp -d ${TARGET_BASE})
 trap "rm -rf $TEMPDIR" EXIT
 
 function process_directory {
