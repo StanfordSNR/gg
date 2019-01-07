@@ -93,7 +93,7 @@ Reductor::Reductor( const vector<string> & target_hashes,
     storage_backend_( move( storage_backend ) )
 {
   cerr << "\u2192 Loading the thunks... ";
-  auto graph_load_time = time_it<milliseconds>(
+  auto graph_load_time = time_it<microseconds>(
     [this] ()
     {
       for ( const string & hash : target_hashes_ ) {
@@ -104,7 +104,9 @@ Reductor::Reductor( const vector<string> & target_hashes,
       }
     } ).count();
 
-  cerr << " done (" << graph_load_time << " ms)." << endl;
+  cerr << " done (" << graph_load_time / 1000 << " ms)." << endl;
+  cerr << "Number of nodes is " << dep_graph_.size() << endl;
+  cerr << "Created the graph in " << graph_load_time << " us.\n";
 
   auto success_callback =
     [this] ( const string & old_hash, vector<ThunkOutput> && outputs, const float cost )
@@ -181,7 +183,15 @@ void Reductor::finalize_execution( const string & old_hash,
   running_jobs_.erase( old_hash );
   const string main_output_hash = outputs.at( 0 ).hash;
 
-  Optional<unordered_set<string>> new_o1s = dep_graph_.force_thunk( old_hash, move ( outputs ) );
+  Optional<unordered_set<string>> new_o1s;
+
+  auto force_thunk_time = time_it<microseconds>(
+      [&]()
+      {
+          new_o1s = dep_graph_.force_thunk( old_hash, move ( outputs ) );
+      } ).count();
+
+  cerr << "Updated the graph in " << force_thunk_time << " us.\n";
   estimated_cost_ += cost;
 
   if ( new_o1s.initialized() ) {

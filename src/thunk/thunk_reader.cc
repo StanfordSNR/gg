@@ -6,8 +6,10 @@
 #include "util/exception.hh"
 #include "util/file_descriptor.hh"
 #include "util/serialization.hh"
+#include "util/timeit.hh"
 
 using namespace std;
+using namespace std::chrono;
 using namespace gg;
 using namespace gg::thunk;
 
@@ -21,6 +23,8 @@ bool ThunkReader::is_thunk( const roost::path & path )
 
 Thunk ThunkReader::read( const roost::path & path, const std::string & hash )
 {
+  high_resolution_clock::time_point begin = high_resolution_clock::now();
+
   ProtobufDeserializer deserializer { path.string() };
   protobuf::Thunk thunk_proto;
 
@@ -32,6 +36,10 @@ Thunk ThunkReader::read( const roost::path & path, const std::string & hash )
   if ( hash.length() > 0 ) {
     thunk.set_hash( hash );
   }
+
+  high_resolution_clock::time_point end = high_resolution_clock::now();
+  cerr << "Read a thunk in "
+       << duration_cast<microseconds>( end - begin ).count() << " us.\n";
 
   return thunk;
 }

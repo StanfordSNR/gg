@@ -16,3 +16,4 @@ TimeUnit time_it( const function<void()> & f )
 }
 
 template chrono::milliseconds time_it( const function<void()> & f );
+template chrono::microseconds time_it( const function<void()> & f );
