@@ -110,6 +110,9 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
               break;
             }
 
+            case Message::OpCode::ExecutionFailed:
+              throw runtime_error("execution failed");
+
             default:
               throw runtime_error( "unexpected opcode" );
             }
