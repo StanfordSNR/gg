@@ -204,6 +204,9 @@ void fetch_dependencies( unique_ptr<StorageBackend> & storage_backend,
             download_items.push_back( { item.first, target_path, 0444 } );
           }
         }
+        else if ( executables ) {
+          roost::make_executable( target_path );
+        }
       };
 
     for_each( thunk.values().cbegin(), thunk.values().cend(),
