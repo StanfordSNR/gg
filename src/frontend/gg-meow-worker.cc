@@ -6,6 +6,7 @@
 #include <limits>
 #include <stdexcept>
 #include <cstdlib>
+#include <chrono>
 
 #include "protobufs/gg.pb.h"
 #include "protobufs/util.hh"
@@ -23,12 +24,15 @@
 #include "util/util.hh"
 
 using namespace std;
+using namespace std::chrono;
 using namespace gg;
 using namespace meow;
 
 const bool timelog = ( getenv( "GG_EXECUTE_TIMELOG" ) != nullptr );
 
 class ProgramFinished : public exception {};
+
+steady_clock::time_point last_execution {steady_clock::now()};
 
 void usage( char * argv0 )
 {
@@ -46,6 +50,8 @@ int main( int argc, char * argv[] )
       usage( argv[ 0 ] );
       return EXIT_FAILURE;
     }
+
+    last_execution = steady_clock::now();
 
     int port_argv = stoi( argv[ 2 ] );
     if ( port_argv <= 0 or port_argv > numeric_limits<uint16_t>::max() ) {
@@ -107,6 +113,9 @@ int main( int argc, char * argv[] )
           execution_request.set_data( "" );
 
           /* now we can execute it */
+          auto now = steady_clock::now();
+          cout << "IDLE: " << duration_cast<microseconds>(now - last_execution).count() << endl;
+          last_execution = now;
           cerr << "[execute] " << execution_request.hash() << endl;
           loop.add_child_process( execution_request.hash(),
             [hash=execution_request.hash(), execution_request, &connection]
