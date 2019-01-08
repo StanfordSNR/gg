@@ -23,6 +23,10 @@
 using namespace std;
 using namespace CryptoPP;
 
+namespace global {
+  std::chrono::steady_clock::time_point last_received;
+}
+
 namespace gg {
 
   namespace paths {

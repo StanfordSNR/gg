@@ -7,11 +7,16 @@
 #include <stdexcept>
 #include <vector>
 #include <sys/types.h>
+#include <chrono>
 
 #include "manifest.hh"
 #include "thunk.hh"
 #include "util/path.hh"
 #include "util/optional.hh"
+
+namespace global {
+  extern std::chrono::steady_clock::time_point last_received;
+}
 
 namespace gg {
   namespace paths {

@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <cmath>
+#include <chrono>
 
 #include "response.hh"
 #include "thunk/ggutils.hh"
@@ -42,11 +43,14 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
 {
   HTTPRequest request = generate_request( thunk );
 
+  cerr << "T: " << chrono::duration_cast<chrono::microseconds>(chrono::steady_clock::now() - global::last_received).count() << endl;
+
   uint64_t connection_id = exec_loop.make_http_request<SSLConnection>( thunk.hash(),
     address_, request,
     [this] ( const uint64_t id, const string & thunk_hash,
              const HTTPResponse & http_response ) -> bool
     {
+      global::last_received = chrono::steady_clock::now();
       running_jobs_--;
 
       if ( http_response.status_code() != "200" ) {
