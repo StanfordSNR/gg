@@ -111,7 +111,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
             }
 
             case Message::OpCode::ExecutionFailed:
-              throw runtime_error("execution failed");
+              throw runtime_error( "execution failed:" + message.payload() );
 
             default:
               throw runtime_error( "unexpected opcode" );
