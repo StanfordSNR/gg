@@ -8,7 +8,9 @@
 #include <signal.h>
 #include <poll.h>
 #include <mqueue.h>
-#include <keyutils.h>
+
+// from <keyutils.h>
+typedef int32_t key_serial_t;
 
 const SystemCallSignature & syscall_signature( const size_t syscall_no )
 {

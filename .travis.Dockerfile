@@ -3,7 +3,7 @@ FROM ubuntu:17.10
 MAINTAINER sadjad "https://github.com/sadjad"
 
 RUN apt-get update -qq
-RUN apt-get install -y -q gcc-7 g++-7 libcap-dev libkeyutils-dev libncurses5-dev \
+RUN apt-get install -y -q gcc-7 g++-7 libcap-dev libncurses5-dev \
                           libboost-dev libssl-dev autopoint help2man texinfo \
                           python3 python3-pip libhiredis-dev protobuf-compiler \
                           git libprotobuf-dev libcrypto++-dev texinfo automake \

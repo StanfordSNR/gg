@@ -44,7 +44,6 @@ AS_IF([test x"$PROTOC" = x],
   [AC_MSG_ERROR([cannot find protoc, the Protocol Buffers compiler])])
 
 # Checks for header files.
-AC_CHECK_HEADERS([keyutils.h], [], [AC_MSG_ERROR([Missing libkeyutils header file])])
 AC_CHECK_HEADERS([sys/capability.h], [], [AC_MSG_ERROR([Missing libcap header file])])
 
 # Checks for typedefs, structures, and compiler characteristics.

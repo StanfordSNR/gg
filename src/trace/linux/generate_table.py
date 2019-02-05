@@ -40,8 +40,7 @@ includes = [
     "#include <linux/aio_abi.h>",
     "#include <signal.h>",
     "#include <poll.h>",
-    "#include <mqueue.h>",
-    "#include <keyutils.h>"
+    "#include <mqueue.h>"
 ]
 
 type_fixes = {
@@ -55,6 +54,9 @@ type_fixes = {
 out_start = '''#include "syscall.hh"
 
 {includes}
+
+// from <keyutils.h>
+typedef int32_t key_serial_t;
 
 const SystemCallSignature & syscall_signature( const size_t syscall_no )
 {{
