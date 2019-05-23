@@ -37,6 +37,8 @@ def handler(event, context):
     # Write thunks to disk
     for thunk_item in thunks:
         thunk_data = b64decode(thunk_item['data'])
+        if os.path.exists(GGPaths.blob_path(thunk_item['hash'])):
+            os.remove(GGPaths.blob_path(thunk_item['hash']))
         with open(GGPaths.blob_path(thunk_item['hash']), "wb") as fout:
             fout.write(thunk_data)
 
