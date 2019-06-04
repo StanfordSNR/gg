@@ -162,8 +162,7 @@ void Redis::download_files( const vector<storage::GetRequest> & download_request
               shared_ptr<redisReply> reply { reply_ptr, freeReplyObject };
 
               if ( reply->type != REDIS_REPLY_STRING or
-                   reply->str == nullptr or
-                   reply->len < 0 ) {
+                   reply->str == nullptr ) {
                 throw runtime_error( "unexpected response from redis" );
               }
 
