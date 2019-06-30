@@ -34,7 +34,7 @@
 using namespace std;
 using namespace gg::thunk;
 
-constexpr char FORCE_STATUS[] = "GG_FORCE_STATUS";
+constexpr char FORCE_NO_STATUS[] = "GG_FORCE_NO_STATUS";
 constexpr char FORCE_DEFAULT_ENGINE[] = "GG_FORCE_DEFAULT_ENGINE";
 constexpr char FORCE_MAX_JOBS[] = "GG_FORCE_MAX_JOBS";
 constexpr char FORCE_TIMEOUT[] = "GG_FORCE_TIMEOUT";
@@ -47,7 +47,7 @@ void sigint_handler( int )
 void usage( const char * argv0 )
 {
   cerr << "Usage: " << argv0 << endl
-       << "       " << "[-s|--status] [-d|--no-download] [-S|--sandboxed]" << endl
+       << "       " << "[-s|--no-status] [-d|--no-download] [-S|--sandboxed]" << endl
        << "       " << "[[-j|--jobs=<N>] [-e|--engine=<name>[=ENGINE_ARGS]]]... " << endl
        << "       " << "[[-j|--jobs=<N>] [-f|--fallback-engine=<name>[=ENGINE_ARGS]]]..." << endl
        << "       " << "[-T|--timeout=<t>] [-m|--timeout-multiplier=<N>] THUNKS..." << endl
@@ -60,7 +60,7 @@ void usage( const char * argv0 )
        << "  - gcloud  Executes the jobs on Google Cloud Functions" << endl
        << endl
        << "Environment variables:" << endl
-       << "  - " << FORCE_STATUS << endl
+       << "  - " << FORCE_NO_STATUS << endl
        << "  - " << FORCE_DEFAULT_ENGINE << endl
        << "  - " << FORCE_TIMEOUT << endl
        << endl;
@@ -165,7 +165,7 @@ int main( int argc, char * argv[] )
     int timeout = ( getenv( FORCE_TIMEOUT ) != nullptr )
                   ? stoi( safe_getenv( FORCE_TIMEOUT ) ) : 0;
     size_t timeout_multiplier = 1;
-    bool status_bar = ( getenv( FORCE_STATUS ) != nullptr );
+    bool status_bar = !( getenv( FORCE_NO_STATUS ) != nullptr );
     bool no_download = false;
 
     size_t total_max_jobs = 0;
@@ -174,7 +174,7 @@ int main( int argc, char * argv[] )
     vector<EngineInfo> fallback_engines_info;
 
     struct option long_options[] = {
-      { "status",             no_argument,       nullptr, 's' },
+      { "no-status",          no_argument,       nullptr, 's' },
       { "sandboxed",          no_argument,       nullptr, 'S' },
       { "jobs",               required_argument, nullptr, 'j' },
       { "timeout",            required_argument, nullptr, 'T' },
@@ -194,8 +194,7 @@ int main( int argc, char * argv[] )
 
       switch ( opt ) {
       case 's':
-        status_bar = true;
-        StatusBar::get();
+        status_bar = false;
         break;
 
       case 'S':
@@ -231,6 +230,10 @@ int main( int argc, char * argv[] )
       default:
         throw runtime_error( "invalid option" );
       }
+    }
+
+    if (status_bar) {
+      StatusBar::get();
     }
 
     check_rlimit_nofile( total_max_jobs );
