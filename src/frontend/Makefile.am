@@ -16,7 +16,7 @@ GG_LDADD = ../execution/libggexecution.a \
 
 BASE_LDADD = $(GG_LDADD) $(PROTOBUF_LIBS) $(HIREDIS_LIBS)
 
-bin_PROGRAMS = gg-trace gg-describe gg-force-and-run gg-force gg-mock \
+bin_PROGRAMS = gg gg-trace gg-describe gg-force-and-run gg-force gg-mock \
                gg-execute gg-infer gg-thunksummary gg-s3-upload \
                gg-s3-download gg-init gg-hash gg-create-thunk gg-collect \
                gg-put gg-get gg-execute-server gg-meow-worker gg-object-server \
@@ -27,6 +27,9 @@ dist_bin_SCRIPTS = gg-create-blueprints gg-collect-dir gg-build-infer
 if BUILD_STATIC_BINS
   bin_PROGRAMS += gg-execute-static gg-meow-worker-static
 endif
+
+gg_SOURCES = gg.cc
+gg_LDADD= $(BASE_LDADD)
 
 gg_trace_SOURCES = gg-trace.cc
 gg_trace_LDADD = $(BASE_LDADD)
