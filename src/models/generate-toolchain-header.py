@@ -1,6 +1,4 @@
-#!/usr/bin/env python2
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import re
 import os
@@ -19,8 +17,8 @@ def sha256_checksum(filename, otype='V', block_size=65536):
         for block in iter(lambda: f.read(block_size), b''):
             size += len(block)
             sha256.update(block)
-
-    return "{}{}{:08x}".format(otype, base64.urlsafe_b64encode(sha256.digest()).replace('=','').replace('-', '.'), size)
+    hash = base64.urlsafe_b64encode(sha256.digest()).decode('UTF-8').replace('=','').replace('-', '.')
+    return "{}{}{:08x}".format(otype, hash, size)
 
 def get_include_path(language='c'):
     lang_switch = ''
@@ -29,7 +27,7 @@ def get_include_path(language='c'):
         lang_switch = '-x c++ '
 
     command = "gcc-7 -E -Wp,-v {}- < /dev/null >/dev/null".format(lang_switch)
-    output = sub.check_output(command, stderr=sub.STDOUT, shell=True)
+    output = sub.check_output(command, stderr=sub.STDOUT, shell=True, encoding='UTF-8')
 
     include_dirs = []
     include_dirs_started = False
@@ -49,7 +47,7 @@ def get_include_path(language='c'):
 
 def get_library_path():
     command = "gcc-7 -Wl,--verbose 2>/dev/null || exit 0"
-    output = sub.check_output(command, shell=True)
+    output = sub.check_output(command, shell=True, encoding='UTF-8')
 
     library_dirs = []
 
@@ -60,7 +58,7 @@ def get_library_path():
 
 def get_gcc_envars():
     command = "gcc-7 -print-search-dirs"
-    output = sub.check_output(command, shell=True)
+    output = sub.check_output(command, shell=True, encoding='UTF-8')
 
     INSTALL_PREFIX = ("install: ", "INSTALL_PATH")
     PROGRAMS_PREFIX = ("programs: =", "PROGRAMS_PATH")

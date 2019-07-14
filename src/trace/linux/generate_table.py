@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # This scripts takes in an strace's syscallent.h file and produces a syscall
 # table that can be used with gg.
