@@ -2,6 +2,10 @@
 
 ![](https://s3-us-west-2.amazonaws.com/stanfordsnr/gg-xkcd.jpg)
 
+## Research Paper
+
+"[From Laptop to Lambda: Outsourcing Everyday Jobs to Thousands of Transient Functional Containers](https://www.usenix.org/system/files/atc19-fouladi.pdf)," in 2019 USENIX Annual Technical Conference (USENIX ATC '19).
+
 ## Build directions
 
 To build `gg` you need the following packages:
