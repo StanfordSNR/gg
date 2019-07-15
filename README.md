@@ -60,7 +60,7 @@ To use `gg`, the following environment variables *must* be set:
 - `GG_MODELPATH` => *absolute path* to `<gg-source-dir>/src/models/wrappers`.
 - `GG_STORAGE_URI` =>
   - **S3**: `s3://<bucket-name>/?region=<bucket-region>`
-  - **Redis**: coming soon.
+  - **Redis**: `redis://<username>:<password>@<host>[:<port>]`
 - `GG_LAMBDA_ROLE` => the role that will be assigned to the executed Lambda.
 functions. Must have *AmazonS3FullAccess* and *AWSLambdaBasicExecutionRole*
 permissions.
@@ -105,13 +105,13 @@ Inside the `mosh` directory, first you need to prepare `mosh` to build:
 Then,
 
 ~~~
-gg-init # create .gg directory
-gg-infer make -j$(nproc) # creates the thunks
+gg init # creates .gg directory
+gg infer make -j$(nproc) # creates the thunks
 ~~~
 
 Now, to actually compile `mosh-server` on AWS Lambda with 100-way parallelism,
-you can execute:
+you can execute (it's important that `--jobs` comes before `--engine`):
 
 ~~~
-gg-force --engine=lambda --jobs 100 --status src/frontend/mosh-server
+gg force --jobs 100 --engine lambda src/frontend/mosh-server
 ~~~
