@@ -6,6 +6,12 @@
 
 "[From Laptop to Lambda: Outsourcing Everyday Jobs to Thousands of Transient Functional Containers](https://www.usenix.org/system/files/atc19-fouladi.pdf)," in 2019 USENIX Annual Technical Conference (USENIX ATC '19).
 
+## Demo
+
+Building FFmpeg with `gg` on AWS Lambda
+
+[![asciicast](https://asciinema.org/a/257545.svg)](https://asciinema.org/a/257545)
+
 ## Build directions
 
 To build `gg` you need the following packages:
