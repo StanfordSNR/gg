@@ -1,0 +1,3 @@
+#!/bin/bash
+PATH=$GG_REALPATH
+CC="$GG_MODELPATH/gcc" CXX="$GG_MODELPATH/g++" GG_BYPASS=1 cmake "$@"
