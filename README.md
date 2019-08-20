@@ -13,6 +13,13 @@ Building FFmpeg with `gg` on AWS Lambda
 
 [![asciicast](https://asciinema.org/a/257545.svg)](https://asciinema.org/a/257545)
 
+## Tech Video
+
+`gg` was presented at 2019 USENIX Annual Technical Conference (USENIX ATC '19). The talk was given on July 11, 2019.
+
+[![Alt text](https://img.youtube.com/vi/VVWVN6Czji4/0.jpg)](https://www.youtube.com/watch?v=VVWVN6Czji4)
+
+
 ## Build directions
 
 To build `gg` you need the following packages:
