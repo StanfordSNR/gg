@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-cd /home/user/gg
+cd /app/gg
 
 ./fetch-submodules.sh
 ./autogen.sh
