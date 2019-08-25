@@ -17,7 +17,7 @@ services:
       - HISTFILE=/bundle/.bash_history
       - PRY_HISTFILE=/bundle/.pry_history
       - GG_MODELPATH=/app/gg/src/models/wrappers
-      - PATH=/app/gg/src/frontend:$PATH
+      - PATH=/app/gg/src/frontend:/app/gg/src/models:$PATH
     env_file:
       - .env
     networks:
