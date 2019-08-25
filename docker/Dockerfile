@@ -28,4 +28,4 @@ WORKDIR /app/gg
 FROM build-env as dev-env
 
 RUN pip3 install boto3 numpy python_magic
-RUN apt-get install -y -q vim wget unzip cmake
+RUN apt-get install -y -q vim wget unzip cmake ffmpeg

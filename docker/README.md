@@ -43,7 +43,7 @@ docker-compose run --rm runner -c ./docker/bin/ggfunctions
 # done.
 ```
 
-### Check Installation
+### Use
 
 After successful completion of the commands above you can use `gg`
 
@@ -52,11 +52,6 @@ docker-compose run --rm runner -c /bin/bash
 root@88d653b86453:/app/gg# gg
 gg COMMAND [ARG]...
 ```
-
-## Run examples with Docker
-
-[Excamera](/examples/excamera/README.md#docker)
-
 
 **TIP**: Docker doesn't cleanup after itself well, so you have to do it manually.
 

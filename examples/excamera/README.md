@@ -34,6 +34,16 @@ my-video/
 Each file usually contains a few frames, for example 6 frames. For more details
 on this, please refer to ExCamera [paper](https://www.usenix.org/conference/nsdi17/technical-sessions/presentation/fouladi).
 
+### Prepare Y4M chunks
+
+If you do not have Y4M files, you can prepare them from an AVI file. To do this, use our script
+
+```
+./bin/prepare /path/to/avi
+```
+
+*Notice: Raw Y4M pieces take up a lot of space. Do not generate them from a large AVI file. [There are a suitable input AVI files](http://www.engr.colostate.edu/me/facil/dynamics/avis.htm)*
+
 ### Generating the `Makefile`
 
 After the raw, uncompressed video files are ready, the next step is to generate
@@ -53,3 +63,33 @@ from 0 to 63 (the smaller, the better).
 
 1. `gg-infer make -j$(nproc)`
 2. `gg-force --engine=lambda --status --jobs=100 *.ivf`
+
+### Alternative: use `run.sh`
+
+If you have chunks then just run the the script to get `output.avi`
+
+```sh
+./bin/run.sh 100
+file output.avi
+# output.avi: RIFF (little-endian) data, AVI, 256 x 240, 30.00 fps, video:
+```
+
+## Final gist
+
+```sh
+cd examples/excamera
+
+# clone deps and setup env var
+git clone https://github.com/excamera/excamera-static-bins
+export EXCAMERA_BIN_DIR=/app/gg/examples/excamera/excamera-static-bins/
+
+# prepare raw chunks
+./bin/prepare.sh /path/to/avi
+
+# run encoding of 100 jobs
+./bin/run.sh 100
+
+# check the result
+file output.avi
+# output.avi: RIFF (little-endian) data, AVI, 256 x 240, 30.00 fps, video:
+```
