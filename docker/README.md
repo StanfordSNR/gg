@@ -1,8 +1,8 @@
 # Development and test
 
-We have development Docker configuration.
+We have a development Docker configuration.
 
-You need `docker` and `docker-compose` installed (for MacOS just use [official app](https://docs.docker.com/engine/installation/mac/)).
+You need `docker` and `docker-compose` installed (for MacOS just use [the official app](https://docs.docker.com/engine/installation/mac/)).
 
 
 ## Setup
@@ -16,7 +16,7 @@ cd gg
 docker-compose build
 ```
 
-To continue, you should set environment variables to access AWS. One way to create a `.env` file at the root of the project.
+To continue, you should set environment variables to access AWS. One way is to create a `.env` file at the root of the project. Read more about these environment variables [here](https://github.com/StanfordSNR/gg#usage).
 
 Here is an example:
 
