@@ -42,7 +42,7 @@ If you do not have Y4M files, you can prepare them from an AVI file. To do this,
 ./bin/prepare /path/to/avi
 ```
 
-*Notice: Raw Y4M pieces take up a lot of space. Do not generate them from a large AVI file. [There are a suitable input AVI files](http://www.engr.colostate.edu/me/facil/dynamics/avis.htm)*
+*Notice: Raw Y4M pieces take up a lot of space. Do not generate them from a large AVI file. Suitable input AVI files may be found [here](http://www.engr.colostate.edu/me/facil/dynamics/avis.htm)*
 
 ### Generating the `Makefile`
 
