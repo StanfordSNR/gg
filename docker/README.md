@@ -71,3 +71,9 @@ docker system prune
 
 **TIP2**: Use `--rm` flag with `run` command to automatically destroy the
 container on exit, e.g. `docker-compose run --rm runner`.
+
+**TIP3**: Out of the box `Dockerfile` contains two stages:
+- `build-env` provides a minimal environment to build & run `gg` framework. Used for `TravisCI`.
+- `sandbox-env` provides a container with all dependencies to play with `gg`'s examples.
+
+If you are interested in other behaviors, you can use [multi-stage build](https://docs.docker.com/develop/develop-images/multistage-build) feature to build your own containers.

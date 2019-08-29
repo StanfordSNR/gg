@@ -24,8 +24,16 @@ ENV LC_ALL C.UTF-8
 
 WORKDIR /app/gg
 
-# dev-env stage
-FROM build-env as dev-env
+# sandbox-env stage
+FROM build-env as sandbox-env
 
+ENV PATH /app/gg/src/frontend:/app/gg/src/models:$PATH
+
+# ggfunctions deps
 RUN pip3 install boto3 numpy python_magic
-RUN apt-get install -y -q vim wget unzip cmake ffmpeg
+
+# common deps
+RUN apt-get install -y -q vim wget unzip
+
+# deps for excamera and viddec examples
+RUN apt-get install -y -q ffmpeg
