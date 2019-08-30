@@ -34,9 +34,18 @@ void LocalExecutionEngine::force_thunk( const Thunk & thunk,
 
       success_callback_( hash, move( thunk_outputs ), 0 );
     },
-    [&thunk]()
+    [mixed=this->mixed_, &thunk]()
     {
-      vector<string> command { "gg-execute", thunk.hash() };
+      vector<string> command;
+
+      if ( mixed ) {
+          command = { "gg-execute", "--get-dependencies", "--put-output",
+                      thunk.hash() };
+      }
+      else {
+          command = { "gg-execute", thunk.hash() };
+      }
+
       return ezexec( command[ 0 ], command, {}, true, true );
     },
     true

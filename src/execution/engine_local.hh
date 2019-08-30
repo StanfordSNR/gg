@@ -10,18 +10,20 @@
 class LocalExecutionEngine : public ExecutionEngine
 {
 private:
+  bool mixed_ { false };
   size_t running_jobs_ { 0 };
 
 public:
-  LocalExecutionEngine( const size_t max_jobs = std::thread::hardware_concurrency() )
-    : ExecutionEngine( max_jobs )
+  LocalExecutionEngine( const bool mixed = false,
+                        const size_t max_jobs = std::thread::hardware_concurrency() )
+    : ExecutionEngine( max_jobs ), mixed_( mixed )
   {}
 
   void force_thunk( const gg::thunk::Thunk & thunk,
                     ExecutionLoop & exec_loop ) override;
   size_t job_count() const override;
 
-  bool is_remote() const override { return false; }
+  bool is_remote() const override { return mixed_; }
   std::string label() const override { return "local"; }
   bool can_execute( const gg::thunk::Thunk & ) const override { return true; }
 };

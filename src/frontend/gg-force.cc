@@ -102,7 +102,8 @@ unique_ptr<ExecutionEngine> make_execution_engine( const EngineInfo & engine )
   const size_t max_jobs = get<2>( engine );
 
   if ( engine_name == "local" ) {
-    return make_unique<LocalExecutionEngine>( max_jobs );
+    const bool mixed = (engine_params == "mixed");
+    return make_unique<LocalExecutionEngine>( mixed, max_jobs );
   }
   else if ( engine_name == "lambda" ) {
     return make_unique<AWSLambdaExecutionEngine>( max_jobs, AWSCredentials(),
