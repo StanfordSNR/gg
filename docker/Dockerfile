@@ -37,3 +37,6 @@ RUN apt-get install -y -q vim wget unzip
 
 # deps for excamera and viddec examples
 RUN apt-get install -y -q ffmpeg
+
+# deps for LLVM example
+RUN apt-get install -y -q cmake
