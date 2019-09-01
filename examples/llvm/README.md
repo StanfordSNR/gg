@@ -12,11 +12,11 @@ The time required to compile software is an evergreen frustration for software d
 
 Let's see how you can speed up the build of LLVM using `gg`.
 
-### Useful links
+### Useful Links
 
 [gg + CMake for building LLVM](https://github.com/StanfordSNR/gg/issues/22)
 
-[Demo video](https://asciinema.org/a/262982)
+[![asciicast](https://asciinema.org/a/262982.svg)](https://asciinema.org/a/262982)
 
 ### Run
 
