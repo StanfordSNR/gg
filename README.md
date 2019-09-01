@@ -22,6 +22,8 @@ Building FFmpeg with `gg` on AWS Lambda
 
 ## Build directions
 
+**Notice: If you are Docker adept, follow [this instruction](https://github.com/StanfordSNR/gg/blob/master/docker/README.md).**
+
 To build `gg` you need the following packages:
 
 - `gcc` >= 7.0

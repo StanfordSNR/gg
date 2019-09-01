@@ -1,9 +1,8 @@
-# Development and test
+# Docker configuration
 
-We have a development Docker configuration.
+We have a several Docker configurations.
 
 You need `docker` and `docker-compose` installed (for MacOS just use [the official app](https://docs.docker.com/engine/installation/mac/)).
-
 
 ## Setup
 
