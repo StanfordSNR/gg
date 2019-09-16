@@ -32,4 +32,4 @@ printf "6. Input trunk:\n"
 cat bin/llvm-tblgen
 
 printf "7. Build llvm-tblgen\n"
-gg force --engine=lambda --jobs=$JOBS_COUNT bin/llvm-tblgen
+gg force --jobs=$JOBS_COUNT --engine=lambda bin/llvm-tblgen
