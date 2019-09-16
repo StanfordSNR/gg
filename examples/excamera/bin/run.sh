@@ -17,7 +17,7 @@ printf "3. Execute 'make' to create thunks\n"
 gg-infer make -j$(nproc)
 
 printf "4. Run video processing jobs\n"
-gg force --engine=lambda --jobs=$JOBS_COUNT *.ivf
+gg force --jobs=$JOBS_COUNT --engine=lambda *.ivf
 
 printf "5. Build output.avi\n"
 ls *-vpxenc.ivf | while read each; do echo "file '$each'" >> mylist.txt; done
