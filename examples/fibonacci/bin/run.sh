@@ -17,10 +17,7 @@ gg init
 printf "3. Create thunks for number %s\n" "$N"
 ./create-thunk.sh $N ./fib ./add
 
-printf "4. Upload bins to storage (s3\Redis) to use them from serverless functions\n"
-./upload.sh ./fib ./add
-
-printf "5. Run calculation\n"
+printf "4. Run calculation\n"
 gg force --jobs=$JOBS_COUNT --engine=lambda "fib${N}_output"
 
-printf "6. Result: %s\n" $(cat fib${N}_output)
+printf "5. Result: %s\n" $(cat fib${N}_output)

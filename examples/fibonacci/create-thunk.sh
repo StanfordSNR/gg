@@ -12,6 +12,7 @@ ADD_HASH=$(gg-hash $ADD_PATH)
 gg-create-thunk --envar FIB_FUNCTION_HASH=${FIB_HASH} \
                 --envar ADD_FUNCTION_HASH=${ADD_HASH} \
                 --executable ${FIB_HASH} \
+                --executable ${ADD_HASH} \
                 --output out \
                 --output left \
                 --output right \
