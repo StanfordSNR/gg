@@ -70,7 +70,7 @@ Address::Address( const string & node, const string & service, const addrinfo & 
     const int gai_ret = getaddrinfo( node.c_str(), service.c_str(), &hints, &resolved_address );
     if ( gai_ret ) {
         string explanation = "getaddrinfo(" + node + ":" + service;
-        if ( hints.ai_flags | (AI_NUMERICHOST | AI_NUMERICSERV) ) {
+        if ( hints.ai_flags & (AI_NUMERICHOST | AI_NUMERICSERV) ) {
             explanation += ", numeric";
         }
         explanation += ")";
