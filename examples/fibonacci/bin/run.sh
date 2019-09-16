@@ -21,6 +21,6 @@ printf "4. Upload bins to storage (s3\Redis) to use them from serverless functio
 ./upload.sh ./fib ./add
 
 printf "5. Run calculation\n"
-gg force --engine=lambda --jobs=$JOBS_COUNT "fib${N}_output"
+gg force --jobs=$JOBS_COUNT --engine=lambda "fib${N}_output"
 
 printf "6. Result: %s\n" $(cat fib${N}_output)
