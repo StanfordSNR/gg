@@ -18,7 +18,7 @@ do
                   $(gg hash $SLEEP_PATH) sleep ${i} "SLEEP(${i})" 2>&1
 done)
 
-gg create-thunk`for h in ${HASHES}; do echo -n ' --thunk' ${h}; done` \
+gg create-thunk`for h in ${HASHES}; do echo -n ' --future' ${h}; done` \
                 --executable $(gg hash $MERGE_PATH)=merge \
                 --placeholder out --output output \
                 $(gg hash $MERGE_PATH) merge \
