@@ -48,7 +48,10 @@ int main( int argc, char * argv[] )
       },
       {
         "output1", "output2", "output3", "output4"
-      }
+      },
+      {
+        { "TFOBJ1", "FA" }, { "TFOBJ2", "FB" }, { "TFOBJ3", "" }
+      },
     };
 
     original_thunk.set_timeout( 537ms );

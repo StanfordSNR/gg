@@ -68,10 +68,12 @@ void Thunk::throw_if_error() const
 Thunk::Thunk( const Function & function,
               const vector<DataItem> & data,
               const vector<DataItem> & executables,
-              const vector<string> & outputs )
+              const vector<string> & outputs,
+              const vector<DataItem> & futures )
   : function_( function ),
     values_(),
     thunks_(),
+    futures_(),
     executables_( executables.cbegin(), executables.cend() ),
     outputs_( outputs )
 {
@@ -82,21 +84,30 @@ Thunk::Thunk( const Function & function,
     }
   }
 
+  for (const DataItem & item : futures) {
+    futures_.emplace( item );
+  }
+
   throw_if_error();
 }
 
 Thunk::Thunk( Function && function,
               vector<DataItem> && data,
               vector<DataItem> && executables,
-              vector<string> && outputs )
-  : function_( move( function ) ), values_(), thunks_(), executables_(),
-    outputs_( move( outputs ) )
+              vector<string> && outputs,
+              vector<DataItem> && futures )
+  : function_( move( function ) ), values_(), thunks_(), futures_(),
+    executables_(), outputs_( move( outputs ) )
 {
   for ( DataItem & item : data ) {
     switch ( hash::type( item.first ) ) {
     case ObjectType::Value: values_.emplace( move( item ) ); break;
     case ObjectType::Thunk: thunks_.emplace( move( item ) ); break;
     }
+  }
+
+  for ( DataItem & item : futures ) {
+    futures_.emplace( move( item ) ) ;
   }
 
   for ( DataItem & item : executables ) {
@@ -110,9 +121,10 @@ Thunk::Thunk( Function && function,
               vector<DataItem> && values,
               vector<DataItem> && thunks,
               vector<DataItem> && executables,
-              vector<string> && outputs )
-  : function_( move( function ) ), values_(), thunks_(), executables_(),
-    outputs_( move( outputs ) )
+              vector<string> && outputs,
+              vector<DataItem> && futures )
+  : function_( move( function ) ), values_(), thunks_(), futures_(),
+    executables_(), outputs_( move( outputs ) )
 {
   for ( DataItem & item : values ) {
     values_.emplace( move( item ) );
@@ -120,6 +132,10 @@ Thunk::Thunk( Function && function,
 
   for ( DataItem & item : thunks ) {
     thunks_.emplace( move( item ) );
+  }
+
+  for ( DataItem & item : futures ) {
+    futures_.emplace( move( item ) ) ;
   }
 
   for ( DataItem & item : executables ) {
@@ -131,10 +147,10 @@ Thunk::Thunk( Function && function,
 
 Thunk::Thunk( Function && function, DataList && values,
               DataList && thunks, DataList && executables,
-              vector<string> && outputs )
+              vector<string> && outputs, DataList && futures )
   : function_( move( function ) ), values_( move( values ) ),
-    thunks_( move( thunks ) ), executables_( move( executables ) ),
-    outputs_( move( outputs ) )
+    thunks_( move( thunks ) ), futures_( move( futures ) ),
+    executables_( move( executables ) ), outputs_( move( outputs ) )
 {
   throw_if_error();
 }
@@ -143,6 +159,7 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
   : function_( thunk_proto.function() ),
     values_(),
     thunks_(),
+    futures_(),
     executables_(),
     outputs_( thunk_proto.outputs().cbegin(), thunk_proto.outputs().cend() ),
     timeout_( thunk_proto.timeout() )
@@ -153,6 +170,10 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
 
   for ( const string & item : thunk_proto.thunks() ) {
     thunks_.emplace( string_to_data( item ) );
+  }
+
+  for ( const string & item : thunk_proto.futures() ) {
+    futures_.emplace( string_to_data( item ) );
   }
 
   for ( const string & item : thunk_proto.executables() ) {
@@ -268,6 +289,7 @@ protobuf::Thunk Thunk::to_protobuf() const
 
   for ( const auto & h : values_ ) { thunk_proto.add_values( data_to_string( h ) ); }
   for ( const auto & h : thunks_ ) { thunk_proto.add_thunks( data_to_string( h ) ); }
+  for ( const auto & h : futures_ ) { thunk_proto.add_futures( data_to_string( h ) ); }
   for ( const auto & h : executables_ ) { thunk_proto.add_executables( data_to_string( h ) ); }
   for ( const string & output : outputs_ ) { thunk_proto.add_outputs( output ); }
 
@@ -281,6 +303,7 @@ bool Thunk::operator==( const Thunk & other ) const
   return ( function_ == other.function_ ) and
          ( values_ == other.values_ ) and
          ( thunks_ == other.thunks_ ) and
+         ( futures_ == other.futures_ ) and
          ( executables_ == other.executables_ ) and
          ( outputs_ == other.outputs_ ) and
          ( timeout_ == other.timeout_ );

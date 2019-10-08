@@ -21,6 +21,7 @@ void usage( const char * argv0 )
        << "\t[--envar, -E <environment-varible>]..." << endl
        << "\t[--value, -v <value[=name]>]..." << endl
        << "\t[--thunk, -t <thunk[=name]>]..." << endl
+       << "\t[--future, -f <future[=name]>]..." << endl
        << "\t[--executable, -e <executable[=name]>]..." << endl
        << "\t[--output, -o <tag>]..." << endl
        << "\t[--placeholder, -C <arg>]" << endl
@@ -44,6 +45,7 @@ int main( int argc, char * argv[] )
       { "envar",       required_argument, nullptr, 'E' },
       { "value",       required_argument, nullptr, 'v' },
       { "thunk",       required_argument, nullptr, 't' },
+      { "future",      required_argument, nullptr, 'f' },
       { "executable",  required_argument, nullptr, 'e' },
       { "output",      required_argument, nullptr, 'o' },
       { "placeholder", required_argument, nullptr, 'C' },
@@ -57,12 +59,13 @@ int main( int argc, char * argv[] )
     vector<string> function_envars;
     vector<Thunk::DataItem> values;
     vector<Thunk::DataItem> thunks;
+    vector<Thunk::DataItem> futures;
     vector<Thunk::DataItem> executables;
     vector<string> outputs;
     milliseconds timeout = 0s;
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "E:v:t:e:o:C:T:", cmd_options, nullptr );
+      const int opt = getopt_long( argc, argv, "E:v:t:e:o:C:T:f:", cmd_options, nullptr );
 
       if ( opt == -1 ) { break; }
 
@@ -77,6 +80,10 @@ int main( int argc, char * argv[] )
 
       case 't':
         thunks.emplace_back( Thunk::string_to_data( optarg ) );
+        break;
+
+      case 'f':
+        futures.emplace_back( Thunk::string_to_data( optarg ) );
         break;
 
       case 'e':
@@ -115,7 +122,7 @@ int main( int argc, char * argv[] )
                         move( function_envars ) };
 
     Thunk thunk { move( function ), move( values ), move( thunks ),
-                  move( executables ), move( outputs ) };
+                  move( executables ), move( outputs ), move( futures ) };
 
     thunk.set_timeout( timeout );
 

@@ -98,6 +98,7 @@ namespace gg {
       Function function_;
       DataList values_;
       DataList thunks_;
+      DataList futures_;
       DataList executables_;
       std::vector<std::string> outputs_;
       std::chrono::milliseconds timeout_ { 0 };
@@ -110,22 +111,26 @@ namespace gg {
       Thunk( const Function & function,
              const std::vector<DataItem> & data,
              const std::vector<DataItem> & executables,
-             const std::vector<std::string> & outputs );
+             const std::vector<std::string> & outputs,
+             const std::vector<DataItem> & futures = {} );
 
       Thunk( Function && function,
              std::vector<DataItem> && data,
              std::vector<DataItem> && executables,
-             std::vector<std::string> && outputs );
+             std::vector<std::string> && outputs,
+             std::vector<DataItem> && futures = {} );
 
       Thunk( Function && function,
              std::vector<DataItem> && values,
              std::vector<DataItem> && thunks,
              std::vector<DataItem> && executables,
-             std::vector<std::string> && outputs );
+             std::vector<std::string> && outputs,
+             std::vector<DataItem> && futures = {} );
 
       Thunk( Function && function, DataList && values,
-             DataList && thunks, DataList && executables,
-             std::vector<std::string> && outputs );
+             DataList && thunks,
+             DataList && executables, std::vector<std::string> && outputs,
+             DataList && futures = {} );
 
       Thunk( const gg::protobuf::Thunk & thunk_proto );
 
@@ -138,6 +143,7 @@ namespace gg {
       const Function & function() const { return function_; }
       const DataList & values() const { return values_; }
       const DataList & thunks() const { return thunks_; }
+      const DataList & futures() const { return futures_; }
       const DataList & executables() const { return executables_; }
       const std::vector<std::string> & outputs() const { return outputs_; }
       const std::chrono::milliseconds & timeout() const { return timeout_; }
