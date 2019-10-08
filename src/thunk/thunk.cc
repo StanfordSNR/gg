@@ -361,21 +361,25 @@ void Thunk::update_data( const string & original_hash,
                           ? output.hash
                           : hash::for_output( output.hash, output.tag );
 
-    auto result = thunks_.equal_range( old_hash );
+    auto transform_data_items = [this, &new_hash, &old_hash]( auto & container ) {
+        auto result = container.equal_range( old_hash );
+        vector<string> old_names;
 
-    vector<string> old_names;
+        for ( auto it = result.first; it != result.second; ) {
+          old_names.emplace_back( move( it->second ) );
+          it = container.erase( it );
+        }
 
-    for ( auto it = result.first; it != result.second; ) {
-      old_names.emplace_back( move( it->second ) );
-      it = thunks_.erase( it );
-    }
+        for ( const auto & old_name : old_names ) {
+          switch ( hash::type( new_hash ) ) {
+          case ObjectType::Thunk: container.insert( { new_hash, old_name } ); break;
+          case ObjectType::Value: values_.insert( { new_hash, old_name } ); break;
+          }
+        }
+      };
 
-    for ( const auto & old_name : old_names ) {
-      switch ( hash::type( new_hash ) ) {
-      case ObjectType::Thunk: thunks_.insert( { new_hash, old_name } ); break;
-      case ObjectType::Value: values_.insert( { new_hash, old_name } ); break;
-      }
-    }
+    transform_data_items( thunks_ );
+    transform_data_items( futures_ );
 
     /* let's update the args/envs as necessary */
     const string srcstr = data_placeholder( old_hash );
