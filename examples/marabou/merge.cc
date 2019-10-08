@@ -5,7 +5,7 @@ using namespace std;
 
 bool is_thunk(const string & path) {
   constexpr char magic_number[] = "##GGTHUNK##";
-  constexpr size_t magic_number_len = sizeof(magic_number) / sizeof(char);
+  constexpr size_t magic_number_len = sizeof(magic_number) / sizeof(char) - 1;
   char first_bytes[magic_number_len] = {0};
 
   ifstream fin{path};
