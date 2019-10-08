@@ -86,7 +86,7 @@ void MeowExecutionEngine::init( ExecutionLoop & exec_loop )
               // cerr << "[meow:worker@" << id << ":executed] " << thunk_hash << endl;
 
               for ( const auto & output : execution_response.outputs() ) {
-                gg::cache::insert( gg::hash::for_output( thunk_hash, output.tag() ), output.hash() );
+                gg::cache::insert( thunk_hash, output.hash(), output.tag() );
                 // XXX gg::remote::set_available( output.hash() );
 
                 if ( output.data().length() ) {

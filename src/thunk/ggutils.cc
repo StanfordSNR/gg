@@ -258,9 +258,20 @@ namespace gg {
       return ReductionResult { output_hash };
     }
 
-    void insert( const string & old_hash, const string & new_hash )
+    void insert( const string & old_hash, const string & new_hash,
+                 const std::string & tag )
     {
-      roost::atomic_create( new_hash, gg::paths::reduction( old_hash ) );
+      if ( old_hash == new_hash ) {
+        return;
+      }
+
+      if ( tag.empty() ) {
+        roost::atomic_create( new_hash, gg::paths::reduction( old_hash ) );
+      }
+      else {
+        roost::atomic_create( new_hash,
+                              gg::paths::reduction( hash::for_output( old_hash, tag) ) );
+      }
     }
 
   }

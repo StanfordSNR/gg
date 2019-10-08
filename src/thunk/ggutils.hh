@@ -48,7 +48,8 @@ namespace gg {
     };
 
     Optional<ReductionResult> check( const std::string & thunk_hash );
-    void insert( const std::string & old_hash, const std::string & new_hash );
+    void insert( const std::string & old_hash, const std::string & new_hash,
+                 const std::string & tag = {} );
   }
 
   namespace hash {

@@ -81,7 +81,7 @@ void AWSLambdaExecutionEngine::force_thunk( const Thunk & thunk,
         }
 
         for ( const auto & output : response.outputs ) {
-          gg::cache::insert( gg::hash::for_output( response.thunk_hash, output.tag ), output.hash );
+          gg::cache::insert( response.thunk_hash, output.hash, output.tag );
 
           if ( output.data.length() ) {
             roost::atomic_create( base64::decode( output.data ),
