@@ -41,19 +41,26 @@ string ExecutionGraph::add_thunk( const string & full_hash )
 
   vector<pair<string, string>> updates_to_thunk;
 
-  for ( const Thunk::DataItem & item : thunk.thunks() ) {
-    const string item_base = gg::hash::base( item.first );
-    const string item_updated = add_thunk( item_base );
-    referencing_thunks_[ item_updated ].emplace( hash );
+  auto add_children = [&]( const auto & container ) {
+      for ( const Thunk::DataItem & item : container ) {
+        const string item_base = gg::hash::base( item.first );
+        const string item_updated = add_thunk( item_base );
+        referencing_thunks_[ item_updated ].emplace( hash );
 
-    if ( item_updated != item_base ) {
-      updates_to_thunk.emplace_back( item_base, item_updated );
-    }
-  }
+        if ( item_updated != item_base ) {
+          updates_to_thunk.emplace_back( item_base, item_updated );
+        }
+      }
+    };
+
+  add_children( thunk.thunks() );
+  add_children( thunk.futures() );
 
   for ( const pair<string, string> & update : updates_to_thunk ) {
     vector<ThunkOutput> new_outputs;
-    for ( const auto & output : thunk.outputs() ) {
+    const Thunk & ref_thunk = thunks_.at( update.second );
+
+    for ( const auto & output : ref_thunk.outputs() ) {
       new_outputs.emplace_back( update.second, output );
     }
 
