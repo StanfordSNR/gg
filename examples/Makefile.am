@@ -1,1 +1,1 @@
-SUBDIRS = fibonacci gtest viddec
+SUBDIRS = fibonacci gtest viddec marabou

@@ -90,6 +90,7 @@ AC_CONFIG_FILES([Makefile
                  examples/fibonacci/Makefile
                  examples/gtest/Makefile
                  examples/viddec/Makefile
+                 examples/marabou/Makefile
                  tests/Makefile])
 
 AC_OUTPUT
