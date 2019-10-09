@@ -118,6 +118,11 @@ ExecutionGraph::force_thunk( const string & old_hash,
 
   string & actual_new_hash = outputs.front().hash;
 
+  /* XXX what if I had multiple outputs? */
+  if ( actual_new_hash == old_hash ) {
+    return { false };
+  }
+
   unordered_set<string> next_to_execute;
   const gg::ObjectType new_type = gg::hash::type( actual_new_hash );
 
@@ -129,7 +134,11 @@ ExecutionGraph::force_thunk( const string & old_hash,
   update_hash( old_hash, outputs );
 
   for ( const string & referencing_thunk_hash : referencing_thunks_.at( actual_new_hash ) ) {
-    Thunk & referencing_thunk = thunks_.at( referencing_thunk_hash );
+    const string & actual_hash = updated_hashes_.count( referencing_thunk_hash )
+                               ? updated_hashes_[ referencing_thunk_hash ]
+                               : referencing_thunk_hash;
+
+    Thunk & referencing_thunk = thunks_.at(actual_hash);
 
     if ( referencing_thunk.can_be_executed() ) {
       const string referencing_thunk_new_hash = ThunkWriter::write( referencing_thunk );
@@ -143,7 +152,7 @@ ExecutionGraph::force_thunk( const string & old_hash,
                        forward_as_tuple( referencing_thunk_new_hash ),
                        forward_as_tuple( move( referencing_thunk ) ) );
 
-      update_hash( referencing_thunk_hash, new_outputs );
+      update_hash( actual_hash, new_outputs );
       next_to_execute.emplace( move( referencing_thunk_new_hash ) );
     }
   }
@@ -177,6 +186,11 @@ unordered_set<string> ExecutionGraph::order_one_dependencies( const string & inp
   unordered_set<string> result;
 
   for ( const Thunk::DataItem & item : thunk.thunks() ) {
+    auto subresult = order_one_dependencies( item.first );
+    result.insert( subresult.begin(), subresult.end() );
+  }
+
+  for ( const Thunk::DataItem & item : thunk.futures() ) {
     auto subresult = order_one_dependencies( item.first );
     result.insert( subresult.begin(), subresult.end() );
   }
