@@ -1,8 +1,11 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* vim: set ts=8 sts=2 sw=2 tw=80 : */
+
 
 #include "graph.hh"
 
 #include <stdexcept>
+#include <iostream>
 
 #include "ggutils.hh"
 #include "thunk.hh"
@@ -13,178 +16,232 @@ using namespace std;
 using namespace gg;
 using namespace gg::thunk;
 
-string ExecutionGraph::add_thunk( const string & full_hash )
+Computation::Computation( Thunk && thunk )
+  : thunk( move( thunk ) ) {}
+
+ComputationId ExecutionGraph::add_thunk( const Hash & full_hash )
 {
+  // Strip output name
   const string hash = gg::hash::base( full_hash );
-  const string & updated = updated_hash( hash );
 
-  if ( thunks_.count( updated ) ) {
-    return updated;
+  if ( ids_.count( hash ) ) {
+    return ids_.at( hash );
   }
 
-  if ( thunks_.count( hash ) ) {
-    return hash;
-  }
-
+  // Get thunk
   Thunk thunk { move( ThunkReader::read( gg::paths::blob( hash ), hash ) ) };
 
-  /* creating the entry */
-  referencing_thunks_[ hash ];
-
+  // Add blob dependencies
   for ( const Thunk::DataItem & item : thunk.values() ) {
-    value_dependencies_.emplace( item.first );
+    blob_dependencies_.emplace( item.first );
   }
-
   for ( const Thunk::DataItem & item : thunk.executables() ) {
-    executable_dependencies_.emplace( item.first );
+    blob_dependencies_.emplace( item.first );
   }
 
-  vector<pair<string, string>> updates_to_thunk;
+  // Create node in the graph
+  ComputationId id = next_id_++;
+  _emplace_thunk( id, move( thunk ) );
 
-  for ( const Thunk::DataItem & item : thunk.thunks() ) {
-    const string item_base = gg::hash::base( item.first );
-    const string item_updated = add_thunk( item_base );
-    referencing_thunks_[ item_updated ].emplace( hash );
+  // hash is gauranteed to be missing b/c above `count` check.
+  ids_.insert( { move( hash ), id } );
 
-    if ( item_updated != item_base ) {
-      updates_to_thunk.emplace_back( item_base, item_updated );
-    }
-  }
-
-  for ( const pair<string, string> & update : updates_to_thunk ) {
-    vector<ThunkOutput> new_outputs;
-    for ( const auto & output : thunk.outputs() ) {
-      new_outputs.emplace_back( update.second, output );
-    }
-
-    thunk.update_data( update.first, new_outputs );
-  }
-
-  thunks_.emplace( piecewise_construct,
-                   forward_as_tuple( hash ),
-                   forward_as_tuple( move( thunk ) ) );
-
-  return hash;
+  return id;
 }
 
-void ExecutionGraph::update_hash( const string & old_hash,
-                                  const vector<ThunkOutput> & outputs )
+void ExecutionGraph::_emplace_thunk( ComputationId id,
+                                     gg::thunk::Thunk && thunk )
 {
-  const string & new_hash = outputs.front().hash;
+  // If this computation already exists, replace the thunk, otherwise, create
+  // the computation
+  if ( computations_.count( id ) ) {
+    computations_.at( id ).thunk = move( thunk );
+  } else {
+    n_unreduced++;
+    computations_.emplace( id, Computation { move( thunk ) } );
+  }
+  Computation & computation = computations_.at( id );
 
-  /* updating the hash chain */
-  if ( gg::hash::type( new_hash ) == gg::ObjectType::Thunk ) {
-    if ( original_hashes_.count( old_hash ) == 0 ) {
-      original_hashes_[ new_hash ] = old_hash;
-      updated_hashes_[ old_hash ] = new_hash;
-    }
-    else {
-      original_hashes_[ new_hash ] = original_hashes_[ old_hash ];
-      updated_hashes_[ original_hashes_[ old_hash ] ] = new_hash;
-      original_hashes_.erase( old_hash );
-    }
+  // Add children
+  for ( const Thunk::DataItem & item : computation.thunk.thunks() ) {
+    const string child_hash = gg::hash::base( item.first );
+    ComputationId child_id = add_thunk( child_hash );
+    _create_dependency( id, child_hash, child_id );
   }
 
-  /* updating the thunks that are referencing this thunk */
-  for ( const string & referencing_thunk_hash : referencing_thunks_.at( old_hash ) ) {
-    Thunk & referencing_thunk = thunks_.at( referencing_thunk_hash );
-    referencing_thunk.update_data( old_hash, outputs );
-  }
-
-  /* we don't need the old thunk entry */
-  thunks_.erase( old_hash );
-
-  /* we don't need the old referencing thunks list */
-  referencing_thunks_[ new_hash ] = move( referencing_thunks_.at( old_hash ) );
-  referencing_thunks_.erase( old_hash );
+  // Update our thunk
+  _update( id );
 }
 
-Optional<unordered_set<string>>
-ExecutionGraph::force_thunk( const string & old_hash,
-                             vector<ThunkOutput> && original_outputs )
+void ExecutionGraph::_mark_out_of_date( const ComputationId id )
 {
-  if ( thunks_.count( old_hash ) == 0 ) {
-    return { false };
+  Computation & computation = computations_.at( id );
+  if ( computation.is_value() and computation.up_to_date ) {
+    computation.up_to_date = false;
+    for ( const ComputationId parent_id : computation.rev_deps ) {
+      _mark_out_of_date( parent_id );
+    }
   }
+}
 
-  vector<ThunkOutput> outputs { move( original_outputs ) };
-
-  string & actual_new_hash = outputs.front().hash;
-
-  unordered_set<string> next_to_execute;
-  const gg::ObjectType new_type = gg::hash::type( actual_new_hash );
-
-  /* the old thunk has returned a new thunk. this is not a pipe dream. */
-  if ( new_type == gg::ObjectType::Thunk ) {
-    actual_new_hash = add_thunk( actual_new_hash );
-  }
-
-  update_hash( old_hash, outputs );
-
-  for ( const string & referencing_thunk_hash : referencing_thunks_.at( actual_new_hash ) ) {
-    Thunk & referencing_thunk = thunks_.at( referencing_thunk_hash );
-
-    if ( referencing_thunk.can_be_executed() ) {
-      const string referencing_thunk_new_hash = ThunkWriter::write( referencing_thunk );
-
-      vector<ThunkOutput> new_outputs;
-      for ( const auto & output : referencing_thunk.outputs() ) {
-        new_outputs.emplace_back( referencing_thunk_new_hash, output );
+void ExecutionGraph::_update( const ComputationId id )
+{
+  Computation & computation = computations_.at( id );
+  if ( not computation.is_value() and not computation.up_to_date ) {
+    std::unordered_set<ComputationId> deps{computation.deps};
+    for ( const ComputationId child_id : deps ) {
+      _update( child_id );
+      Computation & child = computations_.at( child_id );
+      string old_hash = computation.dep_hashes.at( child_id );
+      if ( child.is_value() ) {
+        computation.thunk.update_data( old_hash, child.outputs );
+        computation.deps.erase( child_id );
+        computation.dep_hashes.erase( child_id );
+      } else {
+        string new_hash = child.thunk.hash();
+        computation.thunk.update_data( old_hash, { { new_hash, "" } } );
+        computation.dep_hashes[ child_id ] = new_hash;
       }
-
-      thunks_.emplace( piecewise_construct,
-                       forward_as_tuple( referencing_thunk_new_hash ),
-                       forward_as_tuple( move( referencing_thunk ) ) );
-
-      update_hash( referencing_thunk_hash, new_outputs );
-      next_to_execute.emplace( move( referencing_thunk_new_hash ) );
     }
-  }
 
-  if ( new_type == gg::ObjectType::Thunk ) {
-    next_to_execute = order_one_dependencies( actual_new_hash );
+    // Write & save our new version
+    ThunkWriter::write( computation.thunk );
+    computation.up_to_date = true;
   }
-  else {
-    /* the thunk has been reducted to a value. we don't need to keep
-    the list of thunks that are referencing it anymore. */
-    referencing_thunks_.erase( actual_new_hash );
-  }
-
-  return { true, move( next_to_execute ) };
 }
 
-unordered_set<string> ExecutionGraph::order_one_dependencies( const string & input_hash ) const
+void ExecutionGraph::_create_dependency( const ComputationId from,
+                                         const Hash & on_hash,
+                                         const ComputationId on )
+{
+  Computation & parent = computations_.at( from );
+  Computation & child = computations_.at( on );
+  if ( not child.up_to_date ) {
+    throw runtime_error( "cannot depend on out-of-date computations" );
+  }
+  if ( parent.dep_hashes.count( on ) > 0 and parent.dep_hashes.at( on ) != on_hash ) {
+    throw runtime_error(
+        to_string( from ) + " depended on computation #" + to_string( on ) +
+        " for hash " + parent.dep_hashes.at( on ) +
+        " but now it should depend on it for hash " + on_hash );
+  }
+
+  parent.dep_hashes[ on ] = on_hash;
+  parent.deps.insert( on );
+  child.rev_deps.insert( from );
+}
+
+void ExecutionGraph::_cut_dependencies( const ComputationId id )
+{
+  Computation & computation = computations_.at( id );
+  for ( const ComputationId child : computation.deps ) {
+    computations_.at( child ).rev_deps.erase( id );
+  }
+  computation.deps.clear();
+  computation.dep_hashes.clear();
+}
+
+Optional<Hash> ExecutionGraph::query_value( const Hash & hash ) const {
+  if ( ids_.count( hash ) == 0 ) {
+    return {};
+  }
+  const Computation & computation = computations_.at( ids_.at( hash ) );
+  if ( computation.is_value() ) {
+    return { true, computation.outputs.front().hash };
+  } else {
+    return {};
+  }
+}
+
+set<std::pair<ComputationId, Hash>>
+ExecutionGraph::submit_reduction( const ComputationId id,
+                                  const Hash & from,
+                                  std::vector<gg::ThunkOutput> && to )
+{
+  // Assert non-empty output
+  vector<ThunkOutput> outputs { move( to ) };
+  if ( outputs.size() == 0 ) {
+    throw runtime_error( "ExecutionGraph::submit_reduction: empty `to`" );
+  }
+
+  // If this is a self reduction, return "no new work"
+  if ( from == outputs.front().hash ) {
+    return {};
+  }
+
+  // Assert non-value initial hash
+  if ( gg::hash::type( from ) == gg::ObjectType::Value ) {
+    throw runtime_error(
+        "ExecutionGraph::submit_reduction: cannot reduce value: " + from );
+  }
+
+  // If this reduction is for an out-of-date thunk, ignore it
+  Computation & computation = computations_.at( id );
+  if ( computation.is_value() or not ( computation.up_to_date and computation.thunk.hash() == from ) ) {
+    return {};
+  }
+
+  // Finally, accept the reduction
+  _mark_out_of_date( id );
+  _cut_dependencies( id );
+
+  string & new_hash = outputs.front().hash;
+  const gg::ObjectType new_type = gg::hash::type( new_hash );
+
+  if ( new_type == gg::ObjectType::Thunk ) {
+    // A new thunk -- return leaf dependencies
+    Thunk thunk { move( ThunkReader::read( gg::paths::blob( new_hash ), new_hash ) ) };
+    // TODO check that value & executable deps are present
+    _emplace_thunk( id, move( thunk ) );
+    return order_one_dependencies( id );
+  } else {
+    // A value -- return reverse dependencies
+    computation.outputs = move( outputs );
+    n_unreduced--;
+    set<pair<ComputationId, Hash>> next_to_execute;
+    unordered_set<ComputationId> rev_deps{computation.rev_deps};
+    for ( const ComputationId parent_id : rev_deps ) {
+      Computation & parent = computations_.at( parent_id );
+      _update( parent_id );
+      if ( parent.thunk.can_be_executed() ) {
+        next_to_execute.insert( { parent_id, parent.thunk.hash() } );
+      }
+    }
+    return next_to_execute;
+  }
+}
+
+set<pair<ComputationId, Hash>>
+ExecutionGraph::order_one_dependencies( const Hash & input_hash ) const
 {
   const string hash = gg::hash::base( input_hash );
-
-  if ( thunks_.count( hash ) == 0 ) {
+  if ( ids_.count( hash ) == 0 ) {
     throw runtime_error( "thunk hash not found in the execution graph" );
   }
-
-  const Thunk & thunk = thunks_.at( hash );
-
-  if ( thunk.can_be_executed() ) {
-    return { hash };
-  }
-
-  unordered_set<string> result;
-
-  for ( const Thunk::DataItem & item : thunk.thunks() ) {
-    auto subresult = order_one_dependencies( item.first );
-    result.insert( subresult.begin(), subresult.end() );
-  }
-
-  return result;
+  return order_one_dependencies( ids_.at( hash ) );
 }
 
-string ExecutionGraph::updated_hash( const string & original_hash ) const
+set<pair<ComputationId, Hash>>
+ExecutionGraph::order_one_dependencies( const ComputationId id ) const
 {
-  return updated_hashes_.count( original_hash ) ? updated_hashes_.at( original_hash )
-                                                : original_hash;
-}
+  const Computation & computation = computations_.at( id );
 
-string ExecutionGraph::original_hash( const string & updated_hash ) const
-{
-  return original_hashes_.count( updated_hash ) ? original_hashes_.at( updated_hash )
-                                                : updated_hash;
+  if ( not computation.up_to_date ) {
+    throw runtime_error( "thunk is out-of-date" );
+  }
+
+  if ( computation.is_value() ) {
+    return {};
+  } else if ( computation.thunk.can_be_executed() ) {
+    return { { id , computation.thunk.hash() } };
+  } else {
+    // TODO replace this O(paths to leaves) alg with an O(nodes) alg.
+    set<pair<ComputationId, Hash>> result;
+    for ( const ComputationId child_id : computation.deps ) {
+      auto subresult = order_one_dependencies( child_id );
+      result.insert( subresult.begin(), subresult.end() );
+    }
+    return result;
+  }
+
 }

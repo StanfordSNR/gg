@@ -26,16 +26,18 @@ private:
     Clock::time_point start {};
     std::chrono::milliseconds timeout { 0 };
     uint8_t restarts { std::numeric_limits<uint8_t>::max() };
+    ComputationId id{0};
   };
 
   const std::vector<std::string> target_hashes_;
-  std::unordered_set<std::string> remaining_targets_;
+  std::vector<std::string> remaining_targets_;
   bool status_bar_;
 
   ExecutionGraph dep_graph_ {};
 
-  std::deque<std::string> job_queue_ {};
+  std::deque<std::pair<ComputationId, std::string>> job_queue_ {};
   std::unordered_map<std::string, JobInfo> running_jobs_ {};
+  std::unordered_multimap<std::string, ComputationId> ids_ {};
   size_t finished_jobs_ { 0 };
   float estimated_cost_ { 0.0 };
 
@@ -50,7 +52,8 @@ private:
 
   std::unique_ptr<StorageBackend> storage_backend_;
 
-  void finalize_execution( const std::string & old_hash,
+  void finalize_execution( const ComputationId id,
+                           const std::string & old_hash,
                            std::vector<gg::ThunkOutput> && outputs,
                            const float cost = 0.0 );
 

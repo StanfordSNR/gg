@@ -2,11 +2,13 @@
 
 #include "reductor.hh"
 
+#include <algorithm>
 #include <iomanip>
 #include <sstream>
 #include <iostream>
 #include <cmath>
 #include <numeric>
+#include <set>
 #include <chrono>
 
 #include "thunk/ggutils.hh"
@@ -99,7 +101,7 @@ Reductor::Reductor( const vector<string> & target_hashes,
       for ( const string & hash : target_hashes_ ) {
         dep_graph_.add_thunk( hash );
 
-        unordered_set<string> thunk_o1_deps = dep_graph_.order_one_dependencies( hash );
+        set<pair<ComputationId, string>> thunk_o1_deps = dep_graph_.order_one_dependencies( hash );
         job_queue_.insert( job_queue_.end(), thunk_o1_deps.begin(), thunk_o1_deps.end() );
       }
     } ).count();
@@ -108,7 +110,14 @@ Reductor::Reductor( const vector<string> & target_hashes,
 
   auto success_callback =
     [this] ( const string & old_hash, vector<ThunkOutput> && outputs, const float cost )
-    { finalize_execution( old_hash, move( outputs ), cost ); };
+    {
+        auto equal_range = ids_.equal_range( old_hash );
+        for_each(equal_range.first, equal_range.second, [&] (const auto & hash_and_id) {
+            vector<ThunkOutput> outputs_copy{outputs};
+            finalize_execution( hash_and_id.second, old_hash, move( outputs_copy ), cost );
+        });
+        ids_.erase( old_hash );
+    };
 
   auto failure_callback =
     [this] ( const string & old_hash, const JobStatus failure_reason )
@@ -153,7 +162,7 @@ Reductor::Reductor( const vector<string> & target_hashes,
       }
 
       /* let's retry */
-      job_queue_.push_back( old_hash );
+      job_queue_.push_back( { ids_.equal_range( old_hash ).first->second, old_hash } );
     };
 
 
@@ -174,25 +183,31 @@ Reductor::Reductor( const vector<string> & target_hashes,
   }
 }
 
-void Reductor::finalize_execution( const string & old_hash,
+void Reductor::finalize_execution( const ComputationId id,
+                                   const string & old_hash,
                                    vector<ThunkOutput> && outputs,
                                    const float cost )
 {
   running_jobs_.erase( old_hash );
   const string main_output_hash = outputs.at( 0 ).hash;
 
-  Optional<unordered_set<string>> new_o1s = dep_graph_.force_thunk( old_hash, move ( outputs ) );
+  set<pair<ComputationId, string>> new_o1s = dep_graph_.submit_reduction( id, old_hash, move ( outputs ) );
   estimated_cost_ += cost;
 
-  if ( new_o1s.initialized() ) {
-    job_queue_.insert( job_queue_.end(), new_o1s->begin(), new_o1s->end() );
+  job_queue_.insert( job_queue_.end(), new_o1s.begin(), new_o1s.end() );
 
-    if ( gg::hash::type( main_output_hash ) == gg::ObjectType::Value ) {
-      remaining_targets_.erase( dep_graph_.original_hash( old_hash ) );
-    }
-
-    finished_jobs_++;
+  if ( gg::hash::type( main_output_hash ) == gg::ObjectType::Value ) {
+    // TODO There may be a more efficient way to do this.
+    const ExecutionGraph & graph = dep_graph_;
+    remaining_targets_.erase(
+      remove_if( remaining_targets_.begin(), remaining_targets_.end(), [graph] (auto t) {
+        return graph.query_value( t ).initialized();
+      } ),
+      remaining_targets_.end()
+    );
   }
+
+  finished_jobs_++;
 }
 
 vector<string> Reductor::reduce()
@@ -201,7 +216,8 @@ vector<string> Reductor::reduce()
     while ( not job_queue_.empty() ) {
       print_status();
 
-      const string thunk_hash { move( job_queue_.front() ) };
+      const string thunk_hash { move( job_queue_.front().second ) };
+      const ComputationId computation_id { job_queue_.front().first };
       job_queue_.pop_front();
 
       /* don't bother executing gg-execute if it's in the cache */
@@ -233,10 +249,10 @@ vector<string> Reductor::reduce()
           new_outputs.emplace_back( result->hash, tag );
         }
 
-        finalize_execution( thunk_hash, move( new_outputs ), 0 );
+        finalize_execution( computation_id, thunk_hash, move( new_outputs ), 0 );
       }
       else {
-        const Thunk & thunk = dep_graph_.get_thunk( thunk_hash );
+        const Thunk thunk { move( ThunkReader::read( gg::paths::blob( thunk_hash ), thunk_hash ) ) };
 
         enum { CANNOT_BE_EXECUTED,
                FULL_CAPACITY,
@@ -274,6 +290,8 @@ vector<string> Reductor::reduce()
 
         if ( exec_state == EXECUTING ) {
           JobInfo & job_info = running_jobs_[ thunk_hash ];
+          ids_.insert( { thunk_hash, computation_id } );
+          job_info.id = computation_id;
           job_info.start = Clock::now();
           job_info.timeout = thunk.timeout() * timeout_multiplier_;
           job_info.restarts++;
@@ -283,7 +301,7 @@ vector<string> Reductor::reduce()
           }
         }
         else if ( exec_state == FULL_CAPACITY or exec_state == FULL_FALLBACK_CAPACITY ) {
-          job_queue_.push_front( thunk_hash );
+          job_queue_.push_front( { computation_id, thunk_hash } );
           break;
         }
         else { /* CANNOT_BE_EXECUTED */
@@ -305,7 +323,7 @@ vector<string> Reductor::reduce()
       for ( auto & job : running_jobs_ ) {
         if ( job.second.timeout != 0ms and
              ( clock_now - job.second.start ) > job.second.timeout ) {
-          job_queue_.push_back( job.first );
+          job_queue_.push_back( { job.second.id, job.first } );
           job.second.start = clock_now;
           job.second.timeout += job.second.restarts * job.second.timeout;
           job.second.restarts++;
@@ -330,12 +348,11 @@ vector<string> Reductor::reduce()
       vector<string> final_hashes;
 
       for ( const string & target_hash : target_hashes_ ) {
-        const string final_hash = dep_graph_.updated_hash( target_hash );
-        const Optional<ReductionResult> answer = gg::cache::check( final_hash );
+        const Optional<string> answer = dep_graph_.query_value( target_hash );
         if ( not answer.initialized() ) {
           throw runtime_error( "internal error: final answer not found for " + target_hash );
         }
-        final_hashes.emplace_back( answer->hash );
+        final_hashes.emplace_back( answer.get() );
       }
 
       return final_hashes;
@@ -352,17 +369,7 @@ void Reductor::upload_dependencies() const
   vector<storage::PutRequest> upload_requests;
   size_t total_size = 0;
 
-  for ( const string & dep : dep_graph_.value_dependencies() ) {
-    if ( storage_backend_->is_available( dep ) ) {
-      continue;
-    }
-
-    total_size += gg::hash::size( dep );
-    upload_requests.push_back( { gg::paths::blob( dep ), dep,
-                                 gg::hash::to_hex( dep ) } );
-  }
-
-  for ( const string & dep : dep_graph_.executable_dependencies() ) {
+  for ( const string & dep : dep_graph_.blob_dependencies() ) {
     if ( storage_backend_->is_available( dep ) ) {
       continue;
     }
