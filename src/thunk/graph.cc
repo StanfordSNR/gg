@@ -5,7 +5,6 @@
 #include "graph.hh"
 
 #include <stdexcept>
-#include <iostream>
 
 #include "ggutils.hh"
 #include "thunk.hh"
@@ -19,11 +18,17 @@ using namespace gg::thunk;
 Computation::Computation( Thunk && thunk )
   : thunk( move( thunk ) ) {}
 
+bool Computation::is_reducible_from_hash( const string & hash ) const
+{
+  return is_thunk() and up_to_date and thunk.hash() == hash;
+}
+
 ComputationId ExecutionGraph::add_thunk( const Hash & full_hash )
 {
   // Strip output name
   const string hash = gg::hash::base( full_hash );
 
+  // If hash is present, we're done
   if ( ids_.count( hash ) ) {
     return ids_.at( hash );
   }
@@ -42,31 +47,40 @@ ComputationId ExecutionGraph::add_thunk( const Hash & full_hash )
   // Create node in the graph
   ComputationId id = next_id_++;
   _emplace_thunk( id, move( thunk ) );
-
-  // hash is gauranteed to be missing b/c above `count` check.
-  ids_.insert( { move( hash ), id } );
-
   return id;
 }
 
 void ExecutionGraph::_emplace_thunk( ComputationId id,
                                      gg::thunk::Thunk && thunk )
 {
-  // If this computation already exists, replace the thunk, otherwise, create
-  // the computation
+  // First, put the computation into the graph
   if ( computations_.count( id ) ) {
-    computations_.at( id ).thunk = move( thunk );
+    Computation & computation = computations_.at( id );
+    computation.thunk = move( thunk );
   } else {
     n_unreduced++;
     computations_.emplace( id, Computation { move( thunk ) } );
   }
-  Computation & computation = computations_.at( id );
 
-  // Add children
-  for ( const Thunk::DataItem & item : computation.thunk.thunks() ) {
-    const string child_hash = gg::hash::base( item.first );
-    ComputationId child_id = add_thunk( child_hash );
-    _create_dependency( id, child_hash, child_id );
+  // Now, check the hash of the computation
+  Computation & computation = computations_.at( id );
+  const Hash hash = computation.thunk.hash();
+  if ( ids_.count( hash ) ) {
+    // If we already have a node with this hash, link our node to it.
+    const ComputationId target_id = ids_.at( hash );
+    computation.is_link_ = true;
+    _cut_dependencies( id );
+    _update( target_id );
+    _create_dependency( id, hash, target_id );
+  } else {
+    // If we do not, record the hash
+    ids_.insert( { move( hash ), id } );
+    // and add dependencies
+    for ( const Thunk::DataItem & item : computation.thunk.thunks() ) {
+      const string child_hash = gg::hash::base( item.first );
+      ComputationId child_id = add_thunk( child_hash );
+      _create_dependency( id, child_hash, child_id );
+    }
   }
 
   // Update our thunk
@@ -76,7 +90,7 @@ void ExecutionGraph::_emplace_thunk( ComputationId id,
 void ExecutionGraph::_mark_out_of_date( const ComputationId id )
 {
   Computation & computation = computations_.at( id );
-  if ( computation.is_value() and computation.up_to_date ) {
+  if ( not computation.is_value() and computation.up_to_date ) {
     computation.up_to_date = false;
     for ( const ComputationId parent_id : computation.rev_deps ) {
       _mark_out_of_date( parent_id );
@@ -87,7 +101,21 @@ void ExecutionGraph::_mark_out_of_date( const ComputationId id )
 void ExecutionGraph::_update( const ComputationId id )
 {
   Computation & computation = computations_.at( id );
-  if ( not computation.is_value() and not computation.up_to_date ) {
+  // Our computation could be an (out of date) link
+  if ( computation.is_link() and not computation.up_to_date ) {
+    // Check the (single) child for valuation
+    ComputationId child_id = *computation.deps.begin();
+    Computation & child = computations_.at( child_id );
+    _update( child_id );
+    if ( child.is_value() ) {
+      computation.is_link_ = false;
+      computation.outputs = child.outputs;
+      n_unreduced--;
+      _erase_dependency( id, child_id );
+    }
+  // Or it could be an (out of date) thunk
+  } else if ( computation.is_thunk() and not computation.up_to_date ) {
+    // update all dependencies
     std::unordered_set<ComputationId> deps{computation.deps};
     for ( const ComputationId child_id : deps ) {
       _update( child_id );
@@ -95,19 +123,15 @@ void ExecutionGraph::_update( const ComputationId id )
       string old_hash = computation.dep_hashes.at( child_id );
       if ( child.is_value() ) {
         computation.thunk.update_data( old_hash, child.outputs );
-        computation.deps.erase( child_id );
-        computation.dep_hashes.erase( child_id );
+        _erase_dependency( id, child_id );
       } else {
         string new_hash = child.thunk.hash();
         computation.thunk.update_data( old_hash, { { new_hash, "" } } );
         computation.dep_hashes[ child_id ] = new_hash;
       }
     }
-
-    // Write & save our new version
-    ThunkWriter::write( computation.thunk );
-    computation.up_to_date = true;
   }
+  computation.up_to_date = true;
 }
 
 void ExecutionGraph::_create_dependency( const ComputationId from,
@@ -131,6 +155,15 @@ void ExecutionGraph::_create_dependency( const ComputationId from,
   child.rev_deps.insert( from );
 }
 
+void ExecutionGraph::_erase_dependency( const ComputationId from,
+                                        const ComputationId on ) {
+  Computation & parent = computations_.at( from );
+  Computation & child = computations_.at( on );
+  parent.deps.erase( on );
+  parent.dep_hashes.erase( on );
+  child.rev_deps.erase( from );
+}
+
 void ExecutionGraph::_cut_dependencies( const ComputationId id )
 {
   Computation & computation = computations_.at( id );
@@ -139,6 +172,30 @@ void ExecutionGraph::_cut_dependencies( const ComputationId id )
   }
   computation.deps.clear();
   computation.dep_hashes.clear();
+}
+
+ComputationId ExecutionGraph::_follow_links( ComputationId id ) const
+{
+  while (computations_.at( id ).is_link()) {
+    id = *computations_.at( id ).deps.begin();
+  }
+  return id;
+}
+
+std::unordered_set<ComputationId>
+ExecutionGraph::_one_thunk_ancestors( const ComputationId id ) const
+{
+  const Computation & computation = computations_.at( id );
+  if ( computation.is_thunk() ) {
+    return { id };
+  } else {
+    std::unordered_set<ComputationId> parents;
+    for ( const ComputationId parent_id : computation.rev_deps ) {
+      auto subresult = _one_thunk_ancestors( parent_id );
+      parents.insert( subresult.begin(), subresult.end() );
+    }
+    return parents;
+  }
 }
 
 Optional<Hash> ExecutionGraph::query_value( const Hash & hash ) const {
@@ -153,9 +210,8 @@ Optional<Hash> ExecutionGraph::query_value( const Hash & hash ) const {
   }
 }
 
-set<std::pair<ComputationId, Hash>>
-ExecutionGraph::submit_reduction( const ComputationId id,
-                                  const Hash & from,
+std::unordered_set<Hash>
+ExecutionGraph::submit_reduction( const Hash & from,
                                   std::vector<gg::ThunkOutput> && to )
 {
   // Assert non-empty output
@@ -175,9 +231,15 @@ ExecutionGraph::submit_reduction( const ComputationId id,
         "ExecutionGraph::submit_reduction: cannot reduce value: " + from );
   }
 
+  // If this hash is unknown, ignore it
+  if ( ids_.count( from ) == 0 ) {
+    return {};
+  }
+
   // If this reduction is for an out-of-date thunk, ignore it
+  ComputationId id = ids_.at( from );
   Computation & computation = computations_.at( id );
-  if ( computation.is_value() or not ( computation.up_to_date and computation.thunk.hash() == from ) ) {
+  if ( not computation.is_reducible_from_hash( from ) ) {
     return {};
   }
 
@@ -198,20 +260,23 @@ ExecutionGraph::submit_reduction( const ComputationId id,
     // A value -- return reverse dependencies
     computation.outputs = move( outputs );
     n_unreduced--;
-    set<pair<ComputationId, Hash>> next_to_execute;
-    unordered_set<ComputationId> rev_deps{computation.rev_deps};
-    for ( const ComputationId parent_id : rev_deps ) {
+    std::unordered_set<Hash> next_to_execute;
+    unordered_set<ComputationId> maybe_ready = _one_thunk_ancestors( id );
+    for ( const ComputationId parent_id : maybe_ready ) {
       Computation & parent = computations_.at( parent_id );
       _update( parent_id );
       if ( parent.thunk.can_be_executed() ) {
-        next_to_execute.insert( { parent_id, parent.thunk.hash() } );
+        // Make sure to record the hash and write the thunk before submitting
+        ids_[ parent.thunk.hash() ] = parent_id;
+        ThunkWriter::write( parent.thunk );
+        next_to_execute.insert( parent.thunk.hash() );
       }
     }
     return next_to_execute;
   }
 }
 
-set<pair<ComputationId, Hash>>
+std::unordered_set<Hash>
 ExecutionGraph::order_one_dependencies( const Hash & input_hash ) const
 {
   const string hash = gg::hash::base( input_hash );
@@ -221,7 +286,7 @@ ExecutionGraph::order_one_dependencies( const Hash & input_hash ) const
   return order_one_dependencies( ids_.at( hash ) );
 }
 
-set<pair<ComputationId, Hash>>
+std::unordered_set<Hash>
 ExecutionGraph::order_one_dependencies( const ComputationId id ) const
 {
   const Computation & computation = computations_.at( id );
@@ -232,11 +297,12 @@ ExecutionGraph::order_one_dependencies( const ComputationId id ) const
 
   if ( computation.is_value() ) {
     return {};
-  } else if ( computation.thunk.can_be_executed() ) {
-    return { { id , computation.thunk.hash() } };
+  } else if ( computation.is_thunk() and computation.thunk.can_be_executed() ) {
+    ThunkWriter::write( computation.thunk );
+    return { computation.thunk.hash() };
   } else {
     // TODO replace this O(paths to leaves) alg with an O(nodes) alg.
-    set<pair<ComputationId, Hash>> result;
+    std::unordered_set<Hash> result;
     for ( const ComputationId child_id : computation.deps ) {
       auto subresult = order_one_dependencies( child_id );
       result.insert( subresult.begin(), subresult.end() );

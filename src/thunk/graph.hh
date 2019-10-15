@@ -27,6 +27,10 @@ struct Computation {
   // The executable (but potentially out-of-date) thunk
   gg::thunk::Thunk thunk;
 
+  // If we detemine that this computation is equivalent to another one, then
+  // this field is set to true, and the deps will be that node.
+  bool is_link_{false};
+
   // The outputs for this computation. Empty if a thunk. Non-empty if a value.
   std::vector<gg::ThunkOutput> outputs {};
 
@@ -40,6 +44,11 @@ struct Computation {
   Computation( gg::thunk::Thunk && thunk );
 
   bool is_value() const { return not outputs.empty(); }
+  bool is_link() const { return is_link_; }
+  bool is_thunk() const { return outputs.empty() and not is_link_; }
+
+  // Return whether a reduction from `hash` is applicable to this node.
+  bool is_reducible_from_hash( const std::string& hash ) const;
 };
 
 class ExecutionGraph
@@ -80,12 +89,25 @@ private:
                            const Hash & on_hash,
                            const ComputationId on );
 
+  // Remove the dependency from `from` on `on`.
+  void _erase_dependency( const ComputationId from,
+                          const ComputationId on );
+
   // Cut the dependencies from `computation`
   void _cut_dependencies( const ComputationId id );
 
   // Get a list of executable thunks
-  std::set<std::pair<ComputationId, Hash>>
+  std::unordered_set<Hash>
   order_one_dependencies( const ComputationId id ) const;
+
+  // Given `id`, follow link pointer until a computation that does not have any
+  // links.
+  ComputationId _follow_links( const ComputationId id ) const;
+
+  // Given an `id`, returns all ancestor computations that have one thunk on the
+  // path from them to this `id`.
+  std::unordered_set<ComputationId>
+  _one_thunk_ancestors( const ComputationId id ) const;
 
 public:
 
@@ -98,11 +120,11 @@ public:
 
   // Informs that graph that `from` reduces to `to`.
   // Returns newly executable thunks.
-  std::set<std::pair<ComputationId, Hash>>
-  submit_reduction( const ComputationId id, const Hash & from, std::vector<gg::ThunkOutput> && to );
+  std::unordered_set<Hash>
+  submit_reduction( const Hash & from, std::vector<gg::ThunkOutput> && to );
 
   // Get a list of executable thunks
-  std::set<std::pair<ComputationId, Hash>>
+  std::unordered_set<Hash>
   order_one_dependencies( const Hash & hash ) const;
 
   // Get initial blobs that the computation is dependent on
