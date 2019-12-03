@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 #include <getopt.h>
 #include <glob.h>
 
@@ -67,7 +68,10 @@ int main( int argc, char * argv[] )
       return EXIT_FAILURE;
     }
 
-    roost::path thunk_path { argv[ optind ] };
+    std::string query = argv[ optind ];
+
+    roost::path thunk_path { query };
+    cerr << thunk_path.string() << endl;
 
     if ( not roost::exists( thunk_path ) ) {
       thunk_path = gg::paths::blob( argv[ optind ] );
@@ -93,18 +97,23 @@ int main( int argc, char * argv[] )
       }
     }
 
-    Thunk thunk = ThunkReader::read( thunk_path );
+    if ( query[0] == 'V' ) {
+      ifstream value( thunk_path.string() );
+      cout << value.rdbuf();
+    } else {
+      Thunk thunk = ThunkReader::read( thunk_path );
 
-    if ( print_executable_hash ) {
-      cout << thunk.executable_hash() << endl;
-    }
+      if ( print_executable_hash ) {
+        cout << thunk.executable_hash() << endl;
+      }
 
-    if ( print_command ) {
-      cout << command_str( thunk.function().args(), thunk.function().envars() ) << endl;
-    }
+      if ( print_command ) {
+        cout << command_str( thunk.function().args(), thunk.function().envars() ) << endl;
+      }
 
-    if ( not print_executable_hash and not print_command ) {
-      cout << protoutil::to_json( thunk.to_protobuf(), true ) << endl;
+      if ( not print_executable_hash and not print_command ) {
+        cout << protoutil::to_json( thunk.to_protobuf(), true ) << endl;
+      }
     }
   }
   catch ( const exception &  e ) {
