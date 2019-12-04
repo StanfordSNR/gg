@@ -30,7 +30,8 @@ dist_check_SCRIPTS = fetch-vectors.test \
                      model-ar.test model-ranlib.test model-strip.test \
                      model-ld.test gnu-hello.test mosh.test \
                      mosh-fewer-thunks.test fibonacci.test \
-                     sdk.test cleanup.test
+                     sdk.test cleanup.test \
+                     describe-value.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
