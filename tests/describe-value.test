@@ -12,6 +12,9 @@ gg-collect a.txt
 
 hash=$(gg-hash a.txt)
 
-hash_prefix=$(echo $hash | cut -c1-6)
+for i in $(seq 1 "${#hash}"); do
 
-diff a.txt <(gg-describe $hash_prefix)
+    diff a.txt <(gg-describe $(echo $hash | cut "-c1-${i}"))
+
+done
+
