@@ -9,6 +9,7 @@ libggutil_a_SOURCES = exception.hh optional.hh chunk.hh \
                       child_process.hh child_process.cc \
                       digest.hh digest.cc \
                       base64.hh base64.cc \
+                      hex.hh hex.cc \
                       system_runner.hh system_runner.cc \
                       temp_file.hh temp_file.cc \
                       temp_dir.hh temp_dir.cc \

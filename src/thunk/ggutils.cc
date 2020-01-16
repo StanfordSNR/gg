@@ -8,20 +8,18 @@
 #include <sys/fcntl.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <crypto++/sha.h>
-#include <crypto++/hex.h>
-#include <crypto++/base64.h>
 
 #include "thunk_reader.hh"
+#include "util/base64.hh"
 #include "util/digest.hh"
 #include "util/exception.hh"
 #include "util/file_descriptor.hh"
+#include "util/hex.hh"
 #include "util/tokenize.hh"
 #include "util/util.hh"
 #include "util/xdg.hh"
 
 using namespace std;
-using namespace CryptoPP;
 
 namespace gg {
 
@@ -290,7 +288,7 @@ namespace gg {
 
       replace( ret.begin(), ret.end(), '-', '.' );
       output_sstr << to_underlying( type ) << ret << setfill( '0' )
-                  << setw( 8 ) << hex << input.length();
+                  << setw( 8 ) << std::hex << input.length();
       return output_sstr.str();
     }
 
@@ -351,16 +349,11 @@ namespace gg {
 
     string to_hex( const string & gghash )
     {
-      string output;
-
       string hash = gghash.substr( 1, gghash.length() - 9 );
       replace( hash.begin(), hash.end(), '.', '-' );
       hash += '=';
 
-      StringSource s( hash, true,
-                      new Base64URLDecoder(
-                      new HexEncoder(
-                      new StringSink( output ), false ) ) );
+      const string output = hex::encode( base64::decode( hash ) );
 
       if ( output.length() == 64 ) {
         return output;
