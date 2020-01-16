@@ -29,7 +29,6 @@
 #include "util/optional.hh"
 #include "util/system_runner.hh"
 #include "util/temp_file.hh"
-#include "util/tokenize.hh"
 #include "util/timeit.hh"
 #include "util/util.hh"
 #include "util/ipc_socket.hh"

@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <numeric>
 #include <regex>
+#include <crypto++/base64.h>
+#include <crypto++/files.h>
 
 #include "protobufs/util.hh"
 #include "thunk/ggutils.hh"
