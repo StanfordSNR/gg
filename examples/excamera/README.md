@@ -61,8 +61,9 @@ from 0 to 63 (the smaller, the better).
 
 ### Executing the pipeline
 
-1. `gg-infer make -j$(nproc)`
-2. `gg-force --engine=lambda --status --jobs=100 *.ivf`
+0. `gg init`
+1. `gg infer make -j$(nproc)`
+2. `gg force --jobs=100 --engine=lambda *.ivf`
 
 ### Alternative: use `run.sh`
 
