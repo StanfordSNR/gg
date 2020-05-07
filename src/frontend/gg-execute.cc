@@ -71,12 +71,18 @@ vector<string> execute_thunk( const Thunk & original_thunk )
   roost::path exec_dir_path { exec_dir.name() };
   roost::path outfile_path { "output" };
 
+  roost::create_directories( exec_dir_path );
+
+  // CREATING THE LINKS
+  for ( auto & link : thunk.links() ) {
+    roost::symlink( gg::paths::blob( link.second ), exec_dir_path / link.first );
+  }
+
   // EXECUTING THE THUNK
   if ( not sandboxed ) {
     ChildProcess process {
       thunk.hash(),
       [thunk, &exec_dir_path]() {
-        roost::create_directories( exec_dir_path );
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
         return thunk.execute();
       }
@@ -105,7 +111,6 @@ vector<string> execute_thunk( const Thunk & original_thunk )
         return thunk.execute();
       },
       [&exec_dir_path] () {
-        roost::create_directories( exec_dir_path );
         CheckSystemCall( "chdir", chdir( exec_dir_path.string().c_str() ) );
       }
     };
@@ -139,6 +144,11 @@ vector<string> execute_thunk( const Thunk & original_thunk )
     }
 
     output_hashes.emplace_back( move( outfile_hash ) );
+  }
+
+  // REMOVING THE LINKS
+  for ( auto & link : thunk.links() ) {
+    roost::remove( exec_dir_path / link.first );
   }
 
   for ( size_t i = thunk.outputs().size() - 1; i < thunk.outputs().size(); i-- ) {
