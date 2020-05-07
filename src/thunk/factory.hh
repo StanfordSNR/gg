@@ -66,7 +66,8 @@ public:
                                         const std::vector<Data> & executables,
                                         const std::vector<Output> & outputs,
                                         const std::chrono::milliseconds & timeout,
-                                        const bool include_filenames = true );
+                                        const bool include_filenames = true,
+                                        const std::map<std::string, std::string> & links = {} );
 
   static std::string generate( const Function & function,
                                const std::vector<Data> & data,
@@ -75,7 +76,8 @@ public:
                                const std::vector<std::string> & dummy_dirs,
                                const std::chrono::milliseconds & timeout =
                                  std::chrono::milliseconds { 0 },
-                               const int options = 0 );
+                               const int options = 0,
+                               const std::map<std::string, std::string> & links = {} );
 };
 
 #endif /* FACTORY_HH */

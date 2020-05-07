@@ -14,5 +14,6 @@ message Thunk {
   repeated string thunks = 3;
   repeated string executables = 4;
   repeated string outputs = 5;
+  map<string, string> links = 7;
   uint32 timeout = 6;
 }

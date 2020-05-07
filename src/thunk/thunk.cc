@@ -292,6 +292,12 @@ void Thunk::set_timeout( const std::chrono::milliseconds & timeout )
   timeout_ = timeout;
 }
 
+void Thunk::add_link( const string & name, const string & hash )
+{
+  hash_.clear();
+  links_[ name ] = hash;
+}
+
 string Thunk::hash() const
 {
   if ( not hash_.initialized() ) {

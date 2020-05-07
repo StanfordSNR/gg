@@ -100,6 +100,7 @@ namespace gg {
       DataList thunks_;
       DataList executables_;
       std::vector<std::string> outputs_;
+      std::map<std::string, std::string> links_ {};
       std::chrono::milliseconds timeout_ { 0 };
 
       mutable Optional<std::string> hash_ {};
@@ -140,9 +141,11 @@ namespace gg {
       const DataList & thunks() const { return thunks_; }
       const DataList & executables() const { return executables_; }
       const std::vector<std::string> & outputs() const { return outputs_; }
+      const std::map<std::string, std::string> & links() const { return links_; }
       const std::chrono::milliseconds & timeout() const { return timeout_; }
 
       void set_timeout( const std::chrono::milliseconds & timeout );
+      void add_link( const std::string & name, const std::string & hash );
 
       gg::protobuf::Thunk to_protobuf() const;
 

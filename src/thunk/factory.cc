@@ -52,7 +52,8 @@ Thunk ThunkFactory::create_thunk( const Function & function,
                                   const vector<Data> & executables,
                                   const vector<Output> & outputs,
                                   const milliseconds & timeout,
-                                  const bool include_filenames )
+                                  const bool include_filenames,
+                                  const map<string, string> & links )
 {
   vector<Thunk::DataItem> thunk_data;
   vector<Thunk::DataItem> thunk_executables;
@@ -78,6 +79,11 @@ Thunk ThunkFactory::create_thunk( const Function & function,
                        move( thunk_executables ), move( thunk_outputs ) };
 
   output_thunk.set_timeout( timeout );
+
+  for ( auto & link : links ) {
+    output_thunk.add_link( link.first, link.second );
+  }
+
   return output_thunk;
 }
 
@@ -86,7 +92,9 @@ string ThunkFactory::generate( const Function & function,
                                const vector<Data> & executables,
                                const vector<Output> & outputs,
                                const vector<string> & dummy_dirs,
-                               const milliseconds & timeout, const int options )
+                               const milliseconds & timeout,
+                               const int options,
+                               const map<string, string> & links )
 {
   const bool generate_manifest = options & Options::generate_manifest;
   const bool create_placeholder = options & Options::create_placeholder;
@@ -159,6 +167,11 @@ string ThunkFactory::generate( const Function & function,
                        move( thunk_executables ), move( thunk_outputs ) };
 
   output_thunk.set_timeout( timeout );
+
+  for ( auto & link : links ) {
+    output_thunk.add_link( link.first, link.second );
+  }
+
   const string hash = ThunkWriter::write( output_thunk );
 
   if ( create_placeholder ) {
