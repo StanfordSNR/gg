@@ -15,15 +15,43 @@ SandboxedProcess::SandboxedProcess( const std::string & name,
   : tracer_( name, move( child_procedure ),
              std::bind( &SandboxedProcess::syscall_entry, this, std::placeholders::_1 ),
              std::bind( &SandboxedProcess::syscall_exit,  this, std::placeholders::_1 ),
-             move( preparation_procedure ) ),
-    allowed_files_( allowed_files )
-{}
+             move( preparation_procedure ) )
+{
+  for ( const auto & allowed_file : allowed_files ) {
+    allow_file( allowed_file.first, allowed_file.second );
+  }
+}
 
 inline void Check( const TracedThreadInfo & tcb, bool status )
 {
   if ( not status ) {
     throw SandboxViolation( "Illegal syscall: ", tcb.syscall_invocation->to_string() );
   }
+}
+
+void SandboxedProcess::allow_file( const std::string & pathname, const Permissions permissions )
+{
+  struct stat statbuf;
+  allowed_paths_[ pathname ] = permissions;
+
+  if ( stat( pathname.c_str(), &statbuf ) == 0 ) {
+    allowed_inodes_[ make_pair( statbuf.st_dev, statbuf.st_ino ) ] = permissions;
+  }
+}
+
+Optional<Permissions> SandboxedProcess::get_permissions( const std::string & pathname )
+{
+  if ( allowed_paths_.count( pathname ) ) {
+    return { true, allowed_paths_[ pathname ] };
+  }
+
+  struct stat statbuf;
+  if ( stat(  pathname.c_str(), &statbuf ) == 0
+       and allowed_inodes_.count( make_pair( statbuf.st_dev, statbuf.st_ino ) ) ) {
+    return { true, allowed_inodes_[ make_pair( statbuf.st_dev, statbuf.st_ino ) ] };
+  }
+
+  return {};
 }
 
 bool SandboxedProcess::file_syscall_entry( const SystemCallInvocation & syscall )
@@ -33,7 +61,7 @@ bool SandboxedProcess::file_syscall_entry( const SystemCallInvocation & syscall 
   for ( const Argument arg : *syscall.arguments() ) {
     if ( arg.info().flags & ARGUMENT_F_PATHNAME ) { /* it's a path argument */
       const string pathname = arg.value<string>();
-      if ( allowed_files_.count( pathname ) == 0 ) {
+      if ( not get_permissions( pathname ).initialized() ) {
         return false;
       }
     }
@@ -50,7 +78,9 @@ bool SandboxedProcess::open_entry( const SystemCallInvocation & syscall )
   const int mode = syscall.arguments()->at( 1 ).value<int>();
   const int access_mode = mode & O_ACCMODE;
 
-  if ( not allowed_files_.count( pathname ) ) {
+  const Optional<Permissions> file_flags = get_permissions( pathname );
+
+  if ( not file_flags.initialized() ) {
     if ( ( mode & O_CREAT ) and ( mode & O_EXCL ) ) {
       allow_candidates_.insert( pathname );
       return true;
@@ -59,12 +89,10 @@ bool SandboxedProcess::open_entry( const SystemCallInvocation & syscall )
     return false;
   }
 
-  Permissions file_flags = allowed_files_.at( pathname );
-
   if ( access_mode == O_RDWR and
-       ( not file_flags.read or not file_flags.write ) ) { return false; }
-  if ( access_mode == O_WRONLY and ( not file_flags.write ) ) { return false; }
-  if ( access_mode == O_RDONLY and ( not file_flags.read ) ) { return false; }
+       ( not file_flags->read or not file_flags->write ) ) { return false; }
+  if ( access_mode == O_WRONLY and ( not file_flags->write ) ) { return false; }
+  if ( access_mode == O_RDONLY and ( not file_flags->read ) ) { return false; }
 
   return true;
 }
@@ -75,12 +103,13 @@ bool SandboxedProcess::execve_entry( const SystemCallInvocation & syscall )
 
   const string pathname = syscall.arguments()->at( 0 ).value<string>();
 
-  if ( not allowed_files_.count( pathname ) ) {
+  const Optional<Permissions> file_flags = get_permissions( pathname );
+
+  if ( not file_flags.initialized() ) {
     return false;
   }
 
-  Permissions file_flags = allowed_files_.at( pathname );
-  return file_flags.execute;
+  return file_flags->execute;
 }
 
 bool SandboxedProcess::open_exit( const SystemCallInvocation & syscall )
@@ -91,7 +120,7 @@ bool SandboxedProcess::open_exit( const SystemCallInvocation & syscall )
 
   if ( allow_candidates_.count( pathname ) and *syscall.retval() != -1 ) {
     allow_candidates_.erase( pathname );
-    allowed_files_[ pathname ] = { true, true, true };
+    allow_file( pathname, { true, true, true } );
   }
 
   return true;
@@ -104,10 +133,11 @@ bool SandboxedProcess::rename_entry( const SystemCallInvocation & syscall )
   const string src = syscall.arguments()->at( 0 ).value<string>();
   const string dst = syscall.arguments()->at( 1 ).value<string>();
 
-  return ( allowed_files_.count( src ) > 0 ) and
-         ( allowed_files_[ src ].read ) and
-         ( allowed_files_.count( dst ) > 0 ) and
-         ( allowed_files_[ dst ].write );
+  const auto src_perms = get_permissions( src );
+  const auto dst_perms = get_permissions( dst );
+
+  return ( src_perms.initialized() ) and ( src_perms->read ) and
+         ( dst_perms.initialized() ) and ( dst_perms->write );
 }
 
 void SandboxedProcess::syscall_entry( TracedThreadInfo & tcb )

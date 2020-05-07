@@ -3,6 +3,7 @@
 #ifndef SANDBOX_HH
 #define SANDBOX_HH
 
+#include <sys/stat.h>
 #include <string>
 #include <functional>
 #include <unordered_map>
@@ -20,9 +21,16 @@ class SandboxedProcess
 private:
   Tracer tracer_;
 
+  /* map from inode num to access modes (O_RDONLY, O_WRONLY, O_RDRW) */
+  std::map<std::pair<dev_t, ino_t>, Permissions> allowed_inodes_ {};
+
   /* map from pathname to access modes (O_RDONLY, O_WRONLY, O_RDRW) */
-  std::unordered_map<std::string, Permissions> allowed_files_;
+  std::unordered_map<std::string, Permissions> allowed_paths_ {};
+
   std::unordered_set<std::string> allow_candidates_ {};
+
+  void allow_file( const std::string & pathname, const Permissions permissions );
+  Optional<Permissions> get_permissions( const std::string & pathname );
 
   bool file_syscall_entry( const SystemCallInvocation & syscall );
 
