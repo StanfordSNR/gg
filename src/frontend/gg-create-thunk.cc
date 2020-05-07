@@ -25,6 +25,7 @@ void usage( const char * argv0 )
        << "\t[--output, -o <tag>]..." << endl
        << "\t[--placeholder, -C <arg>]" << endl
        << "\t[--timeout, -T <arg (ms)>]" << endl
+       << "\t[--link, -l <name>=<hash>]..." << endl
        << "\tFUNCTION-HASH FUNCTION-ARG..." << endl;
 }
 
@@ -48,6 +49,7 @@ int main( int argc, char * argv[] )
       { "output",      required_argument, nullptr, 'o' },
       { "placeholder", required_argument, nullptr, 'C' },
       { "timeout",     required_argument, nullptr, 'T' },
+      { "link",        required_argument, nullptr, 'L' },
       { nullptr, 0, nullptr, 0 }
     };
 
@@ -59,10 +61,11 @@ int main( int argc, char * argv[] )
     vector<Thunk::DataItem> thunks;
     vector<Thunk::DataItem> executables;
     vector<string> outputs;
+    map<string, string> links;
     milliseconds timeout = 0s;
 
     while ( true ) {
-      const int opt = getopt_long( argc, argv, "E:v:t:e:o:C:T:", cmd_options, nullptr );
+      const int opt = getopt_long( argc, argv, "E:v:t:e:o:C:T:L:", cmd_options, nullptr );
 
       if ( opt == -1 ) { break; }
 
@@ -95,6 +98,17 @@ int main( int argc, char * argv[] )
         timeout = milliseconds { stoul( optarg ) };
         break;
 
+      case 'L': {
+        auto d = Thunk::string_to_data( optarg );
+
+        if ( d.second.empty() ) {
+          throw runtime_error( "missing link target" );
+        }
+
+        links[ d.first ] = d.second;
+        break;
+      }
+
       default:
         throw runtime_error( "invalid option" );
       }
@@ -118,6 +132,10 @@ int main( int argc, char * argv[] )
                   move( executables ), move( outputs ) };
 
     thunk.set_timeout( timeout );
+
+    for ( auto & link : links ) {
+      thunk.add_link( link.first, link.second );
+    }
 
     string thunk_hash = ThunkWriter::write( thunk );
 
