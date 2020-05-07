@@ -159,6 +159,8 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
     executables_.emplace( string_to_data( item ) );
   }
 
+  links_ = { thunk_proto.links().begin(), thunk_proto.links().end() };
+
   throw_if_error();
 }
 
@@ -270,6 +272,10 @@ protobuf::Thunk Thunk::to_protobuf() const
   for ( const auto & h : thunks_ ) { thunk_proto.add_thunks( data_to_string( h ) ); }
   for ( const auto & h : executables_ ) { thunk_proto.add_executables( data_to_string( h ) ); }
   for ( const string & output : outputs_ ) { thunk_proto.add_outputs( output ); }
+
+  for ( const auto & l : links_ ) {
+    ( *thunk_proto.mutable_links() )[ l.first ] = l.second;
+  }
 
   thunk_proto.set_timeout( timeout_.count() );
 
