@@ -8,14 +8,16 @@
 
 using namespace std;
 
-SandboxedProcess::SandboxedProcess( const std::string & name,
-                                    const unordered_map<std::string, Permissions> & allowed_files,
+SandboxedProcess::SandboxedProcess( const string & name,
+                                    const string & working_directory,
+                                    const unordered_map<string, Permissions> & allowed_files,
                                     function<int()> && child_procedure,
                                     function<void()> && preparation_procedure )
   : tracer_( name, move( child_procedure ),
-             std::bind( &SandboxedProcess::syscall_entry, this, std::placeholders::_1 ),
-             std::bind( &SandboxedProcess::syscall_exit,  this, std::placeholders::_1 ),
-             move( preparation_procedure ) )
+             bind( &SandboxedProcess::syscall_entry, this, placeholders::_1 ),
+             bind( &SandboxedProcess::syscall_exit,  this, placeholders::_1 ),
+             move( preparation_procedure ) ),
+    working_directory_( working_directory )
 {
   for ( const auto & allowed_file : allowed_files ) {
     allow_file( allowed_file.first, allowed_file.second );
@@ -29,24 +31,24 @@ inline void Check( const TracedThreadInfo & tcb, bool status )
   }
 }
 
-void SandboxedProcess::allow_file( const std::string & pathname, const Permissions permissions )
+void SandboxedProcess::allow_file( const string & pathname, const Permissions permissions )
 {
   struct stat statbuf;
   allowed_paths_[ pathname ] = permissions;
 
-  if ( stat( pathname.c_str(), &statbuf ) == 0 ) {
+  if ( fstatat( working_directory_.num(), pathname.c_str(), &statbuf, 0 ) == 0 ) {
     allowed_inodes_[ make_pair( statbuf.st_dev, statbuf.st_ino ) ] = permissions;
   }
 }
 
-Optional<Permissions> SandboxedProcess::get_permissions( const std::string & pathname )
+Optional<Permissions> SandboxedProcess::get_permissions( const string & pathname )
 {
   if ( allowed_paths_.count( pathname ) ) {
     return { true, allowed_paths_[ pathname ] };
   }
 
   struct stat statbuf;
-  if ( stat(  pathname.c_str(), &statbuf ) == 0
+  if ( fstatat( working_directory_.num(), pathname.c_str(), &statbuf, 0 ) == 0
        and allowed_inodes_.count( make_pair( statbuf.st_dev, statbuf.st_ino ) ) ) {
     return { true, allowed_inodes_[ make_pair( statbuf.st_dev, statbuf.st_ino ) ] };
   }

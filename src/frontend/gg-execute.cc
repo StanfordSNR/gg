@@ -106,6 +106,7 @@ vector<string> execute_thunk( const Thunk & original_thunk )
 
     SandboxedProcess process {
       "execute(" + thunk.hash().substr( 0, 5 ) + ")",
+      exec_dir_path.string(),
       allowed_files,
       [thunk]() {
         return thunk.execute();

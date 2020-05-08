@@ -10,6 +10,7 @@
 #include <unordered_set>
 
 #include "trace/tracer.hh"
+#include "util/path.hh"
 
 struct Permissions
 {
@@ -20,6 +21,7 @@ class SandboxedProcess
 {
 private:
   Tracer tracer_;
+  roost::Directory working_directory_;
 
   /* map from inode num to access modes (O_RDONLY, O_WRONLY, O_RDRW) */
   std::map<std::pair<dev_t, ino_t>, Permissions> allowed_inodes_ {};
@@ -44,6 +46,7 @@ private:
 
 public:
   SandboxedProcess( const std::string & name,
+                    const std::string & working_directory,
                     const std::unordered_map<std::string, Permissions> & allowed_files,
                     std::function<int()> && child_procedure,
                     std::function<void()> && preparation_procedure = [](){} );
