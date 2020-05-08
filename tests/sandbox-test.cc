@@ -40,6 +40,7 @@ int main( int argc, char * argv[] )
 
     SandboxedProcess sp_1(
       "sp_1",
+      ".",
       allowed_files_1,
       []()
       {
@@ -65,6 +66,7 @@ int main( int argc, char * argv[] )
 
     SandboxedProcess sp_2(
       "sp_2",
+      ".",
       allowed_files_2,
       []()
       {
@@ -89,6 +91,7 @@ int main( int argc, char * argv[] )
 
     SandboxedProcess sp_3(
       "sp_3",
+      ".",
       allowed_files_3,
       []()
       {
@@ -112,6 +115,7 @@ int main( int argc, char * argv[] )
 
     SandboxedProcess sp_4(
       "sp_4",
+      ".",
       allowed_files_4,
       []()
       {
@@ -134,6 +138,7 @@ int main( int argc, char * argv[] )
 
     SandboxedProcess sp_5(
       "sp_5",
+      ".",
       allowed_files_5,
       []()
       {
