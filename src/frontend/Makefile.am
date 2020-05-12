@@ -20,7 +20,7 @@ bin_PROGRAMS = gg gg-trace gg-describe gg-force-and-run gg-force gg-mock \
                gg-execute gg-infer gg-thunksummary gg-s3-upload \
                gg-s3-download gg-init gg-hash gg-create-thunk gg-collect \
                gg-put gg-get gg-execute-server gg-meow-worker gg-object-server \
-               lambda-invoker prune-file splice-lines
+               lambda-invoker prune-file splice-lines gg-repl
 
 dist_bin_SCRIPTS = gg-create-blueprints gg-collect-dir gg-build-infer
 
@@ -88,6 +88,9 @@ gg_execute_server_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
 
 gg_meow_worker_SOURCES = gg-meow-worker.cc
 gg_meow_worker_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
+
+gg_repl_SOURCES = gg-repl.cc
+gg_repl_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_meow_worker_static_SOURCES = gg-meow-worker.cc
 gg_meow_worker_static_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS) -ldl -lz
