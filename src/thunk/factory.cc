@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <deque>
 #include <sys/stat.h>
 #include <fcntl.h>
 
@@ -87,11 +88,12 @@ Thunk ThunkFactory::create_thunk( const Function & function,
   return output_thunk;
 }
 
+template<template <class...> class Container>
 string ThunkFactory::generate( const Function & function,
-                               const vector<Data> & data,
-                               const vector<Data> & executables,
-                               const vector<Output> & outputs,
-                               const vector<string> & dummy_dirs,
+                               const Container<Data> & data,
+                               const Container<Data> & executables,
+                               const Container<Output> & outputs,
+                               const Container<string> & dummy_dirs,
                                const milliseconds & timeout,
                                const int options,
                                const map<string, string> & links )
@@ -192,3 +194,21 @@ string ThunkFactory::generate( const Function & function,
 
   return hash;
 }
+
+template string ThunkFactory::generate( const Function &,
+                                        const vector<Data> &,
+                                        const vector<Data> &,
+                                        const vector<Output> &,
+                                        const vector<string> &,
+                                        const milliseconds &,
+                                        const int,
+                                        const map<string, string> & );
+
+template string ThunkFactory::generate( const Function &,
+                                        const deque<Data> &,
+                                        const deque<Data> &,
+                                        const deque<Output> &,
+                                        const deque<string> &,
+                                        const milliseconds &,
+                                        const int,
+                                        const map<string, string> & );

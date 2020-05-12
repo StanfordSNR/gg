@@ -42,7 +42,7 @@ void generate_thunk( int argc, char * argv[] )
     strip_output = stripf;
   }
 
-  ThunkFactory::generate(
+  ThunkFactory::generate<vector>(
     {
       program_hash( STRIP ),
       gg::models::args_to_vector( argc, argv, program_data.at( STRIP ).filename() ),

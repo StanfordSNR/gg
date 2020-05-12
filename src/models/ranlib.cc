@@ -30,7 +30,7 @@ void generate_thunk( int argc, char * argv[] )
 
   string archive = argv[ optind ];
 
-  ThunkFactory::generate(
+  ThunkFactory::generate<vector>(
     {
       program_hash( RANLIB ),
       gg::models::args_to_vector( argc, argv, program_data.at( RANLIB ).filename() ),

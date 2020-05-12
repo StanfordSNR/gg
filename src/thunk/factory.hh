@@ -69,11 +69,12 @@ public:
                                         const bool include_filenames = true,
                                         const std::map<std::string, std::string> & links = {} );
 
+  template<template <class...> class Container>
   static std::string generate( const Function & function,
-                               const std::vector<Data> & data,
-                               const std::vector<Data> & executables,
-                               const std::vector<Output> & outputs,
-                               const std::vector<std::string> & dummy_dirs,
+                               const Container<Data> & data,
+                               const Container<Data> & executables,
+                               const Container<Output> & outputs,
+                               const Container<std::string> & dummy_dirs,
                                const std::chrono::milliseconds & timeout =
                                  std::chrono::milliseconds { 0 },
                                const int options = 0,
