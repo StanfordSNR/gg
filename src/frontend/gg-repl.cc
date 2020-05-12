@@ -59,13 +59,22 @@ void parse()
       }
     }
     else if ( tokens[0] == "set" ) {
+      if ( tokens.size() != 3 ) {
+        throw runtime_error( "'pop' needs two arguments" );
+      }
+
       switch ( tokens[1][0] ) {
       case 'f': function_hash = tokens[2]; break;
       default: runtime_error( "invalid set operation: " + tokens[1] );
       }
     }
     else if ( tokens[0] == "clear" ) {
-      
+      function_hash.clear();
+      args.clear();
+      data.clear();
+      executables.clear();
+      outputs.clear();
+      links.clear();
     }
     else if ( tokens[0] == "create" ) {
       if ( tokens.size() != 1 ) {
@@ -86,7 +95,7 @@ void parse()
         outputs,
         {},
         0ms,
-        false,
+        ThunkFactory::Options::collect_data,
         links_map );
 
       cout << "+" << thunk_hash << endl;
