@@ -245,7 +245,15 @@ int main( int argc, char * argv[] )
     vector<string> target_hashes;
 
     for ( int i = optind; i < argc; i++ ) {
-      target_filenames.emplace_back( argv[ i ] );
+      if ( argv[ i ][ 0 ] == '@' ) {
+        ifstream fin { argv[ i ] + 1 };
+        for ( string filename; getline( fin, filename ); ) {
+          target_filenames.emplace_back( filename );
+        }
+      }
+      else {
+        target_filenames.emplace_back( argv[ i ] );
+      }
     }
 
     for ( const string & target_filename : target_filenames ) {
