@@ -122,8 +122,9 @@ void parse()
       default:
         runtime_error( "invalid create operation: " + tokens[1] );
       }
-
-      
+    }
+    else if ( tokens[0] == "exit" ) {
+      return;
     }
     else {
       throw runtime_error( "invalid command: " + tokens[0] );
