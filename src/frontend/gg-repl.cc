@@ -92,7 +92,7 @@ void parse()
           links_map[link.first] = link.second;
         }
 
-        const string thunk_hash = ThunkFactory::generate<deque>( 
+        last_thunk_hash = ThunkFactory::generate<deque>(
           { function_hash.empty() ? executables.at( 0 ).hash() : function_hash,
             { args.begin(), args.end() },
             {} },
@@ -104,7 +104,7 @@ void parse()
           ThunkFactory::Options::collect_data,
           links_map );
 
-        cout << thunk_hash << endl;
+        cout << last_thunk_hash << endl;
         break;
       }
 
