@@ -113,8 +113,10 @@ void parse()
           throw runtime_error( "no thunk available for the placeholder" );
         }
 
-        ThunkPlaceholder placeholder { gg::hash::for_output( last_thunk_hash,
-                                                             tokens.at( 2 ) ) };
+        ThunkPlaceholder placeholder { tokens.at( 2 ) == outputs.front().tag()
+                                        ? last_thunk_hash
+                                        : gg::hash::for_output( last_thunk_hash, tokens.at( 2 ) ) };
+
         placeholder.write( tokens.at( 3 ) );
         break;
       }
