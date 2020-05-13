@@ -37,11 +37,11 @@ void parse()
       }
 
       switch ( tokens[1][0] ) {
-      case 'a': args.push_front( tokens[2] ); break;
-      case 'd': data.emplace_front( tokens[2] ); break;
-      case 'e': executables.emplace_front( tokens[2] ); break;
-      case 'o': outputs.emplace_front( tokens[2] ); break;
-      case 'l': links.emplace_front( tokens[2], gg::hash::file( tokens.at( 3 ) ) ); break;
+      case 'a': args.push_back( tokens[2] ); break;
+      case 'd': data.emplace_back( tokens[2] ); break;
+      case 'e': executables.emplace_back( tokens[2] ); break;
+      case 'o': outputs.emplace_back( tokens[2] ); break;
+      case 'l': links.emplace_back( tokens[2], gg::hash::file( tokens.at( 3 ) ) ); break;
       
       default: throw runtime_error( "invalid push operation: " + tokens[1] );
       }
@@ -52,11 +52,11 @@ void parse()
       }
 
       switch ( tokens[1][0] ) {
-      case 'a': args.pop_front(); break;
-      case 'd': data.pop_front(); break;
-      case 'e': executables.pop_front(); break;
-      case 'o': outputs.pop_front(); break;
-      case 'l': links.pop_front(); break;
+      case 'a': args.pop_back(); break;
+      case 'd': data.pop_back(); break;
+      case 'e': executables.pop_back(); break;
+      case 'o': outputs.pop_back(); break;
+      case 'l': links.pop_back(); break;
       
       default: throw runtime_error( "invalid pop operation: " + tokens[1] );
       }
