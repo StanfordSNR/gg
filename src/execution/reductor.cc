@@ -85,7 +85,7 @@ Reductor::Reductor( const vector<string> & target_hashes,
                     const size_t timeout_multiplier,
                     const bool status_bar )
   : target_hashes_( target_hashes ),
-    remaining_targets_( target_hashes_.begin(), target_hashes_.end() ),
+    remaining_targets_(),
     status_bar_( status_bar ), default_timeout_( default_timeout ),
     timeout_multiplier_( timeout_multiplier ),
     exec_engines_( move( execution_engines ) ),
@@ -97,10 +97,13 @@ Reductor::Reductor( const vector<string> & target_hashes,
     [this] ()
     {
       for ( const string & hash : target_hashes_ ) {
-        dep_graph_.add_thunk( hash );
+        string inserted_hash = dep_graph_.add_thunk( hash );
 
-        unordered_set<string> thunk_o1_deps = dep_graph_.order_one_dependencies( hash );
-        job_queue_.insert( job_queue_.end(), thunk_o1_deps.begin(), thunk_o1_deps.end() );
+        if ( remaining_targets_.count( inserted_hash ) == 0) {
+          remaining_targets_.insert( move ( inserted_hash ) );
+          unordered_set<string> thunk_o1_deps = dep_graph_.order_one_dependencies( hash );
+          job_queue_.insert( job_queue_.end(), thunk_o1_deps.begin(), thunk_o1_deps.end() );
+        }
       }
     } ).count();
 
