@@ -159,7 +159,9 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
     executables_.emplace( string_to_data( item ) );
   }
 
-  links_ = { thunk_proto.links().begin(), thunk_proto.links().end() };
+  for ( const auto & item : thunk_proto.links() ) {
+    links_.emplace_back( item.name(), item.target() );
+  }
 
   throw_if_error();
 }
@@ -274,7 +276,9 @@ protobuf::Thunk Thunk::to_protobuf() const
   for ( const string & output : outputs_ ) { thunk_proto.add_outputs( output ); }
 
   for ( const auto & l : links_ ) {
-    ( *thunk_proto.mutable_links() )[ l.first ] = l.second;
+    auto & link = *thunk_proto.add_links();
+    link.set_name( l.first );
+    link.set_target( l.second );
   }
 
   thunk_proto.set_timeout( timeout_.count() );
@@ -301,7 +305,7 @@ void Thunk::set_timeout( const std::chrono::milliseconds & timeout )
 void Thunk::add_link( const string & name, const string & hash )
 {
   hash_.clear();
-  links_[ name ] = hash;
+  links_.emplace_back( name, hash );
 }
 
 string Thunk::hash() const

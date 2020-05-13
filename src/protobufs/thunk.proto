@@ -8,12 +8,17 @@ message Function {
   repeated string envars = 3;
 }
 
+message Link {
+  string name = 1;
+  string target = 2;
+}
+
 message Thunk {
   Function function = 1;
   repeated string values = 2;
   repeated string thunks = 3;
   repeated string executables = 4;
   repeated string outputs = 5;
-  map<string, string> links = 7;
+  repeated Link links = 7;
   uint32 timeout = 6;
 }
