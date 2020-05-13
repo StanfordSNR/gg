@@ -11,12 +11,15 @@
 #include "util/exception.hh"
 #include "util/tokenize.hh"
 #include "thunk/ggutils.hh"
+#include "thunk/placeholder.hh"
 
 using namespace std;
 
 void parse()
 {
-  std::string function_hash; /* if not specified, it's the first executable */
+  string last_thunk_hash;
+
+  string function_hash; /* if not specified, it's the first executable */
   deque<string> args;
   deque<ThunkFactory::Data> data;
   deque<ThunkFactory::Data> executables;
@@ -77,28 +80,50 @@ void parse()
       links.clear();
     }
     else if ( tokens[0] == "create" ) {
-      if ( tokens.size() != 1 ) {
-        throw runtime_error( "'create' has no arguments" );
+      if ( tokens.size() < 2 ) {
+        throw runtime_error( "'create' has one arguments" );
       }
 
-      map<string, string> links_map;
-      for ( auto & link : links ) {
-        links_map[link.first] = link.second;
+      switch ( tokens[1][0] ) {
+      case 't': { // thunk
+        map<string, string> links_map;
+
+        for ( auto & link : links ) {
+          links_map[link.first] = link.second;
+        }
+
+        const string thunk_hash = ThunkFactory::generate<deque>( 
+          { function_hash.empty() ? executables.at( 0 ).hash() : function_hash,
+            { args.begin(), args.end() },
+            {} },
+          data,
+          executables,
+          outputs,
+          {},
+          0ms,
+          ThunkFactory::Options::collect_data,
+          links_map );
+
+        cout << thunk_hash << endl;
+        break;
       }
 
-      const string thunk_hash = ThunkFactory::generate<deque>( 
-        { function_hash.empty() ? executables.at( 0 ).hash() : function_hash,
-          { args.begin(), args.end() },
-          {} },
-        data,
-        executables,
-        outputs,
-        {},
-        0ms,
-        ThunkFactory::Options::collect_data,
-        links_map );
+      case 'p': { // placeholder
+        if ( last_thunk_hash.empty() ) {
+          throw runtime_error( "no thunk available for the placeholder" );
+        }
 
-      cout << "+" << thunk_hash << endl;
+        ThunkPlaceholder placeholder { gg::hash::for_output( last_thunk_hash,
+                                                             tokens.at( 2 ) ) };
+        placeholder.write( tokens.at( 3 ) );
+        break;
+      }
+
+      default:
+        runtime_error( "invalid create operation: " + tokens[1] );
+      }
+
+      
     }
     else {
       throw runtime_error( "invalid command: " + tokens[0] );
