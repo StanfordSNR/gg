@@ -269,7 +269,6 @@ int main( int argc, char * argv[] )
           continue;
         }
         else {
-          actual_targets.push_back( target_filename );
           thunk_hash = gg::hash::compute( target_filename, gg::ObjectType::Thunk );
         }
       }
@@ -277,6 +276,7 @@ int main( int argc, char * argv[] )
         thunk_hash = placeholder->content_hash();
       }
 
+      actual_targets.push_back( target_filename );
       target_hashes.emplace_back( move( thunk_hash ) );
     }
 
