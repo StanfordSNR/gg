@@ -280,6 +280,11 @@ int main( int argc, char * argv[] )
       target_hashes.emplace_back( move( thunk_hash ) );
     }
 
+    if ( actual_targets.empty() ) {
+      cerr << "Nothing to force. Bye." << endl;
+      return EXIT_SUCCESS;
+    }
+
     vector<unique_ptr<ExecutionEngine>> execution_engines;
     vector<unique_ptr<ExecutionEngine>> fallback_engines;
     unique_ptr<StorageBackend> storage_backend;
@@ -318,7 +323,7 @@ int main( int argc, char * argv[] )
 
     reductor.upload_dependencies();
     vector<string> reduced_hashes = reductor.reduce();
-    if ( not no_download ) {
+    if ( not no_download and not reduced_hashes.empty() ) {
       reductor.download_targets( reduced_hashes );
 
       for ( size_t i = 0; i < reduced_hashes.size(); i++ ) {
