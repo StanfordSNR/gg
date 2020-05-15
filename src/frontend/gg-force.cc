@@ -243,6 +243,7 @@ int main( int argc, char * argv[] )
 
     vector<string> target_filenames;
     vector<string> target_hashes;
+    vector<string> actual_targets;
 
     for ( int i = optind; i < argc; i++ ) {
       if ( argv[ i ][ 0 ] == '@' ) {
@@ -268,6 +269,7 @@ int main( int argc, char * argv[] )
           continue;
         }
         else {
+          actual_targets.push_back( target_filename );
           thunk_hash = gg::hash::compute( target_filename, gg::ObjectType::Thunk );
         }
       }
@@ -320,10 +322,10 @@ int main( int argc, char * argv[] )
       reductor.download_targets( reduced_hashes );
 
       for ( size_t i = 0; i < reduced_hashes.size(); i++ ) {
-        roost::copy_then_rename( gg::paths::blob( reduced_hashes[ i ] ), target_filenames[ i ] );
+        roost::copy_then_rename( gg::paths::blob( reduced_hashes[ i ] ), actual_targets[ i ] );
 
         /* HACK this is a just a dirty hack... it's not always right */
-        roost::make_executable( target_filenames[ i ] );
+        roost::make_executable( actual_targets[ i ] );
       }
     }
 
