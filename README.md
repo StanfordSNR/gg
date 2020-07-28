@@ -151,3 +151,14 @@ $ gg init
 $ gg infer custombinary 65 input1.txt output1.txt --arg=23 --inputfile=input2.txt --outputfile=output2.txt
 $ gg force output1.txt
 ~~~
+
+### Syntax for wrapper files
+
+model-generic currently supports only positional arguments and optional arguments. It doesn't support operators like |, >, <, etc.
+use `@infile` for any input file that is read, and `@outfile` for any output file that is written to. You can use @ for any argument that gg should ignore like numeric or string arguments.
+
+A sample wrapper file with all supported argument types:
+~~~
+#!/bin/bash
+model-generic "/path/to/custombinary @ @infile @outfile --arg=@ --inputfile=@infile --outputfile=@outfile" "$@"
+~~~
