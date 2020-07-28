@@ -149,5 +149,5 @@ Then, gg will be able to understand your command which you can execute this way:
 ~~~
 $ gg init
 $ gg infer custombinary 65 input1.txt output1.txt --arg=23 --inputfile=input2.txt --outputfile=output2.txt
-$ gg force o.txt
+$ gg force output1.txt
 ~~~
