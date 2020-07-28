@@ -66,6 +66,9 @@ CLIDescription::CLIDescription( const string & description )
     else if ( token == "@outfile" ) {
       outfile_args_.push_back( arg_ind++ );
     }
+    else if ( token == "@" ) {
+      arg_ind++;
+    }
     else {
       throw runtime_error( "unexpected token in description" );
     }
