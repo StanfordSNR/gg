@@ -157,7 +157,7 @@ $ gg force output1.txt
 model-generic currently supports only positional arguments and optional arguments. It doesn't support operators like |, >, <, etc.
 use `@infile` for any input file that is read, and `@outfile` for any output file that is written to. You can use @ for any argument that gg should ignore like numeric or string arguments.
 
-A sample wrapper file with all supported argument types:
+A sample wrapper file with all supported argument types by model-generic:
 ~~~
 #!/bin/bash
 model-generic "/path/to/custombinary @ @infile @outfile --arg=@ --inputfile=@infile --outputfile=@outfile" "$@"
