@@ -28,7 +28,7 @@ void generate_thunk( const CLIDescription & cli_description,
                      const int argc, char * argv[] )
 {
   vector<struct option> long_options;
-  string optstring;
+  string optstring = "-";
 
   for ( const CLIOption & cli_option : cli_description.options() ) {
     if ( cli_option.long_opt.initialized() ) {
@@ -50,10 +50,16 @@ void generate_thunk( const CLIDescription & cli_description,
                                                 roost::rbasename( cli_description.target_bin() ).string() );
   vector<ThunkFactory::Data> indata;
   vector<ThunkFactory::Output> outfiles;
+  vector<size_t> pos_args;
 
   int opt;
   while ( ( opt = getopt_long( argc, argv, optstring.c_str(), long_options.data(), NULL ) ) != -1 ) {
     if ( opt == '?' ) continue;
+
+    if ( opt == 1 ) {
+      pos_args.push_back( optind - 1 );
+      continue;
+    }
 
     for ( const CLIOption & option : cli_description.options() ) {
       if ( option.value == opt ) {
@@ -70,13 +76,21 @@ void generate_thunk( const CLIDescription & cli_description,
   }
 
   for ( const size_t idx : cli_description.infile_args() ) {
-    indata.emplace_back( "", argv[ optind + idx ] );
+    if ( idx >= pos_args.size() ) {
+      throw runtime_error( "missing positional argument" );
+    }
+
+    indata.emplace_back( "", argv[ pos_args[ idx ] ] );
     ThunkFactory::Data & this_indata = indata.back();
-    args[ ( optind + idx ) ] = thunk::data_placeholder( this_indata.hash() );
+    args[ pos_args[ idx ] ] = thunk::data_placeholder( this_indata.hash() );
   }
 
   for ( const size_t idx : cli_description.outfile_args() ) {
-    outfiles.emplace_back( argv[ optind + idx ] );
+    if ( idx >= pos_args.size() ) {
+      throw runtime_error( "missing positional argument" );
+    }
+
+    outfiles.emplace_back( args[ pos_args[ idx ] ] );
   }
 
   if ( outfiles.size() == 0 ) {
