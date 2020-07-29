@@ -162,3 +162,30 @@ A sample wrapper file with all supported argument types by model-generic:
 #!/bin/bash
 model-generic "/path/to/custombinary @ @infile @outfile --arg=@ --inputfile=@infile --outputfile=@outfile" "$@"
 ~~~
+
+### Using gg with your own Python script
+
+Once a python script is compiled to a single file binary, gg can be used in the same way described above. To compile a python script to a binary, a library like [Nuitka](http://nuitka.net/doc/user-manual.html) or Cython can be used. Pyinstaller has its quirks and so doesn't work with gg out of the box because it assumes that the current directory is the location of the executable. A way to use gg with pyinstaller is to create links to the files being referred to. For example, to run this command through gg:
+~~~
+$ gg infer pyinstallerbinary input.txt output.txt
+~~~
+the thunks will have to be created manually thus:
+~~~
+gg create-thunk \
+    --value $(gg hash input.txt) \
+    --output output.txt \
+    --executable $(gg hash argtest) \
+    --placeholder output.txt \
+    --link input.txt=$(gg hash input.txt) \
+    --link argtest=$(gg hash argtest) \
+    $(gg hash argtest)
+    argtest input.txt output.txt
+~~~
+To pass optional arguments to your command that gg should ignore, you need to tell it explicitly where the create-thunk options end and your arguments begin; this can be done by passing -- right before passing the positional arguments:
+~~~
+gg create-thunk \
+    --value $(gg hash input.txt) \
+    ...
+    --output output.txt \
+    -- $(gg hash binary) argtest input.txt output.txt --any-option-you-like test
+~~~
