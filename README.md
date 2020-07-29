@@ -165,7 +165,23 @@ model-generic "/path/to/custombinary @ @infile @outfile --arg=@ --inputfile=@inf
 
 ### Using gg with your own Python script
 
-Once a python script is compiled to a single file binary, gg can be used in the same way described above. To compile a python script to a binary, a library like [Nuitka](http://nuitka.net/doc/user-manual.html) or Cython can be used. Pyinstaller has its quirks and so doesn't work with gg out of the box because it assumes that the current directory is the location of the executable. A way to use gg with pyinstaller is to create links to the files being referred to. For example, to run this command through gg:
+Once a python script is compiled to a single file binary, gg can be used in the same way described above. To compile a python script to a binary, a library like [Nuitka](http://nuitka.net/doc/user-manual.html) or Cython can be used.
+
+Nuitka compilation:
+~~~
+$ python -m nuitka --follow-imports customscript.py -o singlefilebinary
+~~~
+Cython compilation:
+~~~
+$ cython customscript.py --embed
+$ gcc -Os -I /usr/include/python3.6m -o singlebinary /home/saurabh/.local/bin/customscript.c -lpython3.6m -lpthread -lm -lutil -ldl
+~~~
+
+Pyinstaller has its quirks and so doesn't work with gg out of the box because it assumes that the current directory is the location of the executable.
+~~~
+$ pyinstaller customscript.py --onefile --distpath .
+~~~
+A way to use gg with pyinstaller is to create links to the files being referred to. For example, to run this command through gg:
 ~~~
 $ gg infer pyinstallerbinary input.txt output.txt
 ~~~
