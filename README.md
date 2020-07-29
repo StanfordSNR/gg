@@ -137,7 +137,7 @@ custombinary: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamicall
 
 gg needs to be informed about the command syntax so that it can create thunks for the corresponding input and output files. This is done by adding a wrapper to `gg/src/models/wrappers/` corresponding to your command syntax. For example, if your command looks like
 ~~~
-./custombinary 65 input1.txt output1.txt --arg=23 --inputfile=input2.txt --outputfile=output2.txt
+./custombinary 65 input1.txt output1.txt --arg 23 --inputfile input2.txt --outputfile output2.txt
 ~~~
 You can add a file `gg/src/models/wrappers/custombinary` with the following content:
 ~~~
@@ -148,7 +148,7 @@ model-generic "/path/to/custombinary @ @infile @outfile --arg=@ --inputfile=@inf
 Then, gg will be able to understand your command which you can execute this way:
 ~~~
 $ gg init
-$ gg infer custombinary 65 input1.txt output1.txt --arg=23 --inputfile=input2.txt --outputfile=output2.txt
+$ gg infer custombinary 65 input1.txt output1.txt --arg 23 --inputfile input2.txt --outputfile output2.txt
 $ gg force output1.txt
 ~~~
 
