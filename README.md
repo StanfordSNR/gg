@@ -127,7 +127,7 @@ you can execute (it's important that `--jobs` comes before `--engine`):
 gg force --jobs 100 --engine lambda src/frontend/mosh-server
 ~~~
 
-### Adding a Custom Binary
+## Adding a Custom Binary
 
 Make sure that the binary you are using is a self-contained x86-64 Linux ELF executable or shared object.
 ~~~
