@@ -163,6 +163,10 @@ Thunk::Thunk( const gg::protobuf::Thunk & thunk_proto )
     links_.emplace_back( item.name(), item.target() );
   }
 
+  if ( thunk_proto.output_dir().size() ) {
+    set_ouput_dir( thunk_proto.output_dir() );
+  }
+
   throw_if_error();
 }
 
@@ -281,6 +285,10 @@ protobuf::Thunk Thunk::to_protobuf() const
     link.set_target( l.second );
   }
 
+  if ( output_dir_.initialized() ) {
+    thunk_proto.set_output_dir( output_dir_.get() );
+  }
+
   thunk_proto.set_timeout( timeout_.count() );
 
   return thunk_proto;
@@ -306,6 +314,12 @@ void Thunk::add_link( const string & name, const string & hash )
 {
   hash_.clear();
   links_.emplace_back( name, hash );
+}
+
+void Thunk::set_ouput_dir( const string & output_dir )
+{
+  hash_.clear();
+  output_dir_.initialize( output_dir );
 }
 
 string Thunk::hash() const

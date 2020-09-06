@@ -101,6 +101,7 @@ namespace gg {
       DataList executables_;
       std::vector<std::string> outputs_;
       std::vector<std::pair<std::string, std::string>> links_ {};
+      Optional<std::string> output_dir_ {};
       std::chrono::milliseconds timeout_ { 0 };
 
       mutable Optional<std::string> hash_ {};
@@ -142,10 +143,12 @@ namespace gg {
       const DataList & executables() const { return executables_; }
       const std::vector<std::string> & outputs() const { return outputs_; }
       const std::vector<std::pair<std::string, std::string>> & links() const { return links_; }
+      const Optional<std::string> & output_dir() const { return output_dir_; }
       const std::chrono::milliseconds & timeout() const { return timeout_; }
 
       void set_timeout( const std::chrono::milliseconds & timeout );
       void add_link( const std::string & name, const std::string & hash );
+      void set_ouput_dir( const std::string & output_dir );
 
       gg::protobuf::Thunk to_protobuf() const;
 

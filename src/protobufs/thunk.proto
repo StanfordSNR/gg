@@ -20,5 +20,6 @@ message Thunk {
   repeated string executables = 4;
   repeated string outputs = 5;
   repeated Link links = 7;
+  string output_dir = 8;
   uint32 timeout = 6;
 }

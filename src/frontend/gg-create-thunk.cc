@@ -23,6 +23,8 @@ void usage( const char * argv0 )
        << "\t[--thunk, -t <thunk[=name]>]..." << endl
        << "\t[--executable, -e <executable[=name]>]..." << endl
        << "\t[--output, -o <tag>]..." << endl
+       << "\t[--output-dir, -d <dirname>]..." << endl
+       << "\t[--output-path, -p <path>]..." << endl
        << "\t[--placeholder, -C <arg>]" << endl
        << "\t[--timeout, -T <arg (ms)>]" << endl
        << "\t[--link, -l <name>=<hash>]..." << endl
@@ -47,6 +49,8 @@ int main( int argc, char * argv[] )
       { "thunk",       required_argument, nullptr, 't' },
       { "executable",  required_argument, nullptr, 'e' },
       { "output",      required_argument, nullptr, 'o' },
+      { "output-dir",  required_argument, nullptr, 'd' },
+      { "output-path", required_argument, nullptr, 'p' },
       { "placeholder", required_argument, nullptr, 'C' },
       { "timeout",     required_argument, nullptr, 'T' },
       { "link",        required_argument, nullptr, 'L' },
@@ -55,6 +59,8 @@ int main( int argc, char * argv[] )
 
     string placeholder_path;
     string function_hash;
+    Optional<string> output_dir;
+    string output_path;
     vector<string> function_args;
     vector<string> function_envars;
     vector<Thunk::DataItem> values;
@@ -88,6 +94,14 @@ int main( int argc, char * argv[] )
 
       case 'o':
         outputs.emplace_back( optarg );
+        break;
+
+      case 'd':
+        output_dir.initialize(optarg);
+        break;
+
+      case 'p':
+        output_path = optarg;
         break;
 
       case 'C':
@@ -133,11 +147,15 @@ int main( int argc, char * argv[] )
 
     thunk.set_timeout( timeout );
 
+    if ( output_dir.initialized() ) {
+      thunk.set_ouput_dir( output_dir.get() );
+    };
+
     for ( auto & link : links ) {
       thunk.add_link( link.first, link.second );
     }
 
-    string thunk_hash = ThunkWriter::write( thunk );
+    string thunk_hash = ThunkWriter::write( thunk, output_path );
 
     if ( placeholder_path.size() ) {
       ThunkPlaceholder placeholder { thunk_hash };

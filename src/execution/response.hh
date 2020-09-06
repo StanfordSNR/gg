@@ -12,7 +12,12 @@
 #include "util/optional.hh"
 
 class FetchDependenciesError : public std::exception {};
-class ExecutionError : public std::exception {};
+class ExecutionError : public std::runtime_error
+{
+public:
+  ExecutionError( const std::string & msg ) : std::runtime_error(msg) {}
+  ExecutionError() : std::runtime_error("ExecutionError") {}
+};
 class UploadOutputError : public std::exception {};
 
 enum class JobStatus
