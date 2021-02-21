@@ -43,7 +43,7 @@ To build `gg` you need the following packages:
 - `libhiredis-dev`
 - `python3-boto3`
 
-You can install this dependencies in Ubuntu (17.04 or newer) by running:
+You can install these dependencies in Ubuntu (17.04 or newer) by running:
 
 ```
 sudo apt-get install gcc-7 g++-7 protobuf-compiler libprotobuf-dev \
