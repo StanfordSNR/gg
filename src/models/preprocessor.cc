@@ -108,10 +108,10 @@ GCCModelGenerator::generate_dependencies_file( const OperationMode op_mode,
 
   if ( gcc_binary.length() == 0 ) {
     if ( op_mode == OperationMode::GCC ) {
-      args.push_back( "gcc-7" );
+      args.push_back( "gcc-11" );
     }
     else {
-      args.push_back( "g++-7" );
+      args.push_back( "g++-11" );
     }
   }
   else {

@@ -26,7 +26,7 @@ def get_include_path(language='c'):
     if language == 'c++':
         lang_switch = '-x c++ '
 
-    command = "gcc-7 -E -Wp,-v {}- < /dev/null >/dev/null".format(lang_switch)
+    command = "gcc-11 -E -Wp,-v {}- < /dev/null >/dev/null".format(lang_switch)
     output = sub.check_output(command, stderr=sub.STDOUT, shell=True, encoding='UTF-8')
 
     include_dirs = []
@@ -46,7 +46,7 @@ def get_include_path(language='c'):
     return include_dirs
 
 def get_library_path():
-    command = "gcc-7 -Wl,--verbose 2>/dev/null || exit 0"
+    command = "gcc-11 -Wl,--verbose 2>/dev/null || exit 0"
     output = sub.check_output(command, shell=True, encoding='UTF-8')
 
     library_dirs = []
@@ -57,7 +57,7 @@ def get_library_path():
     return library_dirs
 
 def get_gcc_envars():
-    command = "gcc-7 -print-search-dirs"
+    command = "gcc-11 -print-search-dirs"
     output = sub.check_output(command, shell=True, encoding='UTF-8')
 
     INSTALL_PREFIX = ("install: ", "INSTALL_PATH")

@@ -85,7 +85,7 @@ string Blueprints::get( const roost::path & path ) const
 
 void dump_gcc_specs( TempFile & target_file )
 {
-  target_file.write( run( "gcc-7", { "gcc-7", "-dumpspecs" },
+  target_file.write( run( "gcc-11", { "gcc-11", "-dumpspecs" },
                                    {}, true, true, true ) );
 }
 
@@ -158,7 +158,7 @@ string GCCModelGenerator::do_preprocessing( const InputFile & input )
     ), args.end()
   );
 
-  args.insert( args.begin(), ( operation_mode_ == OperationMode::GCC ) ? "gcc-7" : "g++-7" );
+  args.insert( args.begin(), ( operation_mode_ == OperationMode::GCC ) ? "gcc-11" : "g++-11" );
   args.push_back( "-E" );
 
   args.push_back( "-frandom-seed=" + BEGIN_REPLACE
