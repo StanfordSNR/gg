@@ -20,7 +20,7 @@ bin_PROGRAMS = gg gg-trace gg-describe gg-force-and-run gg-force gg-mock \
                gg-execute gg-infer gg-thunksummary gg-s3-upload \
                gg-s3-download gg-init gg-hash gg-create-thunk gg-collect \
                gg-put gg-get gg-execute-server gg-meow-worker gg-object-server \
-               lambda-invoker prune-file splice-lines gg-repl
+               lambda-invoker prune-file splice-lines gg-repl gg-generate-graph
 
 dist_bin_SCRIPTS = gg-create-blueprints gg-collect-dir gg-build-infer
 
@@ -39,6 +39,9 @@ gg_describe_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_thunksummary_SOURCES = gg-thunksummary.cc
 gg_thunksummary_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+
+gg_generate_graph_SOURCES = gg-generate-graph.cc
+gg_generate_graph_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_force_and_run_SOURCES = gg-force-and-run.cc
 gg_force_and_run_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
