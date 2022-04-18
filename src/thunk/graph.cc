@@ -77,6 +77,7 @@ void ExecutionGraph::update_hash( const string & old_hash,
     if ( original_hashes_.count( old_hash ) == 0 ) {
       original_hashes_[ new_hash ] = old_hash;
       updated_hashes_[ old_hash ] = new_hash;
+      gg::cache::insert( old_hash, new_hash );
     }
     else {
       original_hashes_[ new_hash ] = original_hashes_[ old_hash ];
