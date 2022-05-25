@@ -20,7 +20,7 @@ printf "4. Run video processing jobs\n"
 gg force --jobs=$JOBS_COUNT --engine=lambda *.ivf
 
 printf "5. Build output.avi\n"
-ls *-vpxenc.ivf | while read each; do echo "file '$each'" >> mylist.txt; done
+ls *.ivf | grep -E '^[0-9]+\.ivf$' | while read each; do echo "file '$each'" >> mylist.txt; done
 ffmpeg -f concat -i mylist.txt -codec copy output.avi
 
 printf "6. Result:\n"
