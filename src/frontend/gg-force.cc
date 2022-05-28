@@ -23,6 +23,7 @@
 #include "execution/engine_gg.hh"
 #include "execution/engine_meow.hh"
 #include "execution/engine_gcloud.hh"
+#include "execution/engine_vhive.hh"
 #include "tui/status_bar.hh"
 #include "util/digest.hh"
 #include "util/exception.hh"
@@ -58,6 +59,7 @@ void usage( const char * argv0 )
        << "  - remote  Executes the jobs on a remote machine" << endl
        << "  - meow    Executes the jobs on AWS Lambda with long-running workers" << endl
        << "  - gcloud  Executes the jobs on Google Cloud Functions" << endl
+       << "  - vhive   Executes the jobs on VHive Server" << endl
        << endl
        << "Environment variables:" << endl
        << "  - " << FORCE_NO_STATUS << endl
@@ -100,7 +102,6 @@ unique_ptr<ExecutionEngine> make_execution_engine( const EngineInfo & engine )
   const string & engine_name = get<0>( engine );
   const string & engine_params = get<1>( engine );
   const size_t max_jobs = get<2>( engine );
-
   if ( engine_name == "local" ) {
     const bool mixed = (engine_params == "mixed");
     return make_unique<LocalExecutionEngine>( mixed, max_jobs );
@@ -143,6 +144,10 @@ unique_ptr<ExecutionEngine> make_execution_engine( const EngineInfo & engine )
   else if ( engine_name == "gcloud" ) {
     return make_unique<GCFExecutionEngine>( max_jobs,
       safe_getenv("GG_GCLOUD_FUNCTION") );
+  }
+  else if ( engine_name == "vhive" ) {
+    string url = engine_params;
+    return make_unique<VHiveExecutionEngine>( max_jobs, url );
   }
   else {
     throw runtime_error( "unknown execution engine" );
