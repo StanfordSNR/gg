@@ -12,8 +12,6 @@
 #include <regex>
 #include <chrono>
 #include <sys/types.h>
-#include <crypto++/base64.h>
-#include <crypto++/files.h>
 
 #include "protobufs/thunk.pb.h"
 #include "protobufs/gg.pb.h"

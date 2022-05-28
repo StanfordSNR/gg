@@ -17,7 +17,6 @@
 #include "util/file_descriptor.hh"
 #include "util/optional.hh"
 #include "util/path.hh"
-#include "util/tokenize.hh"
 
 using namespace std;
 using namespace std::chrono;

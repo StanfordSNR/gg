@@ -3,7 +3,6 @@
 #include "digest.hh"
 
 #include <crypto++/sha.h>
-#include <crypto++/hex.h>
 #include <crypto++/base64.h>
 
 using namespace CryptoPP;

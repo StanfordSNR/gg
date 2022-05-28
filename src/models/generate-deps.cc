@@ -1,7 +1,8 @@
 /* -*-mode:c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-#include <iostream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 
 #include "gcc.hh"
 #include "timeouts.hh"

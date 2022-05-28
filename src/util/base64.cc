@@ -2,8 +2,6 @@
 
 #include "base64.hh"
 
-#include <crypto++/sha.h>
-#include <crypto++/hex.h>
 #include <crypto++/base64.h>
 
 using namespace CryptoPP;
@@ -11,7 +9,6 @@ using namespace std;
 
 string base64::encode( const string & input )
 {
-  SHA256 hash_function;
   string ret;
 
   /* Each stage of the Crypto++ pipeline will delete the pointer it owns
@@ -25,7 +22,6 @@ string base64::encode( const string & input )
 
 string base64::decode( const string & input )
 {
-  SHA256 hash_function;
   string ret;
 
   /* Each stage of the Crypto++ pipeline will delete the pointer it owns
