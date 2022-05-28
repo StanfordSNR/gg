@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1beccc6..e073075 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -40,7 +40,7 @@ IF(WIN32)
+     ADD_COMPILE_DEFINITIONS(_CRT_SECURE_NO_WARNINGS WIN32_LEAN_AND_MEAN)
+ ENDIF()
+ 
+-ADD_LIBRARY(hiredis SHARED ${hiredis_sources})
++ADD_LIBRARY(hiredis ${hiredis_sources})
+ 
+ SET_TARGET_PROPERTIES(hiredis
+     PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE
