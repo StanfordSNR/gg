@@ -16,7 +16,9 @@ gg-s3-download
 gg-s3-download-static
 gg-init
 gg-hash
+gg-hash-static
 gg-create-thunk
+gg-create-thunk-static
 gg-collect
 gg-put
 gg-get

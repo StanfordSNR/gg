@@ -12,7 +12,7 @@ private:
   std::vector<char> mutable_temp_dirname_;
 
 protected:
-  bool moved_away_;
+  bool owns_dir_;
 
 public:
   UniqueDirectory( const std::string & dirname_template );
@@ -41,6 +41,10 @@ public:
   TempDirectory( TempDirectory && other ) : UniqueDirectory( std::move( other ) ) {}
 
   ~TempDirectory();
+
+  // Remove the directory.
+  // Throws a unix_error if non-empty
+  void remove();
 };
 
 #endif /* TEMP_DIR_HH */

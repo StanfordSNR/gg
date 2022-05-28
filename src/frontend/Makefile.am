@@ -25,7 +25,8 @@ bin_PROGRAMS = gg gg-trace gg-describe gg-force-and-run gg-force gg-mock \
 dist_bin_SCRIPTS = gg-create-blueprints gg-collect-dir gg-build-infer
 
 if BUILD_STATIC_BINS
-  bin_PROGRAMS += gg-execute-static gg-meow-worker-static
+  bin_PROGRAMS += gg-execute-static gg-meow-worker-static \
+               gg-hash-static gg-create-thunk-static
 endif
 
 gg_SOURCES = gg.cc
@@ -65,11 +66,20 @@ gg_init_LDADD = $(BASE_LDADD)
 gg_hash_SOURCES = gg-hash.cc
 gg_hash_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
+gg_hash_static_SOURCES = gg-hash.cc
+gg_hash_static_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+gg_hash_static_LDFLAGS = -static -s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+
 gg_collect_SOURCES = gg-collect.cc
 gg_collect_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
 
 gg_create_thunk_SOURCES = gg-create-thunk.cc
 gg_create_thunk_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS)
+
+# I do not know why we need libggnet.a here.
+gg_create_thunk_static_SOURCES = gg-create-thunk.cc
+gg_create_thunk_static_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS) -ldl
+gg_create_thunk_static_LDFLAGS = -static -Wl,--whole-archive ../net/libggnet.a -Wl,--no-whole-archive
 
 gg_s3_upload_SOURCES = gg-s3-upload.cc
 gg_s3_upload_LDADD = $(BASE_LDADD) $(CRYPTO_LIBS) $(SSL_LIBS)
