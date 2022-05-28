@@ -126,3 +126,82 @@ you can execute (it's important that `--jobs` comes before `--engine`):
 ~~~
 gg force --jobs 100 --engine lambda src/frontend/mosh-server
 ~~~
+
+## Adding a Custom Binary
+
+Make sure that the binary you are using is a self-contained x86-64 Linux ELF executable or shared object.
+~~~
+$ file custombinary
+custombinary: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=884d9f49a5af3f06df13203d71a980a53de6437a, stripped
+~~~
+
+gg needs to be informed about the command syntax so that it can create thunks for the corresponding input and output files. This is done by adding a wrapper to `gg/src/models/wrappers/` corresponding to your command syntax. For example, if your command looks like
+~~~
+./custombinary 65 input1.txt output1.txt --flag --arg 23 --inputfile input2.txt --outputfile output2.txt
+~~~
+You can add a file `gg/src/models/wrappers/custombinary` with the following content:
+~~~
+#!/bin/bash
+model-generic "/path/to/custombinary @ @infile @outfile --arg=@ --inputfile=@infile --outputfile=@outfile" "$@"
+~~~
+
+Then, gg will be able to understand your command which you can execute this way:
+~~~
+$ gg init
+$ gg infer custombinary 65 input1.txt output1.txt --flag --arg 23 --inputfile input2.txt --outputfile output2.txt
+$ gg force output1.txt
+~~~
+
+### Syntax for wrapper files
+
+model-generic currently supports only positional arguments and optional arguments. It doesn't support operators like |, >, <, etc.
+use `@infile` for any input file that is read, and `@outfile` for any output file that is written to. You can use @ for any argument that gg should ignore like numeric or string arguments. Boolean flags (`--flag`) should be excluded from the wrapper.
+
+A sample wrapper file with all supported argument types by model-generic:
+~~~
+#!/bin/bash
+model-generic "/path/to/custombinary @ @infile @outfile --arg=@ --inputfile=@infile --outputfile=@outfile" "$@"
+~~~
+
+### Using gg with your own Python script
+
+Once a python script is compiled to a single file binary, gg can be used in the same way described above. To compile a python script to a binary, a library like [Nuitka](http://nuitka.net/doc/user-manual.html) or Cython can be used.
+
+Nuitka compilation:
+~~~
+$ python -m nuitka --follow-imports customscript.py -o singlefilebinary
+~~~
+Cython compilation:
+~~~
+$ cython customscript.py --embed
+$ gcc -Os -I /usr/include/python3.6m -o singlebinary /home/saurabh/.local/bin/customscript.c -lpython3.6m -lpthread -lm -lutil -ldl
+~~~
+
+Pyinstaller has its quirks and so doesn't work with gg out of the box because it assumes that the current directory is the location of the executable.
+~~~
+$ pyinstaller customscript.py --onefile --distpath .
+~~~
+A way to use gg with pyinstaller is to create links to the files being referred to. For example, to run this command through gg:
+~~~
+$ gg infer pyinstallerbinary input.txt output.txt
+~~~
+the thunks will have to be created manually thus:
+~~~
+gg create-thunk \
+    --value $(gg hash input.txt) \
+    --output output.txt \
+    --executable $(gg hash argtest) \
+    --placeholder output.txt \
+    --link input.txt=$(gg hash input.txt) \
+    --link argtest=$(gg hash argtest) \
+    $(gg hash argtest)
+    argtest input.txt output.txt
+~~~
+To pass optional arguments to your command that gg should ignore, you need to tell it explicitly where the create-thunk options end and your arguments begin; this can be done by passing -- right before passing the positional arguments:
+~~~
+gg create-thunk \
+    --value $(gg hash input.txt) \
+    ...
+    --output output.txt \
+    -- $(gg hash binary) argtest input.txt output.txt --any-option-you-like test
+~~~
