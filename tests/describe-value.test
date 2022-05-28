@@ -1,0 +1,20 @@
+#!/bin/bash -xe
+
+cd ${TEST_TMPDIR}
+
+export PATH=${abs_builddir}/../src/models:${abs_builddir}/../src/frontend:$PATH
+
+gg-init
+
+echo Hi > a.txt
+
+gg-collect a.txt
+
+hash=$(gg-hash a.txt)
+
+for i in $(seq 1 "${#hash}"); do
+
+    diff a.txt <(gg-describe $(echo $hash | cut "-c1-${i}"))
+
+done
+
