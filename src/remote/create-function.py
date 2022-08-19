@@ -88,7 +88,7 @@ def install_lambda_package(package_file, function_name, role, region, delete=Fal
 
     response = client.create_function(
         FunctionName=function_name,
-        Runtime='python3.6',
+        Runtime='python3.7',
         Role=role,
         Handler='main.handler',
         Code={
