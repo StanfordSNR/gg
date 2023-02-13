@@ -51,20 +51,6 @@ AC_TYPE_UINT16_T
 
 abs_srcdir=$(readlink -f $srcdir)
 
-# gg-toolchain path
-AC_ARG_VAR([TOOLCHAIN_PATH], [Path to gg toolchain.])
-AS_IF([test "x$TOOLCHAIN_PATH" = x], [TOOLCHAIN_PATH="$abs_srcdir/toolchain/bin"])
-AC_CHECK_FILE($TOOLCHAIN_PATH/gcc, [], [AC_MSG_ERROR([Could not find gcc in toolchain dir.])])
-AC_CHECK_FILE($TOOLCHAIN_PATH/cc1, [], [AC_MSG_ERROR([Could not find cc1 in toolchain dir.])])
-AC_CHECK_FILE($TOOLCHAIN_PATH/as, [], [AC_MSG_ERROR([Could not find as in toolchain dir.])])
-AC_CHECK_FILE($TOOLCHAIN_PATH/g++, [], [AC_MSG_ERROR([Could not find g++ in toolchain dir.])])
-AC_CHECK_FILE($TOOLCHAIN_PATH/cc1plus, [], [AC_MSG_ERROR([Could not find cc1plus in toolchain dir.])])
-AC_CHECK_FILE($TOOLCHAIN_PATH/collect2, [], [AC_MSG_ERROR([Could not find collect2 in toolchain dir.])])
-AC_CHECK_FILE($TOOLCHAIN_PATH/ld, [], [AC_MSG_ERROR([Could not find ld in toolchain dir.])])
-AC_CHECK_FILE($TOOLCHAIN_PATH/strip, [], [AC_MSG_ERROR([Could not find strip in toolchain dir.])])
-AC_CHECK_FILE($TOOLCHAIN_PATH/ar, [], [AC_MSG_ERROR([Could not find ar in toolchain dir.])])
-AC_CHECK_FILE($TOOLCHAIN_PATH/ranlib, [], [AC_MSG_ERROR([Could not find ranlib in toolchain dir.])])
-
 # Used for loading the correct syscall table
 OS="$(uname | tr '[[:upper:]]' '[[:lower:]]')"
 ARCH="$(uname -m)"
@@ -89,7 +75,6 @@ AC_CONFIG_FILES([Makefile
                  examples/Makefile
                  examples/fibonacci/Makefile
                  examples/gtest/Makefile
-                 examples/viddec/Makefile
                  tests/Makefile])
 
 AC_OUTPUT

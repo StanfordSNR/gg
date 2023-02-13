@@ -1,7 +1,4 @@
-# gg [![Build Status](https://travis-ci.org/StanfordSNR/gg.svg?branch=master)](https://travis-ci.org/StanfordSNR/gg)
-
-[![xkcd.com/303/](https://s3-us-west-2.amazonaws.com/stanfordsnr/gg-xkcd.jpg)](https://xkcd.com/303/)
-
+# gg (bare-bone version)
 
 ## Research Paper
 
@@ -21,8 +18,6 @@ Building FFmpeg with `gg` on AWS Lambda
 
 
 ## Build directions
-
-**Notice: If you are Docker adept, follow [this instruction](https://github.com/StanfordSNR/gg/blob/master/docker/README.md).**
 
 To build `gg` you need the following packages:
 
@@ -46,7 +41,7 @@ To build `gg` you need the following packages:
 You can install these dependencies in Ubuntu (17.04 or newer) by running:
 
 ```
-sudo apt-get install gcc-7 g++-7 protobuf-compiler libprotobuf-dev \
+sudo apt-get install gcc g++ protobuf-compiler libprotobuf-dev \
                      libcrypto++-dev libcap-dev \
                      libncurses5-dev libboost-dev libssl-dev autopoint help2man \
                      libhiredis-dev texinfo automake libtool pkg-config python3-boto3
@@ -86,43 +81,4 @@ AWS Lambda. To do so:
 ~~~
 cd src/remote/
 make ggfunctions
-~~~
-
-### Example
-
-To build [`mosh`](https://github.com/mobile-shell/mosh) using `gg`, first we
-checkout the mosh source code:
-
-~~~
-git clone https://github.com/mobile-shell/mosh
-~~~
-
-Make sure that you have all the dependencies for building `mosh`. In Ubuntu,
-you can run:
-
-~~~
-sudo apt-get install -y automake libtool g++ protobuf-compiler libprotobuf-dev \
-                        libboost-dev libutempter-dev libncurses5-dev \
-                        zlib1g-dev libio-pty-perl libssl-dev pkg-config
-~~~
-
-Inside the `mosh` directory, first you need to prepare `mosh` to build:
-
-~~~
-./autogen.sh
-./configure
-~~~
-
-Then,
-
-~~~
-gg init # creates .gg directory
-gg infer make -j$(nproc) # creates the thunks
-~~~
-
-Now, to actually compile `mosh-server` on AWS Lambda with 100-way parallelism,
-you can execute (it's important that `--jobs` comes before `--engine`):
-
-~~~
-gg force --jobs 100 --engine lambda src/frontend/mosh-server
 ~~~

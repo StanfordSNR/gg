@@ -24,13 +24,7 @@ AM_TESTS_ENVIRONMENT = \
   unset GG_REMOTE;
 
 check_PROGRAMS = thunk-roundtrip sandbox-test path-test
-dist_check_SCRIPTS = fetch-vectors.test \
-                     model-preprocess.test \
-                     model-compile.test model-assemble.test model-link.test \
-                     model-ar.test model-ranlib.test model-strip.test \
-                     model-ld.test gnu-hello.test mosh.test \
-                     mosh-fewer-thunks.test fibonacci.test \
-                     sdk.test cleanup.test
+dist_check_SCRIPTS = fibonacci.test cleanup.test
 
 thunk_roundtrip_SOURCES = thunk-roundtrip.cc
 sandbox_test_SOURCES = sandbox-test.cc
@@ -38,22 +32,7 @@ path_test_SOURCES = path-test.cc
 
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
-model-preprocess.log: fetch-vectors.log
-model-compile.log: fetch-vectors.log
-model-assemble.log: fetch-vectors.log
-model-link.log: fetch-vectors.log
-model-ar.log: fetch-vectors.log
-model-ranlib.log: fetch-vectors.log
-model-strip.log: fetch-vectors.log
-model-ld.log: fetch-vectors.log
-gnu-hello.log: fetch-vectors.log
-mosh.log: fetch-vectors.log
-mosh-fewer-thunks.log: fetch-vectors.log
-
-cleanup.log: model-preprocess.log \
-             model-compile.log model-assemble.log model-link.log model-ar.log \
-             model-ranlib.log model-strip.log model-ld.log gnu-hello.log \
-             mosh.log mosh-fewer-thunks.log fibonacci.log sdk.log
+cleanup.log: fibonacci.log
 
 clean-local:
 	-rm -rf $(abs_builddir)/test_temp

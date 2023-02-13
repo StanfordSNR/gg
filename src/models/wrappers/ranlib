@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# According to http://pubs.opengroup.org/onlinepubs/7908799/xcu/ar.html:
-# "Whenever the ar utility is used to create or update the contents of such an
-# archive, the symbol table is rebuilt."
-# So, model-ranlib does nothing.
-# model-ranlib "$@"

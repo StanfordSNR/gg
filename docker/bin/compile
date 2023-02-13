@@ -1,7 +1,0 @@
-#!/bin/bash -e
-# compile gg
-./fetch-submodules.sh
-./autogen.sh
-./configure
-make -j$(nproc)
-make install

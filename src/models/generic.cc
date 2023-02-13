@@ -11,8 +11,6 @@
 #include "util/path.hh"
 #include "util/util.hh"
 
-#include "toolchain.hh"
-
 using namespace std;
 using namespace gg;
 using namespace gg::thunk;

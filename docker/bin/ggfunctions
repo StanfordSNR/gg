@@ -1,4 +1,0 @@
-#!/bin/bash -e
-# init serverless functions
-cd ./src/remote/
-make ggfunctions
