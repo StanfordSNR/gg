@@ -60,7 +60,7 @@ bool SandboxedProcess::file_syscall_entry( const SystemCallInvocation & syscall 
 {
   assert( syscall.arguments().initialized() );
 
-  for ( const Argument arg : *syscall.arguments() ) {
+  for ( const Argument &arg : *syscall.arguments() ) {
     if ( arg.info().flags & ARGUMENT_F_PATHNAME ) { /* it's a path argument */
       const string pathname = arg.value<string>();
       if ( not get_permissions( pathname ).initialized() ) {
